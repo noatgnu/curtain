@@ -12,8 +12,10 @@ import {DataService} from "../../service/data.service";
 })
 export class ScatterPlotComponent implements OnInit {
   graphData: any[] = []
-  graphLayout: any = {title:"Volcano Plot", height: 1000, xaxis: {title: "Log2FC"}, yaxis: {title: "-log10(p-value)"}, annotations: []
-    //xaxis:{"tickangle": 90}
+  graphLayout: any = {title:"Volcano Plot", height: 1000, xaxis: {title: "Log2FC"}, yaxis: {title: "-log10(p-value)"}, annotations: [],
+    showlegend: true, legend: {
+      orientation: 'h'
+    }
   }
   pCutOff: number = 0.00001
   log2FCCutoff: number = 2
@@ -21,6 +23,7 @@ export class ScatterPlotComponent implements OnInit {
   upSelected: any[] = []
   downSelected: any[] = []
   @Input() set data(value:DrawPack) {
+    this.graphLayout.annotations = []
     this._data = value.df
     this.pCutOff = value.pCutOff
     this.log2FCCutoff = value.logFCCutoff

@@ -5,10 +5,11 @@
   [rowHeight]="50"
   [headerHeight]="30"
   [footerHeight]="110"
-  [limit]="20"
   [selectionType]="selection"
   [selected]="selected"
+  [sortType]="sortType"
   (select)="handleSelect($event)"
+  [limit]="20"
   #mydatatable
 >
   <ngx-datatable-column
@@ -16,6 +17,7 @@
     [draggable]="true"
     [sortable]="false"
     name="Proteins"
+    [canAutoResize]="true"
   >
     <ng-template ngx-datatable-cell-template let-row="row">
       {{row.Proteins}}
@@ -26,6 +28,7 @@
     [draggable]="true"
     [sortable]="false"
     name="Gene names"
+    [canAutoResize]="true"
   >
     <ng-template ngx-datatable-cell-template let-row="row">
       {{getGene(row.Proteins)}}
@@ -36,6 +39,7 @@
     [draggable]="true"
     [sortable]="false"
     name="Log2FC"
+    [canAutoResize]="true"
   >
     <ng-template ngx-datatable-cell-template let-row="row">
       {{row.logFC.toFixed(2)}}
@@ -46,6 +50,7 @@
     [draggable]="true"
     [sortable]="false"
     name="P-value"
+    [canAutoResize]="true"
   >
     <ng-template ngx-datatable-cell-template let-row="row">
       {{row.pvalue.toFixed(4)}}

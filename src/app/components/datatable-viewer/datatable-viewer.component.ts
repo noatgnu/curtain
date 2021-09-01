@@ -1,7 +1,7 @@
-import {AfterViewInit, ChangeDetectorRef, Component, Input, NgZone, OnInit, ViewChild} from '@angular/core';
-import {DataFrame, IDataFrame, Series} from "data-forge";
+import {AfterViewInit, ChangeDetectorRef, Component, Input, OnInit, ViewChild} from '@angular/core';
+import {DataFrame, IDataFrame} from "data-forge";
 import {UniprotService} from "../../service/uniprot.service";
-import {SelectionType} from "@swimlane/ngx-datatable";
+import {SelectionType, SortType} from "@swimlane/ngx-datatable";
 import {DataService} from "../../service/data.service";
 
 @Component({
@@ -15,6 +15,7 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
   selected: any[] = []
   selection: SelectionType;
   rows: any[] = []
+  sortType: SortType
   @Input() tableType: string = ""
   @Input() set data(value: IDataFrame) {
     this._data = value.resetIndex().bake()
@@ -34,19 +35,29 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
 
   uniprotMap = new Map<string, any>()
   constructor(private uniprot: UniprotService, private dataService: DataService, private cd: ChangeDetectorRef) {
+    this.sortType = SortType.single
     this.uniprotMap = uniprot.results
     this.selection = SelectionType.multiClick
     this.dataService.dataPointClickService.asObservable().subscribe(data => {
       if (data !== "") {
-        const r = this.data.where(row => row["Proteins"] === data).bake().toPairs()
-        console.log(r)
-        if (r.length > 0) {
-          if (!(this.mydatatable.selected).includes(data)) {
-            this.mydatatable.selected.push(r[0][1])
+        let identical = false
+        for (const s of this.mydatatable.selected) {
+          if (s.Proteins === data) {
+            identical = true
+            break
           }
-          this.rows = [...this.rows]
-          this.mydatatable.offset = Math.floor(r[0][0]/20)
         }
+        if (!identical) {
+          const r = this.data.where(row => row["Proteins"] === data).bake().toPairs()
+
+          if (r.length > 0) {
+            this.mydatatable.selected.push(r[0][1])
+            this.mydatatable.offset = Math.floor(r[0][0]/this.mydatatable.pageSize)
+            console.log(this.mydatatable)
+            this.rows = [...this.rows]
+          }
+        }
+
       }
     })
 
