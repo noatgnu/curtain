@@ -11,6 +11,7 @@ export class DataService {
   dataPointClickService: BehaviorSubject<string> = new BehaviorSubject<string>("")
   tableSelect: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([])
   annotationSelect: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([])
+  searchService: BehaviorSubject<any> = new BehaviorSubject<any>(null)
   annotations: any[] = []
   upRegSelected: string[] = []
   downRegSelected: string[] = []

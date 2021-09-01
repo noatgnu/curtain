@@ -1,14 +1,41 @@
 <div class="form-group">
   <div class="form-row">
-    <div class="col-3">
+    <div class="col-2">
       <label for="significantCutoff">Significant Cut-off</label>
       <input type="number" class="form-control" id="significantCutoff" [(ngModel)]="pCutOff" (focusout)="changeInput($event)">
     </div>
-    <div class="col-3">
+    <div class="col-2">
       <label for="log2Cutoff">Log2FC Cut-off</label>
       <input type="number" class="form-control" id="log2Cutoff" [(ngModel)]="logFCCutoff" (focusout)="changeInput($event)">
     </div>
+    <div class="col-4">
+      <label for="searchProteinOrGene">Search</label>
+      <div class="form-row">
+        <div class="col-4">
+          <select class="form-control" [(ngModel)]="searchType">
+            <option>
+              Gene names
+            </option>
+            <option>
+              Proteins
+            </option>
+          </select>
+        </div>
+        <div class="col-4">
+          <input id="searchProteinOrGene" type="text" class="form-control" [(ngModel)]="tableFilterModel" placeholder="Search" [ngbTypeahead]="search">
+        </div>
+        <div class="col-4">
+          <button class="btn btn-primary" (click)="findInData($event)">Find in data</button>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="col-2">
+
+    </div>
   </div>
+
 </div>
 <div class="row">
 
@@ -17,12 +44,16 @@
     <app-scatter-plot [data]="drawPack"></app-scatter-plot>
   </div>
   <div class="col-3">
+    <h5>Up regulated protein</h5>
     <div class="card" *ngIf="upRegulated.count() > 0">
+
       <app-datatable-viewer [tableType]="'up'" [data]="upRegulated"></app-datatable-viewer>
     </div>
   </div>
   <div class="col-3">
+    <h5>Down regulated protein</h5>
     <div class="card" *ngIf="downRegulated.count() > 0">
+
       <app-datatable-viewer [data]="downRegulated"></app-datatable-viewer>
     </div>
   </div>
