@@ -1,0 +1,30 @@
+<div class="form-group">
+  <div class="form-row">
+    <div class="col-3">
+      <label for="significantCutoff">Significant Cut-off</label>
+      <input type="number" class="form-control" id="significantCutoff" [(ngModel)]="pCutOff" (focusout)="changeInput($event)">
+    </div>
+    <div class="col-3">
+      <label for="log2Cutoff">Log2FC Cut-off</label>
+      <input type="number" class="form-control" id="log2Cutoff" [(ngModel)]="logFCCutoff" (focusout)="changeInput($event)">
+    </div>
+  </div>
+</div>
+<div class="row">
+
+  <div class="col-6">
+
+    <app-scatter-plot [data]="drawPack"></app-scatter-plot>
+  </div>
+  <div class="col-3">
+    <div class="card" *ngIf="upRegulated.count() > 0">
+      <app-datatable-viewer [tableType]="'up'" [data]="upRegulated"></app-datatable-viewer>
+    </div>
+  </div>
+  <div class="col-3">
+    <div class="card" *ngIf="downRegulated.count() > 0">
+      <app-datatable-viewer [data]="downRegulated"></app-datatable-viewer>
+    </div>
+  </div>
+</div>
+

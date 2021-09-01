@@ -1,0 +1,12 @@
+
+
+<plotly-plot divId="scatterplot"
+             [data]="graphData"
+             [layout]="graphLayout"
+             [config]="{responsive:true}"
+             [updateOnDataChange]="true"
+             [updateOnLayoutChange]="true" (plotlyClick)="selectData($event)" (update)="plotUpdated($event)"></plotly-plot>
+
+<div class="container mx-auto">
+  <button class="btn btn-sm btn-primary" (click)="downloadPlotlyExtra('svg')">Download SVG</button>
+</div>

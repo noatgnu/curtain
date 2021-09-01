@@ -1,0 +1,111 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-10">
+      <div class="form-group">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="label-input-file">Differential Proccesed Input File:</span>
+          </div>
+          <div class="custom-file">
+            <input type="file" class="custom-file-input" aria-label="input-file" aria-describedby="label-input-file" (change)="handleFile($event, false)">
+            <label class="custom-file-label" for="label-input-file">{{fileName||'Select File'}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-2">
+      <button class="btn btn-primary" (click)="loadTest()">Load test data</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-10">
+      <div class="form-group">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="label-raw-input-file">Raw Input File:</span>
+          </div>
+          <div class="custom-file">
+            <input type="file" class="custom-file-input" aria-label="input-file" aria-describedby="label-input-file" (change)="handleFile($event, true)">
+            <label class="custom-file-label" for="label-raw-input-file">{{fileName||'Select File'}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-2" *ngIf="processed.count()">
+  <div class="card-body">
+    <h5 class="card-title">Processed File Parameters</h5>
+    <div class="form-group">
+      <div class="form-row">
+        <div class="col-4">
+          <label for="accSelection">Select column with accession IDs</label>
+          <select class="form-control" id="accSelection" [(ngModel)]="graphData.processedIdentifierCol">
+            <option *ngFor="let o of processed.getColumnNames()">
+              {{o}}
+            </option>
+          </select>
+        </div>
+        <div class="col-4">
+          <label for="changeSelection">Select column with log2 fold change</label>
+          <select class="form-control" id="changeSelection" [(ngModel)]="graphData.processedLog2FC">
+            <option *ngFor="let o of processed.getColumnNames()">
+              {{o}}
+            </option>
+          </select>
+        </div>
+        <div class="col-4">
+          <label for="pvalueSelection">Select column with p-value</label>
+          <select class="form-control" id="pvalueSelection" [(ngModel)]="graphData.processedPValue">
+            <option *ngFor="let o of processed.getColumnNames()">
+              {{o}}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col-4">
+        <label for="comparisonLabelSelection">Select column with comparison label</label>
+        <select class="form-control" id="comparisonLabelSelection" [(ngModel)]="graphData.processedCompLabel">
+          <option *ngFor="let o of processed.getColumnNames()">
+            {{o}}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-2" *ngIf="raw.count()">
+  <div class="card-body">
+    <h5 class="card-title">Raw File Parameters</h5>
+    <div class="form-group">
+      <div class="form-row">
+        <div class="col-4">
+          <label for="accSelection">Select column with accession IDs</label>
+          <select class="form-control" id="accRawSelection" [(ngModel)]="graphData.rawIdentifierCol">
+            <option *ngFor="let o of raw.getColumnNames()">
+              {{o}}
+            </option>
+          </select>
+        </div>
+        <div class="col-4">
+          <label for="changeSelection">Select column with samples</label>
+          <select multiple class="form-control" id="samplesSelection" [(ngModel)]="graphData.rawSamplesCol">
+            <option *ngFor="let o of raw.getColumnNames()">
+              {{o}}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="card-footer">
+    <button class="btn btn-primary" (click)="getUniprot($event)">Fetch UniProt Data From Accession IDs</button>
+  </div>
+</div>
+
+

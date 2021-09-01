@@ -1,0 +1,55 @@
+<ngx-datatable
+  class="bootstrap"
+  [rows]="rows"
+  [columnMode]="'force'"
+  [rowHeight]="50"
+  [headerHeight]="30"
+  [footerHeight]="110"
+  [limit]="20"
+  [selectionType]="selection"
+  [selected]="selected"
+  (select)="handleSelect($event)"
+  #mydatatable
+>
+  <ngx-datatable-column
+    [resizeable]="true"
+    [draggable]="true"
+    [sortable]="false"
+    name="Proteins"
+  >
+    <ng-template ngx-datatable-cell-template let-row="row">
+      {{row.Proteins}}
+    </ng-template>
+  </ngx-datatable-column>
+  <ngx-datatable-column
+    [resizeable]="true"
+    [draggable]="true"
+    [sortable]="false"
+    name="Gene names"
+  >
+    <ng-template ngx-datatable-cell-template let-row="row">
+      {{getGene(row.Proteins)}}
+    </ng-template>
+  </ngx-datatable-column>
+  <ngx-datatable-column
+    [resizeable]="true"
+    [draggable]="true"
+    [sortable]="false"
+    name="Log2FC"
+  >
+    <ng-template ngx-datatable-cell-template let-row="row">
+      {{row.logFC.toFixed(2)}}
+    </ng-template>
+  </ngx-datatable-column>
+  <ngx-datatable-column
+    [resizeable]="true"
+    [draggable]="true"
+    [sortable]="false"
+    name="P-value"
+  >
+    <ng-template ngx-datatable-cell-template let-row="row">
+      {{row.pvalue.toFixed(4)}}
+    </ng-template>
+  </ngx-datatable-column>
+
+</ngx-datatable>
