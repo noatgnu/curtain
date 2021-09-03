@@ -92,9 +92,9 @@ export class FileUploaderComponent implements OnInit {
       if (target.files) {
         this.file = target.files[0];
         if (!raw) {
-          this.fileName = target.files[0].name;
+          this.fileName = target.files[0].name + "";
         } else {
-          this.rawFileName = this.fileName = target.files[0].name;
+          this.rawFileName = target.files[0].name + "";
         }
 
         const reader = new FileReader();
