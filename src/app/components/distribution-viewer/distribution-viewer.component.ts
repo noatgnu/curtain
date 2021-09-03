@@ -26,6 +26,9 @@ export class DistributionViewerComponent implements OnInit {
         this.selectedRawData.push(a)
       }
     })
+    this.dataService.clearService.asObservable().subscribe(data => {
+      this.selectedRawData = []
+    })
   }
 
   ngOnInit(): void {

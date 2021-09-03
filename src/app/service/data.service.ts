@@ -12,11 +12,13 @@ export class DataService {
   tableSelect: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([])
   annotationSelect: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([])
   searchService: BehaviorSubject<any> = new BehaviorSubject<any>(null)
+  clearService: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true)
   annotations: any[] = []
   upRegSelected: string[] = []
   downRegSelected: string[] = []
   allSelected: string[] = []
   sampleColumns: string[] = []
+
   constructor(private uniprot: UniprotService) {
 
   }
@@ -94,5 +96,13 @@ export class DataService {
       this.selectedDataAnnotate(data, false)
       //this.downRegTableSelect.next(data)
     }
+  }
+
+  clearAllSelected() {
+    this.clearService.next(true)
+    this.allSelected = []
+    this.annotations = []
+    this.upRegSelected = []
+    this.downRegSelected = []
   }
 }

@@ -3,6 +3,7 @@ import {DataFrame, IDataFrame} from "data-forge";
 import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
 import {PlotlyService} from "angular-plotly.js";
+import {Event} from "@angular/router";
 
 @Component({
   selector: 'app-bar-chart',
@@ -12,6 +13,14 @@ import {PlotlyService} from "angular-plotly.js";
 export class BarChartComponent implements OnInit {
   graphData: any[] = []
   graphLayout: any = {title:"", height: 500,
+    xaxis: {
+      "title" : "Samples",
+      "categoryorder" : "array",
+      "categoryarray": []
+    },
+    yaxis: {
+      "title" : "Intensity"
+    }
     //xaxis:{"tickangle": 90}
   }
   _data: IDataFrame = new DataFrame()
@@ -24,6 +33,7 @@ export class BarChartComponent implements OnInit {
 
   private drawBarChart(value: IDataFrame<number, any>) {
     this.graphData = []
+    this.graphLayout.xaxis.categoryarray = []
     const temp: any = {}
 
     for (const r of value) {
@@ -32,26 +42,31 @@ export class BarChartComponent implements OnInit {
         protein = this.uniprotMap.get(protein)["Gene names"] + "(" + protein + ")"
         this.title = protein
       }
-
       this.graphLayout.title = protein
-
-      console.log(this.dataService.sampleColumns)
       for (const c of value.getColumnNames()) {
         if (this.dataService.sampleColumns.includes(c)) {
-
+          let visible: any = true
           const name = this.getHighlighted(c)
-          if (!(name in temp)) {
-            temp[name] = {
-              x: [], y: [],
-              type: 'bar',
-              name: name
+          if (name !== ""){
+            if (this.legendHideList.includes(name)) {
+              visible = "legendonly"
             }
+            if (!(name in temp)) {
+              temp[name] = {
+                x: [], y: [],
+                type: 'bar',
+                name: name,
+                visible: visible
+              }
+            }
+            temp[name].x.push(c)
+            this.graphLayout.xaxis.categoryarray.push(c)
+            temp[name].y.push(r[c])
           }
-          temp[name].x.push(c)
-          temp[name].y.push(r[c])
         }
       }
     }
+
     for (const t in temp) {
       this.graphData.push(temp[t])
     }
@@ -73,7 +88,7 @@ export class BarChartComponent implements OnInit {
   }
 
   highlighted: string[] = []
-
+  hideHighlighted: boolean = false
   highlightBar(e: any) {
     if (this.highlighted.includes(e.points[0].label)) {
       const ind = this.highlighted.indexOf(e.points[0].x)
@@ -86,11 +101,32 @@ export class BarChartComponent implements OnInit {
 
   getHighlighted(name: string) {
     if (this.highlighted.includes(name)) {
-      return "Highlighted"
+      if (this.hideHighlighted) {
+        return ""
+      } else {
+        return "Highlighted"
+      }
+
     } else {
       const group = name.split(".")
       return group[0]
     }
   }
 
+  legendHideList: string[] = []
+
+  clickLegend(e: any) {
+    const ind = e.curveNumber
+    if (this.legendHideList.includes(e.data[ind].name)) {
+      const indL = this.legendHideList.indexOf(e.data[ind].name)
+      this.legendHideList.splice(indL, 1)
+    } else {
+      this.legendHideList.push(e.data[ind].name)
+    }
+    //this.drawBarChart(this._data)
+  }
+
+  hideHighlightedHandler() {
+    this.drawBarChart(this._data)
+  }
 }

@@ -60,6 +60,15 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
         this.selectingData(data["term"], data["type"])
       }
     })
+    this.dataService.clearService.asObservable().subscribe(data => {
+      if (this.selected) {
+        this.selected = []
+      }
+      if (this.mydatatable) {
+        this.mydatatable.selected = []
+      }
+
+    })
 
   }
 

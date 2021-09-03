@@ -38,6 +38,11 @@ export class ScatterPlotComponent implements OnInit {
     this.dataService.annotationSelect.subscribe(data => {
       this.graphLayout.annotations = data
     })
+    this.dataService.clearService.asObservable().subscribe(data => {
+      if (data) {
+        this.graphLayout.annotations = []
+      }
+    })
   }
 
 
