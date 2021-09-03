@@ -1,6 +1,10 @@
-<plotly-plot divId="scatterplot"
+<button class="btn btn-sm btn-outline-info" (click)="downloadPlotlyExtra('svg')">Download {{title}} Bar Chart as SVG</button>
+<plotly-plot [divId]="title + 'id'"
              [data]="graphData"
              [layout]="graphLayout"
              [config]="{responsive:true}"
              [updateOnDataChange]="true"
-             [updateOnLayoutChange]="true"></plotly-plot>
+             [updateOnLayoutChange]="true"
+             (plotlyClick)="highlightBar($event)"
+></plotly-plot>
+

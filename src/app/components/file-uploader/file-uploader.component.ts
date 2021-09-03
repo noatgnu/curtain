@@ -18,6 +18,7 @@ export class FileUploaderComponent implements OnInit {
   processed: IDataFrame = new DataFrame()
   graphData: GraphData = new GraphData()
   accessionList: string[] = []
+  rawFileName: string = "";
   constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService) {
     this.uniprot.uniprotParseStatusObserver.subscribe(status => {
       if (status) {
@@ -90,7 +91,12 @@ export class FileUploaderComponent implements OnInit {
       const target = e.target as HTMLInputElement;
       if (target.files) {
         this.file = target.files[0];
-        this.fileName = target.files[0].name;
+        if (!raw) {
+          this.fileName = target.files[0].name;
+        } else {
+          this.rawFileName = this.fileName = target.files[0].name;
+        }
+
         const reader = new FileReader();
 
         reader.onload = (event) => {
