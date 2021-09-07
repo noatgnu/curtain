@@ -21,9 +21,15 @@ export class DistributionViewerComponent implements OnInit {
   constructor(private dataService: DataService) {
     this.dataService.annotationSelect.subscribe(data => {
       this.selectedRawData = []
+      let count = 0
       for (const i of this.dataService.allSelected) {
         const a = this._data.where(row => row.Proteins === i).bake()
         this.selectedRawData.push(a)
+        count = count + 1
+        if (count === 20) {
+          break
+        }
+
       }
     })
     this.dataService.clearService.asObservable().subscribe(data => {

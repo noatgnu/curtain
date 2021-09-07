@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {DataFrame, fromCSV, IDataFrame, Series} from "data-forge";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
+import {max} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -36,46 +37,68 @@ export class UniprotService {
 
   UniProtParseGet(accList: string[], goStats: boolean) {
     const maxLength = accList.length;
-    this.run = Math.floor(maxLength/300)
-    if (this.run%300>0) {
-      this.run = this.run + 1
-    }
-    let currentRun = 0
-    for (let i = 0; i < maxLength; i += 300) {
-      let l: string[];
-      if (i + 300 < maxLength) {
-        l = accList.slice(i, i + 300);
-      } else {
-        l = accList.slice(i);
+    if (maxLength >0) {
+      this.run = Math.floor(maxLength/300)
+      if (this.run%300>0) {
+        this.run = this.run + 1
       }
-      const options: Map<string, string> = new Map<string, string>([
-        ['from', 'ACC,ID'],
-        ['to', 'ACC'],
-        ['query', l.join('+OR+')],
-        ['format', 'tab'],
-        ['columns', 'id,entry name,reviewed,protein names,genes,organism,length,database(RefSeq),organism-id,go-id,go(cellular component),comment(SUBCELLULAR LOCATION),feature(TOPOLOGICAL_DOMAIN),feature(GLYCOSYLATION),comment(MASS SPECTROMETRY),mass,sequence'],
-        ['compress', 'no'],
-        ['force', 'no'],
-        ['sort', 'score'],
-        ['desc', ''],
-        ['fil', '']
-      ]);
-      const uniprotUrl = this.baseURL + this.toParamString(options);
-      this.getUniprot(uniprotUrl).subscribe((data) => {
-        currentRun = currentRun + 1
-        const df = fromCSV(<string>data.body);
-        const columns = df.getColumnNames()
-        const lastColumn = columns[columns.length -1]
-        let new_df = df.withSeries("query", df.getSeries(lastColumn).bake()).bake()
-        new_df = new_df.dropSeries(lastColumn).bake()
-        for (const r of new_df) {
-          r["Gene names"] = r["Gene names"].replaceAll(" ", ";").toUpperCase()
-          this.results.set(r["query"], r)
+      let currentRun = 0
+      for (let i = 0; i < maxLength; i += 300) {
+        let l: string[];
+        if (i + 300 < maxLength) {
+          l = accList.slice(i, i + 300);
+        } else {
+          l = accList.slice(i);
         }
-        if (currentRun === this.run) {
-          this.uniprotParseStatus.next(true)
-        }
-      });
+        const options: Map<string, string> = new Map<string, string>([
+          ['from', 'ACC,ID'],
+          ['to', 'ACC'],
+          ['query', l.join('+OR+')],
+          ['format', 'tab'],
+          ['columns', 'id,entry name,reviewed,protein names,genes,organism,length,database(RefSeq),organism-id,go-id,go(cellular component),comment(SUBCELLULAR LOCATION),feature(TOPOLOGICAL_DOMAIN),feature(GLYCOSYLATION),comment(MASS SPECTROMETRY),mass,sequence'],
+          ['compress', 'no'],
+          ['force', 'no'],
+          ['sort', 'score'],
+          ['desc', ''],
+          ['fil', '']
+        ]);
+        const uniprotUrl = this.baseURL + this.toParamString(options);
+        this.getUniprot(uniprotUrl).subscribe((data) => {
+          currentRun = currentRun + 1
+          const df = fromCSV(<string>data.body);
+          const columns = df.getColumnNames()
+          const lastColumn = columns[columns.length -1]
+          let new_df = df.withSeries("query", df.getSeries(lastColumn).bake()).bake()
+          new_df = new_df.dropSeries(lastColumn).bake()
+          for (const r of new_df) {
+            r["Gene names"] = r["Gene names"].replaceAll(" ", ";").toUpperCase()
+            const ind = r["Subcellular location [CC]"].indexOf("Note=")
+            if (ind > -1) {
+              r["Subcellular location [CC]"] = r["Subcellular location [CC]"].slice(0, ind)
+            }
+            const subLoc = []
+            for (const s of r["Subcellular location [CC]"].split(/[.;]/g)) {
+              if (s !== "") {
+                let su = s.replace(/\s*\{.*?\}\s*/g, "")
+                su = su.split(": ")
+                const a = su[su.length-1].trim()
+                if (a !== "") {
+                  subLoc.push(a.slice())
+                }
+
+              }
+            }
+            r["Subcellular location [CC]"] = subLoc
+            this.results.set(r["query"], r)
+          }
+          if (currentRun === this.run) {
+            this.uniprotParseStatus.next(true)
+          }
+        });
+      }
+    } else {
+      this.uniprotParseStatus.next(true)
     }
+
   }
 }

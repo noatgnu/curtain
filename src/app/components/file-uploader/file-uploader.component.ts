@@ -132,17 +132,22 @@ export class FileUploaderComponent implements OnInit {
 
   getUniprot(e: Event) {
     e.stopPropagation()
+    this.accessionList = []
+    const accList: string[] = []
     for (const a of this.raw.getSeries(this.graphData.rawIdentifierCol).bake().toArray()) {
       const d = a.split(";")
       const accession = this.uniprot.Re.exec(d[0])
       if (accession !== null) {
         this.accessionList.push(accession[0])
+        if (!this.uniprot.results.has(accession[0])) {
+          accList.push(accession[0])
+        }
       }
     }
 
     this.uniprot.uniprotParseStatus.next(false)
     try {
-      this.uniprot.UniProtParseGet([...this.accessionList], false)
+      this.uniprot.UniProtParseGet([...accList], false)
     } catch (e) {
       console.log(e);
     }

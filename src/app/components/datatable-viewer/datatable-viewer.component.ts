@@ -41,10 +41,6 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
     return this._data
   }
 
-
-
-
-
   uniprotMap = new Map<string, any>()
   constructor(private uniprot: UniprotService, private dataService: DataService, private cd: ChangeDetectorRef) {
     this.sortType = SortType.single
@@ -56,8 +52,14 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
       }
     })
     this.dataService.searchService.asObservable().subscribe(data => {
+      console.log(data)
       if (data) {
-        this.selectingData(data["term"], data["type"])
+        if (data["type"]==="Subcellular locations") {
+          this.selectingSubLoc(data["term"])
+        } else {
+          this.selectingData(data["term"], data["type"])
+        }
+
       }
     })
     this.dataService.clearService.asObservable().subscribe(data => {
@@ -74,12 +76,7 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
 
   private selectingData(data: string, type: string = "Proteins") {
     let identical = false
-    for (const s of this.mydatatable.selected) {
-      if (s[type] === data) {
-        identical = true
-        break
-      }
-    }
+    identical = this.checkIdentical(type, data, identical);
     if (!identical) {
       const r = this.data.where(row => row[type] === data).bake().toPairs()
 
@@ -90,6 +87,36 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
         this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected)
       }
     }
+  }
+
+  private selectingSubLoc(data: string) {
+    const da = this.data.where(row => row["Subcellular locations"].includes(data)).bake().toPairs()
+    for (const r of da) {
+      let identical = false
+      identical = this.checkIdentical("Subcellular locations", r[1].Proteins, identical)
+      if (!identical) {
+        this.mydatatable.selected.push(r[1])
+      }
+    }
+    this.rows = [...this.rows]
+    this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected)
+  }
+
+  private checkIdentical(type: string, data: string, identical: boolean) {
+    for (const s of this.mydatatable.selected) {
+      if (type !== "Subcellular location") {
+        if (s.Proteins === data) {
+          identical = true
+          break
+        }
+      } else {
+        if (s[type].includes(data)) {
+          identical = true
+          break
+        }
+      }
+    }
+    return identical;
   }
 
   ngOnInit(): void {

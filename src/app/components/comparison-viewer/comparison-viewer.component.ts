@@ -22,16 +22,23 @@ export class ComparisonViewerComponent implements OnInit {
 
   drawPack: DrawPack = new DrawPack()
   label: string[] = []
-  searchType = "Gene names"
+  searchType: "Gene names"|"Proteins"|"Subcellular locations" = "Gene names"
   proteins: string[] = []
   geneNames: string[] = []
+  subLoc: string[] = []
   tableFilterModel: any = ""
   searchFilter(term: string) {
-    if (this.searchType === "Gene names") {
-      return this.geneNames.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
-    } else {
-      return this.proteins.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
+    switch (this.searchType) {
+      case "Gene names":
+        return this.geneNames.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
+      case "Proteins":
+        return this.proteins.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
+      case "Subcellular locations":
+        return this.subLoc.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
+      default:
+        return [""]
     }
+
   }
   search: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
     text$.pipe(
@@ -42,11 +49,20 @@ export class ComparisonViewerComponent implements OnInit {
     )
   @Input() set data(value: IDataFrame) {
     const genes = []
+    const subCel = []
     for (const r of value) {
       genes.push(this.getGene(r.Proteins))
+      const s = this.getSubLoc(r.Proteins)
+      for (const i of s) {
+        if (!this.subLoc.includes(i)) {
+          this.subLoc.push(i)
+        }
+      }
+      subCel.push(s)
     }
     this._data = value
     this._data = this._data.withSeries("Gene names", new Series(genes)).bake()
+    this._data = this._data.withSeries("Subcellular locations", new Series(subCel)).bake()
     this.geneNames = this._data.getSeries("Gene names").distinct().bake().toArray()
     this.proteins = this._data.getSeries("Proteins").distinct().bake().toArray()
     this.downRegulated = this._data.where(row => row["logFC"] < 0).bake()
@@ -79,6 +95,14 @@ export class ComparisonViewerComponent implements OnInit {
   getGene(protein: string) {
     if (this.uniprot.results.has(protein)) {
       return this.uniprot.results.get(protein)["Gene names"]
+    } else {
+      return ""
+    }
+  }
+
+  getSubLoc(protein: string) {
+    if (this.uniprot.results.has(protein)) {
+      return this.uniprot.results.get(protein)["Subcellular location [CC]"]
     } else {
       return ""
     }

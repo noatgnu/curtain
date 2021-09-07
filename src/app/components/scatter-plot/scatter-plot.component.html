@@ -8,5 +8,24 @@
              [updateOnLayoutChange]="true" (plotlyClick)="selectData($event)" (update)="plotUpdated($event)"></plotly-plot>
 
 <div class="container mx-auto">
-  <button class="btn btn-sm btn-primary" (click)="downloadPlotlyExtra('svg')">Download SVG</button>
+  <div class="row">
+    <div class="col-2">
+      <button class="btn btn-sm btn-primary" (click)="downloadPlotlyExtra('svg')">Download SVG</button>
+    </div>
+    <div class="col-2">
+      <label for="customTitle">Custom Title:</label>
+    </div>
+    <div class="col-2">
+      <input type="text" id="customTitle" class="form-control" [(ngModel)]="customTitle" (keyup)="updateTitle($event)">
+    </div>
+    <div class="col-2">
+      <div class="form-check">
+
+      </div>
+      <input id="xaxis-scale" type="checkbox" class="form-check-input" (change)="changeXaxis($event)" [(ngModel)]="xaxisLog">
+      <label class="form-check-label" for="xaxis-scale">
+        Log2 X-axis
+      </label>
+    </div>
+  </div>
 </div>

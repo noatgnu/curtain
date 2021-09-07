@@ -32,6 +32,7 @@ export class DataService {
   }
 
   private selectedDataAnnotate(data: any[], up: boolean) {
+    console.log(data)
     const arr: string[] = []
     for (const d of data) {
       arr.push(d.Proteins)
@@ -73,7 +74,10 @@ export class DataService {
           y: -Math.log10(d.pvalue),
           text: t,
           showarrow: true,
-          arrowhead: 7
+          arrowhead: 0.5,
+          font: {
+            size: 10
+          }
         })
         if (up) {
           this.upRegSelected.push(d.Proteins)

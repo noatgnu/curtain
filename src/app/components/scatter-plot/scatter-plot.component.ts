@@ -4,6 +4,7 @@ import {PlotlyService} from "angular-plotly.js";
 import {DrawPack} from "../../classes/draw-pack";
 import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
+import * as d3 from "d3";
 
 @Component({
   selector: 'app-scatter-plot',
@@ -12,7 +13,41 @@ import {DataService} from "../../service/data.service";
 })
 export class ScatterPlotComponent implements OnInit {
   graphData: any[] = []
-  graphLayout: any = {title:"Volcano Plot", height: 1000, xaxis: {title: "Log2FC"}, yaxis: {title: "-log10(p-value)"}, annotations: [],
+  xaxisLog: boolean = true
+  changeXaxis(e: Event) {
+    e.stopPropagation()
+    e.preventDefault()
+    for (let i = 0; i < this.graphData.length; i ++) {
+      for (let i2 = 0; i2 < this.graphData[i].x.length; i2 ++) {
+        if (!this.xaxisLog) {
+          if (this.graphData[i].x[i2] < 0) {
+            this.graphData[i].x[i2] = 2**this.graphData[i].x[i2]
+          } else {
+            this.graphData[i].x[i2] = -(2**this.graphData[i].x[i2])
+          }
+
+        } else {
+          this.graphData[i].x[i2] = Math.log2(this.graphData[i].x[i2])
+        }
+
+      }
+      this.graphData[i].x = [...this.graphData[i].x]
+      console.log(this.graphData[i].x)
+    }
+    this.graphData = [...this.graphData]
+  }
+  customTitle: string = ""
+  annotationTextSize = 1
+  updateTitle(e: Event) {
+    if (this.customTitle !== "") {
+      this.graphLayout.title = this.customTitle
+    }
+    e.stopPropagation()
+    e.preventDefault()
+  }
+  graphLayout: any = {
+    title:"Volcano Plot",
+    height: 1000, xaxis: {title: "Log2FC"}, yaxis: {title: "-log10(p-value)"}, annotations: [],
     showlegend: true, legend: {
       orientation: 'h'
     }
@@ -22,6 +57,8 @@ export class ScatterPlotComponent implements OnInit {
   _data: IDataFrame = new DataFrame();
   upSelected: any[] = []
   downSelected: any[] = []
+  originalFCType: "normal"|"log2"|"log10" = "log2"
+  foldChangeType: "normal"|"log2"|"log10" = "log2"
   @Input() set data(value:DrawPack) {
     this.graphLayout.annotations = []
     this._data = value.df
@@ -36,7 +73,9 @@ export class ScatterPlotComponent implements OnInit {
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
     this.uniprotMap = uniprot.results
     this.dataService.annotationSelect.subscribe(data => {
+      console.log(data)
       this.graphLayout.annotations = data
+
     })
     this.dataService.clearService.asObservable().subscribe(data => {
       if (data) {
@@ -78,6 +117,8 @@ export class ScatterPlotComponent implements OnInit {
 
     const temp: any = {}
     this.graphData = []
+
+
     if (Object.keys(group).length === 0) {
 
       for (const r of this._data) {
