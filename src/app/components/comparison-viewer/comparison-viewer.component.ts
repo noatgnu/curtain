@@ -6,6 +6,8 @@ import {DataService} from "../../service/data.service";
 import {Observable, OperatorFunction} from "rxjs";
 import {debounceTime, distinctUntilChanged, map} from "rxjs/operators";
 import {UniprotService} from "../../service/uniprot.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {WebService} from "../../service/web.service";
 
 @Component({
   selector: 'app-comparison-viewer',
@@ -13,6 +15,8 @@ import {UniprotService} from "../../service/uniprot.service";
   styleUrls: ['./comparison-viewer.component.css']
 })
 export class ComparisonViewerComponent implements OnInit {
+  closeResult = ""
+  selectionTitle = ""
   pCutOff: number = 0.00001
   logFCCutoff: number = 2
   upRegulated: IDataFrame = new DataFrame()
@@ -76,9 +80,16 @@ export class ComparisonViewerComponent implements OnInit {
   get data(): IDataFrame {
     return this._data
   }
-  constructor(private uniprot: UniprotService, private dataService: DataService) {
+  constructor(private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private web: WebService) {
 
   }
+
+  startBatchSelection(content: any) {
+    this.modalService.open(content, {ariaLabelledBy: "batch-selection-title"}).result.then((result) => {
+      console.log(this.closeResult)
+    })
+  }
+
 
   ngOnInit(): void {
   }
@@ -118,5 +129,55 @@ export class ComparisonViewerComponent implements OnInit {
     this.dataService.clearAllSelected()
     e.stopPropagation()
     e.preventDefault()
+  }
+
+  getFilter(a: string) {
+    this.closeResult = this.web.filters[a].join("\n")
+    this.selectionTitle = a
+  }
+
+  batchSelect(content: any) {
+    content.close()
+    const data = []
+    for (const r of this.closeResult.split("\n")) {
+      const a = r.trim()
+      const e = a.split(";")
+      let selected = false
+      for (const f of e) {
+        switch (this.searchType) {
+          case "Gene names":
+            for (const b of this.geneNames) {
+              const c = b.split(";")
+              for (const d of c) {
+                if (f === d) {
+                  selected = true
+                  data.push(b)
+                  break
+                }
+              }
+            }
+            break
+          case "Proteins":
+            for (const b of this.proteins) {
+              const c = b.split(";")
+              for (const d of c) {
+                if (f === d) {
+                  selected = true
+                  data.push(b)
+                  break
+                }
+              }
+            }
+            break
+          default:
+            break
+        }
+        if (selected) {
+          break
+        }
+      }
+
+    }
+    this.dataService.batchSelection(this.selectionTitle, this.searchType, data)
   }
 }

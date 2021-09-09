@@ -8,10 +8,16 @@
       <label for="log2Cutoff">Log2FC Cut-off</label>
       <input type="number" class="form-control" id="log2Cutoff" [(ngModel)]="logFCCutoff" (focusout)="changeInput($event)">
     </div>
-    <div class="col-6">
-      <label for="searchProteinOrGene">Search</label>
+    <div class="col-8">
       <div class="form-row">
         <div class="col-3">
+          <label for="searchProteinOrGene">Search</label>
+        </div>
+
+      </div>
+
+      <div class="form-row">
+        <div class="col-2">
           <select class="form-control" [(ngModel)]="searchType">
             <option>
               Gene names
@@ -24,11 +30,14 @@
             </option>
           </select>
         </div>
-        <div class="col-3">
+        <div class="col-2">
           <input id="searchProteinOrGene" type="text" class="form-control" [(ngModel)]="tableFilterModel" placeholder="Search" [ngbTypeahead]="search">
         </div>
-        <div class="col-3">
+        <div class="col-2">
           <button class="btn btn-primary" (click)="findInData($event)">Find in data</button>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-outline-info" (click)="startBatchSelection(content)">Batch selection</button>
         </div>
         <div class="col-3">
           <button class="btn btn-danger" (click)="clearAllSelected($event)">Clear all selected</button>
@@ -65,3 +74,48 @@
   </div>
 </div>
 
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Batch Selection</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row mb-2">
+      <button class="btn btn-outline-info mr-2" (click)="getFilter('Lrrk2')">
+        LRRK2 Pathway
+      </button>
+      <button class="btn btn-outline-info mr-2" (click)="getFilter('Kinases')">
+        Kinases
+      </button>
+      <button class="btn btn-outline-info" (click)="getFilter('Phosphatases')">
+        Phosphatases
+      </button>
+    </div>
+    <div class="row mb-2">
+      <div class="col-4">
+        <input [(ngModel)]="selectionTitle" type="text" class="form-control" placeholder="Title">
+      </div>
+      <div class="col-4">
+        <select class="form-control" [(ngModel)]="searchType">
+          <option>
+            Gene names
+          </option>
+          <option>
+            Proteins
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="entryList" class="sr-only">Entries List</label>
+      <textarea class="form-control" id="entryList" [(ngModel)]="closeResult" rows="5"></textarea>
+    </div>
+
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="batchSelect(modal)">Submit</button>
+  </div>
+</ng-template>

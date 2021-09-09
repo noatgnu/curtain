@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {GraphData} from "./classes/graph-data";
 import {DataFrame, IDataFrame} from "data-forge";
 import {parse} from "@angular/compiler/src/render3/view/style_parser";
+import {WebService} from "./service/web.service";
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,8 @@ export class AppComponent {
   comparison: string[] = []
   selectedDF: IDataFrame = new DataFrame()
   selectedComparison: string = ""
-  constructor() {
+  constructor(private webService: WebService) {
+    this.webService.getFilter()
   }
 
   handleData(e: GraphData) {

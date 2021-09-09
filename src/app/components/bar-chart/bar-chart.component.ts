@@ -15,8 +15,11 @@ export class BarChartComponent implements OnInit {
   graphLayout: any = {title:"", height: 500,
     xaxis: {
       "title" : "Samples",
-      "categoryorder" : "array",
-      "categoryarray": []
+      "tickmode": "array",
+      //"categoryorder" : "array",
+      //"categoryarray": [],
+      "tickvals": [],
+      "ticktext": []
     },
     yaxis: {
       "title" : "Intensity"
@@ -24,7 +27,6 @@ export class BarChartComponent implements OnInit {
     //xaxis:{"tickangle": 90}
   }
   _data: IDataFrame = new DataFrame()
-  title = ""
   uniprotMap = new Map<string, any>()
   @Input() set data(value: IDataFrame) {
     this.drawBarChart(value);
@@ -33,7 +35,9 @@ export class BarChartComponent implements OnInit {
 
   private drawBarChart(value: IDataFrame<number, any>) {
     this.graphData = []
-    this.graphLayout.xaxis.categoryarray = []
+    //this.graphLayout.xaxis.categoryarray = []
+    this.graphLayout.xaxis.ticktext = []
+    this.graphLayout.xaxis.tickvals = []
     const temp: any = {}
 
     for (const r of value) {
@@ -60,7 +64,8 @@ export class BarChartComponent implements OnInit {
               }
             }
             temp[name].x.push(c)
-            this.graphLayout.xaxis.categoryarray.push(c)
+
+            //this.graphLayout.xaxis.categoryarray.push(c)
             temp[name].y.push(r[c])
           }
         }
@@ -69,11 +74,16 @@ export class BarChartComponent implements OnInit {
 
     for (const t in temp) {
       this.graphData.push(temp[t])
+      this.graphLayout.xaxis.tickvals.push(temp[t].x[1])
+      this.graphLayout.xaxis.ticktext.push(t)
     }
   }
-
+  title: string = ""
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
     this.uniprotMap = this.uniprot.results
+    this.dataService.titleGraph.asObservable().subscribe(data => {
+      this.graphLayout.title = data + "<br>" + this.title
+    })
   }
 
   ngOnInit(): void {
@@ -81,7 +91,7 @@ export class BarChartComponent implements OnInit {
   }
 
   async downloadPlotlyExtra(format: string) {
-    const graph = this.plotly.getInstanceByDivId(this.graphLayout.title + "id");
+    const graph = this.plotly.getInstanceByDivId(this.title.replace(';', ''));
     const p = await this.plotly.getPlotly();
     await p.downloadImage(graph, {format: format, filename: "image"})
 
@@ -90,7 +100,7 @@ export class BarChartComponent implements OnInit {
   highlighted: string[] = []
   hideHighlighted: boolean = false
   highlightBar(e: any) {
-    if (this.highlighted.includes(e.points[0].label)) {
+    if (this.highlighted.includes(e.points[0].x)) {
       const ind = this.highlighted.indexOf(e.points[0].x)
       this.highlighted.splice(ind, 1)
     } else {

@@ -47,19 +47,22 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
     this.uniprotMap = uniprot.results
     this.selection = SelectionType.multiClick
     this.dataService.dataPointClickService.asObservable().subscribe(data => {
-      if (data !== "") {
+      if (data.length > 0) {
         this.selectingData(data);
       }
     })
     this.dataService.searchService.asObservable().subscribe(data => {
       console.log(data)
       if (data) {
-        if (data["type"]==="Subcellular locations") {
-          this.selectingSubLoc(data["term"])
+        if ("annotate" in data) {
+          this.selectingData(data["term"], data["type"], data["annotate"])
         } else {
-          this.selectingData(data["term"], data["type"])
+          if (data["type"]==="Subcellular locations") {
+            this.selectingSubLoc(data["term"])
+          } else {
+            this.selectingData(data["term"], data["type"])
+          }
         }
-
       }
     })
     this.dataService.clearService.asObservable().subscribe(data => {
@@ -74,19 +77,30 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
 
   }
 
-  private selectingData(data: string, type: string = "Proteins") {
-    let identical = false
-    identical = this.checkIdentical(type, data, identical);
-    if (!identical) {
-      const r = this.data.where(row => row[type] === data).bake().toPairs()
-
-      if (r.length > 0) {
-        this.mydatatable.selected.push(r[0][1])
-        this.mydatatable.offset = Math.floor(r[0][0] / this.mydatatable.pageSize)
-        this.rows = [...this.rows]
-        this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected)
+  private selectingData(data: string[], type: string = "Proteins", annotate: boolean = true) {
+    const temp: string[] = []
+    for (const d of data) {
+      let identical = false
+      identical = this.checkIdentical(type, d, identical);
+      if (!identical) {
+        temp.push(d)
       }
     }
+    const df = this.data.where(row => temp.includes(row[type])).bake().toPairs()
+
+    if (df.length > 0) {
+      for (const d of df) {
+        this.mydatatable.selected.push(d[1])
+      }
+
+    }
+    this.mydatatable.offset = Math.floor(df[0][0] / this.mydatatable.pageSize)
+    this.rows = [...this.rows]
+
+    this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected, annotate)
+
+
+
   }
 
   private selectingSubLoc(data: string) {
@@ -99,7 +113,7 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
       }
     }
     this.rows = [...this.rows]
-    this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected)
+    this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected, false)
   }
 
   private checkIdentical(type: string, data: string, identical: boolean) {
@@ -128,7 +142,7 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
   }
 
   handleSelect(e: any) {
-    this.dataService.updateRegTableSelect(this.tableType, e.selected)
+    this.dataService.updateRegTableSelect(this.tableType, e.selected, true)
   }
 
   getGene(protein: string) {

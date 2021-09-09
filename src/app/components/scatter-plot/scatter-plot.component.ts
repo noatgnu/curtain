@@ -20,13 +20,18 @@ export class ScatterPlotComponent implements OnInit {
     for (let i = 0; i < this.graphData.length; i ++) {
       for (let i2 = 0; i2 < this.graphData[i].x.length; i2 ++) {
         if (!this.xaxisLog) {
-          if (this.graphData[i].x[i2] < 0) {
+          if (this.graphData[i].x[i2] > 0) {
             this.graphData[i].x[i2] = 2**this.graphData[i].x[i2]
           } else {
             this.graphData[i].x[i2] = -(2**this.graphData[i].x[i2])
           }
 
         } else {
+          if (this.graphData[i].x[i2] > 0) {
+            this.graphData[i].x[i2] = Math.log2(this.graphData[i].x[i2])
+          } else {
+            this.graphData[i].x[i2] = -(2**this.graphData[i].x[i2])
+          }
           this.graphData[i].x[i2] = Math.log2(this.graphData[i].x[i2])
         }
 
@@ -42,6 +47,7 @@ export class ScatterPlotComponent implements OnInit {
     if (this.customTitle !== "") {
       this.graphLayout.title = this.customTitle
     }
+    this.dataService.titleGraph.next(this.graphLayout.title)
     e.stopPropagation()
     e.preventDefault()
   }
@@ -69,19 +75,27 @@ export class ScatterPlotComponent implements OnInit {
 
   uniprotMap = new Map<string, any>()
 
-
+  batchSelection: any = {}
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
     this.uniprotMap = uniprot.results
     this.dataService.annotationSelect.subscribe(data => {
-      console.log(data)
       this.graphLayout.annotations = data
 
     })
     this.dataService.clearService.asObservable().subscribe(data => {
       if (data) {
         this.graphLayout.annotations = []
+        this.batchSelection = {}
+        this.graphScatterPlot()
       }
     })
+    this.dataService.batchSelectionService.asObservable().subscribe(data => {
+      if (data) {
+        this.batchSelection = data
+        this.graphScatterPlot()
+      }
+    })
+
   }
 
 
@@ -120,21 +134,38 @@ export class ScatterPlotComponent implements OnInit {
 
 
     if (Object.keys(group).length === 0) {
-
+      console.log(this.batchSelection)
       for (const r of this._data) {
-        const conditions = this.selectConditions(r["pvalue"], r["logFC"])
-
-        if (!(conditions in temp)) {
-          temp[conditions] = {x: [], y: [], text:[], type: 'scatter', name: conditions, mode: 'markers'}
+        let selected: boolean = false
+        if (this.batchSelection.data) {
+          if (this.batchSelection.data.includes(r[this.batchSelection.type])) {
+            if (!(this.batchSelection.title in temp)) {
+              temp[this.batchSelection.title] = {x: [], y: [], text:[], type: 'scatter', name: this.batchSelection.title, mode: 'markers'}
+            }
+            temp[this.batchSelection.title].y.push(-Math.log10(r["pvalue"]))
+            temp[this.batchSelection.title].x.push(r["logFC"])
+            if (this.uniprotMap.has(r["Proteins"])) {
+              temp[this.batchSelection.title].text.push(this.uniprotMap.get(r["Proteins"])["Gene names"] + "(" + r["Proteins"] + ")" )
+            } else {
+              temp[this.batchSelection.title].text.push(r["Proteins"])
+            }
+            selected = true
+          }
         }
-        temp[conditions].y.push(-Math.log10(r["pvalue"]))
-        temp[conditions].x.push(r["logFC"])
-        if (this.uniprotMap.has(r["Proteins"])) {
-          temp[conditions].text.push(this.uniprotMap.get(r["Proteins"])["Gene names"] + "(" + r["Proteins"] + ")" )
-        } else {
-          temp[conditions].text.push(r["Proteins"])
-        }
+        if (!selected) {
+          const conditions = this.selectConditions(r["pvalue"], r["logFC"])
 
+          if (!(conditions in temp)) {
+            temp[conditions] = {x: [], y: [], text:[], type: 'scatter', name: conditions, mode: 'markers'}
+          }
+          temp[conditions].y.push(-Math.log10(r["pvalue"]))
+          temp[conditions].x.push(r["logFC"])
+          if (this.uniprotMap.has(r["Proteins"])) {
+            temp[conditions].text.push(this.uniprotMap.get(r["Proteins"])["Gene names"] + "(" + r["Proteins"] + ")" )
+          } else {
+            temp[conditions].text.push(r["Proteins"])
+          }
+        }
       }
     } else {
       for (const r of this._data) {
@@ -156,9 +187,9 @@ export class ScatterPlotComponent implements OnInit {
     if ("points" in e) {
       const ind = e["points"][0].text.indexOf("(")
       if (e["points"][0].text.indexOf("(") !== -1) {
-        this.dataService.updateDataPointClick(e["points"][0].text.slice(ind+1, -1))
+        this.dataService.updateDataPointClick([e["points"][0].text.slice(ind+1, -1)])
       } else {
-        this.dataService.updateDataPointClick(e["points"][0].text)
+        this.dataService.updateDataPointClick([e["points"][0].text])
       }
     }
   }

@@ -15,7 +15,7 @@
   </div>
 
 </div>
-<plotly-plot [divId]="title + 'id'"
+<plotly-plot [divId]="title.replace(';', '')"
              [data]="graphData"
              [layout]="graphLayout"
              [config]="{responsive:true}"

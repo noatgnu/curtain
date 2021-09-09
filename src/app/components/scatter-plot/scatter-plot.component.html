@@ -16,7 +16,7 @@
       <label for="customTitle">Custom Title:</label>
     </div>
     <div class="col-2">
-      <input type="text" id="customTitle" class="form-control" [(ngModel)]="customTitle" (keyup)="updateTitle($event)">
+      <input type="text" id="customTitle" class="form-control" [(ngModel)]="customTitle" (focusout)="updateTitle($event)">
     </div>
     <div class="col-2">
       <div class="form-check">

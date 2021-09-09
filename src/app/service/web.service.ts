@@ -5,7 +5,8 @@ import {HttpClient} from "@angular/common/http";
   providedIn: 'root'
 })
 export class WebService {
-
+  private _filters: any = {Kinases: "kinases.txt", Lrrk2: "lrrk2.txt", Phosphatases: "phosphatases.txt"}
+  filters: any = {}
   constructor(private http: HttpClient) { }
 
   getProcessedInput() {
@@ -14,5 +15,26 @@ export class WebService {
 
   getRawInput() {
     return this.http.get("assets/lysoip.wce.csv", {observe: "response", responseType: "text"})
+  }
+
+  getFilter() {
+    console.log(this._filters)
+    for (const i in this._filters) {
+      if (!(i in this.filters)) {
+        this.filters[i] = []
+      }
+
+      this.http.get("assets/" + this._filters[i], {observe: "response", responseType: "text"}).subscribe(data => {
+        const a = data.body?.split("\n")
+        if (a) {
+          for (const n of a) {
+            if (n.trim() !== "") {
+              this.filters[i].push(n.trim())
+            }
+          }
+        }
+      })
+    }
+
   }
 }
