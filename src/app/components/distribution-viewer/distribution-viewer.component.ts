@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {DataService} from "../../service/data.service";
+import {UniprotService} from "../../service/uniprot.service";
 
 @Component({
   selector: 'app-distribution-viewer',
@@ -16,24 +17,33 @@ export class DistributionViewerComponent implements OnInit {
     return this._data
   }
 
-  selectedRawData: IDataFrame[] = []
+  selectedRawData: any = {}
 
-  constructor(private dataService: DataService) {
+  allSelected: string[] = []
+  rows: any[] = []
+  @Input() dataComp: IDataFrame = new DataFrame()
+  uniData: Map<string, any> = new Map<string, any>()
+
+  constructor(private dataService: DataService, private uniprot: UniprotService) {
     this.dataService.annotationSelect.subscribe(data => {
+      this.uniData = this.uniprot.results
       this.selectedRawData = []
       let count = 0
+      this.allSelected = this.dataService.allSelected
+      this.rows = this.dataComp.where(row => this.allSelected.includes(row.Proteins)).bake().toArray()
+      console.log(this.rows)
       for (const i of this.dataService.allSelected) {
-        const a = this._data.where(row => row.Proteins === i).bake()
-        this.selectedRawData.push(a)
-        count = count + 1
-        if (count === 20) {
-          break
+        count ++
+        if (count > 20) {
+          this.selectedRawData[i] = {df: this._data.where(row => row.Proteins === i).bake(), visible: false}
+        } else {
+          this.selectedRawData[i] = {df: this._data.where(row => row.Proteins === i).bake(), visible: true}
         }
-
       }
     })
     this.dataService.clearService.asObservable().subscribe(data => {
-      this.selectedRawData = []
+      this.allSelected = []
+      this.selectedRawData = {}
     })
   }
 

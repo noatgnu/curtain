@@ -52,7 +52,6 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
       }
     })
     this.dataService.searchService.asObservable().subscribe(data => {
-      console.log(data)
       if (data) {
         if ("annotate" in data) {
           this.selectingData(data["term"], data["type"], data["annotate"])
@@ -86,21 +85,19 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
         temp.push(d)
       }
     }
+    console.log(data)
     const df = this.data.where(row => temp.includes(row[type])).bake().toPairs()
-
+    console.log(df)
     if (df.length > 0) {
       for (const d of df) {
         this.mydatatable.selected.push(d[1])
       }
+      console.log(df)
+      this.mydatatable.offset = Math.floor(df[0][0] / this.mydatatable.pageSize)
+      this.rows = [...this.rows]
 
+      this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected, annotate)
     }
-    this.mydatatable.offset = Math.floor(df[0][0] / this.mydatatable.pageSize)
-    this.rows = [...this.rows]
-
-    this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected, annotate)
-
-
-
   }
 
   private selectingSubLoc(data: string) {

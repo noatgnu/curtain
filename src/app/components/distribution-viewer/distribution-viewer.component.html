@@ -1,3 +1,96 @@
-<div class="mt-2" *ngIf="selectedRawData.length > 0">
-  <app-bar-chart *ngFor="let d of this.selectedRawData" [data]="d"></app-bar-chart>
+<div class="container mt-2" *ngIf="rows.length > 0">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">
+        Selected
+      </h5>
+      <ngx-datatable
+        class="bootstrap expandable"
+        [rows]="rows"
+        [columnMode]="'force'"
+        [rowHeight]="40"
+        [headerHeight]="30"
+        [footerHeight]="60"
+        [scrollbarV]="true"
+        [scrollbarH]="true"
+        [limit]="20"
+        style="height: 500px"
+        #mydatatable
+      >
+        <ngx-datatable-column
+          [resizeable]="true"
+          [draggable]="true"
+          [sortable]="false"
+          name="Proteins"
+          [canAutoResize]="false"
+        >
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{row.Proteins}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [resizeable]="true"
+          [draggable]="true"
+          [sortable]="false"
+          name="Gene names"
+          [canAutoResize]="false"
+        >
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{uniData.get(row.Proteins)["Gene names"]}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [resizeable]="true"
+          [draggable]="true"
+          [sortable]="false"
+          name="Log2 FC"
+          [canAutoResize]="true"
+        >
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{row.logFC.toFixed(2)}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [resizeable]="true"
+          [draggable]="true"
+          [sortable]="false"
+          name="P-value"
+          [canAutoResize]="false"
+        >
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{row.pvalue.toFixed(4)}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [resizeable]="true"
+          [draggable]="true"
+          [sortable]="false"
+          name="Protein names"
+          [canAutoResize]="false"
+        >
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{uniData.get(row.Proteins)["Protein names"]}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [resizeable]="true"
+          [draggable]="true"
+          [sortable]="false"
+          name="Subcellular locations"
+          [canAutoResize]="true"
+        >
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{uniData.get(row.Proteins)["Subcellular location [CC]"]}}
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>
+</div>
+
+
+<div class="mt-2" *ngIf="allSelected.length > 0">
+  <div *ngFor="let d of allSelected">
+    <app-bar-chart  [data]="selectedRawData[d].df" *ngIf="selectedRawData[d].visible"></app-bar-chart>
+  </div>
 </div>

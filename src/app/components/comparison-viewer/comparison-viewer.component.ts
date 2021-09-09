@@ -120,7 +120,7 @@ export class ComparisonViewerComponent implements OnInit {
   }
 
   findInData(e: Event) {
-    this.dataService.searchService.next({term: this.tableFilterModel, type: this.searchType})
+    this.dataService.searchService.next({term: [this.tableFilterModel], type: this.searchType})
     e.stopPropagation()
     e.preventDefault()
   }
