@@ -15,6 +15,7 @@ import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import { ComparisonViewerComponent } from './components/comparison-viewer/comparison-viewer.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { DistributionViewerComponent } from './components/distribution-viewer/distribution-viewer.component';
+import { ProfilePlotComponent } from './components/profile-plot/profile-plot.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -26,7 +27,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     DatatableViewerComponent,
     ComparisonViewerComponent,
     BarChartComponent,
-    DistributionViewerComponent
+    DistributionViewerComponent,
+    ProfilePlotComponent
   ],
   imports: [
     BrowserModule,

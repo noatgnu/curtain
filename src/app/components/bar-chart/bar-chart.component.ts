@@ -21,7 +21,7 @@ export class BarChartComponent implements OnInit {
       "tickvals": [],
       "ticktext": [],
       "tickfont": {
-        "size": 15
+        "size": 17
       },
       "font": {
         size: 20,
@@ -90,8 +90,14 @@ export class BarChartComponent implements OnInit {
         this.graphLayout.xaxis.ticktext.push(t)
         this.dataService.updateBarChartKeyChannel(t)
       } else {
-        this.graphLayout.xaxis.ticktext.push(this.relabelSample[t])
-        this.reverseLinkLabel[this.relabelSample[t]] = t
+        if (this.relabelSample[t] !== ""){
+          this.graphLayout.xaxis.ticktext.push(this.relabelSample[t])
+          this.reverseLinkLabel[this.relabelSample[t]] = t
+        } else {
+          this.graphLayout.xaxis.ticktext.push(t)
+          this.dataService.updateBarChartKeyChannel(t)
+        }
+
       }
     }
   }
