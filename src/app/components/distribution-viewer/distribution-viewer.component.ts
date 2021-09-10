@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {DataService} from "../../service/data.service";
 import {UniprotService} from "../../service/uniprot.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-distribution-viewer',
@@ -24,7 +25,10 @@ export class DistributionViewerComponent implements OnInit {
   @Input() dataComp: IDataFrame = new DataFrame()
   uniData: Map<string, any> = new Map<string, any>()
 
-  constructor(private dataService: DataService, private uniprot: UniprotService) {
+  labelKeys: string[] = []
+  labelSamples: any = {}
+
+  constructor(private dataService: DataService, private uniprot: UniprotService, private modalService: NgbModal) {
     this.dataService.annotationSelect.subscribe(data => {
       this.uniData = this.uniprot.results
       this.selectedRawData = []
@@ -45,6 +49,31 @@ export class DistributionViewerComponent implements OnInit {
       this.allSelected = []
       this.selectedRawData = {}
     })
+    this.dataService.barChartSampleLabels.asObservable().subscribe(data => {
+      this.labelKeys = this.dataService.barChartKeys
+      this.labelSamples = this.dataService.relabelSamples
+    })
+  }
+  modalViewer(content: any, type: string) {
+    this.modalService.open(content, {ariaLabelledBy: type}).result.then((result) => {
+
+    })
+  }
+
+  changeLabel(content: any) {
+    for (const i in this.labelSamples) {
+      if (this.labelSamples[i]) {
+        if (this.labelSamples[i] !== "") {
+          this.dataService.relabelSamples[i] = this.labelSamples[i]
+        }
+      }
+    }
+    this.dataService.barChartSampleLabels.next(true)
+    content.dismiss("close")
+  }
+
+  updateView(content: any) {
+    content.dismiss()
   }
 
   ngOnInit(): void {

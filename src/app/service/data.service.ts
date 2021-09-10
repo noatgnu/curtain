@@ -21,9 +21,14 @@ export class DataService {
   sampleColumns: string[] = []
   batchSelectionService: BehaviorSubject<any> = new BehaviorSubject<any>({})
   titleGraph: BehaviorSubject<string> = new BehaviorSubject<string>("")
-
+  barChartSampleLabels: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
+  barChartSampleUpdateChannel: BehaviorSubject<string> = new BehaviorSubject<string>("")
+  barChartKeys: string[] = []
+  relabelSamples: any = {}
   constructor(private uniprot: UniprotService) {
-
+    this.barChartSampleUpdateChannel.asObservable().subscribe(key => {
+      this.updateBarChartKey(key)
+    })
   }
 
   updateComparison(data: IDataFrame) {
@@ -120,5 +125,20 @@ export class DataService {
     this.batchSelectionService.next({title: title, type: type, data: data})
     this.searchService.next({term: data, type: type, annotate: false})
 
+  }
+
+  updateBarChartKey(key: string) {
+    if (key !== "") {
+      if (!this.barChartKeys.includes(key)) {
+        this.barChartKeys.push(key)
+        this.relabelSamples[key] = ""
+      }
+    }
+
+    this.barChartSampleLabels.next(false)
+  }
+
+  updateBarChartKeyChannel(key: string) {
+    this.barChartSampleUpdateChannel.next(key)
   }
 }

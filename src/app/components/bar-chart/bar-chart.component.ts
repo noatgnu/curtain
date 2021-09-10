@@ -19,7 +19,13 @@ export class BarChartComponent implements OnInit {
       //"categoryorder" : "array",
       //"categoryarray": [],
       "tickvals": [],
-      "ticktext": []
+      "ticktext": [],
+      "tickfont": {
+        "size": 15
+      },
+      "font": {
+        size: 20,
+      }
     },
     yaxis: {
       "title" : "Intensity"
@@ -32,7 +38,8 @@ export class BarChartComponent implements OnInit {
     this.drawBarChart(value);
     this._data = value
   }
-
+  relabelSample: any = {}
+  reverseLinkLabel: any = {}
   private drawBarChart(value: IDataFrame<number, any>) {
     this.graphData = []
     //this.graphLayout.xaxis.categoryarray = []
@@ -59,6 +66,10 @@ export class BarChartComponent implements OnInit {
               temp[name] = {
                 x: [], y: [],
                 type: 'bar',
+                mode: 'markers',
+                marker: {
+                  symbol: "circle-open"
+                },
                 name: name,
                 visible: visible
               }
@@ -74,8 +85,14 @@ export class BarChartComponent implements OnInit {
 
     for (const t in temp) {
       this.graphData.push(temp[t])
-      this.graphLayout.xaxis.tickvals.push(temp[t].x[1])
-      this.graphLayout.xaxis.ticktext.push(t)
+      this.graphLayout.xaxis.tickvals.push(temp[t].x[Math.round(temp[t].x.length/2)-1])
+      if (!(t in this.relabelSample)) {
+        this.graphLayout.xaxis.ticktext.push(t)
+        this.dataService.updateBarChartKeyChannel(t)
+      } else {
+        this.graphLayout.xaxis.ticktext.push(this.relabelSample[t])
+        this.reverseLinkLabel[this.relabelSample[t]] = t
+      }
     }
   }
   title: string = ""
@@ -84,6 +101,33 @@ export class BarChartComponent implements OnInit {
     this.dataService.titleGraph.asObservable().subscribe(data => {
       this.graphLayout.title = data + "<br>" + this.title
     })
+    this.dataService.barChartSampleLabels.asObservable().subscribe(data => {
+      if (data) {
+        this.relabelSample = this.dataService.relabelSamples
+        this.drawBarChart(this._data)
+        /*for (let i = 0; i < this.graphLayout.xaxis.ticktext.length; i++) {
+          if ((this.graphLayout.xaxis.ticktext[i] in this.reverseLinkLabel)) {
+            if (this.reverseLinkLabel[this.graphLayout.xaxis.ticktext[i]] in this.relabelSample) {
+              if (this.relabelSample[this.reverseLinkLabel[this.graphLayout.xaxis.ticktext[i]]]!== "") {
+                this.graphLayout.xaxis.ticktext[i] = this.relabelSample[this.reverseLinkLabel[this.graphLayout.xaxis.ticktext[i]]]
+              }
+            }
+          } else {
+            if (this.relabelSample[this.graphLayout.xaxis.ticktext[i]] !== "") {
+              const temp = this.graphLayout.xaxis.ticktext[i]
+              this.reverseLinkLabel[this.relabelSample[this.graphLayout.xaxis.ticktext[i]]] = temp
+              this.graphLayout.xaxis.ticktext[i] = this.relabelSample[this.graphLayout.xaxis.ticktext[i]]
+            }
+          }
+        }
+
+        this.graphLayout.xaxis.ticktext = [...this.graphLayout.xaxis.ticktext]
+        this.graphLayout.xaxis = Object.create(this.graphLayout.xaxis)
+        this.graphLayout = Object.create(this.graphLayout)
+        console.log(this.graphLayout.xaxis.ticktext)*/
+      }
+    })
+
   }
 
   ngOnInit(): void {
