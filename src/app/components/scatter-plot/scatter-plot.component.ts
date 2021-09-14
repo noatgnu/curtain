@@ -56,7 +56,8 @@ export class ScatterPlotComponent implements OnInit {
     height: 1000, xaxis: {title: "Log2FC"}, yaxis: {title: "-log10(p-value)"}, annotations: [],
     showlegend: true, legend: {
       orientation: 'h'
-    }
+    },
+    shapes: []
   }
   pCutOff: number = 0.00001
   log2FCCutoff: number = 2
@@ -131,17 +132,56 @@ export class ScatterPlotComponent implements OnInit {
 
     const temp: any = {}
     this.graphData = []
-
-
+    const minMax = {
+      xMin: 0,
+      yMin: 0,
+      xMax: 0,
+      yMax: 0}
+    let notStartedx = true
+    let notStartedy = true
     if (Object.keys(group).length === 0) {
       console.log(this.batchSelection)
       for (const r of this._data) {
+        if (r["pvalue"]) {
+          if (notStartedy) {
+            minMax.yMin = r["pvalue"]
+            minMax.yMax = r["pvalue"]
+            notStartedy = false
+
+          } else {
+            if (r["pvalue"] < minMax.yMin) {
+              minMax.yMin = r["pvalue"]
+            } else {
+              if (r["pvalue"] > minMax.yMax) {
+                minMax.yMax = r["pvalue"]
+              }
+            }
+          }
+        }
+
+        if (r["logFC"]) {
+          if (notStartedx) {
+            minMax.xMin = r["logFC"]
+            minMax.xMax = r["logFC"]
+            notStartedx = false
+          } else {
+            if (r["logFC"] < minMax.xMin) {
+              minMax.xMin = r["logFC"]
+            } else {
+              if (r["logFC"] > minMax.xMax) {
+                minMax.xMax = r["logFC"]
+              }
+            }
+          }
+        }
         let selected: boolean = false
         if (this.batchSelection.data) {
           if (this.batchSelection.data.includes(r[this.batchSelection.type])) {
             if (!(this.batchSelection.title in temp)) {
               temp[this.batchSelection.title] = {x: [], y: [], text:[], type: 'scatter', name: this.batchSelection.title, mode: 'markers'}
             }
+
+            console.log(minMax)
             temp[this.batchSelection.title].y.push(-Math.log10(r["pvalue"]))
             temp[this.batchSelection.title].x.push(r["logFC"])
             if (this.uniprotMap.has(r["Proteins"])) {
@@ -167,17 +207,48 @@ export class ScatterPlotComponent implements OnInit {
           }
         }
       }
-    } else {
-      for (const r of this._data) {
-        if (!(group[r.Samples] in temp)) {
-          temp[group[r.Samples]] = {
-            x: [], y: [], type: 'scatter', name: group[r.Samples], mode: 'markers'
-          }
-        }
-        temp[group[r.Samples]].y.push(r.PCA2)
-        temp[group[r.Samples]].x.push(r.PCA1)
-      }
     }
+    this.graphLayout.xaxis.range = [minMax.xMin - 0.5, minMax.xMax + 0.5]
+    this.graphLayout.yaxis.range = [0, -Math.log10(minMax.yMin - minMax.yMin/2)]
+    this.graphLayout.shapes = [
+      {
+        type: "line",
+        x0: this.graphLayout.xaxis.range[0],
+        x1: this.graphLayout.xaxis.range[1],
+        y0: -Math.log10(this.pCutOff),
+        y1: -Math.log10(this.pCutOff),
+        line:{
+          color: 'rgb(21,4,4)',
+          width: 2,
+          dash:'dot'
+        }
+      },
+      {
+        type: "line",
+        x0: -this.log2FCCutoff,
+        x1: -this.log2FCCutoff,
+        y0: this.graphLayout.yaxis.range[0],
+        y1: this.graphLayout.yaxis.range[1],
+        line:{
+          color: 'rgb(21,4,4)',
+          width: 2,
+          dash:'dot'
+        }
+      },
+      {
+        type: "line",
+        x0: this.log2FCCutoff,
+        x1: this.log2FCCutoff,
+        y0: this.graphLayout.yaxis.range[0],
+        y1: this.graphLayout.yaxis.range[1],
+        line:{
+          color: 'rgb(21,4,4)',
+          width: 2,
+          dash:'dot'
+        }
+      },
+    ]
+
     for (const t in temp) {
       this.graphData.push(temp[t])
     }

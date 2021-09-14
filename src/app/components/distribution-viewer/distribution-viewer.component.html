@@ -123,6 +123,9 @@
     <div class="col-3">
       <button class="btn btn-outline-info" (click)="modalViewer(sampleLabel, 'sample-relabel')">Change Sample Label</button>
     </div>
+    <div class="col-2">
+      <button class="btn btn-primary" (click)="viewProfile(profilePlot)">View Profile</button>
+    </div>
   </div>
 
 </div>
@@ -131,3 +134,14 @@
     <app-bar-chart  [data]="selectedRawData[d].df" *ngIf="selectedRawData[d].visible"></app-bar-chart>
   </div>
 </div>
+<ng-template #profilePlot let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="profile">Profile Plot</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" *ngIf="_data.count()> 0">
+    <app-profile-plot [data]="_data"></app-profile-plot>
+  </div>
+</ng-template>

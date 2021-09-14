@@ -3,6 +3,7 @@ import {GraphData} from "./classes/graph-data";
 import {DataFrame, IDataFrame} from "data-forge";
 import {parse} from "@angular/compiler/src/render3/view/style_parser";
 import {WebService} from "./service/web.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,7 @@ export class AppComponent {
   comparison: string[] = []
   selectedDF: IDataFrame = new DataFrame()
   selectedComparison: string = ""
-  constructor(private webService: WebService) {
+  constructor(private webService: WebService, private modalService: NgbModal) {
     this.webService.getFilter()
   }
 
@@ -34,4 +35,5 @@ export class AppComponent {
     e.stopPropagation()
     this.selectedDF = this.g.processed.where(row => row.comparison === this.selectedComparison).bake()
   }
+
 }

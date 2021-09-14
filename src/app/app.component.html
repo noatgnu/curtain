@@ -17,11 +17,13 @@
   </div>
 </div>
 
-<div class="container-fluid">
-  <app-comparison-viewer [data]="selectedDF" *ngIf="selectedDF.count() > 0"></app-comparison-viewer>
+<div class="container-fluid mt-2" *ngIf="selectedDF.count() > 0">
+
+  <app-comparison-viewer [data]="selectedDF"></app-comparison-viewer>
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid mt-2">
   <app-distribution-viewer [data]="g.raw" [dataComp]="selectedDF"></app-distribution-viewer>
 </div>
+
 
