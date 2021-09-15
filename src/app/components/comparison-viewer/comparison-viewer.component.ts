@@ -23,7 +23,7 @@ export class ComparisonViewerComponent implements OnInit {
   downRegulated: IDataFrame = new DataFrame()
 
   _data: IDataFrame = new DataFrame()
-
+  @Input() intensityData: IDataFrame = new DataFrame()
   drawPack: DrawPack = new DrawPack()
   label: string[] = []
   searchType: "Gene names"|"Proteins"|"Subcellular locations" = "Gene names"
@@ -90,7 +90,11 @@ export class ComparisonViewerComponent implements OnInit {
     })
   }
 
+  viewProfile(content: any) {
+    this.modalService.open(content, {ariaLabelledBy: "profile-plot", size: 'xl'}).result.then((result) => {
 
+    })
+  }
   ngOnInit(): void {
   }
 

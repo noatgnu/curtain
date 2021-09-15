@@ -78,9 +78,5 @@ export class DistributionViewerComponent implements OnInit {
 
   ngOnInit(): void {
   }
-  viewProfile(content: any) {
-    this.modalService.open(content, {ariaLabelledBy: "profile-plot", size: 'xl'}).result.then((result) => {
 
-    })
-  }
 }

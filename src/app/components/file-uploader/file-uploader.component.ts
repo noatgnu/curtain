@@ -19,6 +19,7 @@ export class FileUploaderComponent implements OnInit {
   graphData: GraphData = new GraphData()
   accessionList: string[] = []
   rawFileName: string = "";
+  log10pvalue: boolean = false;
   constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService) {
     this.uniprot.uniprotParseStatusObserver.subscribe(status => {
       if (status) {
@@ -61,10 +62,18 @@ export class FileUploaderComponent implements OnInit {
         if (Object.keys(renameProcessed).length > 0) {
           this.graphData.processed = this.graphData.processed.renameSeries(renameProcessed).bake()
         }
+
         for (const c of this.graphData.processed.getColumnNames()) {
           if (!(["Proteins", "comparison"].includes(c))) {
             this.graphData.processed = this.graphData.processed.withSeries(c, new Series(this.graphData.processed.getSeries(c).parseFloats().bake().toArray())).bake()
           }
+        }
+        if (this.log10pvalue) {
+          const temp = []
+          for (const l of this.graphData.processed.getSeries("pvalue").bake().toArray()) {
+            temp.push(10**(-l))
+          }
+          this.graphData.processed = this.graphData.processed.withSeries("pvalue", new Series(temp)).bake()
         }
         this.graphData.raw = this.raw
         if (Object.keys(rawRename).length > 0) {

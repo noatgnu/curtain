@@ -19,7 +19,7 @@
 
 <div class="container-fluid mt-2" *ngIf="selectedDF.count() > 0">
 
-  <app-comparison-viewer [data]="selectedDF"></app-comparison-viewer>
+  <app-comparison-viewer [data]="selectedDF" [intensityData]="g.raw"></app-comparison-viewer>
 </div>
 
 <div class="container-fluid mt-2">

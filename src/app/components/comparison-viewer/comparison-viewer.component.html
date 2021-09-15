@@ -8,49 +8,42 @@
       <label for="log2Cutoff">Log2FC Cut-off</label>
       <input type="number" class="form-control" id="log2Cutoff" [(ngModel)]="logFCCutoff" (focusout)="changeInput($event)">
     </div>
-    <div class="col-8">
-      <div class="form-row">
-        <div class="col-3">
-          <label for="searchProteinOrGene">Search</label>
-        </div>
-
-      </div>
-
-      <div class="form-row">
-        <div class="col-2">
-          <select class="form-control" [(ngModel)]="searchType">
-            <option>
-              Gene names
-            </option>
-            <option>
-              Proteins
-            </option>
-            <option>
-              Subcellular locations
-            </option>
-          </select>
-        </div>
-        <div class="col-2">
-          <input id="searchProteinOrGene" type="text" class="form-control" [(ngModel)]="tableFilterModel" placeholder="Search" [ngbTypeahead]="search">
-        </div>
-        <div class="col-2">
-          <button class="btn btn-primary" (click)="findInData($event)">Find in data</button>
-        </div>
-        <div class="col-3">
-          <button class="btn btn-outline-info" (click)="startBatchSelection(content)">Batch selection</button>
-        </div>
-        <div class="col-3">
-          <button class="btn btn-danger" (click)="clearAllSelected($event)">Clear all selected</button>
-        </div>
-      </div>
-
-
-    </div>
-    <div class="col-2">
-
+  </div>
+  <div class="form-row">
+    <div class="col-3">
+      <label for="searchProteinOrGene">Search</label>
     </div>
   </div>
-
+  <div class="form-row">
+    <div class="col-2">
+      <select class="form-control" [(ngModel)]="searchType">
+        <option>
+          Gene names
+        </option>
+        <option>
+          Proteins
+        </option>
+        <option>
+          Subcellular locations
+        </option>
+      </select>
+    </div>
+    <div class="col-2">
+      <input id="searchProteinOrGene" type="text" class="form-control" [(ngModel)]="tableFilterModel" placeholder="Search" [ngbTypeahead]="search">
+    </div>
+    <div class="col-2">
+      <button class="btn btn-primary" (click)="findInData($event)">Find in data</button>
+    </div>
+    <div class="col-2">
+      <button class="btn btn-outline-info" (click)="startBatchSelection(content)">Batch selection</button>
+    </div>
+    <div class="col-2">
+      <button class="btn btn-danger" (click)="clearAllSelected($event)">Clear all selected</button>
+    </div>
+    <div class="col-2">
+      <button class="btn btn-primary" (click)="viewProfile(profilePlot)">View Profile</button>
+    </div>
+  </div>
 </div>
 <div class="row">
 
@@ -117,5 +110,17 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="batchSelect(modal)">Submit</button>
+  </div>
+</ng-template>
+
+<ng-template #profilePlot let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="profile">Profile Plot</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" *ngIf="intensityData.count()> 0">
+    <app-profile-plot [data]="intensityData"></app-profile-plot>
   </div>
 </ng-template>
