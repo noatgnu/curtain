@@ -23,6 +23,17 @@
         [resizeable]="true"
         [draggable]="true"
         [sortable]="false"
+        name="Bar Chart"
+        [canAutoResize]="false"
+      >
+        <ng-template ngx-datatable-cell-template let-row="row">
+          <input type="checkbox" [(ngModel)]="selectedRawData[row.Proteins].visible">
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column
+        [resizeable]="true"
+        [draggable]="true"
+        [sortable]="false"
         name="Proteins"
         [canAutoResize]="false"
       >
