@@ -13,15 +13,16 @@
       <button class="btn btn-sm btn-primary" (click)="downloadPlotlyExtra('svg')">Download SVG</button>
     </div>
     <div class="col-2">
+      <button class="btn btn-sm btn-primary" (click)="customCurve(customCurv)">Custom FDR Curve</button>
+      <button class="btn btn-sm btn-danger" (click)="removeCurve()" *ngIf="drawFDRCurve">Remove FDR Curve</button>
+    </div>
+    <div class="col-2">
       <label for="customTitle">Custom Title:</label>
     </div>
     <div class="col-2">
       <input type="text" id="customTitle" class="form-control" [(ngModel)]="customTitle" (focusout)="updateTitle($event)">
     </div>
     <div class="col-2">
-      <div class="form-check">
-
-      </div>
       <input id="xaxis-scale" type="checkbox" class="form-check-input" (change)="changeXaxis($event)" [(ngModel)]="xaxisLog">
       <label class="form-check-label" for="xaxis-scale">
         Log2 X-axis
@@ -29,3 +30,23 @@
     </div>
   </div>
 </div>
+
+<ng-template #customCurv let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Custom FDR Curve</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="entryList" class="sr-only">Custom FDR Curve Data Table (require x and y columns)</label>
+      <textarea class="form-control" id="entryList" [(ngModel)]="fdrCurveText" rows="5"></textarea>
+    </div>
+
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="updatePlotWithFDRCurve(modal)">Submit</button>
+  </div>
+</ng-template>

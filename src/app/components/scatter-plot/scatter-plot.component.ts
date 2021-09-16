@@ -1,10 +1,11 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DataFrame, IDataFrame} from "data-forge";
+import {DataFrame, fromCSV, IDataFrame} from "data-forge";
 import {PlotlyService} from "angular-plotly.js";
 import {DrawPack} from "../../classes/draw-pack";
 import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
 import * as d3 from "d3";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-scatter-plot',
@@ -12,34 +13,15 @@ import * as d3 from "d3";
   styleUrls: ['./scatter-plot.component.css']
 })
 export class ScatterPlotComponent implements OnInit {
+  drawFDRCurve: boolean = false
   graphData: any[] = []
+  fdrDF: IDataFrame = new DataFrame()
   xaxisLog: boolean = true
   changeXaxis(e: Event) {
     e.stopPropagation()
     e.preventDefault()
-    for (let i = 0; i < this.graphData.length; i ++) {
-      for (let i2 = 0; i2 < this.graphData[i].x.length; i2 ++) {
-        if (!this.xaxisLog) {
-          if (this.graphData[i].x[i2] > 0) {
-            this.graphData[i].x[i2] = 2**this.graphData[i].x[i2]
-          } else {
-            this.graphData[i].x[i2] = -(2**this.graphData[i].x[i2])
-          }
-
-        } else {
-          if (this.graphData[i].x[i2] > 0) {
-            this.graphData[i].x[i2] = Math.log2(this.graphData[i].x[i2])
-          } else {
-            this.graphData[i].x[i2] = -(2**this.graphData[i].x[i2])
-          }
-          this.graphData[i].x[i2] = Math.log2(this.graphData[i].x[i2])
-        }
-
-      }
-      this.graphData[i].x = [...this.graphData[i].x]
-      console.log(this.graphData[i].x)
-    }
-    this.graphData = [...this.graphData]
+    this.graphScatterPlot()
+    console.log(this.graphData)
   }
   customTitle: string = ""
   annotationTextSize = 1
@@ -77,7 +59,7 @@ export class ScatterPlotComponent implements OnInit {
   uniprotMap = new Map<string, any>()
 
   batchSelection: any = {}
-  constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
+  constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService, private modal: NgbModal) {
     this.uniprotMap = uniprot.results
     this.dataService.annotationSelect.subscribe(data => {
       this.graphLayout.annotations = data
@@ -142,34 +124,42 @@ export class ScatterPlotComponent implements OnInit {
     if (Object.keys(group).length === 0) {
       console.log(this.batchSelection)
       for (const r of this._data) {
-        if (r["pvalue"]) {
+        const row = {...r}
+        if (row["pvalue"]) {
           if (notStartedy) {
-            minMax.yMin = r["pvalue"]
-            minMax.yMax = r["pvalue"]
+            minMax.yMin = row["pvalue"]
+            minMax.yMax = row["pvalue"]
             notStartedy = false
 
           } else {
-            if (r["pvalue"] < minMax.yMin) {
-              minMax.yMin = r["pvalue"]
+            if (row["pvalue"] < minMax.yMin) {
+              minMax.yMin = row["pvalue"]
             } else {
-              if (r["pvalue"] > minMax.yMax) {
-                minMax.yMax = r["pvalue"]
+              if (row["pvalue"] > minMax.yMax) {
+                minMax.yMax = row["pvalue"]
               }
             }
           }
         }
 
-        if (r["logFC"]) {
+        if (row["logFC"]) {
+          if (!this.xaxisLog) {
+            if (row["logFC"] < 0) {
+              row["logFC"] = -(2**(-row["logFC"]))
+            } else {
+              row["logFC"] = 2**(row["logFC"])
+            }
+          }
           if (notStartedx) {
-            minMax.xMin = r["logFC"]
-            minMax.xMax = r["logFC"]
+            minMax.xMin = row["logFC"]
+            minMax.xMax = row["logFC"]
             notStartedx = false
           } else {
             if (r["logFC"] < minMax.xMin) {
-              minMax.xMin = r["logFC"]
+              minMax.xMin = row["logFC"]
             } else {
               if (r["logFC"] > minMax.xMax) {
-                minMax.xMax = r["logFC"]
+                minMax.xMax = row["logFC"]
               }
             }
           }
@@ -182,76 +172,140 @@ export class ScatterPlotComponent implements OnInit {
             }
 
             console.log(minMax)
-            temp[this.batchSelection.title].y.push(-Math.log10(r["pvalue"]))
-            temp[this.batchSelection.title].x.push(r["logFC"])
-            if (this.uniprotMap.has(r["Proteins"])) {
-              temp[this.batchSelection.title].text.push(this.uniprotMap.get(r["Proteins"])["Gene names"] + "(" + r["Proteins"] + ")" )
+            temp[this.batchSelection.title].y.push(-Math.log10(row["pvalue"]))
+            temp[this.batchSelection.title].x.push(row["logFC"])
+            if (this.uniprotMap.has(row["Proteins"])) {
+              temp[this.batchSelection.title].text.push(this.uniprotMap.get(row["Proteins"])["Gene names"] + "(" + row["Proteins"] + ")" )
             } else {
-              temp[this.batchSelection.title].text.push(r["Proteins"])
+              temp[this.batchSelection.title].text.push(row["Proteins"])
             }
             selected = true
           }
         }
         if (!selected) {
-          const conditions = this.selectConditions(r["pvalue"], r["logFC"])
+          const conditions = this.selectConditions(row["pvalue"], row["logFC"])
 
           if (!(conditions in temp)) {
             temp[conditions] = {x: [], y: [], text:[], type: 'scatter', name: conditions, mode: 'markers'}
           }
-          temp[conditions].y.push(-Math.log10(r["pvalue"]))
-          temp[conditions].x.push(r["logFC"])
-          if (this.uniprotMap.has(r["Proteins"])) {
-            temp[conditions].text.push(this.uniprotMap.get(r["Proteins"])["Gene names"] + "(" + r["Proteins"] + ")" )
+          temp[conditions].y.push(-Math.log10(row["pvalue"]))
+          temp[conditions].x.push(row["logFC"])
+          if (this.uniprotMap.has(row["Proteins"])) {
+            temp[conditions].text.push(this.uniprotMap.get(row["Proteins"])["Gene names"] + "(" + row["Proteins"] + ")" )
           } else {
-            temp[conditions].text.push(r["Proteins"])
+            temp[conditions].text.push(row["Proteins"])
           }
         }
       }
     }
-    this.graphLayout.xaxis.range = [minMax.xMin - 0.5, minMax.xMax + 0.5]
-    this.graphLayout.yaxis.range = [0, -Math.log10(minMax.yMin - minMax.yMin/2)]
-    this.graphLayout.shapes = [
-      {
+    this.graphLayout.shapes = []
+
+    if (this.drawFDRCurve) {
+      const left: IDataFrame = this.fdrDF.where(row => row.x < 0).bake()
+      const right: IDataFrame = this.fdrDF.where(row => row.x >= 0).bake()
+      const fdrLeft: any = {
+        x: [],
+        y: [],
+        hoverinfo: 'skip',
+        showlegend: false,
+        mode: 'lines',
+        line:{
+          color: 'rgb(103,102,102)',
+          width: 0.5,
+          dash:'dot'
+        }
+      }
+      const fdrRight: any = {
+        x: [],
+        y: [],
+        hoverinfo: 'skip',
+        showlegend: false,
+        mode: 'lines',
+        line:{
+          color: 'rgb(103,102,102)',
+          width: 0.5,
+          dash:'dot'
+        }
+      }
+      for (const l of left) {
+        if (l.x < this.graphLayout.xaxis.range[0]) {
+          this.graphLayout.xaxis.range[0] = l.x
+        }
+        if (l.y > this.graphLayout.yaxis.range[1]) {
+          this.graphLayout.yaxis.range[1] = l.y
+        }
+        fdrLeft.x.push(l.x)
+        fdrLeft.y.push(l.y)
+      }
+      for (const l of right) {
+        if (l.x < this.graphLayout.xaxis.range[0]) {
+          this.graphLayout.xaxis.range[0] = l.x
+        }
+        if (l.y > this.graphLayout.yaxis.range[1]) {
+          this.graphLayout.yaxis.range[1] = l.y
+        }
+        fdrRight.x.push(l.x)
+        fdrRight.y.push(l.y)
+      }
+      this.graphData.push(fdrLeft)
+      this.graphData.push(fdrRight)
+
+    } else {
+      this.graphLayout.xaxis.range = [minMax.xMin - 0.5, minMax.xMax + 0.5]
+      this.graphLayout.yaxis.range = [0, -Math.log10(minMax.yMin - minMax.yMin/2)]
+      this.graphLayout.shapes.push({
         type: "line",
-        x0: this.graphLayout.xaxis.range[0],
-        x1: this.graphLayout.xaxis.range[1],
+        x0: this.graphLayout.xaxis.range[0] - 0.5,
+        x1: this.graphLayout.xaxis.range[1] + 0.5,
         y0: -Math.log10(this.pCutOff),
         y1: -Math.log10(this.pCutOff),
         line:{
           color: 'rgb(21,4,4)',
-          width: 2,
+          width: 1,
           dash:'dot'
         }
-      },
-      {
-        type: "line",
-        x0: -this.log2FCCutoff,
-        x1: -this.log2FCCutoff,
-        y0: this.graphLayout.yaxis.range[0],
-        y1: this.graphLayout.yaxis.range[1],
-        line:{
-          color: 'rgb(21,4,4)',
-          width: 2,
-          dash:'dot'
+      })
+      this.graphLayout.shapes.push(
+        {
+          type: "line",
+          x0: -this.log2FCCutoff,
+          x1: -this.log2FCCutoff,
+          y0: 0,
+          y1: this.graphLayout.yaxis.range[1],
+          line:{
+            color: 'rgb(21,4,4)',
+            width: 1,
+            dash:'dot'
+          }
         }
-      },
-      {
-        type: "line",
-        x0: this.log2FCCutoff,
-        x1: this.log2FCCutoff,
-        y0: this.graphLayout.yaxis.range[0],
-        y1: this.graphLayout.yaxis.range[1],
-        line:{
-          color: 'rgb(21,4,4)',
-          width: 2,
-          dash:'dot'
+      )
+      this.graphLayout.shapes.push(
+        {
+          type: "line",
+          x0: this.log2FCCutoff,
+          x1: this.log2FCCutoff,
+          y0: 0,
+          y1: this.graphLayout.yaxis.range[1],
+          line:{
+            color: 'rgb(21,4,4)',
+            width: 1,
+            dash:'dot'
+          }
         }
-      },
-    ]
+      )
+    }
+
+
 
     for (const t in temp) {
       this.graphData.push(temp[t])
     }
+    if (!this.xaxisLog) {
+      this.graphLayout.xaxis.title = "FC"
+    } else {
+      this.graphLayout.xaxis.title = "log2FC"
+    }
+
   }
 
   selectData(e: any) {
@@ -267,4 +321,25 @@ export class ScatterPlotComponent implements OnInit {
 
   plotUpdated(e: any) {
   }
+  fdrCurveText: string = ""
+
+  customCurve(content: any) {
+    this.modal.open(content, {ariaLabelledBy: "custom-fdr-curve"}).result.then((result) => {
+
+    })
+  }
+
+  removeCurve() {
+    this.drawFDRCurve = false
+    this.graphScatterPlot()
+  }
+
+  updatePlotWithFDRCurve(content: any) {
+    this.fdrDF = fromCSV(this.fdrCurveText)
+    this.drawFDRCurve = true
+    this.graphScatterPlot()
+    content.dismiss()
+
+  }
+
 }
