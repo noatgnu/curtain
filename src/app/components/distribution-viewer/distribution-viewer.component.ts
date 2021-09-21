@@ -114,7 +114,7 @@ export class DistributionViewerComponent implements OnInit {
 
   changeDisplaying() {
     const filterList: string[] = [this.selectedInteractionFilter]
-    for (const a of this.uniprot.results.get(this.selectedInteractionFilter)["interaction"]) {
+    for (const a of this.uniprot.results.get(this.selectedInteractionFilter)[this.interactionType]) {
       const b = this.dbstring.reverseStringMap.get(a.stringId_B)
       if (b) {
         filterList.push(b)

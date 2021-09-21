@@ -113,7 +113,7 @@ export class ComparisonViewerComponent implements OnInit {
   }
 
   viewProfile(content: any) {
-    this.modalService.open(content, {ariaLabelledBy: "profile-plot", size: 'xl'}).result.then((result) => {
+    this.modalService.open(content, {ariaLabelledBy: "profile-plot", windowClass: "max-modal"}).result.then((result) => {
 
     })
   }
