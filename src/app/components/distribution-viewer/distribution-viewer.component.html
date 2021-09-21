@@ -14,6 +14,12 @@
         </div>
       </div>
       <div class="col-2">
+        <select [(ngModel)]="interactionType" class="form-control" (change)="changeInteraction()" [disabled]="!interactionFilterStatus">
+          <option value="functional">Functional Interaction</option>
+          <option value="physical">Physical Interaction</option>
+        </select>
+      </div>
+      <div class="col-2">
         <select class="form-control" [disabled]="!interactionFilterStatus" (change)="changeDisplaying()" [(ngModel)]="selectedInteractionFilter">
           <option *ngFor="let a of filteredAllSelected" [value]="a">
             {{getTitle(a)}}

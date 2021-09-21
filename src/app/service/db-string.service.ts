@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpResponse} from "@angular/common/http";
 import {fromCSV, Series} from "data-forge";
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, forkJoin} from "rxjs";
 import {UniprotService} from "./uniprot.service";
 import {DataService} from "./data.service";
 
@@ -83,44 +83,54 @@ export class DbStringService {
       ["network_type", "physical"],
     ])
     const dbstringUrl = this.proxyUrl + this.baseUrl + "api/tsv/interaction_partners"
-    this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"}).subscribe(res => {
-      const df = fromCSV(<string>res.body);
-/*      for (const r of df) {
-        if (!(r["stringId_A"] in this.interactionMap)) {
-          this.interactionMap[r["stringId_A"]] = {}
-        }
-        this.interactionMap[r["stringId_A"]][r["stringId_B"]] = r
-      }*/
-      console.log(df)
-      for (const a of this.dataService.allSelected) {
-        if (this.uniprot.results.has(a)) {
-          const p = this.uniprot.results.get(a)
-          for (const e of p["Cross-reference (STRING)"].split(";")) {
-            console.log(e)
-            if (e) {
-              let newDF = df.where(row => row.stringId_A === e).bake()
-              newDF = newDF.where(row => data.includes(row.stringId_B)).bake()
-              console.log(newDF)
-              /*            const proteinB = []
-                          for (const r of newDF) {
-                            const a = this.reverseStringMap.get(r.stringId_B)
-                            if (a) {
-                              const c = this.uniprot.results.get(a)
-                              proteinB.push(c["Entry"])
-                            }
+    let physical = this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"})
+    options.set("network_type", "functional")
+    let functional =   this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"})
+    forkJoin([physical, functional]).subscribe(res => {
+      const phy = res[0]
+      const fu = res[1]
+      this.processInteraction(phy, data, "physical");
+      this.processInteraction(fu, data, "functional");
+      this.interactionAnalysis.next(true)
+    })
+  }
 
+  private processInteraction(phy: HttpResponse<string>, data: string[], type: string) {
+    const df = fromCSV(<string>phy.body);
+    /*      for (const r of df) {
+            if (!(r["stringId_A"] in this.interactionMap)) {
+              this.interactionMap[r["stringId_A"]] = {}
+            }
+            this.interactionMap[r["stringId_A"]][r["stringId_B"]] = r
+          }*/
+
+    for (const a of this.dataService.allSelected) {
+      if (this.uniprot.results.has(a)) {
+        const p = this.uniprot.results.get(a)
+        for (const e of p["Cross-reference (STRING)"].split(";")) {
+          console.log(e)
+          if (e) {
+            let newDF = df.where(row => row.stringId_A === e).bake()
+            newDF = newDF.where(row => data.includes(row.stringId_B)).bake()
+            console.log(newDF)
+            /*            const proteinB = []
+                        for (const r of newDF) {
+                          const a = this.reverseStringMap.get(r.stringId_B)
+                          if (a) {
+                            const c = this.uniprot.results.get(a)
+                            proteinB.push(c["Entry"])
                           }
-                          newDF = newDF.withSeries("Protein B", new Series(proteinB)).bake()*/
-              if (newDF.count() > 0) {
-                p["interaction"] = newDF
-                this.uniprot.results.set(a, p)
-              }
+
+                        }
+                        newDF = newDF.withSeries("Protein B", new Series(proteinB)).bake()*/
+            if (newDF.count() > 0) {
+              p[type] = newDF
+              this.uniprot.results.set(a, p)
             }
           }
         }
       }
-      this.interactionAnalysis.next(true)
-    })
+    }
   }
 
   getInteractingPartnersNoProxy(data: string[], species: string) {
@@ -130,42 +140,14 @@ export class DbStringService {
       ["network_type", "physical"]
     ])
     const dbstringUrl = this.proxyUrl + this.baseUrl + "api/tsv/interaction_partners?" + this.toParamString(options)
-    this.http.get(dbstringUrl, {responseType: "text", observe: "response"}).subscribe(res => {
-      const df = fromCSV(<string>res.body);
-      /*      for (const r of df) {
-              if (!(r["stringId_A"] in this.interactionMap)) {
-                this.interactionMap[r["stringId_A"]] = {}
-              }
-              this.interactionMap[r["stringId_A"]][r["stringId_B"]] = r
-            }*/
-      console.log(df)
-      for (const a of this.dataService.allSelected) {
-        if (this.uniprot.results.has(a)) {
-          const p = this.uniprot.results.get(a)
-          for (const e of p["Cross-reference (STRING)"].split(";")) {
-            console.log(e)
-            if (e) {
-              let newDF = df.where(row => row.stringId_A === e).bake()
-              newDF = newDF.where(row => data.includes(row.stringId_B)).bake()
-              console.log(newDF)
-              /*            const proteinB = []
-                          for (const r of newDF) {
-                            const a = this.reverseStringMap.get(r.stringId_B)
-                            if (a) {
-                              const c = this.uniprot.results.get(a)
-                              proteinB.push(c["Entry"])
-                            }
-
-                          }
-                          newDF = newDF.withSeries("Protein B", new Series(proteinB)).bake()*/
-              if (newDF.count() > 0) {
-                p["interaction"] = newDF
-                this.uniprot.results.set(a, p)
-              }
-            }
-          }
-        }
-      }
+    let physical = this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"})
+    options.set("network_type", "functional")
+    let functional =   this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"})
+    forkJoin([physical, functional]).subscribe(res => {
+      const phy = res[0]
+      const fu = res[1]
+      this.processInteraction(phy, data, "physical");
+      this.processInteraction(fu, data, "functional");
       this.interactionAnalysis.next(true)
     })
   }

@@ -11,6 +11,7 @@ import {DataFrame, IDataFrame} from "data-forge";
 })
 export class InteractionDatatableComponent implements OnInit {
   selected: string = ""
+  interactionType: string = "physical"
   allSelected: string[] = []
   uniprotData: Map<string, any> = new Map<string, any>()
   dbstringReverse: Map<string, string> = new Map<string, string>()
@@ -43,7 +44,7 @@ export class InteractionDatatableComponent implements OnInit {
   getDF() {
     if (this.uniprotData.has(this.selected)) {
 
-      this.df = this.uniprotData.get(this.selected)["interaction"].toArray()
+      this.df = this.uniprotData.get(this.selected)[this.interactionType].toArray()
       console.log(this.df)
     }
   }

@@ -1,7 +1,18 @@
 
-<select [(ngModel)]="selected" class="form-control" (change)="getDF()">
-  <option *ngFor="let i of allSelected" [value]="i">{{getTitle(i)}}</option>
-</select>
+<div class="row">
+  <div class="col-4">
+    <select [(ngModel)]="interactionType" class="form-control" (change)="getDF()">
+      <option value="functional">Functional Interaction</option>
+      <option value="physical">Physical Interaction</option>
+    </select>
+  </div>
+  <div class="col-4">
+    <select [(ngModel)]="selected" class="form-control" (change)="getDF()">
+      <option *ngFor="let i of allSelected" [value]="i">{{getTitle(i)}}</option>
+    </select>
+  </div>
+</div>
+
 <div class="row" *ngIf="df.length > 0">
   <ngx-datatable
     class="bootstrap expandable"

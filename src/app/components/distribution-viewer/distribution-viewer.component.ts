@@ -28,18 +28,15 @@ export class DistributionViewerComponent implements OnInit {
 
   labelKeys: string[] = []
   labelSamples: any = {}
-  disableInteractionFilter: boolean = false
+  disableInteractionFilter: boolean = true
+  interactionType: string = "physical"
 
   constructor(private dataService: DataService, private uniprot: UniprotService, private modalService: NgbModal, private dbstring:DbStringService) {
     this.dbstring.interactionAnalysis.asObservable().subscribe(data => {
       if (data) {
         this.disableInteractionFilter = false
-        this.filteredAllSelected = []
-        for (const a of this.allSelected) {
-          if ("interaction" in this.uniprot.results.get(a)) {
-            this.filteredAllSelected.push(a)
-          }
-        }
+        this.interactionFilterStatus = false
+        this.changeInteraction()
         //this.selectedInteractionFilter = this.filteredAllSelected[0]
       } else {
         this.disableInteractionFilter = true
@@ -136,5 +133,14 @@ export class DistributionViewerComponent implements OnInit {
       filterList.push(a)
     }
     this.allSelected = filterList
+  }
+
+  changeInteraction() {
+    this.filteredAllSelected = []
+    for (const a of this.allSelected) {
+      if (this.interactionType in this.uniprot.results.get(a)) {
+        this.filteredAllSelected.push(a)
+      }
+    }
   }
 }
