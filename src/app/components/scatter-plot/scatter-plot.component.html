@@ -5,7 +5,11 @@
              [layout]="graphLayout"
              [config]="{responsive:true}"
              [updateOnDataChange]="true"
-             [updateOnLayoutChange]="true" (plotlyClick)="selectData($event)" (update)="plotUpdated($event)"></plotly-plot>
+             [updateOnLayoutChange]="true"
+             (plotlyClick)="selectData($event)"
+             (update)="plotUpdated($event)"
+             (relayout)="changeLayout($event)"
+></plotly-plot>
 
 <div class="container mx-auto">
   <div class="row">
@@ -27,6 +31,13 @@
       <label class="form-check-label" for="xaxis-scale">
         Log2 X-axis
       </label>
+    </div>
+  </div>
+  <div class="row mt-2">
+    <div class="col-3">
+      <button class="btn btn-sm btn-primary" (click)="downloadCurrentData()">
+        Download current data
+      </button>
     </div>
   </div>
 </div>

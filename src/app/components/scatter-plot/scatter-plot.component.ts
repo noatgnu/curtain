@@ -305,7 +305,10 @@ export class ScatterPlotComponent implements OnInit {
     } else {
       this.graphLayout.xaxis.title = "log2FC"
     }
-
+    this.boundary.x0 = this.graphLayout.xaxis.range[0]
+    this.boundary.x1 = this.graphLayout.xaxis.range[1]
+    this.boundary.y0 = this.graphLayout.yaxis.range[0]
+    this.boundary.y1 = this.graphLayout.yaxis.range[1]
   }
 
   selectData(e: any) {
@@ -341,5 +344,47 @@ export class ScatterPlotComponent implements OnInit {
     content.dismiss()
 
   }
+  boundary = {
+    x0: 0,
+    y0: 0,
+    x1: 1,
+    y1: 1
+  }
 
+
+  changeLayout(e: any) {
+
+    if (e) {
+      this.boundary.x0 = e["xaxis.range[0]"]
+      this.boundary.x1 = e["xaxis.range[1]"]
+      this.boundary.y0 = e["yaxis.range[0]"]
+      this.boundary.y1 = e["yaxis.range[1]"]
+    }
+
+  }
+
+  downloadCurrentData() {
+    const maxY = 10**(-this.boundary.y0)
+    const minY = 10**(-this.boundary.y1)
+    const minX = this.boundary.x0
+    const maxX = this.boundary.x1
+
+    let data = this._data
+      .where(row => row["pvalue"] >= minY).where(row => row["pvalue"] <= maxY).where(row => row["logFC"] >= minX).where(row => row["logFC"] <= maxX).bake()
+
+    const blob = new Blob([data.toCSV()], {type: 'text/csv'})
+    const url = window.URL.createObjectURL(blob);
+
+    if (typeof(navigator.msSaveOrOpenBlob)==="function") {
+      navigator.msSaveBlob(blob, "data.csv")
+    } else {
+      const a = document.createElement("a")
+      a.href = url
+      a.download = "data.csv"
+      document.body.appendChild(a)
+      a.click();
+      document.body.removeChild(a);
+    }
+    window.URL.revokeObjectURL(url)
+  }
 }
