@@ -15,7 +15,7 @@ export class UniprotService {
   private toolEndpoint = '/uploadlists/?';
 
   results: Map<string, any> = new Map<string, any>()
-
+  organism: string = ""
   constructor(private http: HttpClient) { }
 
   uniprotParseStatus: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
@@ -55,7 +55,7 @@ export class UniprotService {
           ['to', 'ACC'],
           ['query', l.join('+OR+')],
           ['format', 'tab'],
-          ['columns', 'id,entry name,reviewed,protein names,genes,organism,length,database(RefSeq),organism-id,go-id,go(cellular component),comment(SUBCELLULAR LOCATION),feature(TOPOLOGICAL_DOMAIN),feature(GLYCOSYLATION),comment(MASS SPECTROMETRY),mass,sequence'],
+          ['columns', 'id,entry name,reviewed,protein names,genes,organism,length,database(RefSeq),organism-id,go-id,go(cellular component),comment(SUBCELLULAR LOCATION),feature(TOPOLOGICAL_DOMAIN),feature(GLYCOSYLATION),comment(MASS SPECTROMETRY),mass,sequence,database(STRING)'],
           ['compress', 'no'],
           ['force', 'no'],
           ['sort', 'score'],
@@ -92,6 +92,7 @@ export class UniprotService {
             this.results.set(r["query"], r)
           }
           if (currentRun === this.run) {
+            this.organism = new_df.first()["Organism ID"]
             this.uniprotParseStatus.next(true)
           }
         });

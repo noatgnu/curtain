@@ -8,6 +8,12 @@
       <label for="log2Cutoff">Log2FC Cut-off</label>
       <input type="number" class="form-control" id="log2Cutoff" [(ngModel)]="logFCCutoff" (focusout)="changeInput($event)">
     </div>
+    <div class="col-2">
+      <button class="btn btn-primary" (click)="runDBStringAnalysis()">String DB Analysis</button>
+    </div>
+    <div class="col-2" *ngIf="interactionAnalysisObs|async">
+      <button class="btn btn-primary" (click)="viewInteraction(interaction)">View Interaction Analysis Result</button>
+    </div>
   </div>
   <div class="form-row">
     <div class="col-3">
@@ -122,5 +128,17 @@
   </div>
   <div class="modal-body" *ngIf="intensityData.count()> 0">
     <app-profile-plot [data]="intensityData"></app-profile-plot>
+  </div>
+</ng-template>
+
+<ng-template #interaction let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="interaction">Interaction</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" *ngIf="interactionAnalysisObs|async">
+    <app-interaction-datatable></app-interaction-datatable>
   </div>
 </ng-template>

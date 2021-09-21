@@ -3,6 +3,7 @@ import {DataFrame, IDataFrame} from "data-forge";
 import {DataService} from "../../service/data.service";
 import {UniprotService} from "../../service/uniprot.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {DbStringService} from "../../service/db-string.service";
 
 @Component({
   selector: 'app-distribution-viewer',
@@ -27,15 +28,33 @@ export class DistributionViewerComponent implements OnInit {
 
   labelKeys: string[] = []
   labelSamples: any = {}
+  disableInteractionFilter: boolean = false
 
-  constructor(private dataService: DataService, private uniprot: UniprotService, private modalService: NgbModal) {
+  constructor(private dataService: DataService, private uniprot: UniprotService, private modalService: NgbModal, private dbstring:DbStringService) {
+    this.dbstring.interactionAnalysis.asObservable().subscribe(data => {
+      if (data) {
+        this.disableInteractionFilter = false
+        this.filteredAllSelected = []
+        for (const a of this.allSelected) {
+          if ("interaction" in this.uniprot.results.get(a)) {
+            this.filteredAllSelected.push(a)
+          }
+        }
+        //this.selectedInteractionFilter = this.filteredAllSelected[0]
+      } else {
+        this.disableInteractionFilter = true
+        this.interactionFilterStatus = false
+      }
+    })
+
     this.dataService.annotationSelect.subscribe(data => {
       this.uniData = this.uniprot.results
       this.selectedRawData = []
       let count = 0
       this.allSelected = this.dataService.allSelected
+      this.filteredAllSelected = this.allSelected
       this.rows = this.dataComp.where(row => this.allSelected.includes(row.Proteins)).bake().toArray()
-      console.log(this.rows)
+
       for (const i of this.dataService.allSelected) {
         count ++
         if (count > 20) {
@@ -79,4 +98,43 @@ export class DistributionViewerComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  interactionFilterStatus: boolean = false
+  filteredAllSelected: string[] = []
+  selectedInteractionFilter: string = ""
+  enableInteractionFilter() {
+    this.interactionFilterStatus = !this.interactionFilterStatus
+  }
+
+  getTitle(acc: string|undefined) {
+    if (acc) {
+      if (this.uniprot.results.has(acc)) {
+        const r = this.uniprot.results.get(acc)
+        return acc + "(" + r["Gene names"] + ")"
+      }
+    }
+    return acc
+  }
+
+  changeDisplaying() {
+    const filterList: string[] = [this.selectedInteractionFilter]
+    for (const a of this.uniprot.results.get(this.selectedInteractionFilter)["interaction"]) {
+      const b = this.dbstring.reverseStringMap.get(a.stringId_B)
+      if (b) {
+        filterList.push(b)
+      }
+    }
+
+    const notIncluded: string[] = []
+    for (const a of this.allSelected) {
+      this.selectedRawData[a].visible = filterList.includes(a);
+      if (!this.selectedRawData[a].visible) {
+        notIncluded.push(a)
+      }
+    }
+
+    for (const a of notIncluded) {
+      filterList.push(a)
+    }
+    this.allSelected = filterList
+  }
 }

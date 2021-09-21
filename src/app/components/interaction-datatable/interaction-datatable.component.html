@@ -1,0 +1,130 @@
+
+<select [(ngModel)]="selected" class="form-control" (change)="getDF()">
+  <option *ngFor="let i of allSelected" [value]="i">{{getTitle(i)}}</option>
+</select>
+<div class="row" *ngIf="df.length > 0">
+  <ngx-datatable
+    class="bootstrap expandable"
+    [rows]="df"
+    [columnMode]="'force'"
+    [rowHeight]="40"
+    [headerHeight]="30"
+    [footerHeight]="60"
+    [scrollbarV]="true"
+    [scrollbarH]="true"
+    [limit]="20"
+    style="height: 500px; width: 100%"
+    #mydatatable
+  >
+    <ngx-datatable-column
+      [resizeable]="true"
+      [draggable]="true"
+      [sortable]="false"
+      name="Protein A"
+      [canAutoResize]="false"
+    >
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{getTitle(selected)}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      [resizeable]="true"
+      [draggable]="true"
+      [sortable]="false"
+      name="Protein B"
+      [canAutoResize]="false"
+    >
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{getIDB(row)}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      [resizeable]="true"
+      [draggable]="true"
+      [sortable]="false"
+      name="Combined score"
+      [canAutoResize]="false"
+    >
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{row.score}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      [resizeable]="true"
+      [draggable]="true"
+      [sortable]="false"
+      name="nscore"
+      [canAutoResize]="false"
+    >
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{row.nscore}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      [resizeable]="true"
+      [draggable]="true"
+      [sortable]="false"
+      name="fscore"
+      [canAutoResize]="true"
+    >
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{row.fscore}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      [resizeable]="true"
+      [draggable]="true"
+      [sortable]="false"
+      name="pscore"
+      [canAutoResize]="true"
+    >
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{row.pscore}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      [resizeable]="true"
+      [draggable]="true"
+      [sortable]="false"
+      name="ascore"
+      [canAutoResize]="true"
+    >
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{row.ascore}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      [resizeable]="true"
+      [draggable]="true"
+      [sortable]="false"
+      name="ecore"
+      [canAutoResize]="true"
+    >
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{row.escore}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      [resizeable]="true"
+      [draggable]="true"
+      [sortable]="false"
+      name="dscore"
+      [canAutoResize]="true"
+    >
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{row.dscore}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      [resizeable]="true"
+      [draggable]="true"
+      [sortable]="false"
+      name="tscore"
+      [canAutoResize]="true"
+    >
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{row.tscore}}
+      </ng-template>
+    </ngx-datatable-column>
+  </ngx-datatable>
+</div>

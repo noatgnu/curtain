@@ -16,6 +16,8 @@ import { ComparisonViewerComponent } from './components/comparison-viewer/compar
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { DistributionViewerComponent } from './components/distribution-viewer/distribution-viewer.component';
 import { ProfilePlotComponent } from './components/profile-plot/profile-plot.component';
+import { StringAnalysisComponent } from './components/string-analysis/string-analysis.component';
+import { InteractionDatatableComponent } from './components/interaction-datatable/interaction-datatable.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -28,7 +30,9 @@ PlotlyModule.plotlyjs = PlotlyJS;
     ComparisonViewerComponent,
     BarChartComponent,
     DistributionViewerComponent,
-    ProfilePlotComponent
+    ProfilePlotComponent,
+    StringAnalysisComponent,
+    InteractionDatatableComponent
   ],
   imports: [
     BrowserModule,

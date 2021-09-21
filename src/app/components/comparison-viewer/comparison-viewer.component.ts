@@ -1,13 +1,14 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DataFrame, IDataFrame, Series} from "data-forge";
+import {DataFrame, fromJSON, IDataFrame, Series} from "data-forge";
 import {GraphData} from "../../classes/graph-data";
 import {DrawPack} from "../../classes/draw-pack";
 import {DataService} from "../../service/data.service";
-import {Observable, OperatorFunction} from "rxjs";
+import {BehaviorSubject, Observable, OperatorFunction} from "rxjs";
 import {debounceTime, distinctUntilChanged, map} from "rxjs/operators";
 import {UniprotService} from "../../service/uniprot.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {WebService} from "../../service/web.service";
+import {DbStringService} from "../../service/db-string.service";
 
 @Component({
   selector: 'app-comparison-viewer',
@@ -31,6 +32,10 @@ export class ComparisonViewerComponent implements OnInit {
   geneNames: string[] = []
   subLoc: string[] = []
   tableFilterModel: any = ""
+  entryToProtein: Map<string, string> = new Map<string, string>()
+  dbstringUp: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
+  dbstringDown: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
+
   searchFilter(term: string) {
     switch (this.searchType) {
       case "Gene names":
@@ -80,8 +85,25 @@ export class ComparisonViewerComponent implements OnInit {
   get data(): IDataFrame {
     return this._data
   }
-  constructor(private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private web: WebService) {
 
+  interactionAnalysisObs = new Observable<boolean>()
+
+  constructor(private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private web: WebService, private dbstring: DbStringService) {
+    this.interactionAnalysisObs = this.dbstring.interactionAnalysis.asObservable()
+    this.dbstring.dbstringIDRunStatus.asObservable().subscribe(data=> {
+      if (data) {
+        const sea: string[] = []
+        for (const u of this.dataService.allSelected) {
+          if (this.uniprot.results.has(u)) {
+            sea.push(this.dbstring.stringMap.get(this.uniprot.results.get(u)["Entry name"])["stringId"])
+            console.log(sea)
+            this.dbstring.reverseStringMap.set(this.dbstring.stringMap.get(this.uniprot.results.get(u)["Entry name"])["stringId"], u)
+            console.log(this.dbstring.reverseStringMap)
+          }
+        }
+        this.dbstring.getInteractingPartners(sea, this.uniprot.organism)
+      }
+    })
   }
 
   startBatchSelection(content: any) {
@@ -95,6 +117,13 @@ export class ComparisonViewerComponent implements OnInit {
 
     })
   }
+
+  viewInteraction(content: any) {
+    this.modalService.open(content, {ariaLabelledBy: "profile-plot", size: 'xl'}).result.then((result) => {
+
+    })
+  }
+
   ngOnInit(): void {
   }
 
@@ -183,5 +212,29 @@ export class ComparisonViewerComponent implements OnInit {
 
     }
     this.dataService.batchSelection(this.selectionTitle, this.searchType, data)
+  }
+
+  runDBStringAnalysis(){
+    //this.dbstring.dbstringIDRunStatus.next(false)
+    this.dbstring.interactionAnalysis.next(false)
+    const data_up: string[] = []
+    if (this.dataService.allSelected.length > 0) {
+      for (const u of this.dataService.allSelected) {
+        if (this.uniprot.results.has(u)) {
+          for (const c of this.uniprot.results.get(u)["Cross-reference (STRING)"].split(";")) {
+            if (c !== "") {
+              this.dbstring.reverseStringMap.set(c, u)
+              data_up.push(c)
+            }
+          }
+        }
+      }
+      if (data_up.length > 150) {
+        this.dbstring.getInteractingPartners(data_up, this.uniprot.organism)
+      } else {
+        this.dbstring.getInteractingPartnersNoProxy(data_up, this.uniprot.organism)
+      }
+
+    }
   }
 }

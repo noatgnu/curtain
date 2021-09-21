@@ -4,6 +4,7 @@ import {DataFrame, IDataFrame} from "data-forge";
 import {parse} from "@angular/compiler/src/render3/view/style_parser";
 import {WebService} from "./service/web.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {DbStringService} from "./service/db-string.service";
 
 @Component({
   selector: 'app-root',
@@ -16,8 +17,9 @@ export class AppComponent {
   comparison: string[] = []
   selectedDF: IDataFrame = new DataFrame()
   selectedComparison: string = ""
-  constructor(private webService: WebService, private modalService: NgbModal) {
+  constructor(private webService: WebService, private dbstring: DbStringService) {
     this.webService.getFilter()
+
   }
 
   handleData(e: GraphData) {

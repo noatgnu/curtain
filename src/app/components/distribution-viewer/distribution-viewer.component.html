@@ -6,6 +6,22 @@
     </button>
   </div>
   <div class="modal-body" *ngIf="rows.length > 0">
+    <div class="row">
+      <div class="col-2">
+        <div class="form-check">
+          <input class="form-check-input" id="filterByInteraction" #interactionFilter type="checkbox" [disabled]="disableInteractionFilter" (change)="enableInteractionFilter()">
+          <label class="form-check-label" for="filterByInteraction">Filter by interaction data</label>
+        </div>
+      </div>
+      <div class="col-2">
+        <select class="form-control" [disabled]="!interactionFilterStatus" (change)="changeDisplaying()" [(ngModel)]="selectedInteractionFilter">
+          <option *ngFor="let a of filteredAllSelected" [value]="a">
+            {{getTitle(a)}}
+          </option>
+        </select>
+      </div>
+    </div>
+
     <ngx-datatable
       class="bootstrap expandable"
       [rows]="rows"
