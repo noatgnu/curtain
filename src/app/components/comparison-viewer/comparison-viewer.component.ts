@@ -107,7 +107,7 @@ export class ComparisonViewerComponent implements OnInit {
   }
 
   startBatchSelection(content: any) {
-    this.modalService.open(content, {ariaLabelledBy: "batch-selection-title"}).result.then((result) => {
+    this.modalService.open(content, {ariaLabelledBy: "batch-selection-title", size: "xl"}).result.then((result) => {
       console.log(this.closeResult)
     })
   }
@@ -237,4 +237,5 @@ export class ComparisonViewerComponent implements OnInit {
 
     }
   }
+
 }

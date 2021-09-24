@@ -143,4 +143,39 @@ export class DistributionViewerComponent implements OnInit {
       }
     }
   }
+
+
+  sortEnable: boolean = false
+  sortParams: string = ""
+  nativeParams: string[] = ["logFC", "pvalue"]
+  sortUniprot() {
+    if (this.sortEnable && this.sortParams !== "") {
+      this.rows = this.rows.sort((a, b)=>{
+        let au
+        let bu
+        if (!this.nativeParams.includes(this.sortParams)) {
+          au = this.uniprot.results.get(a.Proteins)[this.sortParams]
+          bu = this.uniprot.results.get(b.Proteins)[this.sortParams]
+        } else {
+          au = a[this.sortParams]
+          bu = b[this.sortParams]
+        }
+
+        if (au > bu) {
+          return 1;
+        } else {
+          return -1;
+        }
+      })
+      this.rows = [...this.rows]
+      const tempSelected = []
+      for (const i of this.rows) {
+        if (this.allSelected.includes(i.Proteins)) {
+          tempSelected.push(i.Proteins)
+        }
+      }
+      this.allSelected = tempSelected
+    }
+
+  }
 }

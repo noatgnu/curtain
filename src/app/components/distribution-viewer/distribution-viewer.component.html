@@ -26,6 +26,28 @@
           </option>
         </select>
       </div>
+      <div class="col-2">
+        <div class="form-check">
+          <input class="form-check-input" id="enableSortBy" type="checkbox" [(ngModel)]="sortEnable">
+          <label class="form-check-label" for="enableSortBy">Sort By</label>
+        </div>
+      </div>
+      <div class="col-2">
+        <select class="form-control" [(ngModel)]="sortParams"  id="sortDataBy" [disabled]="!sortEnable" (change)="sortUniprot()">
+          <option value="Gene names">
+            Gene names
+          </option>
+          <option value="Entry">
+            Uniprot Accession IDs
+          </option>
+          <option value="logFC">
+            log2FC
+          </option>
+          <option value="pvalue">
+            P-value
+          </option>
+        </select>
+      </div>
     </div>
 
     <ngx-datatable

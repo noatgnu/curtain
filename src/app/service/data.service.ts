@@ -141,4 +141,5 @@ export class DataService {
   updateBarChartKeyChannel(key: string) {
     this.barChartSampleUpdateChannel.next(key)
   }
+
 }

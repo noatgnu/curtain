@@ -5,7 +5,7 @@ import {HttpClient} from "@angular/common/http";
   providedIn: 'root'
 })
 export class WebService {
-  private _filters: any = {Kinases: "kinases.txt", Lrrk2: "lrrk2.txt", Phosphatases: "phosphatases.txt"}
+  private _filters: any = {Kinases: "kinases.txt", Lrrk2: "lrrk2.txt", Phosphatases: "phosphatases.txt", PD: "pd.txt", PINK1: "pink1.txt"}
   filters: any = {}
   constructor(private http: HttpClient) { }
 

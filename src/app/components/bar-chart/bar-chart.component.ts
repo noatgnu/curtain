@@ -53,7 +53,8 @@ export class BarChartComponent implements OnInit {
         protein = this.uniprotMap.get(protein)["Gene names"] + "(" + protein + ")"
         this.title = protein
       }
-      this.graphLayout.title = protein
+      console.log(this.uniprot.results.get(protein))
+      this.graphLayout.title = protein + "<br>" + this.uniprot.results.get(r.Proteins)["Protein names"]
       for (const c of value.getColumnNames()) {
         if (this.dataService.sampleColumns.includes(c)) {
           let visible: any = true
