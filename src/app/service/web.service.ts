@@ -36,7 +36,7 @@ export class WebService {
         if (a) {
           for (const n of a) {
             if (n.trim() !== "") {
-              this.filters[i].push(n.trim().toLowerCase())
+              this.filters[i].push(n.trim().toUpperCase())
             }
           }
         }
