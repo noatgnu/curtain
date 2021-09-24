@@ -5,7 +5,14 @@ import {HttpClient} from "@angular/common/http";
   providedIn: 'root'
 })
 export class WebService {
-  private _filters: any = {Kinases: "kinases.txt", Lrrk2: "lrrk2.txt", Phosphatases: "phosphatases.txt", PD: "pd.txt", PINK1: "pink1.txt"}
+  private _filters: any = {
+    Kinases: "kinases.txt",
+    LRRK2: "lrrk2.txt",
+    Phosphatases: "phosphatases.txt",
+    PD: "pd.txt",
+    PINK1: "pink1.txt",
+    PDGWAS: "pd.gwas.txt"
+  }
   filters: any = {}
   constructor(private http: HttpClient) { }
 
@@ -29,7 +36,7 @@ export class WebService {
         if (a) {
           for (const n of a) {
             if (n.trim() !== "") {
-              this.filters[i].push(n.trim())
+              this.filters[i].push(n.trim().toLowerCase())
             }
           }
         }
