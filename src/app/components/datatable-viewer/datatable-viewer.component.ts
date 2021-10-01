@@ -42,7 +42,9 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
   }
 
   uniprotMap = new Map<string, any>()
+  enableUniprot: boolean = false
   constructor(private uniprot: UniprotService, private dataService: DataService, private cd: ChangeDetectorRef) {
+    this.enableUniprot = this.uniprot.fetched
     this.sortType = SortType.single
     this.uniprotMap = uniprot.results
     this.selection = SelectionType.multiClick
@@ -53,6 +55,10 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit {
     })
     this.dataService.searchService.asObservable().subscribe(data => {
       if (data) {
+        console.log(data)
+        if (data.type === "Primary IDs") {
+          data.type = "Proteins"
+        }
         if ("annotate" in data) {
           this.selectingData(data["term"], data["type"], data["annotate"])
         } else {

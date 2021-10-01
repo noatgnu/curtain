@@ -12,9 +12,15 @@ import {Event} from "@angular/router";
 })
 export class BarChartComponent implements OnInit {
   graphData: any[] = []
-  graphLayout: any = {title:"", height: 500,
+  graphLayout: any = {title: {
+    text: "",
+      font: {
+      family: "Arial Black",
+      size: 24,
+      }
+    }, height: 500,
     xaxis: {
-      "title" : "Samples",
+      "title" : "<b>Samples</b>",
       "tickmode": "array",
       //"categoryorder" : "array",
       //"categoryarray": [],
@@ -28,13 +34,14 @@ export class BarChartComponent implements OnInit {
       }
     },
     yaxis: {
-      "title" : "Intensity"
+      "title" : "<b>Intensity</b>"
     }
     //xaxis:{"tickangle": 90}
   }
   _data: IDataFrame = new DataFrame()
   uniprotMap = new Map<string, any>()
   @Input() set data(value: IDataFrame) {
+    console.log(value)
     this.drawBarChart(value);
     this._data = value
   }
@@ -49,12 +56,14 @@ export class BarChartComponent implements OnInit {
 
     for (const r of value) {
       let protein = r.Proteins
+      console.log(protein)
+      let proteinName = ""
       if (this.uniprotMap.has(protein)) {
         protein = this.uniprotMap.get(protein)["Gene names"] + "(" + protein + ")"
-        this.title = protein
+        proteinName = "<br>" + this.uniprot.results.get(r.Proteins)["Protein names"]
+        this.title = protein + proteinName
       }
-      console.log(this.uniprot.results.get(protein))
-      this.graphLayout.title = protein + "<br>" + this.uniprot.results.get(r.Proteins)["Protein names"]
+      this.graphLayout.title.text = "<b>" + protein + proteinName + "</b>"
       for (const c of value.getColumnNames()) {
         if (this.dataService.sampleColumns.includes(c)) {
           let visible: any = true
@@ -68,9 +77,6 @@ export class BarChartComponent implements OnInit {
                 x: [], y: [],
                 type: 'bar',
                 mode: 'markers',
-                marker: {
-                  symbol: "circle-open"
-                },
                 name: name,
                 visible: visible
               }
@@ -104,9 +110,10 @@ export class BarChartComponent implements OnInit {
   }
   title: string = ""
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
+
     this.uniprotMap = this.uniprot.results
     this.dataService.titleGraph.asObservable().subscribe(data => {
-      this.graphLayout.title = data + "<br>" + this.title
+      this.graphLayout.title.text = "<b>" + data + "<br>" + this.title + "</b>"
     })
     this.dataService.barChartSampleLabels.asObservable().subscribe(data => {
       if (data) {

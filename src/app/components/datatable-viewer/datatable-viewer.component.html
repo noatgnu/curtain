@@ -18,7 +18,7 @@
     [resizeable]="true"
     [draggable]="true"
     [sortable]="false"
-    name="Proteins"
+    name="Primary IDs"
     [canAutoResize]="true"
   >
     <ng-template ngx-datatable-cell-template let-row="row">
@@ -30,7 +30,7 @@
     [draggable]="true"
     [sortable]="false"
     name="Gene names"
-    [canAutoResize]="true"
+    [canAutoResize]="true" *ngIf="enableUniprot"
   >
     <ng-template ngx-datatable-cell-template let-row="row">
       {{getGene(row.Proteins)}}

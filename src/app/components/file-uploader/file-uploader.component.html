@@ -40,7 +40,7 @@
     <div class="form-group">
       <div class="form-row">
         <div class="col-4">
-          <label for="accSelection">Select column with accession IDs</label>
+          <label for="accSelection">Select column with primary IDs</label>
           <select class="form-control" id="accSelection" [(ngModel)]="graphData.processedIdentifierCol">
             <option *ngFor="let o of processed.getColumnNames()">
               {{o}}
@@ -89,7 +89,7 @@
     <div class="form-group">
       <div class="form-row">
         <div class="col-4">
-          <label for="accSelection">Select column with accession IDs</label>
+          <label for="accSelection">Select column with primary IDs</label>
           <select class="form-control" id="accRawSelection" [(ngModel)]="graphData.rawIdentifierCol">
             <option *ngFor="let o of raw.getColumnNames()">
               {{o}}
@@ -109,7 +109,17 @@
 
   </div>
   <div class="card-footer">
-    <button class="btn btn-primary" (click)="getUniprot($event)">Fetch UniProt Data From Accession IDs</button>
+    <div class="row">
+      <div class="col-3">
+        <div class="form-check">
+          <input class="form-check-input" [(ngModel)]="enableFetch" type="checkbox" id="enableUniprot">
+          <label class="form-check-label" for="enableUniprot">Enable fetching data from UniProt (Primary ID column need to be UniProt accession IDs)</label>
+        </div>
+      </div>
+      <div class="col-9">
+        <button class="btn btn-primary" (click)="getUniprot($event)">Submit</button>
+      </div>
+    </div>
   </div>
 </div>
 

@@ -16,6 +16,7 @@ export class UniprotService {
 
   results: Map<string, any> = new Map<string, any>()
   organism: string = ""
+  fetched: boolean = false
   constructor(private http: HttpClient) { }
 
   uniprotParseStatus: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
@@ -94,6 +95,7 @@ export class UniprotService {
           if (currentRun === this.run) {
             this.organism = new_df.first()["Organism ID"]
             this.uniprotParseStatus.next(true)
+            this.fetched = true
           }
         });
       }

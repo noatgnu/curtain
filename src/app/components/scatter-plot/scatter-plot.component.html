@@ -1,5 +1,3 @@
-
-
 <plotly-plot divId="scatterplot"
              [data]="graphData"
              [layout]="graphLayout"
@@ -9,12 +7,28 @@
              (plotlyClick)="selectData($event)"
              (update)="plotUpdated($event)"
              (relayout)="changeLayout($event)"
+             (afterPlot)="finishPlot($event)"
 ></plotly-plot>
 
-<div class="container mx-auto">
+<div class="container mx-auto" *ngIf="afterPlotTrigger">
   <div class="row">
-    <div class="col-2">
-      <button class="btn btn-sm btn-primary" (click)="downloadPlotlyExtra('svg')">Download SVG</button>
+    <div class="col-3">
+      <div ngbDropdown class="d-inline-block">
+        <button class="btn btn-sm btn-primary" id="currentDataAction" ngbDropdownToggle>
+          Volcano Plot Actions
+        </button>
+        <div ngbDropdownMenu aria-labelledby="currentDataAction">
+          <button ngbDropdownItem (click)="downloadPlotlyExtra('svg')">
+            Download SVG
+          </button>
+          <button ngbDropdownItem (click)="downloadCurrentData()">
+            Download current data in CSV
+          </button>
+          <button ngbDropdownItem (click)="selectCurrentData()">
+            Select current data
+          </button>
+        </div>
+      </div>
     </div>
     <div class="col-2">
       <button class="btn btn-sm btn-primary" (click)="customCurve(customCurv)">Custom FDR Curve</button>
@@ -33,13 +47,7 @@
       </label>
     </div>
   </div>
-  <div class="row mt-2">
-    <div class="col-3">
-      <button class="btn btn-sm btn-primary" (click)="downloadCurrentData()">
-        Download current data
-      </button>
-    </div>
-  </div>
+
 </div>
 
 <ng-template #customCurv let-modal>

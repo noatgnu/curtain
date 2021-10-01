@@ -48,6 +48,7 @@ export class ScatterPlotComponent implements OnInit {
   downSelected: any[] = []
   originalFCType: "normal"|"log2"|"log10" = "log2"
   foldChangeType: "normal"|"log2"|"log10" = "log2"
+  afterPlotTrigger: boolean = false;
   @Input() set data(value:DrawPack) {
     this.graphLayout.annotations = []
     this._data = value.df
@@ -74,7 +75,12 @@ export class ScatterPlotComponent implements OnInit {
     })
     this.dataService.batchSelectionService.asObservable().subscribe(data => {
       if (data) {
+        if (data.type === "Primary IDs") {
+          data.type = "Proteins"
+        }
         this.batchSelection = data
+
+        console.log(data)
         this.graphScatterPlot()
       }
     })
@@ -171,7 +177,6 @@ export class ScatterPlotComponent implements OnInit {
               temp[this.batchSelection.title] = {x: [], y: [], text:[], type: 'scatter', name: this.batchSelection.title, mode: 'markers'}
             }
 
-            console.log(minMax)
             temp[this.batchSelection.title].y.push(-Math.log10(row["pvalue"]))
             temp[this.batchSelection.title].x.push(row["logFC"])
             if (this.uniprotMap.has(row["Proteins"])) {
@@ -314,8 +319,13 @@ export class ScatterPlotComponent implements OnInit {
   selectData(e: any) {
     if ("points" in e) {
       const ind = e["points"][0].text.indexOf("(")
+      console.log(e)
       if (e["points"][0].text.indexOf("(") !== -1) {
-        this.dataService.updateDataPointClick([e["points"][0].text.slice(ind+1, -1)])
+        if (e["points"][0].text.startsWith("UID")) {
+          this.dataService.updateDataPointClick([e["points"][0].text])
+        } else {
+          this.dataService.updateDataPointClick([e["points"][0].text.slice(ind+1, -1)])
+        }
       } else {
         this.dataService.updateDataPointClick([e["points"][0].text])
       }
@@ -386,5 +396,22 @@ export class ScatterPlotComponent implements OnInit {
       document.body.removeChild(a);
     }
     window.URL.revokeObjectURL(url)
+  }
+
+  selectCurrentData() {
+    const maxY = 10**(-this.boundary.y0)
+    const minY = 10**(-this.boundary.y1)
+    const minX = this.boundary.x0
+    const maxX = this.boundary.x1
+
+    let data = this._data
+      .where(row => row["pvalue"] >= minY).where(row => row["pvalue"] <= maxY).where(row => row["logFC"] >= minX).where(row => row["logFC"] <= maxX).bake()
+    console.log(data)
+    const d = data.getSeries("Proteins").bake().toArray()
+    this.dataService.searchService.next({term:d, type:"Primary IDs"})
+  }
+
+  finishPlot(e: any) {
+    this.afterPlotTrigger = true
   }
 }

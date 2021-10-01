@@ -30,8 +30,9 @@ export class DistributionViewerComponent implements OnInit {
   labelSamples: any = {}
   disableInteractionFilter: boolean = true
   interactionType: string = "physical"
-
+  enableUniprot: boolean = false;
   constructor(private dataService: DataService, private uniprot: UniprotService, private modalService: NgbModal, private dbstring:DbStringService) {
+    this.enableUniprot = this.uniprot.fetched
     this.dbstring.interactionAnalysis.asObservable().subscribe(data => {
       if (data) {
         this.disableInteractionFilter = false
@@ -114,12 +115,15 @@ export class DistributionViewerComponent implements OnInit {
 
   changeDisplaying() {
     const filterList: string[] = [this.selectedInteractionFilter]
-    for (const a of this.uniprot.results.get(this.selectedInteractionFilter)[this.interactionType]) {
-      const b = this.dbstring.reverseStringMap.get(a.stringId_B)
-      if (b) {
-        filterList.push(b)
+    if (this.uniprot.results.has(this.selectedInteractionFilter)) {
+      for (const a of this.uniprot.results.get(this.selectedInteractionFilter)[this.interactionType]) {
+        const b = this.dbstring.reverseStringMap.get(a.stringId_B)
+        if (b) {
+          filterList.push(b)
+        }
       }
     }
+
 
     const notIncluded: string[] = []
     for (const a of this.allSelected) {
@@ -138,8 +142,10 @@ export class DistributionViewerComponent implements OnInit {
   changeInteraction() {
     this.filteredAllSelected = []
     for (const a of this.allSelected) {
-      if (this.interactionType in this.uniprot.results.get(a)) {
-        this.filteredAllSelected.push(a)
+      if (this.uniprot.results.has(a)) {
+        if (this.interactionType in this.uniprot.results.get(a)) {
+          this.filteredAllSelected.push(a)
+        }
       }
     }
   }

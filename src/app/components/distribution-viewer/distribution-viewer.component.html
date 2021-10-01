@@ -9,17 +9,17 @@
     <div class="row">
       <div class="col-2">
         <div class="form-check">
-          <input class="form-check-input" id="filterByInteraction" #interactionFilter type="checkbox" [disabled]="disableInteractionFilter" (change)="enableInteractionFilter()">
+          <input class="form-check-input" id="filterByInteraction" type="checkbox" [disabled]="disableInteractionFilter" (change)="enableInteractionFilter()">
           <label class="form-check-label" for="filterByInteraction">Filter by interaction data</label>
         </div>
       </div>
-      <div class="col-2">
+      <div class="col-2" *ngIf="enableUniprot">
         <select [(ngModel)]="interactionType" class="form-control" (change)="changeInteraction()" [disabled]="!interactionFilterStatus">
           <option value="functional">Functional Interaction</option>
           <option value="physical">Physical Interaction</option>
         </select>
       </div>
-      <div class="col-2">
+      <div class="col-2" *ngIf="enableUniprot">
         <select class="form-control" [disabled]="!interactionFilterStatus" (change)="changeDisplaying()" [(ngModel)]="selectedInteractionFilter">
           <option *ngFor="let a of filteredAllSelected" [value]="a">
             {{getTitle(a)}}
@@ -34,10 +34,10 @@
       </div>
       <div class="col-2">
         <select class="form-control" [(ngModel)]="sortParams"  id="sortDataBy" [disabled]="!sortEnable" (change)="sortUniprot()">
-          <option value="Gene names">
+          <option value="Gene names" *ngIf="enableUniprot">
             Gene names
           </option>
-          <option value="Entry">
+          <option value="Entry" *ngIf="enableUniprot">
             Uniprot Accession IDs
           </option>
           <option value="logFC">
@@ -78,7 +78,7 @@
         [resizeable]="true"
         [draggable]="true"
         [sortable]="false"
-        name="Proteins"
+        name="Primary IDs"
         [canAutoResize]="false"
       >
         <ng-template ngx-datatable-cell-template let-row="row">
@@ -90,7 +90,7 @@
         [draggable]="true"
         [sortable]="false"
         name="Gene names"
-        [canAutoResize]="false"
+        [canAutoResize]="false" *ngIf="enableUniprot"
       >
         <ng-template ngx-datatable-cell-template let-row="row">
           {{uniData.get(row.Proteins)["Gene names"]}}
@@ -123,7 +123,7 @@
         [draggable]="true"
         [sortable]="false"
         name="Protein names"
-        [canAutoResize]="false"
+        [canAutoResize]="false" *ngIf="enableUniprot"
       >
         <ng-template ngx-datatable-cell-template let-row="row">
           {{uniData.get(row.Proteins)["Protein names"]}}
@@ -134,7 +134,7 @@
         [draggable]="true"
         [sortable]="false"
         name="Subcellular locations"
-        [canAutoResize]="true"
+        [canAutoResize]="true" *ngIf="enableUniprot"
       >
         <ng-template ngx-datatable-cell-template let-row="row">
           {{uniData.get(row.Proteins)["Subcellular location [CC]"]}}

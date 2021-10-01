@@ -25,6 +25,8 @@ export class DataService {
   barChartSampleUpdateChannel: BehaviorSubject<string> = new BehaviorSubject<string>("")
   barChartKeys: string[] = []
   relabelSamples: any = {}
+  rawIdentifier: string = ""
+  processedIdentifier: string = ""
   constructor(private uniprot: UniprotService) {
     this.barChartSampleUpdateChannel.asObservable().subscribe(key => {
       this.updateBarChartKey(key)

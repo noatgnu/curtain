@@ -27,7 +27,7 @@ export class ComparisonViewerComponent implements OnInit {
   @Input() intensityData: IDataFrame = new DataFrame()
   drawPack: DrawPack = new DrawPack()
   label: string[] = []
-  searchType: "Gene names"|"Proteins"|"Subcellular locations" = "Gene names"
+  searchType: "Gene names"|"Primary IDs"|"Subcellular locations" = "Gene names"
   proteins: string[] = []
   geneNames: string[] = []
   subLoc: string[] = []
@@ -40,7 +40,7 @@ export class ComparisonViewerComponent implements OnInit {
     switch (this.searchType) {
       case "Gene names":
         return this.geneNames.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
-      case "Proteins":
+      case "Primary IDs":
         return this.proteins.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
       case "Subcellular locations":
         return this.subLoc.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
@@ -73,7 +73,9 @@ export class ComparisonViewerComponent implements OnInit {
     this._data = this._data.withSeries("Gene names", new Series(genes)).bake()
     this._data = this._data.withSeries("Subcellular locations", new Series(subCel)).bake()
     this.geneNames = this._data.getSeries("Gene names").distinct().bake().toArray()
+
     this.proteins = this._data.getSeries("Proteins").distinct().bake().toArray()
+    console.log(this.proteins)
     this.downRegulated = this._data.where(row => row["logFC"] < 0).bake()
     this.upRegulated = this._data.where(row => row["logFC"] > 0).bake()
 
@@ -87,21 +89,22 @@ export class ComparisonViewerComponent implements OnInit {
   }
 
   interactionAnalysisObs = new Observable<boolean>()
-
+  enableUniprot: boolean = false
   constructor(private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private web: WebService, private dbstring: DbStringService) {
+    this.enableUniprot = this.uniprot.fetched
     this.interactionAnalysisObs = this.dbstring.interactionAnalysis.asObservable()
     this.dbstring.dbstringIDRunStatus.asObservable().subscribe(data=> {
       if (data) {
-        const sea: string[] = []
-        for (const u of this.dataService.allSelected) {
-          if (this.uniprot.results.has(u)) {
-            sea.push(this.dbstring.stringMap.get(this.uniprot.results.get(u)["Entry name"])["stringId"])
-            console.log(sea)
-            this.dbstring.reverseStringMap.set(this.dbstring.stringMap.get(this.uniprot.results.get(u)["Entry name"])["stringId"], u)
-            console.log(this.dbstring.reverseStringMap)
+        if (this.uniprot.fetched) {
+          const sea: string[] = []
+          for (const u of this.dataService.allSelected) {
+            if (this.uniprot.results.has(u)) {
+              sea.push(this.dbstring.stringMap.get(this.uniprot.results.get(u)["Entry name"])["stringId"])
+              this.dbstring.reverseStringMap.set(this.dbstring.stringMap.get(this.uniprot.results.get(u)["Entry name"])["stringId"], u)
+            }
           }
+          this.dbstring.getInteractingPartners(sea, this.uniprot.organism)
         }
-        this.dbstring.getInteractingPartners(sea, this.uniprot.organism)
       }
     })
   }
@@ -190,7 +193,7 @@ export class ComparisonViewerComponent implements OnInit {
               }
             }
             break
-          case "Proteins":
+          case "Primary IDs":
             for (const b of this.proteins) {
               const c = b.split(";")
               for (const d of c) {
@@ -216,25 +219,26 @@ export class ComparisonViewerComponent implements OnInit {
 
   runDBStringAnalysis(){
     //this.dbstring.dbstringIDRunStatus.next(false)
-    this.dbstring.interactionAnalysis.next(false)
-    const data_up: string[] = []
-    if (this.dataService.allSelected.length > 0) {
-      for (const u of this.dataService.allSelected) {
-        if (this.uniprot.results.has(u)) {
-          for (const c of this.uniprot.results.get(u)["Cross-reference (STRING)"].split(";")) {
-            if (c !== "") {
-              this.dbstring.reverseStringMap.set(c, u)
-              data_up.push(c)
+    if (this.uniprot.fetched) {
+      this.dbstring.interactionAnalysis.next(false)
+      const data_up: string[] = []
+      if (this.dataService.allSelected.length > 0) {
+        for (const u of this.dataService.allSelected) {
+          if (this.uniprot.results.has(u)) {
+            for (const c of this.uniprot.results.get(u)["Cross-reference (STRING)"].split(";")) {
+              if (c !== "") {
+                this.dbstring.reverseStringMap.set(c, u)
+                data_up.push(c)
+              }
             }
           }
         }
+        if (data_up.length > 150) {
+          this.dbstring.getInteractingPartners(data_up, this.uniprot.organism)
+        } else {
+          this.dbstring.getInteractingPartnersNoProxy(data_up, this.uniprot.organism)
+        }
       }
-      if (data_up.length > 150) {
-        this.dbstring.getInteractingPartners(data_up, this.uniprot.organism)
-      } else {
-        this.dbstring.getInteractingPartnersNoProxy(data_up, this.uniprot.organism)
-      }
-
     }
   }
 

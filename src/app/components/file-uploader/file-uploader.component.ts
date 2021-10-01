@@ -20,6 +20,7 @@ export class FileUploaderComponent implements OnInit {
   accessionList: string[] = []
   rawFileName: string = "";
   log10pvalue: boolean = false;
+  enableFetch: boolean = true;
   constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService) {
     this.uniprot.uniprotParseStatusObserver.subscribe(status => {
       if (status) {
@@ -35,6 +36,7 @@ export class FileUploaderComponent implements OnInit {
         if (this.graphData.processedIdentifierCol !== "Proteins") {
           renameProcessed[this.graphData.processedIdentifierCol] = "Proteins"
         }
+
         if (this.graphData.processedPValue !== "pvalue") {
           renameProcessed[this.graphData.processedPValue] = "pvalue"
         }
@@ -53,11 +55,15 @@ export class FileUploaderComponent implements OnInit {
           }
         }
         const rawRename: any = {}
+
         if (this.graphData.rawIdentifierCol !== "Proteins") {
           rawRename[this.graphData.rawIdentifierCol] = "Proteins"
         }
 
-        this.graphData.uniprotMap = this.uniprot.results
+        if (this.uniprot.fetched) {
+          this.graphData.uniprotMap = this.uniprot.results
+        }
+
         this.graphData.processed = this.processed.dropSeries(processedIgnore).bake()
         if (Object.keys(renameProcessed).length > 0) {
           this.graphData.processed = this.graphData.processed.renameSeries(renameProcessed).bake()
@@ -86,10 +92,14 @@ export class FileUploaderComponent implements OnInit {
             }
           }
         }
+
         for (const c of this.graphData.rawSamplesCol) {
           this.graphData.raw = this.graphData.raw.withSeries(c, new Series(this.graphData.raw.getSeries(c).parseFloats().bake().toArray())).bake()
         }
         this.dataService.sampleColumns = this.graphData.rawSamplesCol
+        console.log(this.graphData)
+        this.dataService.processedIdentifier = this.graphData.processedIdentifierCol
+        this.dataService.rawIdentifier = this.graphData.rawIdentifierCol
         this.data.emit(this.graphData)
       }
     })
@@ -141,25 +151,31 @@ export class FileUploaderComponent implements OnInit {
 
   getUniprot(e: Event) {
     e.stopPropagation()
-    this.accessionList = []
-    const accList: string[] = []
-    for (const a of this.raw.getSeries(this.graphData.rawIdentifierCol).bake().toArray()) {
-      const d = a.split(";")
-      const accession = this.uniprot.Re.exec(d[0])
-      if (accession !== null) {
-        this.accessionList.push(accession[0])
-        if (!this.uniprot.results.has(accession[0])) {
-          accList.push(accession[0])
+    this.uniprot.fetched = false
+    if (this.enableFetch) {
+      this.accessionList = []
+      const accList: string[] = []
+      for (const a of this.raw.getSeries(this.graphData.rawIdentifierCol).bake().toArray()) {
+        const d = a.split(";")
+        const accession = this.uniprot.Re.exec(d[0])
+        if (accession !== null) {
+          this.accessionList.push(accession[0])
+          if (!this.uniprot.results.has(accession[0])) {
+            accList.push(accession[0])
+          }
         }
       }
+
+      this.uniprot.uniprotParseStatus.next(false)
+      try {
+        this.uniprot.UniProtParseGet([...accList], false)
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      this.uniprot.uniprotParseStatus.next(true)
     }
 
-    this.uniprot.uniprotParseStatus.next(false)
-    try {
-      this.uniprot.UniProtParseGet([...accList], false)
-    } catch (e) {
-      console.log(e);
-    }
   }
 
   ngOnInit(): void {
