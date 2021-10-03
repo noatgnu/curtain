@@ -62,6 +62,7 @@ export class ScatterPlotComponent implements OnInit {
   batchSelection: any = {}
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService, private modal: NgbModal) {
     this.uniprotMap = uniprot.results
+
     this.dataService.annotationSelect.subscribe(data => {
       this.graphLayout.annotations = data
       this.dataService.settings.annotatedIDs = data

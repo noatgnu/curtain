@@ -3,6 +3,8 @@ import {HttpClient} from "@angular/common/http";
 import {DataFrame, fromCSV, IDataFrame, Series} from "data-forge";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {max} from "rxjs/operators";
+import {NotificationService} from "./notification.service";
+import {stringify} from "@angular/compiler/src/util";
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +19,7 @@ export class UniprotService {
   results: Map<string, any> = new Map<string, any>()
   organism: string = ""
   fetched: boolean = false
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private notification: NotificationService) { }
 
   uniprotParseStatus: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
   uniprotParseStatusObserver: Observable<boolean> = this.uniprotParseStatus.asObservable()
@@ -43,6 +45,7 @@ export class UniprotService {
   }
 
   UniProtParseGet(accList: string[], goStats: boolean) {
+    this.run = 0
     const maxLength = accList.length;
     if (maxLength >0) {
       this.run = Math.floor(maxLength/400)
@@ -77,12 +80,15 @@ export class UniprotService {
           const lastColumn = columns[columns.length -1]
           let new_df = df.withSeries("query", df.getSeries(lastColumn).bake()).bake()
           new_df = new_df.dropSeries(lastColumn).bake()
+          this.notification.progress ++
+
           for (const r of new_df) {
             r["Gene names"] = r["Gene names"].replaceAll(" ", ";").toUpperCase()
             const ind = r["Subcellular location [CC]"].indexOf("Note=")
             if (ind > -1) {
               r["Subcellular location [CC]"] = r["Subcellular location [CC]"].slice(0, ind)
             }
+
             const subLoc = []
             for (const s of r["Subcellular location [CC]"].split(/[.;]/g)) {
               if (s !== "") {
@@ -97,9 +103,12 @@ export class UniprotService {
             }
             r["Subcellular location [CC]"] = subLoc
             this.results.set(r["query"], r)
+
           }
+          this.notification.show("Processed job " + this.notification.progress + "/" + this.run, {delay: 1000})
           if (currentRun === this.run) {
             this.organism = new_df.first()["Organism ID"]
+            this.notification.show("Finished acquiring UniProt data", {classname: 'bg-success text-light', delay: 10000})
             this.uniprotParseStatus.next(true)
             this.fetched = true
           }

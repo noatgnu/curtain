@@ -160,6 +160,19 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
         this.selectingData(data);
       }
     })
+
+    this.dataService.clearService.asObservable().subscribe(data => {
+      if (this.selected) {
+        this.selected = []
+      }
+      if (this.mydatatable) {
+        this.mydatatable.selected = []
+      }
+
+    })
+  }
+
+  ngAfterViewInit() {
     this.dataService.searchService.asObservable().subscribe(data => {
       if (data) {
         if ("annotate" in data) {
@@ -173,19 +186,7 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
         }
       }
     })
-    this.dataService.clearService.asObservable().subscribe(data => {
-      if (this.selected) {
-        this.selected = []
-      }
-      if (this.mydatatable) {
-        this.mydatatable.selected = []
-      }
-
-    })
-  }
-
-  ngAfterViewInit() {
-    this.selectFromSettings()
+    //this.selectFromSettings()
   }
 
   ngAfterContentChecked() {

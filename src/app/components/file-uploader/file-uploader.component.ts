@@ -6,6 +6,7 @@ import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
 import {ActivatedRoute} from "@angular/router";
 import {forkJoin} from "rxjs";
+import {NotificationService} from "../../service/notification.service";
 
 @Component({
   selector: 'app-file-uploader',
@@ -23,7 +24,7 @@ export class FileUploaderComponent implements OnInit {
   rawFileName: string = "";
   log10pvalue: boolean = false;
   enableFetch: boolean = true;
-  constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService, private route: ActivatedRoute) {
+  constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService, private notification: NotificationService) {
     this.dataService.updateSettings.subscribe(data => {
       if (data) {
         forkJoin([this.http.getProcessedInput(this.dataService.settings.processedFile), this.http.getRawInput(this.dataService.settings.rawFile)]).subscribe(res => {
@@ -46,6 +47,7 @@ export class FileUploaderComponent implements OnInit {
           this.graphData.processedPValue
         ]
         const renameProcessed: any = {}
+        //this.notification.show("Renaming columns from input files")
         if (this.graphData.processedLog2FC !== "logFC") {
           renameProcessed[this.graphData.processedLog2FC] = "logFC"
         }
@@ -87,11 +89,13 @@ export class FileUploaderComponent implements OnInit {
 
         for (const c of this.graphData.processed.getColumnNames()) {
           if (!(["Primary IDs", "comparison"].includes(c))) {
+            //this.notification.show("Converting " + c + " to numbers.", {delay: 1000})
             this.graphData.processed = this.graphData.processed.withSeries(c, new Series(this.graphData.processed.getSeries(c).parseFloats().bake().toArray())).bake()
           }
         }
         if (this.log10pvalue) {
           const temp = []
+          //this.notification.show("Perform anti-log10 transform of log10 p-value", {delay: 1000})
           for (const l of this.graphData.processed.getSeries("pvalue").bake().toArray()) {
             temp.push(10**(-l))
           }
@@ -110,6 +114,7 @@ export class FileUploaderComponent implements OnInit {
         }
 
         for (const c of this.graphData.rawSamplesCol) {
+          //this.notification.show("Converting " + c + " to numbers.", {delay: 1000})
           this.graphData.raw = this.graphData.raw.withSeries(c, new Series(this.graphData.raw.getSeries(c).parseFloats().bake().toArray())).bake()
         }
         this.dataService.sampleColumns = this.graphData.rawSamplesCol
@@ -118,6 +123,9 @@ export class FileUploaderComponent implements OnInit {
         this.dataService.settings.dataColumns = this.graphData
 
         this.data.emit(this.graphData)
+        if (this.dataService.settings.selectedIDs) {
+          this.dataService.batchSelection("Selected", "Primary IDs", Object.keys(this.dataService.settings.selectedIDs))
+        }
 
       }
     })
@@ -212,8 +220,10 @@ export class FileUploaderComponent implements OnInit {
 
       this.uniprot.uniprotParseStatus.next(false)
       try {
+        this.notification.show(`Getting UniProt data for ${this.accessionList.length} accession ids`, { delay: 10000 })
         this.uniprot.UniProtParseGet([...accList], false)
       } catch (e) {
+        this.notification.show("Error occurs while processing UniProt data", {classname: 'bg-danger text-light', delay: 10000 })
         console.log(e);
       }
     } else {

@@ -19,6 +19,8 @@ import { ProfilePlotComponent } from './components/profile-plot/profile-plot.com
 import { StringAnalysisComponent } from './components/string-analysis/string-analysis.component';
 import { InteractionDatatableComponent } from './components/interaction-datatable/interaction-datatable.component';
 import { HomeComponent } from './components/home/home.component';
+import { NotificationComponent } from './components/notification/notification.component';
+import { NotificationContainerComponent } from './components/notification-container/notification-container.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -34,7 +36,9 @@ PlotlyModule.plotlyjs = PlotlyJS;
     ProfilePlotComponent,
     StringAnalysisComponent,
     InteractionDatatableComponent,
-    HomeComponent
+    HomeComponent,
+    NotificationComponent,
+    NotificationContainerComponent
   ],
   imports: [
     BrowserModule,

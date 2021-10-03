@@ -28,7 +28,7 @@ export class WebService {
 
   getRawInput(filename?: string) {
     if (!filename) {
-      this.dataService.settings.rawFile = "assets/limma.divided.txt"
+      this.dataService.settings.rawFile = "assets/lysoip.wce.csv"
     } else {
       this.dataService.settings.rawFile = filename
     }

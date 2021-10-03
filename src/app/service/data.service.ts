@@ -4,6 +4,7 @@ import {DataFrame, IDataFrame} from "data-forge";
 import {UniprotService} from "./uniprot.service";
 import {BackEasingFactory} from "d3";
 import {Settings} from "../classes/settings";
+import {NotificationService} from "./notification.service";
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +32,7 @@ export class DataService {
   settings: Settings = new Settings()
   settingsSave: Subject<boolean> = new Subject<boolean>()
   updateSettings: Subject<boolean> = new Subject<boolean>()
-  constructor(private uniprot: UniprotService) {
+  constructor(private uniprot: UniprotService, private notification: NotificationService) {
     this.barChartSampleUpdateChannel.asObservable().subscribe(key => {
       this.updateBarChartKey(key)
     })
@@ -110,10 +111,11 @@ export class DataService {
 
   updateRegTableSelect(table: string, data: any[], annotate: boolean) {
     if (table==="up") {
-
+      this.notification.show("Selected " + data.length + " from Up-regulated datasets", {delay: 1000})
       this.selectedDataAnnotate(data, true, annotate)
       //this.upRegTableSelect.next(data)
     } else {
+      this.notification.show("Selected " + data.length + " from Down-regulated datasets", {delay: 1000})
       this.selectedDataAnnotate(data, false, annotate)
       //this.downRegTableSelect.next(data)
     }
@@ -128,6 +130,7 @@ export class DataService {
   }
 
   batchSelection(title: string, type: string, data: string[]) {
+    this.notification.show("Search for " + data.length + " " + type)
     this.batchSelectionService.next({title: title, type: type, data: data})
     this.searchService.next({term: data, type: type, annotate: false})
   }
