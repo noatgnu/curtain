@@ -3,6 +3,7 @@ import {DataService} from "../../service/data.service";
 import {UniprotService} from "../../service/uniprot.service";
 import {DbStringService} from "../../service/db-string.service";
 import {DataFrame, IDataFrame} from "data-forge";
+import {NotificationService} from "../../service/notification.service";
 
 @Component({
   selector: 'app-interaction-datatable',
@@ -16,13 +17,12 @@ export class InteractionDatatableComponent implements OnInit {
   uniprotData: Map<string, any> = new Map<string, any>()
   dbstringReverse: Map<string, string> = new Map<string, string>()
   df: any[] = []
-  constructor(private dataService: DataService, private uniprot: UniprotService, private dbstring: DbStringService) {
+  constructor(private dataService: DataService, private uniprot: UniprotService, private dbstring: DbStringService, private notification: NotificationService) {
     this.dbstring.interactionAnalysis.asObservable().subscribe(data => {
       if (data) {
         this.allSelected = this.dataService.allSelected
         this.uniprotData = this.uniprot.results
         this.dbstringReverse = this.dbstring.reverseStringMap
-        console.log(this.dbstringReverse)
         this.selected = this.allSelected[0]
         this.getDF()
       } else {
@@ -45,7 +45,7 @@ export class InteractionDatatableComponent implements OnInit {
     if (this.uniprotData.has(this.selected)) {
 
       this.df = this.uniprotData.get(this.selected)[this.interactionType].toArray()
-      console.log(this.df)
+
     }
   }
 

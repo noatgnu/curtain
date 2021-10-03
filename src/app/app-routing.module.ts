@@ -6,7 +6,7 @@ import {HomeComponent} from "./components/home/home.component";
 const routes: Routes = [
 
   {
-    path: '', component: AppComponent,
+    path: '', component: HomeComponent,
     children: [
       {
         path: 'home', component: HomeComponent
@@ -14,9 +14,11 @@ const routes: Routes = [
       {
         path: "home/:settings", component: HomeComponent
       }
-    ]
+    ],
+
   },
-  {path: "**", redirectTo:"home", pathMatch:"full"}
+  {path: ':settings', component: HomeComponent},
+  {path: "**", redirectTo:"home"}
   ];
 
 @NgModule({

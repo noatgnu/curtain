@@ -15,7 +15,6 @@ export class ProfilePlotComponent implements OnInit {
   @Input() set data(value: IDataFrame) {
     this._data = value
     //this.drawBoxPlot()
-    console.log(value)
   }
 
 
@@ -27,7 +26,6 @@ export class ProfilePlotComponent implements OnInit {
   box: any[] = []
   ngOnInit(): void {
     this.dataService.annotationSelect.subscribe(data => {
-      console.log(this._data)
       this.allSelected = this.dataService.allSelected
       this.drawBoxPlot()
     })
@@ -40,7 +38,6 @@ export class ProfilePlotComponent implements OnInit {
       if (this.box.length === 0) {
         for (const s of this.dataService.sampleColumns) {
           const y: number[] = []
-          console.log(s)
           for (const i of this._data.getSeries(s).bake().toArray()) {
             y.push(Math.log10(i))
           }
@@ -87,7 +84,5 @@ export class ProfilePlotComponent implements OnInit {
         }
       }
     }
-
-    console.log(this.graphData)
   }
 }

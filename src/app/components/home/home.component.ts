@@ -23,6 +23,7 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe(params => {
       if (params) {
+        console.log(params)
         if (params["settings"]) {
           this.webService.getSettings(params["settings"])
         }

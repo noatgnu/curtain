@@ -9,6 +9,7 @@ import {UniprotService} from "../../service/uniprot.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {WebService} from "../../service/web.service";
 import {DbStringService} from "../../service/db-string.service";
+import {NotificationService} from "../../service/notification.service";
 
 @Component({
   selector: 'app-comparison-viewer',
@@ -89,11 +90,12 @@ export class ComparisonViewerComponent implements OnInit {
 
   interactionAnalysisObs = new Observable<boolean>()
   enableUniprot: boolean = false
-  constructor(private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private web: WebService, private dbstring: DbStringService) {
+  constructor(private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private web: WebService, private dbstring: DbStringService, private notification: NotificationService) {
     this.enableUniprot = this.uniprot.fetched
     this.interactionAnalysisObs = this.dbstring.interactionAnalysis.asObservable()
     this.dbstring.dbstringIDRunStatus.asObservable().subscribe(data=> {
       if (data) {
+        this.notification.show("Completed DB-String analysis", {className: "bg-success text-light", delay: 5000})
         if (this.uniprot.fetched) {
           const sea: string[] = []
           this.dataService.settings.dbString = true
@@ -233,6 +235,7 @@ export class ComparisonViewerComponent implements OnInit {
             }
           }
         }
+        this.notification.show("Performing DB-String interaction analysis for " + data_up.length + " proteins", {delay: 1000})
         if (data_up.length > 150) {
           this.dbstring.getInteractingPartners(data_up, this.uniprot.organism)
         } else {

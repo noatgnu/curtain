@@ -24,6 +24,7 @@ export class FileUploaderComponent implements OnInit {
   rawFileName: string = "";
   log10pvalue: boolean = false;
   enableFetch: boolean = true;
+  saveInputFile: boolean = false;
   constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService, private notification: NotificationService) {
     this.dataService.updateSettings.subscribe(data => {
       if (data) {
@@ -178,6 +179,14 @@ export class FileUploaderComponent implements OnInit {
   saveSettings() {
     console.log(this.dataService.settings)
     const blob = new Blob([JSON.stringify(this.dataService.settings, (key, value) => {
+      if (!this.saveInputFile) {
+        if (key=="rawFile") {
+          return ""
+        }
+        if (key=="processedFile") {
+          return ""
+        }
+      }
       if (key=="raw") return undefined;
       else if (key=="processed") return undefined;
       else return value;
