@@ -18,6 +18,10 @@
           Volcano Plot Actions
         </button>
         <div ngbDropdownMenu aria-labelledby="currentDataAction">
+          <div class="form-group px-4 py-3">
+            <label for="customTitle">Custom Title:</label>
+            <input type="text" id="customTitle" class="form-control" [(ngModel)]="customTitle" (focusout)="updateTitle($event)">
+          </div>
           <button ngbDropdownItem (click)="downloadPlotlyExtra('svg')">
             Download SVG
           </button>
@@ -34,12 +38,7 @@
       <button class="btn btn-sm btn-primary" (click)="customCurve(customCurv)">Custom FDR Curve</button>
       <button class="btn btn-sm btn-danger" (click)="removeCurve()" *ngIf="drawFDRCurve">Remove FDR Curve</button>
     </div>
-    <div class="col-2">
-      <label for="customTitle">Custom Title:</label>
-    </div>
-    <div class="col-2">
-      <input type="text" id="customTitle" class="form-control" [(ngModel)]="customTitle" (focusout)="updateTitle($event)">
-    </div>
+
     <div class="col-2">
       <input id="xaxis-scale" type="checkbox" class="form-check-input" (change)="changeXaxis($event)" [(ngModel)]="xaxisLog">
       <label class="form-check-label" for="xaxis-scale">

@@ -64,7 +64,7 @@ export class ProfilePlotComponent implements OnInit {
       }
       if (this.dataService.allSelected.length >0) {
         for (const r of this._data) {
-          if (this.dataService.allSelected.includes(r.Proteins)) {
+          if (this.dataService.allSelected.includes(r["Primary IDs"])) {
             const x: any[] = []
             const y: any[] = []
             for (const s of this.dataService.sampleColumns) {
@@ -75,11 +75,11 @@ export class ProfilePlotComponent implements OnInit {
               x: x,
               y: y,
               mode: "lines",
-              name: r.Proteins
+              name: r["Primary IDs"]
             }
-            if (this.uniprot.results.has(r.Proteins)) {
-              if (this.uniprot.results.get(r.Proteins)) {
-                g.name = this.uniprot.results.get(r.Proteins)["Gene names"]
+            if (this.uniprot.results.has(r["Primary IDs"])) {
+              if (this.uniprot.results.get(r["Primary IDs"])) {
+                g.name = this.uniprot.results.get(r["Primary IDs"])["Gene names"]
               }
             }
             this.graphData.push(g)

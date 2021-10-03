@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
+import {DataService} from "./data.service";
 
 @Injectable({
   providedIn: 'root'
@@ -14,18 +15,27 @@ export class WebService {
     PDGWAS: "pd.gwas.txt"
   }
   filters: any = {}
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private dataService: DataService) { }
 
-  getProcessedInput() {
-    return this.http.get("assets/limma.divided.txt", {observe: "response", responseType: "text"})
+  getProcessedInput(filename?: string) {
+    if (!filename) {
+      this.dataService.settings.processedFile = "assets/limma.divided.txt"
+    } else {
+      this.dataService.settings.processedFile = filename
+    }
+    return this.http.get(this.dataService.settings.processedFile, {observe: "response", responseType: "text"})
   }
 
-  getRawInput() {
-    return this.http.get("assets/lysoip.wce.csv", {observe: "response", responseType: "text"})
+  getRawInput(filename?: string) {
+    if (!filename) {
+      this.dataService.settings.rawFile = "assets/limma.divided.txt"
+    } else {
+      this.dataService.settings.rawFile = filename
+    }
+    return this.http.get(this.dataService.settings.rawFile, {observe: "response", responseType: "text"})
   }
 
   getFilter() {
-    console.log(this._filters)
     for (const i in this._filters) {
       if (!(i in this.filters)) {
         this.filters[i] = []
@@ -42,6 +52,14 @@ export class WebService {
         }
       })
     }
+  }
 
+  getSettings(filename: string) {
+    this.http.get("assets/" + filename + ".json", {responseType: "text", observe: "response"}).subscribe(res => {
+      if (res.body) {
+        this.dataService.settings = JSON.parse(res.body)
+        this.dataService.updateSettings.next(true)
+      }
+    })
   }
 }

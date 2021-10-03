@@ -27,6 +27,12 @@ export class UniprotService {
     return this.http.get(uniprotUrl, {responseType: 'text', observe: 'response'});
   }
 
+  postUniprot(data: Map<string, string>) {
+    return this.http.post("https://www.uniprot.org/uploadlists/", this.toParamString(data), {
+      //headers: {"User-Agent": "Curtain, JavaScript", "Content-Type": "form-data"},
+      responseType: 'text', observe: 'response'})
+  }
+
   toParamString(options: Map<string, string>): string {
     const pArray: string[] = [];
     options.forEach((value, key) => {
@@ -39,15 +45,84 @@ export class UniprotService {
   UniProtParseGet(accList: string[], goStats: boolean) {
     const maxLength = accList.length;
     if (maxLength >0) {
-      this.run = Math.floor(maxLength/300)
-      if (this.run%300>0) {
+      this.run = Math.floor(maxLength/400)
+      if (this.run%400>0) {
         this.run = this.run + 1
       }
       let currentRun = 0
-      for (let i = 0; i < maxLength; i += 300) {
+      for (let i = 0; i < maxLength; i += 400) {
         let l: string[];
-        if (i + 300 < maxLength) {
-          l = accList.slice(i, i + 300);
+        if (i + 400 < maxLength) {
+          l = accList.slice(i, i + 400);
+        } else {
+          l = accList.slice(i);
+        }
+        const options: Map<string, string> = new Map<string, string>([
+          ['from', 'ACC,ID'],
+          ['to', 'ACC'],
+          ['query', l.join(' ')],
+          ['format', 'tab'],
+          ['columns', 'id,entry name,reviewed,protein names,genes,organism,length,database(RefSeq),organism-id,go-id,go(cellular component),comment(SUBCELLULAR LOCATION),feature(TOPOLOGICAL_DOMAIN),feature(GLYCOSYLATION),comment(MASS SPECTROMETRY),mass,sequence,database(STRING)'],
+          ['compress', 'no'],
+          ['force', 'no'],
+          ['sort', 'score'],
+          ['desc', ''],
+          ['fil', '']
+        ]);
+        const uniprotUrl = this.baseURL + this.toParamString(options);
+        this.getUniprot(uniprotUrl).subscribe((data) => {
+          currentRun = currentRun + 1
+          const df = fromCSV(<string>data.body);
+          const columns = df.getColumnNames()
+          const lastColumn = columns[columns.length -1]
+          let new_df = df.withSeries("query", df.getSeries(lastColumn).bake()).bake()
+          new_df = new_df.dropSeries(lastColumn).bake()
+          for (const r of new_df) {
+            r["Gene names"] = r["Gene names"].replaceAll(" ", ";").toUpperCase()
+            const ind = r["Subcellular location [CC]"].indexOf("Note=")
+            if (ind > -1) {
+              r["Subcellular location [CC]"] = r["Subcellular location [CC]"].slice(0, ind)
+            }
+            const subLoc = []
+            for (const s of r["Subcellular location [CC]"].split(/[.;]/g)) {
+              if (s !== "") {
+                let su = s.replace(/\s*\{.*?\}\s*/g, "")
+                su = su.split(": ")
+                const a = su[su.length-1].trim()
+                if (a !== "") {
+                  subLoc.push(a.slice())
+                }
+
+              }
+            }
+            r["Subcellular location [CC]"] = subLoc
+            this.results.set(r["query"], r)
+          }
+          if (currentRun === this.run) {
+            this.organism = new_df.first()["Organism ID"]
+            this.uniprotParseStatus.next(true)
+            this.fetched = true
+          }
+        });
+      }
+    } else {
+      this.uniprotParseStatus.next(true)
+    }
+
+  }
+
+  UniProtParsePost(accList: string[], goStats: boolean) {
+    const maxLength = accList.length;
+    if (maxLength >0) {
+      this.run = Math.floor(maxLength/10000)
+      if (this.run%10000>0) {
+        this.run = this.run + 1
+      }
+      let currentRun = 0
+      for (let i = 0; i < maxLength; i += 10000) {
+        let l: string[];
+        if (i + 10000 < maxLength) {
+          l = accList.slice(i, i + 10000);
         } else {
           l = accList.slice(i);
         }
@@ -63,8 +138,8 @@ export class UniprotService {
           ['desc', ''],
           ['fil', '']
         ]);
-        const uniprotUrl = this.baseURL + this.toParamString(options);
-        this.getUniprot(uniprotUrl).subscribe((data) => {
+
+        this.postUniprot(options).subscribe((data) => {
           currentRun = currentRun + 1
           const df = fromCSV(<string>data.body);
           const columns = df.getColumnNames()

@@ -51,20 +51,34 @@ export class DistributionViewerComponent implements OnInit {
       let count = 0
       this.allSelected = this.dataService.allSelected
       this.filteredAllSelected = this.allSelected
-      this.rows = this.dataComp.where(row => this.allSelected.includes(row.Proteins)).bake().toArray()
+      this.rows = this.dataComp.where(row => this.allSelected.includes(row["Primary IDs"])).bake().toArray()
 
       for (const i of this.dataService.allSelected) {
         count ++
         if (count > 20) {
-          this.selectedRawData[i] = {df: this._data.where(row => row.Proteins === i).bake(), visible: false}
+          if (!(i in this.dataService.settings.selectedIDs)) {
+            this.dataService.settings.selectedIDs[i] = {visible: false}
+            this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: false}
+          } else {
+            this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: this.dataService.settings.selectedIDs[i].visible}
+          }
         } else {
-          this.selectedRawData[i] = {df: this._data.where(row => row.Proteins === i).bake(), visible: true}
+          if (!(i in this.dataService.settings.selectedIDs)) {
+            this.dataService.settings.selectedIDs[i] = {visible: true}
+            this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: true}
+          } else {
+            this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: this.dataService.settings.selectedIDs[i].visible}
+          }
+
         }
       }
+
+
     })
     this.dataService.clearService.asObservable().subscribe(data => {
       this.allSelected = []
       this.selectedRawData = {}
+      this.dataService.settings.selectedIDs = {}
     })
     this.dataService.barChartSampleLabels.asObservable().subscribe(data => {
       this.labelKeys = this.dataService.barChartKeys
@@ -73,7 +87,16 @@ export class DistributionViewerComponent implements OnInit {
   }
   modalViewer(content: any, type: string) {
     this.modalService.open(content, {ariaLabelledBy: type, size: 'xl'}).result.then((result) => {
+      this.dataService.settings.sampleLables = this.labelSamples;
+      for (let k in this.selectedRawData) {
+        this.dataService.settings.selectedIDs[k].visible = this.selectedRawData[k].visible
+      }
 
+    }, (reason) => {
+      this.dataService.settings.sampleLables = this.labelSamples;
+      for (let k in this.selectedRawData) {
+        this.dataService.settings.selectedIDs[k].visible = this.selectedRawData[k].visible
+      }
     })
   }
 
@@ -160,8 +183,8 @@ export class DistributionViewerComponent implements OnInit {
         let au
         let bu
         if (!this.nativeParams.includes(this.sortParams)) {
-          au = this.uniprot.results.get(a.Proteins)[this.sortParams]
-          bu = this.uniprot.results.get(b.Proteins)[this.sortParams]
+          au = this.uniprot.results.get(a["Primary IDs"])[this.sortParams]
+          bu = this.uniprot.results.get(b["Primary IDs"])[this.sortParams]
         } else {
           au = a[this.sortParams]
           bu = b[this.sortParams]
@@ -176,8 +199,8 @@ export class DistributionViewerComponent implements OnInit {
       this.rows = [...this.rows]
       const tempSelected = []
       for (const i of this.rows) {
-        if (this.allSelected.includes(i.Proteins)) {
-          tempSelected.push(i.Proteins)
+        if (this.allSelected.includes(i["Primary IDs"])) {
+          tempSelected.push(i["Primary IDs"])
         }
       }
       this.allSelected = tempSelected

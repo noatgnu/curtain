@@ -4,6 +4,8 @@ import {WebService} from "../../service/web.service";
 import {GraphData} from "../../classes/graph-data";
 import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
+import {ActivatedRoute} from "@angular/router";
+import {forkJoin} from "rxjs";
 
 @Component({
   selector: 'app-file-uploader',
@@ -21,7 +23,21 @@ export class FileUploaderComponent implements OnInit {
   rawFileName: string = "";
   log10pvalue: boolean = false;
   enableFetch: boolean = true;
-  constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService) {
+  constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService, private route: ActivatedRoute) {
+    this.dataService.updateSettings.subscribe(data => {
+      if (data) {
+        forkJoin([this.http.getProcessedInput(this.dataService.settings.processedFile), this.http.getRawInput(this.dataService.settings.rawFile)]).subscribe(res => {
+          this.processed = fromCSV(<string>res[0].body)
+          this.raw = fromCSV(<string>res[1].body)
+          this.graphData = this.dataService.settings.dataColumns
+          if (this.dataService.settings.uniprot) {
+            this.getUniprot()
+          }
+
+        })
+      }
+    })
+
     this.uniprot.uniprotParseStatusObserver.subscribe(status => {
       if (status) {
         const processedNotIgnore = [
@@ -33,8 +49,8 @@ export class FileUploaderComponent implements OnInit {
         if (this.graphData.processedLog2FC !== "logFC") {
           renameProcessed[this.graphData.processedLog2FC] = "logFC"
         }
-        if (this.graphData.processedIdentifierCol !== "Proteins") {
-          renameProcessed[this.graphData.processedIdentifierCol] = "Proteins"
+        if (this.graphData.processedIdentifierCol !== "Primary IDs") {
+          renameProcessed[this.graphData.processedIdentifierCol] = "Primary IDs"
         }
 
         if (this.graphData.processedPValue !== "pvalue") {
@@ -56,8 +72,8 @@ export class FileUploaderComponent implements OnInit {
         }
         const rawRename: any = {}
 
-        if (this.graphData.rawIdentifierCol !== "Proteins") {
-          rawRename[this.graphData.rawIdentifierCol] = "Proteins"
+        if (this.graphData.rawIdentifierCol !== "Primary IDs") {
+          rawRename[this.graphData.rawIdentifierCol] = "Primary IDs"
         }
 
         if (this.uniprot.fetched) {
@@ -70,7 +86,7 @@ export class FileUploaderComponent implements OnInit {
         }
 
         for (const c of this.graphData.processed.getColumnNames()) {
-          if (!(["Proteins", "comparison"].includes(c))) {
+          if (!(["Primary IDs", "comparison"].includes(c))) {
             this.graphData.processed = this.graphData.processed.withSeries(c, new Series(this.graphData.processed.getSeries(c).parseFloats().bake().toArray())).bake()
           }
         }
@@ -87,7 +103,7 @@ export class FileUploaderComponent implements OnInit {
         }
         if (this.graphData.rawSamplesCol.length === 0) {
           for (const c of this.graphData.raw.getColumnNames()) {
-            if (c !== "Proteins") {
+            if (c !== "Primary IDs") {
               this.graphData.rawSamplesCol.push(c)
             }
           }
@@ -97,10 +113,12 @@ export class FileUploaderComponent implements OnInit {
           this.graphData.raw = this.graphData.raw.withSeries(c, new Series(this.graphData.raw.getSeries(c).parseFloats().bake().toArray())).bake()
         }
         this.dataService.sampleColumns = this.graphData.rawSamplesCol
-        console.log(this.graphData)
         this.dataService.processedIdentifier = this.graphData.processedIdentifierCol
         this.dataService.rawIdentifier = this.graphData.rawIdentifierCol
+        this.dataService.settings.dataColumns = this.graphData
+
         this.data.emit(this.graphData)
+
       }
     })
   }
@@ -112,8 +130,10 @@ export class FileUploaderComponent implements OnInit {
         this.file = target.files[0];
         if (!raw) {
           this.fileName = target.files[0].name + "";
+          this.dataService.settings.processedFile =this.fileName
         } else {
           this.rawFileName = target.files[0].name + "";
+          this.dataService.settings.rawFile = this.rawFileName
         }
 
         const reader = new FileReader();
@@ -145,14 +165,38 @@ export class FileUploaderComponent implements OnInit {
       this.graphData.rawIdentifierCol = "uniprot"
       this.graphData.rawSamplesCol = this.graphData.raw.getColumnNames().slice(1)
     })
-
-
   }
 
-  getUniprot(e: Event) {
-    e.stopPropagation()
+  saveSettings() {
+    console.log(this.dataService.settings)
+    const blob = new Blob([JSON.stringify(this.dataService.settings, (key, value) => {
+      if (key=="raw") return undefined;
+      else if (key=="processed") return undefined;
+      else return value;
+    })], {type: 'text/csv'})
+    const url = window.URL.createObjectURL(blob);
+
+    if (typeof(navigator.msSaveOrOpenBlob)==="function") {
+      navigator.msSaveBlob(blob, "viewer.json")
+    } else {
+      const a = document.createElement("a")
+      a.href = url
+      a.download = "viewer.json"
+      document.body.appendChild(a)
+      a.click();
+      document.body.removeChild(a);
+    }
+    window.URL.revokeObjectURL(url)
+  }
+
+  getUniprot(e?: Event) {
+    if (e) {
+      e.stopPropagation()
+    }
     this.uniprot.fetched = false
+    this.dataService.settings.uniprot = this.enableFetch
     if (this.enableFetch) {
+
       this.accessionList = []
       const accList: string[] = []
       for (const a of this.raw.getSeries(this.graphData.rawIdentifierCol).bake().toArray()) {
@@ -179,6 +223,7 @@ export class FileUploaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
   }
 
 }

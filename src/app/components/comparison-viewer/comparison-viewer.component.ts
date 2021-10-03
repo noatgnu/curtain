@@ -28,7 +28,7 @@ export class ComparisonViewerComponent implements OnInit {
   drawPack: DrawPack = new DrawPack()
   label: string[] = []
   searchType: "Gene names"|"Primary IDs"|"Subcellular locations" = "Gene names"
-  proteins: string[] = []
+  primaryIDs: string[] = []
   geneNames: string[] = []
   subLoc: string[] = []
   tableFilterModel: any = ""
@@ -41,7 +41,7 @@ export class ComparisonViewerComponent implements OnInit {
       case "Gene names":
         return this.geneNames.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
       case "Primary IDs":
-        return this.proteins.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
+        return this.primaryIDs.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
       case "Subcellular locations":
         return this.subLoc.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
       default:
@@ -60,8 +60,8 @@ export class ComparisonViewerComponent implements OnInit {
     const genes = []
     const subCel = []
     for (const r of value) {
-      genes.push(this.getGene(r.Proteins))
-      const s = this.getSubLoc(r.Proteins)
+      genes.push(this.getGene(r["Primary IDs"]))
+      const s = this.getSubLoc(r["Primary IDs"])
       for (const i of s) {
         if (!this.subLoc.includes(i)) {
           this.subLoc.push(i)
@@ -74,8 +74,7 @@ export class ComparisonViewerComponent implements OnInit {
     this._data = this._data.withSeries("Subcellular locations", new Series(subCel)).bake()
     this.geneNames = this._data.getSeries("Gene names").distinct().bake().toArray()
 
-    this.proteins = this._data.getSeries("Proteins").distinct().bake().toArray()
-    console.log(this.proteins)
+    this.primaryIDs = this._data.getSeries("Primary IDs").distinct().bake().toArray()
     this.downRegulated = this._data.where(row => row["logFC"] < 0).bake()
     this.upRegulated = this._data.where(row => row["logFC"] > 0).bake()
 
@@ -97,6 +96,7 @@ export class ComparisonViewerComponent implements OnInit {
       if (data) {
         if (this.uniprot.fetched) {
           const sea: string[] = []
+          this.dataService.settings.dbString = true
           for (const u of this.dataService.allSelected) {
             if (this.uniprot.results.has(u)) {
               sea.push(this.dbstring.stringMap.get(this.uniprot.results.get(u)["Entry name"])["stringId"])
@@ -194,7 +194,7 @@ export class ComparisonViewerComponent implements OnInit {
             }
             break
           case "Primary IDs":
-            for (const b of this.proteins) {
+            for (const b of this.primaryIDs) {
               const c = b.split(";")
               for (const d of c) {
                 if (f === d) {

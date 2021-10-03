@@ -22,7 +22,7 @@
     [canAutoResize]="true"
   >
     <ng-template ngx-datatable-cell-template let-row="row">
-      {{row.Proteins}}
+      {{row["Primary IDs"]}}
     </ng-template>
   </ngx-datatable-column>
   <ngx-datatable-column
@@ -33,7 +33,7 @@
     [canAutoResize]="true" *ngIf="enableUniprot"
   >
     <ng-template ngx-datatable-cell-template let-row="row">
-      {{getGene(row.Proteins)}}
+      {{getGene(row["Primary IDs"])}}
     </ng-template>
   </ngx-datatable-column>
   <ngx-datatable-column

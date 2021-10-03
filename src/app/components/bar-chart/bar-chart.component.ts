@@ -41,12 +41,12 @@ export class BarChartComponent implements OnInit {
   _data: IDataFrame = new DataFrame()
   uniprotMap = new Map<string, any>()
   @Input() set data(value: IDataFrame) {
-    console.log(value)
     this.drawBarChart(value);
     this._data = value
   }
   relabelSample: any = {}
   reverseLinkLabel: any = {}
+  id: string = ""
   private drawBarChart(value: IDataFrame<number, any>) {
     this.graphData = []
     //this.graphLayout.xaxis.categoryarray = []
@@ -55,15 +55,15 @@ export class BarChartComponent implements OnInit {
     const temp: any = {}
 
     for (const r of value) {
-      let protein = r.Proteins
-      console.log(protein)
+      let primaryIDs = r["Primary IDs"]
+      this.id = r["Primary IDs"]
       let proteinName = ""
-      if (this.uniprotMap.has(protein)) {
-        protein = this.uniprotMap.get(protein)["Gene names"] + "(" + protein + ")"
-        proteinName = "<br>" + this.uniprot.results.get(r.Proteins)["Protein names"]
-        this.title = protein + proteinName
+      if (this.uniprotMap.has(primaryIDs)) {
+        primaryIDs = this.uniprotMap.get(primaryIDs)["Gene names"] + "(" + primaryIDs + ")"
+        proteinName = "<br>" + this.uniprot.results.get(r["Primary IDs"])["Protein names"]
+        this.title = primaryIDs + proteinName
       }
-      this.graphLayout.title.text = "<b>" + protein + proteinName + "</b>"
+      this.graphLayout.title.text = "<b>" + primaryIDs + proteinName + "</b>"
       for (const c of value.getColumnNames()) {
         if (this.dataService.sampleColumns.includes(c)) {
           let visible: any = true

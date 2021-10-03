@@ -64,6 +64,7 @@ export class ScatterPlotComponent implements OnInit {
     this.uniprotMap = uniprot.results
     this.dataService.annotationSelect.subscribe(data => {
       this.graphLayout.annotations = data
+      this.dataService.settings.annotatedIDs = data
 
     })
     this.dataService.clearService.asObservable().subscribe(data => {
@@ -75,12 +76,7 @@ export class ScatterPlotComponent implements OnInit {
     })
     this.dataService.batchSelectionService.asObservable().subscribe(data => {
       if (data) {
-        if (data.type === "Primary IDs") {
-          data.type = "Proteins"
-        }
         this.batchSelection = data
-
-        console.log(data)
         this.graphScatterPlot()
       }
     })
@@ -179,10 +175,10 @@ export class ScatterPlotComponent implements OnInit {
 
             temp[this.batchSelection.title].y.push(-Math.log10(row["pvalue"]))
             temp[this.batchSelection.title].x.push(row["logFC"])
-            if (this.uniprotMap.has(row["Proteins"])) {
-              temp[this.batchSelection.title].text.push(this.uniprotMap.get(row["Proteins"])["Gene names"] + "(" + row["Proteins"] + ")" )
+            if (this.uniprotMap.has(row["Primary IDs"])) {
+              temp[this.batchSelection.title].text.push(this.uniprotMap.get(row["Primary IDs"])["Gene names"] + "(" + row["Primary IDs"] + ")" )
             } else {
-              temp[this.batchSelection.title].text.push(row["Proteins"])
+              temp[this.batchSelection.title].text.push(row["Primary IDs"])
             }
             selected = true
           }
@@ -195,10 +191,10 @@ export class ScatterPlotComponent implements OnInit {
           }
           temp[conditions].y.push(-Math.log10(row["pvalue"]))
           temp[conditions].x.push(row["logFC"])
-          if (this.uniprotMap.has(row["Proteins"])) {
-            temp[conditions].text.push(this.uniprotMap.get(row["Proteins"])["Gene names"] + "(" + row["Proteins"] + ")" )
+          if (this.uniprotMap.has(row["Primary IDs"])) {
+            temp[conditions].text.push(this.uniprotMap.get(row["Primary IDs"])["Gene names"] + "(" + row["Primary IDs"] + ")" )
           } else {
-            temp[conditions].text.push(row["Proteins"])
+            temp[conditions].text.push(row["Primary IDs"])
           }
         }
       }
@@ -407,7 +403,7 @@ export class ScatterPlotComponent implements OnInit {
     let data = this._data
       .where(row => row["pvalue"] >= minY).where(row => row["pvalue"] <= maxY).where(row => row["logFC"] >= minX).where(row => row["logFC"] <= maxX).bake()
     console.log(data)
-    const d = data.getSeries("Proteins").bake().toArray()
+    const d = data.getSeries("Primary IDs").bake().toArray()
     this.dataService.searchService.next({term:d, type:"Primary IDs"})
   }
 

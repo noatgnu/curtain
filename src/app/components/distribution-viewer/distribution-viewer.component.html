@@ -71,7 +71,7 @@
         [canAutoResize]="false"
       >
         <ng-template ngx-datatable-cell-template let-row="row">
-          <input type="checkbox" [(ngModel)]="selectedRawData[row.Proteins].visible">
+          <input type="checkbox" [(ngModel)]="selectedRawData[row['Primary IDs']].visible">
         </ng-template>
       </ngx-datatable-column>
       <ngx-datatable-column
@@ -82,7 +82,7 @@
         [canAutoResize]="false"
       >
         <ng-template ngx-datatable-cell-template let-row="row">
-          {{row.Proteins}}
+          {{row["Primary IDs"]}}
         </ng-template>
       </ngx-datatable-column>
       <ngx-datatable-column
@@ -93,7 +93,7 @@
         [canAutoResize]="false" *ngIf="enableUniprot"
       >
         <ng-template ngx-datatable-cell-template let-row="row">
-          {{uniData.get(row.Proteins)["Gene names"]}}
+          {{uniData.get(row["Primary IDs"])["Gene names"]}}
         </ng-template>
       </ngx-datatable-column>
       <ngx-datatable-column
@@ -126,7 +126,7 @@
         [canAutoResize]="false" *ngIf="enableUniprot"
       >
         <ng-template ngx-datatable-cell-template let-row="row">
-          {{uniData.get(row.Proteins)["Protein names"]}}
+          {{uniData.get(row["Primary IDs"])["Protein names"]}}
         </ng-template>
       </ngx-datatable-column>
       <ngx-datatable-column
@@ -137,7 +137,7 @@
         [canAutoResize]="true" *ngIf="enableUniprot"
       >
         <ng-template ngx-datatable-cell-template let-row="row">
-          {{uniData.get(row.Proteins)["Subcellular location [CC]"]}}
+          {{uniData.get(row["Primary IDs"])["Subcellular location [CC]"]}}
         </ng-template>
       </ngx-datatable-column>
     </ngx-datatable>

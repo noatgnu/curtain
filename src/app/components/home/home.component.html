@@ -1,0 +1,27 @@
+<div class="container">
+  <app-file-uploader (data)="handleData($event)"></app-file-uploader>
+</div>
+
+<div class="mx-2" *ngIf="selectedComparison.length>0">
+  <div class="form-group">
+    <div class="form-row">
+      <div class="col-2">
+        <label for="compSelect">Select comparison</label>
+        <select class="form-control" id="compSelect" [(ngModel)]="selectedComparison" (change)="selectComparison($event)">
+          <option *ngFor="let o of comparison">
+            {{o}}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid mt-2" *ngIf="selectedDF.count() > 0">
+
+  <app-comparison-viewer [data]="selectedDF" [intensityData]="g.raw"></app-comparison-viewer>
+</div>
+
+<div class="container-fluid mt-2">
+  <app-distribution-viewer [data]="g.raw" [dataComp]="selectedDF"></app-distribution-viewer>
+</div>

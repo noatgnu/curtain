@@ -18,6 +18,7 @@ import { DistributionViewerComponent } from './components/distribution-viewer/di
 import { ProfilePlotComponent } from './components/profile-plot/profile-plot.component';
 import { StringAnalysisComponent } from './components/string-analysis/string-analysis.component';
 import { InteractionDatatableComponent } from './components/interaction-datatable/interaction-datatable.component';
+import { HomeComponent } from './components/home/home.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -32,7 +33,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     DistributionViewerComponent,
     ProfilePlotComponent,
     StringAnalysisComponent,
-    InteractionDatatableComponent
+    InteractionDatatableComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,

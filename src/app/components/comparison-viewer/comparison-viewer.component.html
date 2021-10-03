@@ -82,29 +82,31 @@
   </div>
   <div class="modal-body">
     <div class="row mb-2">
-      <div ngbDropdown class="d-inline-block">
-        <button class="btn btn-primary" id="geneList" ngbDropdownToggle>
-          Built-in gene names list
-        </button>
-        <div ngbDropdownMenu aria-labelledby="geneList">
-          <button ngbDropdownItem (click)="getFilter('LRRK2')">
-            LRRK2 Pathway
+      <div class="col-4">
+        <div ngbDropdown class="d-inline-block">
+          <button class="btn btn-primary" id="geneList" ngbDropdownToggle>
+            Built-in gene names list
           </button>
-          <button ngbDropdownItem (click)="getFilter('Kinases')">
-            Kinases
-          </button>
-          <button ngbDropdownItem (click)="getFilter('Phosphatases')">
-            Phosphatases
-          </button>
-          <button ngbDropdownItem (click)="getFilter('PINK1')">
-            PINK1 Pathway
-          </button>
-          <button ngbDropdownItem (click)="getFilter('PD')">
-            PD genes
-          </button>
-          <button ngbDropdownItem (click)="getFilter('PDGWAS')">
-            PD genes from GWAS
-          </button>
+          <div ngbDropdownMenu aria-labelledby="geneList">
+            <button ngbDropdownItem (click)="getFilter('LRRK2')">
+              LRRK2 Pathway
+            </button>
+            <button ngbDropdownItem (click)="getFilter('Kinases')">
+              Kinases
+            </button>
+            <button ngbDropdownItem (click)="getFilter('Phosphatases')">
+              Phosphatases
+            </button>
+            <button ngbDropdownItem (click)="getFilter('PINK1')">
+              PINK1 Pathway
+            </button>
+            <button ngbDropdownItem (click)="getFilter('PD')">
+              PD genes
+            </button>
+            <button ngbDropdownItem (click)="getFilter('PDGWAS')">
+              PD genes from GWAS
+            </button>
+          </div>
         </div>
       </div>
     </div>
