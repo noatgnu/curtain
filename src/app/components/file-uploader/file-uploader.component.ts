@@ -28,13 +28,13 @@ export class FileUploaderComponent implements OnInit {
   constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService, private notification: NotificationService) {
     this.dataService.updateSettings.subscribe(data => {
       if (data) {
+        this.log10pvalue = this.dataService.settings.antilogP
+        this.enableFetch = this.dataService.settings.uniprot
         forkJoin([this.http.getProcessedInput(this.dataService.settings.processedFile), this.http.getRawInput(this.dataService.settings.rawFile)]).subscribe(res => {
           this.processed = fromCSV(<string>res[0].body)
           this.raw = fromCSV(<string>res[1].body)
           this.graphData = this.dataService.settings.dataColumns
-          if (this.dataService.settings.uniprot) {
-            this.getUniprot()
-          }
+          this.getUniprot()
 
         })
       }
@@ -177,7 +177,7 @@ export class FileUploaderComponent implements OnInit {
   }
 
   saveSettings() {
-    console.log(this.dataService.settings)
+    this.dataService.settings.antilogP = this.log10pvalue
     const blob = new Blob([JSON.stringify(this.dataService.settings, (key, value) => {
       if (!this.saveInputFile) {
         if (key=="rawFile") {
