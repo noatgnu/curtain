@@ -9,7 +9,7 @@ import {DataService} from "./data.service";
   providedIn: 'root'
 })
 export class DbStringService {
-  proxyUrl: string = "http://10.205.101.46:8888/"
+  proxyUrl: string = "http://localhost:8888/"
   baseUrl: string = "http://string-db.org/"
   stringMap: Map<string, any> = new Map<string, any>()
   reverseStringMap: Map<string, string> = new Map<string, string>()
@@ -17,6 +17,7 @@ export class DbStringService {
   dbstringIDRunStatus: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
   interactionAnalysis: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
   constructor(private http: HttpClient, private uniprot: UniprotService, private dataService: DataService) { }
+
   getStringIdentifiers(data: string[], species: string) {
     const maxLength = data.length;
     const sep = 10000
@@ -55,6 +56,24 @@ export class DbStringService {
     }
   }
 
+  getStringIdentifiersPost(data: string[], species: string) {
+    const maxLength = data.length;
+    if (maxLength >0) {
+      const options: Map<string, string> = new Map<string, string>([
+        ["id", data.join("\r")],
+        ["species", species]
+      ])
+      const dbstringUrl = this.proxyUrl + "string/getid"
+      this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"}).subscribe((data) => {
+        const df = fromCSV(<string>data.body);
+        for (const r of df) {
+          this.stringMap.set(r["queryItem"], r)
+        }
+        this.dbstringIDRunStatus.next(true)
+      });
+    }
+  }
+
   toParamString(options: Map<string, string>): string {
     const pArray: string[] = [];
     options.forEach((value, key) => {
@@ -66,11 +85,11 @@ export class DbStringService {
 
   getEnrichment(data_study: string[], data_background: string[], species: string) {
     const options: Map<string, string> = new Map<string, string>([
-      ["identifiers", data_study.join("%0d")],
-      ["background_string_identifiers", data_background.join("%0d")],
+      ["study", data_study.join("\r")],
+      ["universe", data_background.join("\r")],
       ["species", species]
     ])
-    const dbstringUrl = this.proxyUrl + this.baseUrl + "api/tsv/enrichment"
+    const dbstringUrl = this.proxyUrl + "string/enrichment"
     this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"}).subscribe(data => {
       console.log(data)
     })
@@ -78,11 +97,11 @@ export class DbStringService {
 
   getInteractingPartners(data: string[], species: string) {
     const options: Map<string, string> = new Map<string, string>([
-      ["identifiers", data.join("%0d")],
+      ["id", data.join("\r")],
       ["species", species],
       ["network_type", "physical"],
     ])
-    const dbstringUrl = this.proxyUrl + this.baseUrl + "api/tsv/interaction_partners"
+    const dbstringUrl = this.proxyUrl + "string/interaction"
     let physical = this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"})
     options.set("network_type", "functional")
     let functional =   this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"})
