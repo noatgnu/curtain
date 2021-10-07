@@ -1,3 +1,8 @@
+<div class="custom-file" hidden>
+  <input type="file" class="custom-file-input" aria-label="settings-loader" #settingLoader aria-describedby="settings-loader" id="settings-loader" (change)="loadSettings($event)">
+  <label class="custom-file-label" for="settings-loader">{{fileName||'Select File'}}</label>
+</div>
+
 <div class="container mt-4">
   <div class="row">
     <div class="col-10">
@@ -10,6 +15,7 @@
             <input type="file" class="custom-file-input" aria-label="input-file" aria-describedby="label-input-file" (change)="handleFile($event, false)">
             <label class="custom-file-label" for="label-input-file">{{fileName||'Select File'}}</label>
           </div>
+
         </div>
       </div>
     </div>
@@ -17,12 +23,17 @@
       <div ngbDropdown class="d-inline-block">
         <button class="btn btn-outline-secondary" ngbDropdownToggle id="fileMenu">File</button>
         <div ngbDropdownMenu aria-labelledby="fileMenu">
-          <button ngbDropdownItem (click)="loadTest()">Load example data</button>
+          <button ngbDropdownItem (click)="settingLoader.click()">Load Settings</button>
+          <div class="form-check px-4 py-3">
+            <input class="form-check-input" type="checkbox" id="loadFiles" [(ngModel)]="saveInputFile">
+            <label class="form-check-label" for="loadFiles">Load input file from server</label>
+          </div>
           <button ngbDropdownItem (click)="saveSettings()">Save settings</button>
           <div class="form-check px-4 py-3">
-            <input class="form-check-input" type="checkbox" id="saveFile" [(ngModel)]="saveInputFile">
-            <label class="form-check-label">Save input file on server</label>
+            <input class="form-check-input" type="checkbox" id="saveFiles" [(ngModel)]="saveInputFile">
+            <label class="form-check-label" for="saveFiles">Save input file on server</label>
           </div>
+          <button ngbDropdownItem (click)="loadTest()">Load example data</button>
         </div>
       </div>
 

@@ -25,6 +25,7 @@ export class FileUploaderComponent implements OnInit {
   log10pvalue: boolean = false;
   enableFetch: boolean = true;
   saveInputFile: boolean = false;
+  loadSavedInput: boolean = false
   constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService, private notification: NotificationService) {
     this.dataService.updateSettings.subscribe(data => {
       if (data) {
@@ -132,6 +133,33 @@ export class FileUploaderComponent implements OnInit {
     })
   }
 
+  loadSettings(e: Event) {
+    if (e.target) {
+      const target = e.target as HTMLInputElement;
+      if (target.files) {
+        this.file = target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+
+          const loadedFile = reader.result;
+          this.dataService.settings = JSON.parse(<string>loadedFile)
+          this.log10pvalue = this.dataService.settings.antilogP
+          if (this.dataService.settings.fileIsLink) {
+            forkJoin([this.http.getProcessedInput(this.dataService.settings.processedFile), this.http.getRawInput(this.dataService.settings.rawFile)]).subscribe(res => {
+              this.processed = fromCSV(<string>res[0].body)
+              this.raw = fromCSV(<string>res[1].body)
+              this.graphData = this.dataService.settings.dataColumns
+            })
+          } else {
+            this.graphData = this.dataService.settings.dataColumns
+          }
+        };
+        reader.readAsText(this.file);
+      }
+    }
+  }
+
   handleFile(e: Event, raw: boolean) {
     if (e.target) {
       const target = e.target as HTMLInputElement;
@@ -178,6 +206,7 @@ export class FileUploaderComponent implements OnInit {
 
   saveSettings() {
     this.dataService.settings.antilogP = this.log10pvalue
+    this.dataService.settings.fileSavedOnSever = this.saveInputFile
     const blob = new Blob([JSON.stringify(this.dataService.settings, (key, value) => {
       if (!this.saveInputFile) {
         if (key=="rawFile") {

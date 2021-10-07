@@ -8,6 +8,8 @@ export class Settings {
   uniprot: boolean = false
   dbString: boolean = false
   antilogP: boolean = false
+  fileSavedOnSever: boolean = false
   sampleLables: any = {}
+  fileIsLink: boolean = false
   dataColumns: GraphData = new GraphData()
 }
