@@ -25,7 +25,7 @@
         <div ngbDropdownMenu aria-labelledby="fileMenu">
           <button ngbDropdownItem (click)="settingLoader.click()">Load Settings</button>
           <div class="form-check px-4 py-3">
-            <input class="form-check-input" type="checkbox" id="loadFiles" [(ngModel)]="saveInputFile">
+            <input class="form-check-input" type="checkbox" id="loadFiles" [(ngModel)]="loadSavedInput">
             <label class="form-check-label" for="loadFiles">Load input file from server</label>
           </div>
           <button ngbDropdownItem (click)="saveSettings()">Save settings</button>
