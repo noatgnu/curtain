@@ -236,11 +236,7 @@ export class ComparisonViewerComponent implements OnInit {
           }
         }
         this.notification.show("Performing DB-String interaction analysis for " + data_up.length + " proteins", {delay: 1000})
-        if (data_up.length > 150) {
-          this.dbstring.getInteractingPartners(data_up, this.uniprot.organism)
-        } else {
-          this.dbstring.getInteractingPartnersNoProxy(data_up, this.uniprot.organism)
-        }
+        this.dbstring.getInteractingPartners(data_up, this.uniprot.organism)
       }
     }
   }

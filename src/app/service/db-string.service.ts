@@ -9,7 +9,7 @@ import {DataService} from "./data.service";
   providedIn: 'root'
 })
 export class DbStringService {
-  proxyUrl: string = "http://localhost:8888/"
+  proxyUrl: string = "http://www.conducto.me/"
   baseUrl: string = "http://string-db.org/"
   stringMap: Map<string, any> = new Map<string, any>()
   reverseStringMap: Map<string, string> = new Map<string, string>()
@@ -96,15 +96,12 @@ export class DbStringService {
   }
 
   getInteractingPartners(data: string[], species: string) {
-    const options: Map<string, string> = new Map<string, string>([
-      ["id", data.join("\r")],
-      ["species", species],
-      ["network_type", "physical"],
-    ])
+
+    const options: any = {id: data.join("\r"), species: species, network: "physical"}
     const dbstringUrl = this.proxyUrl + "string/interaction"
-    let physical = this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"})
-    options.set("network_type", "functional")
-    let functional =   this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"})
+    let physical = this.http.post(dbstringUrl, JSON.stringify(options), {responseType: "text", observe: "response"})
+    options.network = "functional"
+    let functional =   this.http.post(dbstringUrl, JSON.stringify(options), {responseType: "text", observe: "response"})
     forkJoin([physical, functional]).subscribe(res => {
       const phy = res[0]
       const fu = res[1]
