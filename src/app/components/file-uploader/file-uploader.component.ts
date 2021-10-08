@@ -4,9 +4,9 @@ import {WebService} from "../../service/web.service";
 import {GraphData} from "../../classes/graph-data";
 import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
-import {ActivatedRoute} from "@angular/router";
 import {forkJoin} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-file-uploader',
@@ -25,19 +25,34 @@ export class FileUploaderComponent implements OnInit {
   log10pvalue: boolean = false;
   enableFetch: boolean = true;
   saveInputFile: boolean = false;
-  loadSavedInput: boolean = false
-  constructor(private http: WebService, private uniprot: UniprotService, private dataService: DataService, private notification: NotificationService) {
+  loadSavedInput: boolean = false;
+
+  downloadSettingsFile: boolean = false
+  constructor(private http: WebService, private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private notification: NotificationService) {
     this.dataService.updateSettings.subscribe(data => {
       if (data) {
         this.log10pvalue = this.dataService.settings.antilogP
         this.enableFetch = this.dataService.settings.uniprot
-        forkJoin([this.http.getProcessedInput(this.dataService.settings.processedFile), this.http.getRawInput(this.dataService.settings.rawFile)]).subscribe(res => {
-          this.processed = fromCSV(<string>res[0].body)
-          this.raw = fromCSV(<string>res[1].body)
+        if (this.dataService.settings.fileIsLink) {
+          forkJoin([this.http.getProcessedInput(this.dataService.settings.processedFile), this.http.getRawInput(this.dataService.settings.rawFile)]).subscribe(res => {
+            this.processed = fromCSV(<string>res[0].body)
+            this.raw = fromCSV(<string>res[1].body)
+            this.graphData = this.dataService.settings.dataColumns
+            this.getUniprot()
+          })
+        } else {
+          if (this.dataService.rawFile !== "") {
+            this.raw = fromCSV(<string>this.dataService.rawFile)
+          }
+          if (this.dataService.processedFile !== "") {
+            this.processed = fromCSV(<string>this.dataService.processedFile)
+          }
           this.graphData = this.dataService.settings.dataColumns
-          this.getUniprot()
+          if (this.dataService.rawFile !== "" && this.dataService.processedFile !== "") {
+            this.getUniprot()
+          }
+        }
 
-        })
       }
     })
 
@@ -187,8 +202,51 @@ export class FileUploaderComponent implements OnInit {
       }
     }
   }
+  password: string = ""
+  modalViewer(content: any) {
+    this.modalService.open(content, {ariaLabelledBy: "saveSettings"}).result.then((result) => {
+      this.dataService.settings.antilogP = this.log10pvalue
+      this.dataService.settings.fileSavedOnSever = this.saveInputFile
+      const settings = JSON.stringify(this.dataService.settings, (key, value) => {
+        if (!this.saveInputFile) {
+          if (key=="rawFile") {
+            return ""
+          }
+          if (key=="processedFile") {
+            return ""
+          }
+        }
+        if (key=="raw") return undefined;
+        else if (key=="processed") return undefined;
+        else return value;
+      })
 
 
+      if (this.saveInputFile) {
+        const data: any = {raw: this.raw.toCSV(), processed: this.processed.toCSV(), settings: settings, password: this.password}
+        this.http.putSettings(data).subscribe(data => {
+          if (data.body) {
+            this.unique_id = location.origin +"/#/"+ data.body
+          }
+
+        })
+      } else {
+        const data: any = {raw: "", processed: "", settings: settings, password: this.password}
+        this.http.putSettings(data).subscribe(data => {
+          if (data.body) {
+            this.unique_id = location.origin +"/#/"+ data.body
+          }
+        })
+      }
+      this.password = ""
+      if (this.downloadSettingsFile) {
+        this.saveSettings()
+      }
+    }, (reason) => {
+      this.password =""
+    })
+  }
+  unique_id: string = ""
   loadTest() {
     this.http.getProcessedInput().subscribe(data => {
       this.processed = fromCSV(<string>data.body)

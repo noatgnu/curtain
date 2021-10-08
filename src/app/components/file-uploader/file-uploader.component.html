@@ -1,3 +1,5 @@
+
+
 <div class="custom-file" hidden>
   <input type="file" class="custom-file-input" aria-label="settings-loader" #settingLoader aria-describedby="settings-loader" id="settings-loader" (change)="loadSettings($event)">
   <label class="custom-file-label" for="settings-loader">{{fileName||'Select File'}}</label>
@@ -15,7 +17,6 @@
             <input type="file" class="custom-file-input" aria-label="input-file" aria-describedby="label-input-file" (change)="handleFile($event, false)">
             <label class="custom-file-label" for="label-input-file">{{fileName||'Select File'}}</label>
           </div>
-
         </div>
       </div>
     </div>
@@ -28,11 +29,8 @@
             <input class="form-check-input" type="checkbox" id="loadFiles" [(ngModel)]="loadSavedInput">
             <label class="form-check-label" for="loadFiles">Load input file from server</label>
           </div>
-          <button ngbDropdownItem (click)="saveSettings()">Save settings</button>
-          <div class="form-check px-4 py-3">
-            <input class="form-check-input" type="checkbox" id="saveFiles" [(ngModel)]="saveInputFile">
-            <label class="form-check-label" for="saveFiles">Save input file on server</label>
-          </div>
+          <button ngbDropdownItem (click)="modalViewer(saveSettingsModal)">Save settings</button>
+
           <button ngbDropdownItem (click)="loadTest()">Load example data</button>
         </div>
       </div>
@@ -57,7 +55,14 @@
 
     </div>
   </div>
+  <div class="row" *ngIf="unique_id">
+    <span class="text-success">
+      Your current saved settings unique link: {{unique_id}}
+    </span>
+  </div>
 </div>
+
+
 
 <div class="card mt-2" *ngIf="processed.count()">
   <div class="card-body">
@@ -148,4 +153,32 @@
   </div>
 </div>
 
-
+<ng-template #saveSettingsModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="sample-labels">Save Settings</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="file-password">Password:</label>
+      <input class="form-control" type="password" id="file-password" placeholder="Password" [(ngModel)]="password" disabled>
+    </div>
+    <div class="form-group">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="saveFiles" [(ngModel)]="saveInputFile">
+        <label class="form-check-label" for="saveFiles">Save input file on server</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="downloadSettingFiles" [(ngModel)]="downloadSettingsFile">
+        <label class="form-check-label" for="downloadSettingFiles">Download Settings File</label>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save')">Save</button>
+  </div>
+</ng-template>

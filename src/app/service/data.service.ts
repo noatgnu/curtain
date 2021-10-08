@@ -10,6 +10,8 @@ import {NotificationService} from "./notification.service";
   providedIn: 'root'
 })
 export class DataService {
+  rawFile: string = ""
+  processedFile: string = ""
   comparisonSubject: BehaviorSubject<IDataFrame> = new BehaviorSubject<IDataFrame>(new DataFrame())
   dataPointClickService: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
   tableSelect: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([])
@@ -32,6 +34,7 @@ export class DataService {
   settings: Settings = new Settings()
   settingsSave: Subject<boolean> = new Subject<boolean>()
   updateSettings: Subject<boolean> = new Subject<boolean>()
+  unique_id: string = ""
   constructor(private uniprot: UniprotService, private notification: NotificationService) {
     this.barChartSampleUpdateChannel.asObservable().subscribe(key => {
       this.updateBarChartKey(key)
