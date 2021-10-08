@@ -78,10 +78,10 @@ export class WebService {
   }
 
   putSettings(settings: any) {
-    return this.http.put("http://localhost:8000/file_data", JSON.stringify(settings), {responseType: "text", observe: "response"})
+    return this.http.put("http://www.conducto.me/file_data", JSON.stringify(settings), {responseType: "text", observe: "response"})
   }
 
   postSettingsId(id: string, password: string) {
-    return this.http.post("http://localhost:8000/file_data", JSON.stringify({id: id, password: password}), {responseType: "json", observe: "response"})
+    return this.http.post("http://www.conducto.me/file_data", JSON.stringify({id: id, password: password}), {responseType: "json", observe: "response"})
   }
 }
