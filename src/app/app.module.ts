@@ -21,6 +21,7 @@ import { InteractionDatatableComponent } from './components/interaction-datatabl
 import { HomeComponent } from './components/home/home.component';
 import { NotificationComponent } from './components/notification/notification.component';
 import { NotificationContainerComponent } from './components/notification-container/notification-container.component';
+import { BarChartAverageComponent } from './components/bar-chart-average/bar-chart-average.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -38,7 +39,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     InteractionDatatableComponent,
     HomeComponent,
     NotificationComponent,
-    NotificationContainerComponent
+    NotificationContainerComponent,
+    BarChartAverageComponent
   ],
   imports: [
     BrowserModule,
