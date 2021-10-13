@@ -22,6 +22,7 @@ import { HomeComponent } from './components/home/home.component';
 import { NotificationComponent } from './components/notification/notification.component';
 import { NotificationContainerComponent } from './components/notification-container/notification-container.component';
 import { BarChartAverageComponent } from './components/bar-chart-average/bar-chart-average.component';
+import { BarChartSwitchComponent } from './components/bar-chart-switch/bar-chart-switch.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -40,7 +41,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     HomeComponent,
     NotificationComponent,
     NotificationContainerComponent,
-    BarChartAverageComponent
+    BarChartAverageComponent,
+    BarChartSwitchComponent
   ],
   imports: [
     BrowserModule,

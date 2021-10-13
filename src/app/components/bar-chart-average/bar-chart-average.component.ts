@@ -53,7 +53,7 @@ export class BarChartAverageComponent implements OnInit {
     //this.graphLayout.xaxis.categoryarray = []
     this.graphLayout.xaxis.ticktext = []
     this.graphLayout.xaxis.tickvals = []
-    const temp [str] = {}
+    const temp: any= {}
 
     for (const r of value) {
       let primaryIDs = r["Primary IDs"]
@@ -77,14 +77,25 @@ export class BarChartAverageComponent implements OnInit {
             if (!(name in temp)) {
               this.tempValue[name] = []
               temp[name] = {
-                x: [], y: [],
-                type: 'scatter',
-                mode: 'markers',
+                x: name, y: [],
+                type: 'box',
+                boxpoints: 'all',
+                pointpos: 0,
+                jitter: 0.3,
+                fillcolor: 'rgba(255,255,255,0)',
+                line: {
+                  color: 'rgba(255,255,255,0)',
+                },
+                hoveron: 'points',
+                marker: {
+                  color: "#654949",
+                  opacity: 0.8,
+                },
                 name: name,
-                visible: visible
+                //visible: visible,
+                showlegend: false
               }
             }
-            temp[name].x.push(name)
 
             //this.graphLayout.xaxis.categoryarray.push(c)
             temp[name].y.push(r[c])
@@ -96,10 +107,20 @@ export class BarChartAverageComponent implements OnInit {
 
     for (const t in temp) {
       let total = 0
-      for (const y in this.tempValue[t]) {
+      for (const y of this.tempValue[t]) {
         total = total + y
       }
+      const ave = total/this.tempValue[t].length
+      this.graphData.push({
+        x: [temp[t].name], y: [ave],
+        type: 'bar',
+        mode: 'markers',
+        name: temp[t].name,
+        //visible: temp[t].visible,
+        showlegend: false
+      })
       this.graphData.push(temp[t])
+
       this.graphLayout.xaxis.tickvals.push(t)
       if (!(t in this.relabelSample)) {
         this.graphLayout.xaxis.ticktext.push(t)
@@ -117,8 +138,8 @@ export class BarChartAverageComponent implements OnInit {
     }
   }
   title: string = ""
-  constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
 
+  constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
     this.uniprotMap = this.uniprot.results
     this.dataService.titleGraph.asObservable().subscribe(data => {
       this.graphLayout.title.text = "<b>" + data + "<br>" + this.title + "</b>"

@@ -183,7 +183,7 @@
 
 <div class="mt-2" *ngIf="allSelected.length > 0">
   <div *ngFor="let d of allSelected">
-    <app-bar-chart  [data]="selectedRawData[d].df" *ngIf="selectedRawData[d].visible"></app-bar-chart>
+    <app-bar-chart-switch  [data]="selectedRawData[d].df" *ngIf="selectedRawData[d].visible"></app-bar-chart-switch>
   </div>
 </div>
 

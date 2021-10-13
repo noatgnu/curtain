@@ -1,0 +1,16 @@
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" [(ngModel)]="average">
+        <label class="form-check-label">
+          Averaging replicate values
+        </label>
+      </div>
+    </div>
+
+    <app-bar-chart [data]="data"></app-bar-chart>
+    <app-bar-chart-average *ngIf="average === true" [data]="data"></app-bar-chart-average>
+  </div>
+</div>
+

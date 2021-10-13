@@ -89,7 +89,7 @@ export class BarChartComponent implements OnInit {
         }
       }
     }
-
+    console.log(temp)
     for (const t in temp) {
       this.graphData.push(temp[t])
       this.graphLayout.xaxis.tickvals.push(temp[t].x[Math.round(temp[t].x.length/2)-1])
