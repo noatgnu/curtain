@@ -178,10 +178,9 @@ export class BarChartAverageComponent implements OnInit {
   }
 
   async downloadPlotlyExtra(format: string) {
-    const graph = this.plotly.getInstanceByDivId(this.title.replace(';', ''));
+    const graph = this.plotly.getInstanceByDivId(this.title.replace(';', '') + 'average');
     const p = await this.plotly.getPlotly();
     await p.downloadImage(graph, {format: format, filename: "image"})
-
   }
 
   highlighted: string[] = []

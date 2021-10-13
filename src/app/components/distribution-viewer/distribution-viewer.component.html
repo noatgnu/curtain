@@ -163,7 +163,6 @@
         <input class="form-control" type="text" [(ngModel)]="labelSamples[k]" id="{{k}}">
       </div>
     </div>
-
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="changeLabel(modal)">Update Labels</button>
@@ -177,12 +176,11 @@
     <div class="col-3">
       <button class="btn btn-outline-info" (click)="modalViewer(sampleLabel, 'sample-relabel')">Change Sample Label</button>
     </div>
-
   </div>
 </div>
 
 <div class="mt-2" *ngIf="allSelected.length > 0">
-  <div *ngFor="let d of allSelected">
+  <div *ngFor="let d of allSelected" class="mb-2">
     <app-bar-chart-switch  [data]="selectedRawData[d].df" *ngIf="selectedRawData[d].visible"></app-bar-chart-switch>
   </div>
 </div>

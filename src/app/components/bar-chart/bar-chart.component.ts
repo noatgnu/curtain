@@ -78,7 +78,8 @@ export class BarChartComponent implements OnInit {
                 type: 'bar',
                 mode: 'markers',
                 name: name,
-                visible: visible
+                visible: visible,
+                showlegend: false
               }
             }
             temp[name].x.push(c)

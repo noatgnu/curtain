@@ -1,4 +1,4 @@
-<button class="btn btn-sm btn-outline-info" (click)="downloadPlotlyExtra('svg')">Download {{id}} Bar Chart as SVG</button>
+<button class="btn btn-sm btn-outline-info" (click)="downloadPlotlyExtra('svg')">Download {{id}} Average Bar Chart as SVG</button>
 <div class="row" *ngIf="highlighted.length>0">
   <div class="col-3">
     <div class="form-group">
@@ -14,7 +14,7 @@
     </p>
   </div>
 </div>
-<plotly-plot [divId]="title.replace(';', '')"
+<plotly-plot [divId]="title.replace(';', '') + 'average'"
              [data]="graphData"
              [layout]="graphLayout"
              [config]="{responsive:true}"
