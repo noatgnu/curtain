@@ -183,37 +183,40 @@ export class ComparisonViewerComponent implements OnInit {
       let selected = false
       for (let f of e) {
         f = f.trim()
-        switch (this.searchType) {
-          case "Gene names":
-            for (const b of this.geneNames) {
-              const c = b.split(";")
-              for (const d of c) {
-                if (f === d) {
-                  selected = true
-                  data.push(b)
-                  break
+        if (f !== "") {
+          switch (this.searchType) {
+            case "Gene names":
+              for (const b of this.geneNames) {
+                const c = b.split(";")
+                for (const d of c) {
+                  if (f === d) {
+                    selected = true
+                    data.push(b)
+                    break
+                  }
                 }
               }
-            }
-            break
-          case "Primary IDs":
-            for (const b of this.primaryIDs) {
-              const c = b.split(";")
-              for (const d of c) {
-                if (f === d) {
-                  selected = true
-                  data.push(b)
-                  break
+              break
+            case "Primary IDs":
+              for (const b of this.primaryIDs) {
+                const c = b.split(";")
+                for (const d of c) {
+                  if (f === d) {
+                    selected = true
+                    data.push(b)
+                    break
+                  }
                 }
               }
-            }
+              break
+            default:
+              break
+          }
+          if (selected) {
             break
-          default:
-            break
+          }
         }
-        if (selected) {
-          break
-        }
+
       }
 
     }
