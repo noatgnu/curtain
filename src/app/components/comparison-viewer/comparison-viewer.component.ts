@@ -181,7 +181,8 @@ export class ComparisonViewerComponent implements OnInit {
       const a = r.trim()
       const e = a.split(";")
       let selected = false
-      for (const f of e) {
+      for (let f of e) {
+        f = f.trim()
         switch (this.searchType) {
           case "Gene names":
             for (const b of this.geneNames) {
