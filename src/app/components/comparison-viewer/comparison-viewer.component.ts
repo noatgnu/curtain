@@ -60,8 +60,13 @@ export class ComparisonViewerComponent implements OnInit {
   @Input() set data(value: IDataFrame) {
     const genes = []
     const subCel = []
+    this.geneNames = []
     for (const r of value) {
-      genes.push(this.getGene(r["Primary IDs"]))
+      const g = this.getGene(r["Primary IDs"])
+      if (!(this.geneNames.includes(g)) && g !== "") {
+        this.geneNames.push(g)
+      }
+      genes.push(g)
       const s = this.getSubLoc(r["Primary IDs"])
       for (const i of s) {
         if (!this.subLoc.includes(i)) {
@@ -70,11 +75,10 @@ export class ComparisonViewerComponent implements OnInit {
       }
       subCel.push(s)
     }
-    this._data = value
-    this._data = this._data.withSeries("Gene names", new Series(genes)).bake()
-    this._data = this._data.withSeries("Subcellular locations", new Series(subCel)).bake()
-    this.geneNames = this._data.getSeries("Gene names").distinct().bake().toArray()
 
+    this._data = value
+    this._data = this._data.withSeries("Gene names", new Series(genes.slice())).bake()
+    this._data = this._data.withSeries("Subcellular locations", new Series(subCel.slice())).bake()
     this.primaryIDs = this._data.getSeries("Primary IDs").distinct().bake().toArray()
     this.downRegulated = this._data.where(row => row["logFC"] < 0).bake()
     this.upRegulated = this._data.where(row => row["logFC"] > 0).bake()
@@ -82,6 +86,7 @@ export class ComparisonViewerComponent implements OnInit {
     this.drawPack = new DrawPack()
     this.drawPack.df = this._data
     this.drawPack.pCutOff = this.pCutOff
+
   }
 
   get data(): IDataFrame {

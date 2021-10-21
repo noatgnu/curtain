@@ -44,7 +44,9 @@ export class HomeComponent implements OnInit {
 
   selectComparison(e: Event) {
     e.stopPropagation()
+
     this.selectedDF = this.g.processed.where(row => row.comparison === this.selectedComparison).bake()
+
   }
 
 
