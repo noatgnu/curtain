@@ -66,6 +66,7 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
 
   private selectingData(data: string[], type: string = "Primary IDs", annotate: boolean = true) {
     let temp: string[] = []
+
     if (this.mydatatable.selected) {
       for (const d of data) {
         let identical = false
@@ -79,7 +80,6 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
       this.mydatatable.selected = []
       temp = data
     }
-
 
     const df = this.data.where(row => temp.includes(row[type])).bake().toPairs()
     if (df.length > 0) {

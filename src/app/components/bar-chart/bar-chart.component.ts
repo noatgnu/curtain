@@ -68,24 +68,24 @@ export class BarChartComponent implements OnInit {
         if (this.dataService.sampleColumns.includes(c)) {
           let visible: any = true
           const name = this.getHighlighted(c)
-          if (name !== ""){
-            if (this.legendHideList.includes(name)) {
+          if (name[0] !== ""){
+            if (this.legendHideList.includes(name[0])) {
               visible = "legendonly"
             }
-            if (!(name in temp)) {
-              temp[name] = {
+            if (!(name[0] in temp)) {
+              temp[name[0]] = {
                 x: [], y: [],
                 type: 'bar',
                 mode: 'markers',
-                name: name,
+                name: name[0],
                 visible: visible,
                 showlegend: false
               }
             }
-            temp[name].x.push(c)
+            temp[name[0]].x.push(c)
 
             //this.graphLayout.xaxis.categoryarray.push(c)
-            temp[name].y.push(r[c])
+            temp[name[0]].y.push(r[c])
           }
         }
       }
@@ -178,7 +178,12 @@ export class BarChartComponent implements OnInit {
 
     } else {
       const group = name.split(".")
-      return group[0]
+      if (group.length >= 3) {
+        return [group.slice(0, group.length-1).join("_"), group[group.length-1]]
+      } else {
+        return [group[0], group[1]]
+      }
+
     }
   }
 

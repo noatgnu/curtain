@@ -60,29 +60,15 @@ export class ComparisonViewerComponent implements OnInit {
   @Input() set data(value: IDataFrame) {
     const genes = []
     const subCel = []
-    this.geneNames = []
-    for (const r of value) {
-      const g = this.getGene(r["Primary IDs"])
-      if (!(this.geneNames.includes(g)) && g !== "") {
-        this.geneNames.push(g)
-      }
-      genes.push(g)
-      const s = this.getSubLoc(r["Primary IDs"])
-      for (const i of s) {
-        if (!this.subLoc.includes(i)) {
-          this.subLoc.push(i)
-        }
-      }
-      subCel.push(s)
-    }
+
+
 
     this._data = value
-    this._data = this._data.withSeries("Gene names", new Series(genes.slice())).bake()
-    this._data = this._data.withSeries("Subcellular locations", new Series(subCel.slice())).bake()
+    this.geneNames = this._data.getSeries("Gene names").distinct().bake().toArray()
+    this.subLoc = this._data.getSeries("Subcellular locations").distinct().bake().toArray()
     this.primaryIDs = this._data.getSeries("Primary IDs").distinct().bake().toArray()
     this.downRegulated = this._data.where(row => row["logFC"] < 0).bake()
     this.upRegulated = this._data.where(row => row["logFC"] > 0).bake()
-
     this.drawPack = new DrawPack()
     this.drawPack.df = this._data
     this.drawPack.pCutOff = this.pCutOff
@@ -148,7 +134,7 @@ export class ComparisonViewerComponent implements OnInit {
 
   getGene(protein: string) {
     if (this.uniprot.results.has(protein)) {
-      return this.uniprot.results.get(protein)["Gene names"]
+      return this.uniprot.results.get(protein)["Gene names"].slice()
     } else {
       return ""
     }
@@ -163,9 +149,11 @@ export class ComparisonViewerComponent implements OnInit {
   }
 
   findInData(e: Event) {
-    this.dataService.searchService.next({term: [this.tableFilterModel], type: this.searchType})
     e.stopPropagation()
     e.preventDefault()
+    console.log(this.tableFilterModel)
+    this.dataService.searchService.next({term: [this.tableFilterModel], type: this.searchType})
+
   }
 
   clearAllSelected(e: Event) {
