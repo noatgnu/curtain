@@ -11,5 +11,6 @@ export class Settings {
   fileSavedOnSever: boolean = false
   sampleLables: any = {}
   fileIsLink: boolean = false
+  description: string = ""
   dataColumns: GraphData = new GraphData()
 }

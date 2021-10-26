@@ -26,13 +26,14 @@ export class FileUploaderComponent implements OnInit {
   enableFetch: boolean = true;
   saveInputFile: boolean = false;
   loadSavedInput: boolean = false;
-
+  description: string = "";
   downloadSettingsFile: boolean = false
   constructor(private http: WebService, private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private notification: NotificationService) {
     this.dataService.updateSettings.subscribe(data => {
       if (data) {
         this.log10pvalue = this.dataService.settings.antilogP
         this.enableFetch = this.dataService.settings.uniprot
+        this.description = this.dataService.settings.description
         if (this.dataService.settings.fileIsLink) {
           forkJoin([this.http.getProcessedInput(this.dataService.settings.processedFile), this.http.getRawInput(this.dataService.settings.rawFile)]).subscribe(res => {
             this.processed = fromCSV(<string>res[0].body)
@@ -160,6 +161,7 @@ export class FileUploaderComponent implements OnInit {
           const loadedFile = reader.result;
           this.dataService.settings = JSON.parse(<string>loadedFile)
           this.log10pvalue = this.dataService.settings.antilogP
+          this.description = this.dataService.settings.description
           if (this.dataService.settings.fileIsLink) {
             forkJoin([this.http.getProcessedInput(this.dataService.settings.processedFile), this.http.getRawInput(this.dataService.settings.rawFile)]).subscribe(res => {
               this.processed = fromCSV(<string>res[0].body)
