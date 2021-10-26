@@ -209,6 +209,7 @@ export class FileUploaderComponent implements OnInit {
     this.modalService.open(content, {ariaLabelledBy: "saveSettings"}).result.then((result) => {
       this.dataService.settings.antilogP = this.log10pvalue
       this.dataService.settings.fileSavedOnSever = this.saveInputFile
+      this.dataService.settings.description = this.description
       const settings = JSON.stringify(this.dataService.settings, (key, value) => {
         if (!this.saveInputFile) {
           if (key=="rawFile") {
