@@ -144,8 +144,17 @@
           <label class="form-check-label" for="enableUniprot">Enable fetching data from UniProt (Primary ID column need to be UniProt accession IDs)</label>
         </div>
       </div>
-      <div class="col-9">
+      <div class="col-3">
         <button class="btn btn-primary" (click)="getUniprot($event)">Submit</button>
+      </div>
+      <div class="col-6">
+        <div ngbDropdown class="d-inline-block">
+          <button class="btn btn-outline-secondary" ngbDropdownToggle id="downloadOriginalData">Download Original Data</button>
+          <div ngbDropdownMenu aria-labelledby="downloadOriginalData">
+            <button ngbDropdownItem (click)="downloadData('differential')">Original Differential Analysis File</button>
+            <button ngbDropdownItem (click)="downloadData('raw')">Original Raw Data</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

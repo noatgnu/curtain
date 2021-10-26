@@ -332,4 +332,31 @@ export class FileUploaderComponent implements OnInit {
 
   }
 
+  downloadData(filename: string) {
+    let fileContent = ""
+    switch (filename) {
+      case "differential":
+        fileContent = this.graphData.processed.toCSV()
+        break
+      case "raw":
+        fileContent = this.graphData.raw.toCSV()
+        break
+      default:
+        break
+    }
+
+    const blob = new Blob([fileContent], {type: 'text/csv'})
+    const url = window.URL.createObjectURL(blob);
+    if (typeof(navigator.msSaveOrOpenBlob)==="function") {
+      navigator.msSaveBlob(blob, filename + ".csv")
+    } else {
+      const a = document.createElement("a")
+      a.href = url
+      a.download = filename + ".csv"
+      document.body.appendChild(a)
+      a.click();
+      document.body.removeChild(a);
+    }
+    window.URL.revokeObjectURL(url)
+  }
 }
