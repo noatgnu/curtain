@@ -60,9 +60,6 @@ export class ComparisonViewerComponent implements OnInit {
   @Input() set data(value: IDataFrame) {
     const genes = []
     const subCel = []
-
-
-
     this._data = value
     this.geneNames = this._data.getSeries("Gene names").distinct().bake().toArray()
     this.subLoc = this._data.getSeries("Subcellular locations").distinct().bake().toArray()
@@ -84,6 +81,12 @@ export class ComparisonViewerComponent implements OnInit {
   constructor(private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private web: WebService, private dbstring: DbStringService, private notification: NotificationService) {
     this.enableUniprot = this.uniprot.fetched
     this.interactionAnalysisObs = this.dbstring.interactionAnalysis.asObservable()
+    if (this.dataService.settings.pCutOff) {
+      this.pCutOff = this.dataService.settings.pCutOff
+    }
+    if (this.dataService.settings.logFCCutOff) {
+      this.logFCCutoff = this.dataService.settings.logFCCutOff
+    }
     this.dbstring.dbstringIDRunStatus.asObservable().subscribe(data=> {
       if (data) {
         this.notification.show("Completed DB-String analysis", {className: "bg-success text-light", delay: 5000})
@@ -130,6 +133,8 @@ export class ComparisonViewerComponent implements OnInit {
     this.drawPack.df = this._data
     this.drawPack.pCutOff = this.pCutOff
     this.drawPack.logFCCutoff = this.logFCCutoff
+    this.dataService.settings.pCutOff = this.pCutOff
+    this.dataService.settings.logFCCutOff = this.logFCCutoff
   }
 
   getGene(protein: string) {

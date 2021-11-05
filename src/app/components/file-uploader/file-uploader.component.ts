@@ -84,7 +84,6 @@ export class FileUploaderComponent implements OnInit {
         }
 
         const processedIgnore: any[] = []
-
         for (const c of this.processed.getColumnNames()) {
           if (!(processedNotIgnore.includes(c))) {
             processedIgnore.push(c)
@@ -185,6 +184,7 @@ export class FileUploaderComponent implements OnInit {
         if (!raw) {
           this.fileName = target.files[0].name + "";
           this.dataService.settings.processedFile =this.fileName
+
         } else {
           this.rawFileName = target.files[0].name + "";
           this.dataService.settings.rawFile = this.rawFileName
@@ -196,8 +196,10 @@ export class FileUploaderComponent implements OnInit {
           const loadedFile = reader.result;
           if (raw) {
             this.raw = fromCSV(<string>loadedFile)
+
           } else {
             this.processed = fromCSV(<string>loadedFile)
+
           }
         };
         reader.readAsText(this.file);

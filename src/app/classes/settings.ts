@@ -12,5 +12,7 @@ export class Settings {
   sampleLables: any = {}
   fileIsLink: boolean = false
   description: string = ""
+  pCutOff: number = 0.00001
+  logFCCutOff: number = 2
   dataColumns: GraphData = new GraphData()
 }
