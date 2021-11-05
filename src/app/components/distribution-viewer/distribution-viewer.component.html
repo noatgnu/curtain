@@ -48,6 +48,16 @@
           </option>
         </select>
       </div>
+      <div class="col-2">
+        <div class="d-inline-block" ngbDropdown #selectActions="ngbDropdown">
+          <button class="btn btn-outline-primary" id="dropdownManual" ngbDropdownAnchor (focus)="selectActions.open()">Select</button>
+          <div ngbDropdownMenu aria-labelledby="dropdownManual">
+            <button ngbDropdownItem (click)="selectTop()">Select Top 10 Rows</button>
+            <button ngbDropdownItem (click)="selectBottom()">Select Bottom 10 Rows</button>
+            <button ngbDropdownItem (click)="clearAllSelected()">Deselect All</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <ngx-datatable

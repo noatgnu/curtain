@@ -207,4 +207,25 @@ export class DistributionViewerComponent implements OnInit {
     }
 
   }
+
+  clearAllSelected() {
+    for (const k in this.selectedRawData) {
+      this.selectedRawData[k].visible = false
+      this.dataService.settings.selectedIDs[k].visible = false
+    }
+  }
+
+  selectTop(n: number = 10) {
+    for (const r of this.rows.slice(0, n)) {
+      this.selectedRawData[r['Primary IDs']].visible = true
+      this.dataService.settings.selectedIDs[r['Primary IDs']].visible = true
+    }
+  }
+
+  selectBottom(n: number = 10) {
+    for (const r of this.rows.slice(this.rows.length-n)) {
+      this.selectedRawData[r['Primary IDs']].visible = true
+      this.dataService.settings.selectedIDs[r['Primary IDs']].visible = true
+    }
+  }
 }
