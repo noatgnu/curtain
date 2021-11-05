@@ -35,7 +35,6 @@ export class ComparisonViewerComponent implements OnInit {
   tableFilterModel: any = ""
   entryToProtein: Map<string, string> = new Map<string, string>()
   dbstringUp: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
-  dbstringDown: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
 
   searchFilter(term: string) {
     switch (this.searchType) {

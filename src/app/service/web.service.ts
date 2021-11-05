@@ -70,6 +70,12 @@ export class WebService {
             this.dataService.rawFile = res.body["raw"]
             this.dataService.processedFile = res.body["processed"]
             this.dataService.updateSettings.next(true)
+            if (!this.dataService.settings.pCutOff) {
+              this.dataService.settings.pCutOff = 0.00001
+            }
+            if (!this.dataService.settings.logFCCutOff) {
+              this.dataService.settings.logFCCutOff = 2
+            }
           }
 
         }
