@@ -41,8 +41,8 @@ export class ScatterPlotComponent implements OnInit {
     },
     shapes: []
   }
-  pCutOff: number = 0.00001
-  log2FCCutoff: number = 2
+  pCutOff: number = this.dataService.settings.pCutOff
+  log2FCCutoff: number = this.dataService.settings.logFCCutOff
   _data: IDataFrame = new DataFrame();
   upSelected: any[] = []
   downSelected: any[] = []
@@ -52,8 +52,8 @@ export class ScatterPlotComponent implements OnInit {
   @Input() set data(value:DrawPack) {
     this.graphLayout.annotations = []
     this._data = value.df
-    this.pCutOff = value.pCutOff
-    this.log2FCCutoff = value.logFCCutoff
+    this.pCutOff = this.dataService.settings.pCutOff
+    this.log2FCCutoff = this.dataService.settings.logFCCutOff
     this.graphScatterPlot()
   }
 
@@ -114,7 +114,9 @@ export class ScatterPlotComponent implements OnInit {
   }
 
   graphScatterPlot(group: any = {}) {
-
+    console.log(this.dataService.settings)
+    console.log(this.pCutOff)
+    console.log(this.log2FCCutoff)
     const temp: any = {}
     this.graphData = []
     const minMax = {

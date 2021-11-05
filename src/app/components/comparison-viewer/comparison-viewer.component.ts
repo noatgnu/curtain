@@ -19,8 +19,8 @@ import {NotificationService} from "../../service/notification.service";
 export class ComparisonViewerComponent implements OnInit {
   closeResult = ""
   selectionTitle = ""
-  pCutOff: number = 0.00001
-  logFCCutoff: number = 2
+  pCutOff = this.dataService.settings.pCutOff
+  logFCCutoff = this.dataService.settings.logFCCutOff
   upRegulated: IDataFrame = new DataFrame()
   downRegulated: IDataFrame = new DataFrame()
 
@@ -81,12 +81,6 @@ export class ComparisonViewerComponent implements OnInit {
   constructor(private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private web: WebService, private dbstring: DbStringService, private notification: NotificationService) {
     this.enableUniprot = this.uniprot.fetched
     this.interactionAnalysisObs = this.dbstring.interactionAnalysis.asObservable()
-    if (this.dataService.settings.pCutOff) {
-      this.pCutOff = this.dataService.settings.pCutOff
-    }
-    if (this.dataService.settings.logFCCutOff) {
-      this.logFCCutoff = this.dataService.settings.logFCCutOff
-    }
     this.dbstring.dbstringIDRunStatus.asObservable().subscribe(data=> {
       if (data) {
         this.notification.show("Completed DB-String analysis", {className: "bg-success text-light", delay: 5000})
@@ -128,13 +122,13 @@ export class ComparisonViewerComponent implements OnInit {
 
   changeInput(e: Event) {
     e.stopPropagation()
-
+    this.dataService.settings.pCutOff = this.pCutOff
+    this.dataService.settings.logFCCutOff = this.logFCCutoff
     this.drawPack = new DrawPack()
     this.drawPack.df = this._data
     this.drawPack.pCutOff = this.pCutOff
     this.drawPack.logFCCutoff = this.logFCCutoff
-    this.dataService.settings.pCutOff = this.pCutOff
-    this.dataService.settings.logFCCutOff = this.logFCCutoff
+
   }
 
   getGene(protein: string) {
