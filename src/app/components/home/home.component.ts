@@ -19,6 +19,7 @@ export class HomeComponent implements OnInit {
 
   set selectedComparison(value: string) {
     this._selectedComparison = value;
+    this.dataService.settings.currentComparison = value
   }
 
   g: GraphData = new GraphData()
@@ -26,6 +27,10 @@ export class HomeComponent implements OnInit {
   selectedDF: IDataFrame = new DataFrame()
   private _selectedComparison: string = ""
   constructor(private webService: WebService, private dbstring: DbStringService, private route: ActivatedRoute, private uniprot: UniprotService, private dataService: DataService) {
+    this.dataService.updateSettings.asObservable().subscribe(result => {
+      this._selectedComparison = this.dataService.settings.currentComparison
+
+    })
     this.webService.getFilter()
   }
 
@@ -57,7 +62,12 @@ export class HomeComponent implements OnInit {
     }
     this.g.processed = this.g.processed.withSeries("Gene names", new Series(genes)).bake()
     this.g.processed = this.g.processed.withSeries("Subcellular locations", new Series(subCel)).bake()
-    this._selectedComparison = this.comparison[0]
+    console.log(this.comparison)
+    console.log(this.selectedComparison)
+    if (!(this.comparison.includes(this._selectedComparison))) {
+      this._selectedComparison = this.comparison[0]
+    }
+
 
     this.selectedDF = this.g.processed.where(row => row.comparison === this._selectedComparison).bake()
 

@@ -141,7 +141,6 @@ export class FileUploaderComponent implements OnInit {
           for (const a of this.graphData.raw.getSeries(c).toArray()) {
             d.push(parseFloat(a))
           }
-          console.log(d)
           this.graphData.raw = this.graphData.raw.withSeries(c, new Series(d)).bake()
         }
         this.dataService.sampleColumns = this.graphData.rawSamplesCol
