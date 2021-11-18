@@ -107,7 +107,12 @@ export class FileUploaderComponent implements OnInit {
         for (const c of this.graphData.processed.getColumnNames()) {
           if (!(["Primary IDs", "comparison"].includes(c))) {
             //this.notification.show("Converting " + c + " to numbers.", {delay: 1000})
-            this.graphData.processed = this.graphData.processed.withSeries(c, new Series(this.graphData.processed.getSeries(c).parseFloats().bake().toArray())).bake()
+            const d: any = []
+            for (const a of this.graphData.processed.getSeries(c).toArray()) {
+              d.push(parseFloat(a))
+            }
+
+            this.graphData.processed = this.graphData.processed.withSeries(c, new Series(d)).bake()
           }
         }
         if (this.log10pvalue) {
@@ -132,7 +137,12 @@ export class FileUploaderComponent implements OnInit {
 
         for (const c of this.graphData.rawSamplesCol) {
           //this.notification.show("Converting " + c + " to numbers.", {delay: 1000})
-          this.graphData.raw = this.graphData.raw.withSeries(c, new Series(this.graphData.raw.getSeries(c).parseFloats().bake().toArray())).bake()
+          const d: any = []
+          for (const a of this.graphData.raw.getSeries(c).toArray()) {
+            d.push(parseFloat(a))
+          }
+          console.log(d)
+          this.graphData.raw = this.graphData.raw.withSeries(c, new Series(d)).bake()
         }
         this.dataService.sampleColumns = this.graphData.rawSamplesCol
         this.dataService.processedIdentifier = this.graphData.processedIdentifierCol

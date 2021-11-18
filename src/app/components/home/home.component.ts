@@ -5,6 +5,7 @@ import {WebService} from "../../service/web.service";
 import {DbStringService} from "../../service/db-string.service";
 import {ActivatedRoute} from "@angular/router";
 import {UniprotService} from "../../service/uniprot.service";
+import {DataService} from "../../service/data.service";
 
 @Component({
   selector: 'app-home',
@@ -12,12 +13,19 @@ import {UniprotService} from "../../service/uniprot.service";
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+  get selectedComparison(): string {
+    return this._selectedComparison;
+  }
+
+  set selectedComparison(value: string) {
+    this._selectedComparison = value;
+  }
 
   g: GraphData = new GraphData()
   comparison: string[] = []
   selectedDF: IDataFrame = new DataFrame()
-  selectedComparison: string = ""
-  constructor(private webService: WebService, private dbstring: DbStringService, private route: ActivatedRoute, private uniprot: UniprotService) {
+  private _selectedComparison: string = ""
+  constructor(private webService: WebService, private dbstring: DbStringService, private route: ActivatedRoute, private uniprot: UniprotService, private dataService: DataService) {
     this.webService.getFilter()
   }
 
@@ -49,9 +57,9 @@ export class HomeComponent implements OnInit {
     }
     this.g.processed = this.g.processed.withSeries("Gene names", new Series(genes)).bake()
     this.g.processed = this.g.processed.withSeries("Subcellular locations", new Series(subCel)).bake()
-    this.selectedComparison = this.comparison[0]
+    this._selectedComparison = this.comparison[0]
 
-    this.selectedDF = this.g.processed.where(row => row.comparison === this.selectedComparison).bake()
+    this.selectedDF = this.g.processed.where(row => row.comparison === this._selectedComparison).bake()
 
   }
   getGene(protein: string) {
@@ -72,7 +80,7 @@ export class HomeComponent implements OnInit {
   selectComparison(e: Event) {
     e.stopPropagation()
 
-    this.selectedDF = this.g.processed.where(row => row.comparison === this.selectedComparison).bake()
+    this.selectedDF = this.g.processed.where(row => row.comparison === this._selectedComparison).bake()
 
   }
 

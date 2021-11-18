@@ -90,7 +90,6 @@ export class BarChartComponent implements OnInit {
         }
       }
     }
-    console.log(temp)
     for (const t in temp) {
       this.graphData.push(temp[t])
       this.graphLayout.xaxis.tickvals.push(temp[t].x[Math.round(temp[t].x.length/2)-1])
@@ -108,10 +107,13 @@ export class BarChartComponent implements OnInit {
 
       }
     }
+    console.log(this.graphData)
   }
   title: string = ""
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
-
+    if (!this.dataService.settings.conditionParsePattern) {
+      this.dataService.settings.conditionParsePattern = /^(.+)\.(\d+)$/
+    }
     this.uniprotMap = this.uniprot.results
     this.dataService.titleGraph.asObservable().subscribe(data => {
       this.graphLayout.title.text = "<b>" + data + "<br>" + this.title + "</b>"
@@ -177,6 +179,14 @@ export class BarChartComponent implements OnInit {
       }
 
     } else {
+      // const pattern = new RegExp(this.dataService.settings.conditionParsePattern)
+      // const match = name.match(pattern)
+      // if (match) {
+      //   return [match[0], match[1]]
+      // } else {
+      //   return ["", ""]
+      // }
+
       const group = name.split(".")
       if (group.length >= 3) {
         return [group.slice(0, group.length-1).join("_"), group[group.length-1]]

@@ -140,6 +140,9 @@ export class BarChartAverageComponent implements OnInit {
   title: string = ""
 
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
+    if (!this.dataService.settings.conditionParsePattern) {
+      this.dataService.settings.conditionParsePattern = /^(.+)\.(\d+)$/
+    }
     this.uniprotMap = this.uniprot.results
     this.dataService.titleGraph.asObservable().subscribe(data => {
       this.graphLayout.title.text = "<b>" + data + "<br>" + this.title + "</b>"
@@ -204,8 +207,20 @@ export class BarChartAverageComponent implements OnInit {
       }
 
     } else {
+      // const pattern = new RegExp(this.dataService.settings.conditionParsePattern)
+      // const match = name.match(pattern)
+      // if (match) {
+      //   return match[0]
+      // } else {
+      //   return ""
+      // }
       const group = name.split(".")
-      return group[0]
+      if (group.length >= 3) {
+        return group.slice(0, group.length-1).join("_")
+      } else {
+        return group[0]
+      }
+
     }
   }
 

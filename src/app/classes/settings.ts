@@ -14,5 +14,7 @@ export class Settings {
   description: string = ""
   pCutOff: number = 0.00001
   logFCCutOff: number = 2
+  conditionParsePattern = /^(.+)\.(\d+)$/
+  currentComparison: string = ""
   dataColumns: GraphData = new GraphData()
 }
