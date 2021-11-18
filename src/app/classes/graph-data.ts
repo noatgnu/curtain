@@ -10,4 +10,5 @@ export class GraphData {
   processedPValue: string = ""
   processedCompLabel: string = ""
   uniprotMap: Map<string, any> = new Map<string, any>()
+  comparison: string = ""
 }

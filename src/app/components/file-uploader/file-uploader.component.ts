@@ -59,6 +59,7 @@ export class FileUploaderComponent implements OnInit {
 
     this.uniprot.uniprotParseStatusObserver.subscribe(status => {
       if (status) {
+
         const processedNotIgnore = [
           this.graphData.processedIdentifierCol,
           this.graphData.processedLog2FC,
