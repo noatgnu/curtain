@@ -5,6 +5,7 @@ import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {max} from "rxjs/operators";
 import {NotificationService} from "./notification.service";
 import {stringify} from "@angular/compiler/src/util";
+import {parse} from "@angular/compiler/src/render3/view/style_parser";
 
 @Injectable({
   providedIn: 'root'
@@ -64,7 +65,7 @@ export class UniprotService {
           ['to', 'ACC'],
           ['query', l.join(' ')],
           ['format', 'tab'],
-          ['columns', 'id,entry name,reviewed,protein names,genes,organism,length,database(RefSeq),organism-id,go-id,go(cellular component),comment(SUBCELLULAR LOCATION),feature(TOPOLOGICAL_DOMAIN),feature(GLYCOSYLATION),comment(MASS SPECTROMETRY),mass,sequence,database(STRING)'],
+          ['columns', 'id,entry name,reviewed,protein names,genes,organism,length,database(RefSeq),organism-id,go-id,go(cellular component),comment(SUBCELLULAR LOCATION),feature(TOPOLOGICAL_DOMAIN),feature(GLYCOSYLATION),comment(MASS SPECTROMETRY),mass,sequence,database(STRING),feature(DOMAIN EXTENT),comment(FUNCTION)'],
           ['compress', 'no'],
           ['force', 'no'],
           ['sort', 'score'],
@@ -101,6 +102,29 @@ export class UniprotService {
               }
             }
             r["Subcellular location [CC]"] = subLoc
+            let domains: any[] = []
+            let l: number = 0;
+            for (const s of r["Domain [FT]"].split(/;/g)) {
+              if (s !== "") {
+                if (s.indexOf("DOMAIN") > -1) {
+                  domains.push({})
+                  l = domains.length
+                  for (const match of s.matchAll(/(\d+)/g)) {
+                    if (!("start" in domains[l-1])) {
+                      domains[l-1].start = parseInt(match[0])
+                    } else {
+                      domains[l-1].end = parseInt(match[0])
+                    }
+                  }
+                } else if (s.indexOf("/note=") > -1) {
+                  const match = /"(.+)"/.exec(s)
+                  if (match !== null) {
+                    domains[l-1].name = match[1]
+                  }
+                }
+              }
+            }
+            r["Domain [FT]"] = domains
             this.results.set(r["query"], r)
 
           }
@@ -150,7 +174,9 @@ export class UniprotService {
 
             }
           }
+
           r["Subcellular location [CC]"] = subLoc
+
           this.results.set(r["query"], r)
         }
 
