@@ -19,15 +19,21 @@ export class BarChartSwitchComponent implements OnInit {
     this._proteinID = value;
     if (value) {
       if (value !== "") {
-        this.proteinFunction = this.uniprot.results.get(value)["Function [CC]"].replace("FUNCTION: ", "")
-        this.title = this.uniprot.results.get(value)["Gene names"]
+        if (this.uniprot.results.has(value)) {
+          this.proteinFunction = this.uniprot.results.get(value)["Function [CC]"].replace("FUNCTION: ", "")
+          this.title = this.uniprot.results.get(value)["Gene names"]
+          this.hasUniprot = true
+        } else {
+          this.title = value
+          this.hasUniprot = false
+        }
       }
     }
   }
   title: string = ""
   proteinFunction: string = ""
   average: boolean = false;
-
+  hasUniprot: boolean = false;
   constructor(private uniprot: UniprotService) { }
 
   ngOnInit(): void {

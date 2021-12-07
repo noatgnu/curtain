@@ -33,7 +33,6 @@ export class ProteinDomainComponent implements OnInit {
           hoverinfo: "text",
           base: 1
         }
-        console.log(this.uniprot.results.get(value)["Domain [FT]"])
         for (const d of this.uniprot.results.get(value)["Domain [FT]"]) {
           if (d.start-1 > last) {
             waterfallPlot.measure.push("relative")
@@ -58,7 +57,7 @@ export class ProteinDomainComponent implements OnInit {
           waterfallPlot.measure.push("relative")
           waterfallPlot.y.push("Other")
           waterfallPlot.x.push(parseInt(this.uniprot.results.get(value)["Length"])-last)
-          waterfallPlot.text.push(last + " - " + parseInt(this.uniprot.results.get(value)["Length"]) + "; " + "Other")
+          waterfallPlot.text.push((last+1) + " - " + parseInt(this.uniprot.results.get(value)["Length"]) + "; " + "Other")
         }
         this.data = [waterfallPlot]
 
