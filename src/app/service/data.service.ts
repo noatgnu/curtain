@@ -101,9 +101,9 @@ export class DataService {
         }
 
         if (up) {
-          this.upRegSelected.push(d["Primary IDs"])
+          this.upRegSelected.unshift(d["Primary IDs"])
         } else {
-          this.downRegSelected.push(d["Primary IDs"])
+          this.downRegSelected.unshift(d["Primary IDs"])
         }
       }
     }
