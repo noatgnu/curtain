@@ -39,7 +39,12 @@ export class ProteinDomainComponent implements OnInit {
             waterfallPlot.measure.push("relative")
             waterfallPlot.y.push("Other")
             waterfallPlot.x.push(d.start-last)
-            waterfallPlot.text.push(last + " - " + (d.start-1) + "; " + "Other")
+            if (last !== 1) {
+              waterfallPlot.text.push((last+1) + " - " + (d.start-1) + "; " + "Other")
+            } else {
+              waterfallPlot.text.push(1 + " - " + (d.start-1) + "; " + "Other")
+            }
+
             last = d.start-1
 
           }
@@ -55,7 +60,6 @@ export class ProteinDomainComponent implements OnInit {
           waterfallPlot.x.push(parseInt(this.uniprot.results.get(value)["Length"])-last)
           waterfallPlot.text.push(last + " - " + parseInt(this.uniprot.results.get(value)["Length"]) + "; " + "Other")
         }
-        console.log(waterfallPlot)
         this.data = [waterfallPlot]
 
       }

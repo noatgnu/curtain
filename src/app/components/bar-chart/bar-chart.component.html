@@ -17,7 +17,7 @@
 <plotly-plot [divId]="title.replace(';', '')"
              [data]="graphData"
              [layout]="graphLayout"
-             [config]="{responsive:true}"
+             [config]="{responsive:false}"
              [updateOnDataChange]="true"
              [updateOnLayoutChange]="true"
              (plotlyClick)="highlightBar($event)"
