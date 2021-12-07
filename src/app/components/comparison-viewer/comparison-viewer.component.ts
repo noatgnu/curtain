@@ -149,9 +149,7 @@ export class ComparisonViewerComponent implements OnInit {
   findInData(e: Event) {
     e.stopPropagation()
     e.preventDefault()
-    console.log(this.tableFilterModel)
     this.dataService.searchService.next({term: [this.tableFilterModel], type: this.searchType})
-
   }
 
   clearAllSelected(e: Event) {

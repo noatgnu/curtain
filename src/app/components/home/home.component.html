@@ -1,3 +1,14 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <a class="navbar-brand" href="#">Curtain</a>
+  <form class="form-inline my-2 my-lg-0 ml-auto">
+    <input class="form-control mr-sm-2" type="search" placeholder="Quick Navigation" aria-label="Search" [disabled]="!enableQuickNav" [(ngModel)]="selectedProteinModel" [ngbTypeahead]="selectedProtein">
+    <select class="form-control mr-sm-2" [(ngModel)]="searchType" [disabled]="!enableQuickNav">
+      <option>Primary IDs</option>
+      <option>Gene names</option>
+    </select>
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit" [disabled]="!enableQuickNav">Select</button>
+  </form>
+</nav>
 <div class="container">
   <app-file-uploader (data)="handleData($event)"></app-file-uploader>
 </div>

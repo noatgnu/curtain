@@ -26,7 +26,16 @@ export class FileUploaderComponent implements OnInit {
   enableFetch: boolean = true;
   saveInputFile: boolean = false;
   loadSavedInput: boolean = false;
-  description: string = "";
+  get description(): string {
+    return this._description
+  }
+
+  set description(value: string) {
+    if (value) {
+      this._description = value
+    }
+  }
+  private _description: string = "";
   downloadSettingsFile: boolean = false
   constructor(private http: WebService, private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private notification: NotificationService) {
     this.dataService.updateSettings.subscribe(data => {

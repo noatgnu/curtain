@@ -6,6 +6,8 @@ import {DbStringService} from "../../service/db-string.service";
 import {ActivatedRoute} from "@angular/router";
 import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
+import {Observable, OperatorFunction} from "rxjs";
+import {debounceTime, distinctUntilChanged, map} from "rxjs/operators";
 
 @Component({
   selector: 'app-home',
@@ -21,7 +23,28 @@ export class HomeComponent implements OnInit {
     this._selectedComparison = value;
     this.dataService.settings.dataColumns.comparison = value
   }
+  selectedProteinModel: string = ""
+  selectedProtein: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
+  text$.pipe(
+    debounceTime(200),
+  distinctUntilChanged(),
+  map(term => term.length < 2 ? []
+    : this.searchFilter(term))
+  )
 
+  searchType: string = "Gene names"
+
+  searchFilter(term: string) {
+    switch (this.searchType) {
+      case "Gene names":
+        return this.dataService.allSelected.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
+      case "Primary IDs":
+        return this.dataService.allSelectedGenes.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
+      default:
+        return [""]
+    }
+
+  }
   g: GraphData = new GraphData()
   comparison: string[] = []
   selectedDF: IDataFrame = new DataFrame()
@@ -30,6 +53,7 @@ export class HomeComponent implements OnInit {
     this.webService.getFilter()
   }
 
+  enableQuickNav: boolean = true;
   ngOnInit() {
     this.route.params.subscribe(params => {
       if (params) {

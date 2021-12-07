@@ -22,6 +22,7 @@ export class DataService {
   upRegSelected: string[] = []
   downRegSelected: string[] = []
   allSelected: string[] = []
+  allSelectedGenes: string[] = []
   sampleColumns: string[] = []
   batchSelectionService: BehaviorSubject<any> = new BehaviorSubject<any>({})
   titleGraph: BehaviorSubject<string> = new BehaviorSubject<string>("")
@@ -48,7 +49,10 @@ export class DataService {
   updateDataPointClick(data: string[]) {
     this.dataPointClickService.next(data)
   }
-
+  addToSelected(value: string) {
+    this.allSelected.push(value)
+    this.allSelectedGenes.push(this.uniprot.results.get(value)["Gene names"])
+  }
   private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean) {
     console.log(data)
     const arr: string[] = []
@@ -127,6 +131,7 @@ export class DataService {
   clearAllSelected() {
     this.clearService.next(true)
     this.allSelected = []
+    this.allSelectedGenes = []
     this.annotations = []
     this.upRegSelected = []
     this.downRegSelected = []
