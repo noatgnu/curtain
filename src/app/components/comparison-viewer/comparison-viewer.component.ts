@@ -57,8 +57,6 @@ export class ComparisonViewerComponent implements OnInit {
         : this.searchFilter(term))
     )
   @Input() set data(value: IDataFrame) {
-    const genes = []
-    const subCel = []
     this._data = value
     this.geneNames = this._data.getSeries("Gene names").distinct().bake().toArray()
     this.subLoc = this._data.getSeries("Subcellular locations").distinct().bake().toArray()

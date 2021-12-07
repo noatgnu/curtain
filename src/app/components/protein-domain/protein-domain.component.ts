@@ -57,7 +57,11 @@ export class ProteinDomainComponent implements OnInit {
           waterfallPlot.measure.push("relative")
           waterfallPlot.y.push("Other")
           waterfallPlot.x.push(parseInt(this.uniprot.results.get(value)["Length"])-last)
-          waterfallPlot.text.push((last+1) + " - " + parseInt(this.uniprot.results.get(value)["Length"]) + "; " + "Other")
+          if (last !== 1) {
+            waterfallPlot.text.push((last+1) + " - " + parseInt(this.uniprot.results.get(value)["Length"])+ "; " + "Other")
+          } else {
+            waterfallPlot.text.push(1 + " - " + parseInt(this.uniprot.results.get(value)["Length"]) + "; " + "Other")
+          }
         }
         this.data = [waterfallPlot]
 

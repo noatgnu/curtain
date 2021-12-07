@@ -35,10 +35,11 @@ export class HomeComponent implements OnInit {
   searchType: string = "Gene names"
 
   searchFilter(term: string) {
+    console.log(term)
     switch (this.searchType) {
-      case "Gene names":
-        return this.dataService.allSelected.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
       case "Primary IDs":
+        return this.dataService.allSelected.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
+      case "Gene names":
         return this.dataService.allSelectedGenes.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
       default:
         return [""]
@@ -113,8 +114,23 @@ export class HomeComponent implements OnInit {
     e.stopPropagation()
 
     this.selectedDF = this.g.processed.where(row => row.comparison === this._selectedComparison).bake()
-
   }
 
+  browseTo() {
+    let acc = ""
+    if (this.searchType === "Gene names") {
+      const ind = this.dataService.allSelectedGenes.indexOf(this.selectedProteinModel)
+      if (ind > -1) {
+        acc = this.dataService.allSelected[ind]
+      }
+    } else {
+      acc = this.selectedProteinModel
+    }
 
+    const e = document.getElementById(acc+"id")
+    console.log(e)
+    if (e) {
+      e.scrollIntoView()
+    }
+  }
 }

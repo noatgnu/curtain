@@ -49,12 +49,14 @@ export class DataService {
   updateDataPointClick(data: string[]) {
     this.dataPointClickService.next(data)
   }
-  addToSelected(value: string) {
-    this.allSelected.push(value)
-    this.allSelectedGenes.push(this.uniprot.results.get(value)["Gene names"])
+  updateSelected(value: string[]) {
+    this.allSelected = value.slice()
+    this.allSelectedGenes = []
+    for (const p of value) {
+      this.allSelectedGenes.push(this.uniprot.results.get(p)["Gene names"])
+    }
   }
   private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean) {
-    console.log(data)
     const arr: string[] = []
     for (const d of data) {
       arr.push(d["Primary IDs"])
@@ -111,7 +113,7 @@ export class DataService {
         }
       }
     }
-    this.allSelected = this.downRegSelected.concat(this.upRegSelected)
+    this.updateSelected(this.downRegSelected.concat(this.upRegSelected))
     this.annotations = annotations
     this.annotationSelect.next(this.annotations)
   }
