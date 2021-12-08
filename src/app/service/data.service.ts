@@ -53,8 +53,13 @@ export class DataService {
     this.allSelected = value.slice()
     this.allSelectedGenes = []
     for (const p of value) {
-      this.allSelectedGenes.push(this.uniprot.results.get(p)["Gene names"])
+      if (this.uniprot.results.has(p)) {
+        this.allSelectedGenes.push(this.uniprot.results.get(p)["Gene names"])
+      }
+
     }
+
+
   }
   private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean) {
     const arr: string[] = []
