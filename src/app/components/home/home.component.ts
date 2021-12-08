@@ -137,13 +137,14 @@ export class HomeComponent implements OnInit {
 
   browseToInd(next: boolean) {
     let nextPosition;
+    const currentPosition = this.dataService.allSelected.indexOf(this.dataService.currentBrowsePosition)
     if (next) {
-      if (this.dataService.currentPositionIndex + 1 < this.dataService.allSelected.length) {
-        nextPosition = this.dataService.currentPositionIndex + 1
+      if (currentPosition + 1 < this.dataService.allSelected.length) {
+        nextPosition = currentPosition + 1
       }
     } else {
-      if (this.dataService.currentPositionIndex - 1 >= 0) {
-        nextPosition = this.dataService.currentPositionIndex - 1
+      if (currentPosition - 1 >= 0) {
+        nextPosition = currentPosition - 1
       }
     }
     console.log(nextPosition)
