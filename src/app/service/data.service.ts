@@ -10,6 +10,16 @@ import {NotificationService} from "./notification.service";
   providedIn: 'root'
 })
 export class DataService {
+  get currentBrowsePosition(): string {
+    return this._currentBrowsePosition;
+  }
+
+  set currentBrowsePosition(value: string) {
+    this._currentBrowsePosition = value;
+    this.currentPositionIndex = this.allSelected.indexOf(value)
+  }
+  private _currentBrowsePosition: string = ""
+  currentPositionIndex: number = -1
   rawFile: string = ""
   processedFile: string = ""
   comparisonSubject: BehaviorSubject<IDataFrame> = new BehaviorSubject<IDataFrame>(new DataFrame())

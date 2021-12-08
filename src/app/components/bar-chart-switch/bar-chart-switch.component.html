@@ -1,7 +1,10 @@
 <div class="card">
+
   <div class="card-body">
     <h1 class="card-title" *ngIf="hasUniprot">{{title}}</h1>
     <p class="card-text" *ngIf="hasUniprot">{{proteinFunction}}</p>
+    <ngui-inview (inview)="viewing()">
+    </ngui-inview>
     <app-protein-domain *ngIf="hasUniprot" [proteinID]="proteinID"></app-protein-domain>
     <div class="row">
       <div class="col-4">
@@ -13,6 +16,7 @@
         </div>
       </div>
     </div>
+
     <app-bar-chart [data]="data"></app-bar-chart>
     <app-bar-chart-average *ngIf="average === true" [data]="data"></app-bar-chart-average>
   </div>

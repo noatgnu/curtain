@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {UniprotService} from "../../service/uniprot.service";
+import {DataService} from "../../service/data.service";
 
 @Component({
   selector: 'app-bar-chart-switch',
@@ -18,13 +19,14 @@ export class BarChartSwitchComponent implements OnInit {
   @Input() set proteinID(value: string) {
     this._proteinID = value;
     if (value) {
-      if (value !== "") {
-        if (this.uniprot.results.has(value)) {
-          this.proteinFunction = this.uniprot.results.get(value)["Function [CC]"].replace("FUNCTION: ", "")
-          this.title = this.uniprot.results.get(value)["Gene names"]
+      const ind = this.dataService.allSelected.indexOf(value)
+      if (ind !== -1) {
+        if (this.dataService.allSelectedGenes.length >0) {
+          this.proteinFunction = this.uniprot.results.get(this.dataService.allSelected[ind])["Function [CC]"].replace("FUNCTION: ", "")
+          this.title = this.dataService.allSelectedGenes[ind]
           this.hasUniprot = true
         } else {
-          this.title = value
+          this.title = this.dataService.allSelected[ind]
           this.hasUniprot = false
         }
       }
@@ -34,9 +36,13 @@ export class BarChartSwitchComponent implements OnInit {
   proteinFunction: string = ""
   average: boolean = false;
   hasUniprot: boolean = false;
-  constructor(private uniprot: UniprotService) { }
+
+  constructor(private uniprot: UniprotService, private dataService: DataService) { }
 
   ngOnInit(): void {
   }
 
+  viewing() {
+    this.dataService.currentBrowsePosition = this.proteinID
+  }
 }

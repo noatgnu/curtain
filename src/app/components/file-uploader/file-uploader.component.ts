@@ -251,6 +251,7 @@ export class FileUploaderComponent implements OnInit {
         this.http.putSettings(data).subscribe(data => {
           if (data.body) {
             this.unique_id = location.origin +"/#/"+ data.body
+            this.dataService.unique_id = data.body
           }
 
         })
@@ -259,6 +260,7 @@ export class FileUploaderComponent implements OnInit {
         this.http.putSettings(data).subscribe(data => {
           if (data.body) {
             this.unique_id = location.origin +"/#/"+ data.body
+            this.dataService.unique_id = data.body
           }
         })
       }

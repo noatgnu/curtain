@@ -24,6 +24,7 @@ import { NotificationContainerComponent } from './components/notification-contai
 import { BarChartAverageComponent } from './components/bar-chart-average/bar-chart-average.component';
 import { BarChartSwitchComponent } from './components/bar-chart-switch/bar-chart-switch.component';
 import { ProteinDomainComponent } from './components/protein-domain/protein-domain.component';
+import {NguiInviewModule, NguiListModule, NguiUtilsModule} from "@ngui/common";
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -54,7 +55,10 @@ PlotlyModule.plotlyjs = PlotlyJS;
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
-    NgxDatatableModule
+    NgxDatatableModule,
+    NguiListModule,
+    NguiInviewModule,
+    NguiUtilsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

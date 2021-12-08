@@ -228,4 +228,5 @@ export class DistributionViewerComponent implements OnInit {
       this.dataService.settings.selectedIDs[r['Primary IDs']].visible = true
     }
   }
+
 }

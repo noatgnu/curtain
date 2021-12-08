@@ -1,5 +1,17 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
   <a class="navbar-brand" href="#">Curtain</a>
+  <button class="btn" *ngIf="dataService.unique_id !== ''">Session ID {{dataService.unique_id}}</button>
+  <div class="ml-auto" *ngIf="dataService.currentPositionIndex !== -1">
+    <button class="btn" (click)="browseToInd(false)">
+      <
+    </button>
+    <button class="btn">
+      <span>{{dataService.allSelected[dataService.currentPositionIndex]}}</span><span *ngIf="dataService.allSelectedGenes.length > 0"> - {{dataService.allSelectedGenes[dataService.currentPositionIndex]}}</span>
+    </button>
+    <button class="btn" (click)="browseToInd(true)">
+      >
+    </button>
+  </div>
   <div class="form-inline my-2 my-lg-0 ml-auto">
     <input class="form-control mr-sm-2" type="text" placeholder="Quick Navigation" aria-label="quickNav" [disabled]="!enableQuickNav" [(ngModel)]="selectedProteinModel" [ngbTypeahead]="selectedProtein">
     <select class="form-control mr-sm-2" [(ngModel)]="searchType" [disabled]="!enableQuickNav">

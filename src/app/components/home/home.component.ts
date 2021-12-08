@@ -50,7 +50,7 @@ export class HomeComponent implements OnInit {
   comparison: string[] = []
   selectedDF: IDataFrame = new DataFrame()
   private _selectedComparison: string = ""
-  constructor(private webService: WebService, private dbstring: DbStringService, private route: ActivatedRoute, private uniprot: UniprotService, private dataService: DataService) {
+  constructor(private webService: WebService, private dbstring: DbStringService, private route: ActivatedRoute, private uniprot: UniprotService, public dataService: DataService) {
     this.webService.getFilter()
   }
 
@@ -61,6 +61,7 @@ export class HomeComponent implements OnInit {
         console.log(params)
         if (params["settings"]) {
           this.webService.getSettings(params["settings"])
+          this.dataService.unique_id = params["settings"]
         }
       }
     })
@@ -132,5 +133,27 @@ export class HomeComponent implements OnInit {
     if (e) {
       e.scrollIntoView()
     }
+  }
+
+  browseToInd(next: boolean) {
+    let nextPosition;
+    if (next) {
+      if (this.dataService.currentPositionIndex + 1 < this.dataService.allSelected.length) {
+        nextPosition = this.dataService.currentPositionIndex + 1
+      }
+    } else {
+      if (this.dataService.currentPositionIndex - 1 >= 0) {
+        nextPosition = this.dataService.currentPositionIndex - 1
+      }
+    }
+    console.log(nextPosition)
+    if (nextPosition!==undefined) {
+      const acc = this.dataService.allSelected[nextPosition]
+      const e = document.getElementById(acc+"id")
+      if (e) {
+        e.scrollIntoView()
+      }
+    }
+
   }
 }

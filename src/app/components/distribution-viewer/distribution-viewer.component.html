@@ -190,7 +190,8 @@
 </div>
 
 <div class="mt-2" *ngIf="allSelected.length > 0">
-  <div *ngFor="let d of allSelected" class="mb-2">
+  <div *ngFor="let d of allSelected; let ind = index" class="mb-2">
+
     <app-bar-chart-switch [id]="d+'id'"  [data]="selectedRawData[d].df" [proteinID]="d" *ngIf="selectedRawData[d].visible"></app-bar-chart-switch>
   </div>
 </div>
