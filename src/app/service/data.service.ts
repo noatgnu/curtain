@@ -61,6 +61,7 @@ export class DataService {
   }
   updateSelected(value: string[]) {
     this.allSelected = value.slice()
+    console.log(this.allSelected)
     this.allSelectedGenes = []
     for (const p of value) {
       if (this.uniprot.results.has(p)) {
@@ -128,7 +129,12 @@ export class DataService {
         }
       }
     }
-    this.updateSelected(this.downRegSelected.concat(this.upRegSelected))
+    if (up) {
+      this.updateSelected(this.upRegSelected.concat(this.downRegSelected))
+    } else {
+      this.updateSelected(this.downRegSelected.concat(this.upRegSelected))
+    }
+
     this.annotations = annotations
     this.annotationSelect.next(this.annotations)
   }

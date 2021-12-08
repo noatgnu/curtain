@@ -107,7 +107,6 @@ export class BarChartComponent implements OnInit {
 
       }
     }
-    console.log(this.graphData)
   }
   title: string = ""
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
