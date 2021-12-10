@@ -8,6 +8,7 @@ import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
 import {Observable, OperatorFunction} from "rxjs";
 import {debounceTime, distinctUntilChanged, map} from "rxjs/operators";
+import {NotificationService} from "../../service/notification.service";
 
 @Component({
   selector: 'app-home',
@@ -50,7 +51,7 @@ export class HomeComponent implements OnInit {
   comparison: string[] = []
   selectedDF: IDataFrame = new DataFrame()
   private _selectedComparison: string = ""
-  constructor(private webService: WebService, private dbstring: DbStringService, private route: ActivatedRoute, private uniprot: UniprotService, public dataService: DataService) {
+  constructor(private webService: WebService, private dbstring: DbStringService, private route: ActivatedRoute, private uniprot: UniprotService, public dataService: DataService, private notification: NotificationService) {
     this.webService.getFilter()
   }
 
@@ -156,5 +157,13 @@ export class HomeComponent implements OnInit {
       }
     }
 
+  }
+
+  copyLink() {
+    navigator.clipboard.writeText(location.origin +"/#/"+ this.dataService.unique_id).then(
+      result => {
+        this.notification.show("Unique link has been copied to clipboard", {delay: 1000})
+      }
+    )
   }
 }
