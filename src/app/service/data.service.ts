@@ -66,6 +66,8 @@ export class DataService {
     for (const p of value) {
       if (this.uniprot.results.has(p)) {
         this.allSelectedGenes.push(this.uniprot.results.get(p)["Gene names"])
+      } else {
+        this.allSelectedGenes.push("")
       }
 
     }

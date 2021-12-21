@@ -15,7 +15,7 @@ export class UniprotService {
   public Re = /[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}/;
   private base = 'https://www.uniprot.org';
   private toolEndpoint = '/uploadlists/?';
-
+  accMap: Map<any, any> = new Map<string, string>()
   results: Map<string, any> = new Map<string, any>()
   organism: string = ""
   fetched: boolean = false
@@ -125,7 +125,10 @@ export class UniprotService {
               }
             }
             r["Domain [FT]"] = domains
-            this.results.set(r["query"], r)
+            if (r["query"]) {
+              this.results.set(this.accMap.get(r["query"]), r)
+            }
+
 
           }
           this.notification.show("Processed job " + this.notification.progress + "/" + this.run, {delay: 1000})
@@ -134,6 +137,7 @@ export class UniprotService {
             this.notification.show("Finished acquiring UniProt data", {classname: 'bg-success text-light', delay: 10000})
             this.uniprotParseStatus.next(true)
             this.fetched = true
+            console.log(this.results)
           }
         });
       }

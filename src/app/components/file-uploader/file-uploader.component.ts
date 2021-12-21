@@ -26,6 +26,7 @@ export class FileUploaderComponent implements OnInit {
   enableFetch: boolean = true;
   saveInputFile: boolean = false;
   loadSavedInput: boolean = false;
+
   get description(): string {
     return this._description
   }
@@ -325,6 +326,7 @@ export class FileUploaderComponent implements OnInit {
     }
     this.uniprot.fetched = false
     this.dataService.settings.uniprot = this.enableFetch
+    this.uniprot.accMap = new Map<string, string>()
     if (this.enableFetch) {
 
       this.accessionList = []
@@ -333,8 +335,9 @@ export class FileUploaderComponent implements OnInit {
         const d = a.split(";")
         const accession = this.uniprot.Re.exec(d[0])
         if (accession !== null) {
+          this.uniprot.accMap.set(accession[0], a)
           this.accessionList.push(accession[0])
-          if (!this.uniprot.results.has(accession[0])) {
+          if (!this.uniprot.results.has(a)) {
             accList.push(accession[0])
           }
         }

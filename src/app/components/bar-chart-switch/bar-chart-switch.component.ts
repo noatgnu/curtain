@@ -22,9 +22,12 @@ export class BarChartSwitchComponent implements OnInit {
       const ind = this.dataService.allSelected.indexOf(value)
       if (ind !== -1) {
         if (this.dataService.allSelectedGenes.length >0) {
-          this.proteinFunction = this.uniprot.results.get(this.dataService.allSelected[ind])["Function [CC]"].replace("FUNCTION: ", "")
-          this.title = this.dataService.allSelectedGenes[ind]
-          this.hasUniprot = true
+          if (this.uniprot.results.has(this.dataService.allSelected[ind])) {
+            this.proteinFunction = this.uniprot.results.get(this.dataService.allSelected[ind])["Function [CC]"].replace("FUNCTION: ", "")
+            this.title = this.dataService.allSelectedGenes[ind]
+            this.hasUniprot = true
+          }
+
         } else {
           this.title = this.dataService.allSelected[ind]
           this.hasUniprot = false
