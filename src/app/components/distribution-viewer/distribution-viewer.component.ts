@@ -47,7 +47,7 @@ export class DistributionViewerComponent implements OnInit {
 
     this.dataService.annotationSelect.subscribe(data => {
       this.uniData = this.uniprot.results
-      this.selectedRawData = []
+      this.selectedRawData = {}
       let count = 0
       this.allSelected = this.dataService.allSelected
       this.filteredAllSelected = this.allSelected
@@ -80,6 +80,44 @@ export class DistributionViewerComponent implements OnInit {
       this.selectedRawData = {}
       this.dataService.settings.selectedIDs = {}
     })
+    this.dataService.clearSpecificService.asObservable().subscribe(data => {
+
+      this.allSelected = this.dataService.allSelected
+      console.log(this.allSelected)
+      this.selectedRawData = {}
+      this.rows = this.dataComp.where(row => this.allSelected.includes(row["Primary IDs"])).bake().toArray()
+      let count = 0
+      const selectedIDs: any = {}
+      for (const i of this.dataService.allSelected) {
+        count ++
+        if (count > 20) {
+          if (!(i in selectedIDs)) {
+            if (i in this.dataService.settings.selectedIDs) {
+              selectedIDs[i] = {visible: this.dataService.settings.selectedIDs[i].visible}
+            } else {
+              selectedIDs[i] = {visible: false}
+            }
+
+            this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: selectedIDs[i].visible}
+          } else {
+            this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: selectedIDs[i].visible}
+          }
+        } else {
+          if (!(i in selectedIDs)) {
+            if (i in this.dataService.settings.selectedIDs) {
+              selectedIDs[i] = {visible: this.dataService.settings.selectedIDs[i].visible}
+            } else {
+              selectedIDs[i] = {visible: true}
+            }
+            this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: selectedIDs[i].visible}
+          } else {
+            this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: selectedIDs[i].visible}
+          }
+        }
+      }
+      this.dataService.settings.selectedIDs = selectedIDs
+    })
+
     this.dataService.barChartSampleLabels.asObservable().subscribe(data => {
       this.labelKeys = this.dataService.barChartKeys
       this.labelSamples = this.dataService.relabelSamples

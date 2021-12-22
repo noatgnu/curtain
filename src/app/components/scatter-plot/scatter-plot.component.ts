@@ -56,7 +56,7 @@ export class ScatterPlotComponent implements OnInit {
     this.log2FCCutoff = this.dataService.settings.logFCCutOff
     this.graphScatterPlot()
   }
-
+  batchSelections: any[] = []
   uniprotMap = new Map<string, any>()
 
   batchSelection: any = {}
@@ -72,12 +72,27 @@ export class ScatterPlotComponent implements OnInit {
       if (data) {
         this.graphLayout.annotations = []
         this.batchSelection = {}
+        this.batchSelections = []
+        this.graphScatterPlot()
+      }
+    })
+    this.dataService.clearSpecificService.asObservable().subscribe(data => {
+      if (data) {
+        this.graphLayout.annotations = []
+        const bs: any[] = []
+        for (let i = 0; i < this.batchSelections.length; i ++) {
+          if (this.dataService.settings.selectionTitles.indexOf(this.batchSelections[i].title) !== -1) {
+            bs.push(this.batchSelections[i])
+          }
+        }
+        this.batchSelections = bs
         this.graphScatterPlot()
       }
     })
     this.dataService.batchSelectionService.asObservable().subscribe(data => {
       if (data) {
         this.batchSelection = data
+        this.batchSelections.push(data)
         this.graphScatterPlot()
       }
     })
@@ -114,9 +129,6 @@ export class ScatterPlotComponent implements OnInit {
   }
 
   graphScatterPlot(group: any = {}) {
-    console.log(this.dataService.settings)
-    console.log(this.pCutOff)
-    console.log(this.log2FCCutoff)
     const temp: any = {}
     this.graphData = []
     const minMax = {
@@ -127,7 +139,6 @@ export class ScatterPlotComponent implements OnInit {
     let notStartedx = true
     let notStartedy = true
     if (Object.keys(group).length === 0) {
-      console.log(this.batchSelection)
       for (const r of this._data) {
         const row = {...r}
         if (row["pvalue"]) {
@@ -170,22 +181,26 @@ export class ScatterPlotComponent implements OnInit {
           }
         }
         let selected: boolean = false
-        if (this.batchSelection.data) {
-          if (this.batchSelection.data.includes(r[this.batchSelection.type])) {
-            if (!(this.batchSelection.title in temp)) {
-              temp[this.batchSelection.title] = {x: [], y: [], text:[], type: 'scatter', name: this.batchSelection.title, mode: 'markers'}
-            }
+        for (const s of this.batchSelections) {
+          if (s.data) {
+            if (s.data.includes(r[s.type])) {
 
-            temp[this.batchSelection.title].y.push(-Math.log10(row["pvalue"]))
-            temp[this.batchSelection.title].x.push(row["logFC"])
-            if (this.uniprotMap.has(row["Primary IDs"])) {
-              temp[this.batchSelection.title].text.push(this.uniprotMap.get(row["Primary IDs"])["Gene names"] + "(" + row["Primary IDs"] + ")" )
-            } else {
-              temp[this.batchSelection.title].text.push(row["Primary IDs"])
+              if (!(s.title in temp)) {
+                temp[s.title] = {x: [], y: [], text:[], type: 'scatter', name: s.title, mode: 'markers'}
+              }
+
+              temp[s.title].y.push(-Math.log10(row["pvalue"]))
+              temp[s.title].x.push(row["logFC"])
+              if (this.uniprotMap.has(row["Primary IDs"])) {
+                temp[s.title].text.push(this.uniprotMap.get(row["Primary IDs"])["Gene names"] + "(" + row["Primary IDs"] + ")" )
+              } else {
+                temp[s.title].text.push(row["Primary IDs"])
+              }
+              selected = true
             }
-            selected = true
           }
         }
+
         if (!selected) {
           const conditions = this.selectConditions(row["pvalue"], row["logFC"])
 

@@ -75,7 +75,7 @@ export class ComparisonViewerComponent implements OnInit {
 
   interactionAnalysisObs = new Observable<boolean>()
   enableUniprot: boolean = false
-  constructor(private modalService: NgbModal, private uniprot: UniprotService, private dataService: DataService, private web: WebService, private dbstring: DbStringService, private notification: NotificationService) {
+  constructor(private modalService: NgbModal, private uniprot: UniprotService, public dataService: DataService, private web: WebService, private dbstring: DbStringService, private notification: NotificationService) {
     this.enableUniprot = this.uniprot.fetched
     this.interactionAnalysisObs = this.dbstring.interactionAnalysis.asObservable()
     this.dbstring.dbstringIDRunStatus.asObservable().subscribe(data=> {
@@ -152,6 +152,12 @@ export class ComparisonViewerComponent implements OnInit {
 
   clearAllSelected(e: Event) {
     this.dataService.clearAllSelected()
+    e.stopPropagation()
+    e.preventDefault()
+  }
+
+  clearSpecificSelected(e: Event, title: string) {
+    this.dataService.clearSpecificSelected(title)
     e.stopPropagation()
     e.preventDefault()
   }

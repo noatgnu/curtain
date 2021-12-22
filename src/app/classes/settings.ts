@@ -15,5 +15,6 @@ export class Settings {
   pCutOff: number = 0.00001
   logFCCutOff: number = 2
   conditionParsePattern = /^(.+)\.(\d+)$/
+  selectionTitles: string[] = []
   dataColumns: GraphData = new GraphData()
 }

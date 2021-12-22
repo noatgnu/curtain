@@ -69,6 +69,10 @@ export class WebService {
             this.dataService.settings = JSON.parse(res.body["settings"])
             this.dataService.rawFile = res.body["raw"]
             this.dataService.processedFile = res.body["processed"]
+            if ("selections" in res.body) {
+              this.dataService.initialSearch = res.body["selections"]
+              console.log(this.dataService.initialSearch)
+            }
             this.dataService.updateSettings.next(true)
             if (!this.dataService.settings.pCutOff) {
               this.dataService.settings.pCutOff = 0.00001

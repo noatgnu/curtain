@@ -10,6 +10,8 @@ import {NotificationService} from "./notification.service";
   providedIn: 'root'
 })
 export class DataService {
+  initialSearch: any = {}
+
   get currentBrowsePosition(): string {
     return this._currentBrowsePosition;
   }
@@ -28,6 +30,7 @@ export class DataService {
   annotationSelect: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([])
   searchService: BehaviorSubject<any> = new BehaviorSubject<any>(null)
   clearService: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true)
+  clearSpecificService: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true)
   annotations: any[] = []
   upRegSelected: string[] = []
   downRegSelected: string[] = []
@@ -46,6 +49,9 @@ export class DataService {
   settingsSave: Subject<boolean> = new Subject<boolean>()
   updateSettings: Subject<boolean> = new Subject<boolean>()
   unique_id: string = ""
+  selectionMap: Map<string, string[]> = new Map<string, string[]>()
+  currentSelection: string = ""
+  queueChannel: BehaviorSubject<string> = new BehaviorSubject<string>("")
   constructor(private uniprot: UniprotService, private notification: NotificationService) {
     this.barChartSampleUpdateChannel.asObservable().subscribe(key => {
       this.updateBarChartKey(key)
@@ -61,18 +67,27 @@ export class DataService {
   }
   updateSelected(value: string[]) {
     this.allSelected = value.slice()
-    console.log(this.allSelected)
     this.allSelectedGenes = []
     for (const p of value) {
+      if (!this.selectionMap.has(p)) {
+        this.selectionMap.set(p, [])
+      }
+      const s = this.selectionMap.get(p)
+      if (s !== undefined) {
+        // @ts-ignore
+        if (s.indexOf(this.currentSelection) === -1) {
+          // @ts-ignore
+          s.push(this.currentSelection)
+          this.selectionMap.set(p, s)
+        }
+      }
       if (this.uniprot.results.has(p)) {
         this.allSelectedGenes.push(this.uniprot.results.get(p)["Gene names"])
       } else {
         this.allSelectedGenes.push("")
       }
-
     }
-
-
+    console.log(this.selectionMap)
   }
   private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean) {
     const arr: string[] = []
@@ -164,8 +179,59 @@ export class DataService {
 
   batchSelection(title: string, type: string, data: string[]) {
     this.notification.show("Search for " + data.length + " " + type)
+    this.currentSelection = title
+    if (this.settings.selectionTitles.indexOf(title) === -1) {
+      this.settings.selectionTitles.push(title)
+    }
+
     this.batchSelectionService.next({title: title, type: type, data: data})
     this.searchService.next({term: data, type: type, annotate: false})
+  }
+
+  clearSpecificSelected(title: string) {
+
+    const setForRemove: string[] = []
+    const newAllSelectedGenes: string[] = []
+    const newSelected: string[] = []
+
+    for (let i = 0; i < this.allSelected.length; i++) {
+      const s = this.allSelected[i]
+
+      if (this.selectionMap.has(s)) {
+        // @ts-ignore
+        const p = this.selectionMap.get(s)
+
+        // @ts-ignore
+        const ind = p.indexOf(title)
+
+        if (ind !== -1) {
+          // @ts-ignore
+          if (p.length > 1) {
+            // @ts-ignore
+            this.selectionMap.get(s).splice(ind, 1)
+          } else {
+            this.selectionMap.delete(s)
+            setForRemove.push(s)
+          }
+        }
+      }
+    }
+
+    for (let i = 0; i < this.allSelected.length; i++) {
+      const s = this.allSelected[i]
+      if (setForRemove.indexOf(s) === -1) {
+        newSelected.push(s)
+        newAllSelectedGenes.push(this.allSelectedGenes[i])
+      }
+    }
+    this.allSelected = newSelected
+    this.allSelectedGenes = newAllSelectedGenes
+    this.annotations = []
+    this.upRegSelected = []
+    this.downRegSelected = []
+    const ind = this.settings.selectionTitles.indexOf(title)
+    this.settings.selectionTitles.splice(ind, 1)
+    this.clearSpecificService.next(true)
   }
 
   updateBarChartKey(key: string) {

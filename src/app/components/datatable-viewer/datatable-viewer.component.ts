@@ -170,6 +170,22 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
       }
 
     })
+    this.dataService.clearSpecificService.asObservable().subscribe(data => {
+      const newSelected: any[] = []
+      if (this.selected){
+        for (const i of this.selected){
+          if (this.dataService.allSelected.indexOf(i["Primary IDs"]) === -1) {
+            newSelected.push(i)
+          }
+        }
+        this.selected = newSelected
+      }
+
+      if (this.mydatatable) {
+        this.mydatatable.selected = newSelected
+      }
+
+    })
   }
 
   ngAfterViewInit() {

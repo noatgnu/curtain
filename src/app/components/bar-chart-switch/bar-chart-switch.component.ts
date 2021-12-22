@@ -21,6 +21,8 @@ export class BarChartSwitchComponent implements OnInit {
     if (value) {
       const ind = this.dataService.allSelected.indexOf(value)
       if (ind !== -1) {
+        // @ts-ignore
+        this.selectionArray = this.dataService.selectionMap.get(this.dataService.allSelected[ind])
         if (this.dataService.allSelectedGenes.length >0) {
           if (this.uniprot.results.has(this.dataService.allSelected[ind])) {
             this.proteinFunction = this.uniprot.results.get(this.dataService.allSelected[ind])["Function [CC]"].replace("FUNCTION: ", "")
@@ -39,7 +41,7 @@ export class BarChartSwitchComponent implements OnInit {
   proteinFunction: string = ""
   average: boolean = false;
   hasUniprot: boolean = false;
-
+  selectionArray: string[] = []
   constructor(private uniprot: UniprotService, private dataService: DataService) { }
 
   ngOnInit(): void {

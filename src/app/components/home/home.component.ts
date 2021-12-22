@@ -69,7 +69,6 @@ export class HomeComponent implements OnInit {
   }
 
   handleData(e: GraphData) {
-    console.log(e)
     this.g = e
     if (this.g.processedCompLabel !== "") {
       this.comparison = this.g.processed.getSeries("comparison").distinct().bake().toArray()
@@ -92,8 +91,6 @@ export class HomeComponent implements OnInit {
     } else {
       this.selectedComparison = this.comparison[0]
     }
-
-    console.log(this._selectedComparison)
     this.selectedDF = this.g.processed.where(row => row.comparison === this._selectedComparison).bake()
 
   }
@@ -148,7 +145,6 @@ export class HomeComponent implements OnInit {
         nextPosition = currentPosition - 1
       }
     }
-    console.log(nextPosition)
     if (nextPosition!==undefined) {
       const acc = this.dataService.allSelected[nextPosition]
       const e = document.getElementById(acc+"id")

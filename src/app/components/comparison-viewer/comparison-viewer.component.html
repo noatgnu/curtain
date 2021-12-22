@@ -44,7 +44,13 @@
       <button class="btn btn-outline-info" (click)="startBatchSelection(content)">Batch selection</button>
     </div>
     <div class="col-2">
-      <button class="btn btn-danger" (click)="clearAllSelected($event)">Clear all selected</button>
+      <div ngbDropdown class="d-inline-block">
+        <button class="btn btn-outline-danger" id="clearDropdown" ngbDropdownToggle>Clear Selections</button>
+        <div ngbDropdownMenu aria-labelledby="clearDropdown">
+          <button ngbDropdownItem (click)="clearAllSelected($event)">All selected</button>
+          <button ngbDropdownItem (click)="clearSpecificSelected($event, s)" *ngFor="let s of dataService.settings.selectionTitles">{{s}}</button>
+        </div>
+      </div>
     </div>
     <div class="col-2">
       <button class="btn btn-primary" (click)="viewProfile(profilePlot)">View Profile</button>

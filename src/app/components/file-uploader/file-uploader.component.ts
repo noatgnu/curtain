@@ -160,9 +160,23 @@ export class FileUploaderComponent implements OnInit {
         this.dataService.settings.dataColumns = this.graphData
 
         this.data.emit(this.graphData)
-        if (this.dataService.settings.selectedIDs) {
-          this.dataService.batchSelection("Selected", "Primary IDs", Object.keys(this.dataService.settings.selectedIDs))
+        if (Object.keys(this.dataService.initialSearch).length >0) {
+          for (const k of Object.keys(this.dataService.initialSearch)) {
+            this.dataService.batchSelection(k, "Primary IDs", this.dataService.initialSearch[k])
+          }
+          this.dataService.initialSearch = {}
+        } else {
+          if (this.dataService.settings.selectedIDs) {
+            if (this.dataService.settings.selectionTitles === undefined) {
+              if (this.dataService.settings.selectedIDs !== undefined)  {
+                if (Object.keys(this.dataService.settings.selectedIDs).length > 0) {
+                  this.dataService.batchSelection("Selected", "Primary IDs", Object.keys(this.dataService.settings.selectedIDs))
+                }
+              }
+            }
+          }
         }
+
 
       }
     })
@@ -245,10 +259,18 @@ export class FileUploaderComponent implements OnInit {
         else if (key=="processed") return undefined;
         else return value;
       })
-
-
+      const selections: any = {}
+      for (const i of this.dataService.allSelected) {
+        // @ts-ignore
+        for (const m of this.dataService.selectionMap.get(i)) {
+          if (!(m in selections)) {
+            selections[m] = []
+          }
+          selections[m].push(i)
+        }
+      }
       if (this.saveInputFile) {
-        const data: any = {raw: this.raw.toCSV(), processed: this.processed.toCSV(), settings: settings, password: this.password}
+        const data: any = {raw: this.raw.toCSV(), processed: this.processed.toCSV(), settings: settings, password: this.password, selections: selections}
         this.http.putSettings(data).subscribe(data => {
           if (data.body) {
             this.unique_id = location.origin +"/#/"+ data.body
@@ -257,7 +279,7 @@ export class FileUploaderComponent implements OnInit {
 
         })
       } else {
-        const data: any = {raw: "", processed: "", settings: settings, password: this.password}
+        const data: any = {raw: "", processed: "", settings: settings, password: this.password, selections: selections}
         this.http.putSettings(data).subscribe(data => {
           if (data.body) {
             this.unique_id = location.origin +"/#/"+ data.body
