@@ -1,9 +1,9 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DataFrame, fromJSON, IDataFrame, Series} from "data-forge";
 import {GraphData} from "../../classes/graph-data";
 import {DrawPack} from "../../classes/draw-pack";
 import {DataService} from "../../service/data.service";
-import {BehaviorSubject, Observable, OperatorFunction} from "rxjs";
+import {BehaviorSubject, Observable, OperatorFunction, Subscription} from "rxjs";
 import {debounceTime, distinctUntilChanged, map} from "rxjs/operators";
 import {UniprotService} from "../../service/uniprot.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -16,7 +16,7 @@ import {NotificationService} from "../../service/notification.service";
   templateUrl: './comparison-viewer.component.html',
   styleUrls: ['./comparison-viewer.component.css']
 })
-export class ComparisonViewerComponent implements OnInit {
+export class ComparisonViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   closeResult = ""
   selectionTitle = ""
   pCutOff = this.dataService.settings.pCutOff
@@ -75,6 +75,7 @@ export class ComparisonViewerComponent implements OnInit {
 
   interactionAnalysisObs = new Observable<boolean>()
   enableUniprot: boolean = false
+  initialSearch: Subscription | undefined
   constructor(private modalService: NgbModal, private uniprot: UniprotService, public dataService: DataService, private web: WebService, private dbstring: DbStringService, private notification: NotificationService) {
     this.enableUniprot = this.uniprot.fetched
     this.interactionAnalysisObs = this.dbstring.interactionAnalysis.asObservable()
@@ -115,6 +116,20 @@ export class ComparisonViewerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+  ngAfterViewInit() {
+    this.initialSearch = this.dataService.initialBatchSelection.subscribe(data => {
+      if (data) {
+        for (const k in this.dataService.initialSearch) {
+          this.dataService.batchSelection(k, "Primary IDs", this.dataService.initialSearch[k], true)
+        }
+      }
+    })
+  }
+
+  ngOnDestroy() {
+    this.initialSearch?.unsubscribe()
   }
 
   changeInput(e: Event) {

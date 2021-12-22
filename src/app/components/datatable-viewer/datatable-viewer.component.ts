@@ -15,6 +15,7 @@ import {DataService} from "../../service/data.service";
 import {Observable, OperatorFunction} from "rxjs";
 import {debounceTime, distinctUntilChanged, map} from "rxjs/operators";
 import {Event} from "@angular/router";
+import {timeFormatLocale} from "d3";
 
 @Component({
   selector: 'app-datatable-viewer',
@@ -64,9 +65,8 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
 
   }
 
-  private selectingData(data: string[], type: string = "Primary IDs", annotate: boolean = true) {
+  private selectingData(data: string[], type: string = "Primary IDs", annotate: boolean = true, title: string = "", initialSearch: boolean = false) {
     let temp: string[] = []
-
     if (this.mydatatable.selected) {
       for (const d of data) {
         let identical = false
@@ -80,7 +80,6 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
       this.mydatatable.selected = []
       temp = data
     }
-
     const df = this.data.where(row => temp.includes(row[type])).bake().toPairs()
     if (df.length > 0) {
       for (const d of df) {
@@ -89,7 +88,41 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
       this.mydatatable.offset = Math.floor(df[0][0] / this.mydatatable.pageSize)
       this.rows = [...this.rows]
 
-      this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected, annotate)
+      this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected, annotate, title)
+    }
+  }
+
+  private initialBatchSelection(data: string[], type: string = "Primary IDs", title: string = "") {
+    let temp: string[] = []
+    if (this.mydatatable.selected) {
+      for (const d of data) {
+        let identical = false
+
+        identical = this.checkIdentical(type, d, identical);
+        if (!identical) {
+          temp.push(d)
+        }
+      }
+    } else {
+      this.mydatatable.selected = []
+      temp = data
+    }
+    const df = this.data.where(row => data.includes(row[type])).bake().toPairs()
+    if (df.length > 0) {
+      const selected: string[] = []
+      console.log(df)
+      for (const d of df) {
+        console.log(d)
+        if (temp.includes(d[1]["Primary IDs"])) {
+          this.mydatatable.selected.push(d[1])
+        }
+        selected.push(d[1])
+      }
+      console.log(this.mydatatable.selected)
+      this.mydatatable.offset = Math.floor(df[0][0] / this.mydatatable.pageSize)
+      this.rows = [...this.rows]
+
+      this.dataService.updateRegTableSelect(this.tableType, selected, false, title)
     }
   }
 
@@ -102,7 +135,7 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
     }
   }
 
-  private selectingSubLoc(data: string) {
+  private selectingSubLoc(data: string, title: string = "") {
 
     const da = this.data.where(row => row["Subcellular locations"].includes(data[0])).bake().toPairs()
 
@@ -132,8 +165,13 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
       }
       this.mydatatable.offset = Math.floor(temp[0][0] / this.mydatatable.pageSize)
       this.rows = [...this.rows]
-      this.dataService.batchSelectionService.next({title: data[0], type: "Primary IDs", data: result})
-      this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected, false)
+      if (title !== "") {
+        this.dataService.batchSelectionService.next({title: title, type: "Primary IDs", data: result})
+      } else {
+        this.dataService.batchSelectionService.next({title: data[0], type: "Primary IDs", data: result})
+      }
+
+      this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected, false, title)
     }
   }
 
@@ -191,17 +229,22 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
   ngAfterViewInit() {
     this.dataService.searchService.asObservable().subscribe(data => {
       if (data) {
-        if ("annotate" in data) {
-          this.selectingData(data["term"], data["type"], data["annotate"])
+        if (data["initialSearch"]) {
+          this.initialBatchSelection(data["term"], data["type"], data["title"])
         } else {
-          if (data["type"]==="Subcellular locations") {
-            this.selectingSubLoc(data["term"])
+          if ("annotate" in data) {
+            this.selectingData(data["term"], data["type"], data["annotate"], data["title"])
           } else {
-            this.selectingData(data["term"], data["type"])
+            if (data["type"] === "Subcellular locations") {
+              this.selectingSubLoc(data["term"], data["title"])
+            } else {
+              this.selectingData(data["term"], data["type"], false, data["title"])
+            }
           }
         }
       }
     })
+
     //this.selectFromSettings()
   }
 

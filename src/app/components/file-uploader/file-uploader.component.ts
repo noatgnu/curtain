@@ -161,13 +161,11 @@ export class FileUploaderComponent implements OnInit {
 
         this.data.emit(this.graphData)
         if (Object.keys(this.dataService.initialSearch).length >0) {
-          for (const k of Object.keys(this.dataService.initialSearch)) {
-            this.dataService.batchSelection(k, "Primary IDs", this.dataService.initialSearch[k])
-          }
-          this.dataService.initialSearch = {}
+          this.dataService.initialBatchSelection.next(true)
         } else {
           if (this.dataService.settings.selectedIDs) {
             if (this.dataService.settings.selectionTitles === undefined) {
+              this.dataService.settings.selectionTitles = []
               if (this.dataService.settings.selectedIDs !== undefined)  {
                 if (Object.keys(this.dataService.settings.selectedIDs).length > 0) {
                   this.dataService.batchSelection("Selected", "Primary IDs", Object.keys(this.dataService.settings.selectedIDs))

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Subject} from "rxjs";
+import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {DataFrame, IDataFrame} from "data-forge";
 import {UniprotService} from "./uniprot.service";
 import {BackEasingFactory} from "d3";
@@ -51,7 +51,8 @@ export class DataService {
   unique_id: string = ""
   selectionMap: Map<string, string[]> = new Map<string, string[]>()
   currentSelection: string = ""
-  queueChannel: BehaviorSubject<string> = new BehaviorSubject<string>("")
+  initialBatchSelection: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
+
   constructor(private uniprot: UniprotService, private notification: NotificationService) {
     this.barChartSampleUpdateChannel.asObservable().subscribe(key => {
       this.updateBarChartKey(key)
@@ -65,8 +66,10 @@ export class DataService {
   updateDataPointClick(data: string[]) {
     this.dataPointClickService.next(data)
   }
-  updateSelected(value: string[]) {
+  updateSelected(value: string[], title: string = "") {
+    console.log(title)
     this.allSelected = value.slice()
+    console.log(this.allSelected)
     this.allSelectedGenes = []
     for (const p of value) {
       if (!this.selectionMap.has(p)) {
@@ -75,9 +78,9 @@ export class DataService {
       const s = this.selectionMap.get(p)
       if (s !== undefined) {
         // @ts-ignore
-        if (s.indexOf(this.currentSelection) === -1) {
+        if (s.indexOf(title) === -1) {
           // @ts-ignore
-          s.push(this.currentSelection)
+          s.push(title)
           this.selectionMap.set(p, s)
         }
       }
@@ -89,7 +92,7 @@ export class DataService {
     }
     console.log(this.selectionMap)
   }
-  private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean) {
+  private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean, title: string = "") {
     const arr: string[] = []
     for (const d of data) {
       arr.push(d["Primary IDs"])
@@ -147,23 +150,23 @@ export class DataService {
       }
     }
     if (up) {
-      this.updateSelected(this.upRegSelected.concat(this.downRegSelected))
+      this.updateSelected(this.upRegSelected.concat(this.downRegSelected), title)
     } else {
-      this.updateSelected(this.downRegSelected.concat(this.upRegSelected))
+      this.updateSelected(this.downRegSelected.concat(this.upRegSelected), title)
     }
 
     this.annotations = annotations
     this.annotationSelect.next(this.annotations)
   }
 
-  updateRegTableSelect(table: string, data: any[], annotate: boolean) {
+  updateRegTableSelect(table: string, data: any[], annotate: boolean, title: string = "") {
     if (table==="up") {
       this.notification.show("Selected " + data.length + " from Up-regulated datasets", {delay: 1000})
-      this.selectedDataAnnotate(data, true, annotate)
+      this.selectedDataAnnotate(data, true, annotate, title)
       //this.upRegTableSelect.next(data)
     } else {
       this.notification.show("Selected " + data.length + " from Down-regulated datasets", {delay: 1000})
-      this.selectedDataAnnotate(data, false, annotate)
+      this.selectedDataAnnotate(data, false, annotate, title)
       //this.downRegTableSelect.next(data)
     }
   }
@@ -177,16 +180,16 @@ export class DataService {
     this.downRegSelected = []
   }
 
-  batchSelection(title: string, type: string, data: string[]) {
+  batchSelection(title: string, type: string, data: string[], initialSearch: boolean = false) {
     this.notification.show("Search for " + data.length + " " + type)
-    this.currentSelection = title
     if (this.settings.selectionTitles.indexOf(title) === -1) {
       this.settings.selectionTitles.push(title)
     }
-
+    console.log(initialSearch)
     this.batchSelectionService.next({title: title, type: type, data: data})
-    this.searchService.next({term: data, type: type, annotate: false})
+    this.searchService.next({term: data, type: type, annotate: false, title: title, initialSearch: initialSearch})
   }
+
 
   clearSpecificSelected(title: string) {
 

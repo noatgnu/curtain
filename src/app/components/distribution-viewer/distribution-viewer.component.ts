@@ -123,6 +123,15 @@ export class DistributionViewerComponent implements OnInit {
       this.labelSamples = this.dataService.relabelSamples
     })
   }
+
+  viewAllSelected() {
+    for (const a of this.allSelected) {
+      this.selectedRawData[a].visible = true
+      this.dataService.settings.selectedIDs[a].visible = true
+    }
+
+  }
+
   modalViewer(content: any, type: string) {
     this.modalService.open(content, {ariaLabelledBy: type, size: 'xl'}).result.then((result) => {
       this.dataService.settings.sampleLables = this.labelSamples;

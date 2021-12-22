@@ -91,7 +91,6 @@ export class ScatterPlotComponent implements OnInit {
     })
     this.dataService.batchSelectionService.asObservable().subscribe(data => {
       if (data) {
-        this.batchSelection = data
         this.batchSelections.push(data)
         this.graphScatterPlot()
       }
