@@ -160,22 +160,20 @@ export class FileUploaderComponent implements OnInit {
         this.dataService.settings.dataColumns = this.graphData
 
         this.data.emit(this.graphData)
+        console.log(this.dataService.settings)
         if (Object.keys(this.dataService.initialSearch).length >0) {
           this.dataService.initialBatchSelection.next(true)
         } else {
           if (this.dataService.settings.selectedIDs) {
             if (this.dataService.settings.selectionTitles === undefined) {
               this.dataService.settings.selectionTitles = []
-              if (this.dataService.settings.selectedIDs !== undefined)  {
-                if (Object.keys(this.dataService.settings.selectedIDs).length > 0) {
-                  this.dataService.batchSelection("Selected", "Primary IDs", Object.keys(this.dataService.settings.selectedIDs))
-                }
+              if (Object.keys(this.dataService.settings.selectedIDs).length > 0) {
+                this.dataService.batchSelection("Selected", "Primary IDs", Object.keys(this.dataService.settings.selectedIDs))
               }
+
             }
           }
         }
-
-
       }
     })
   }
