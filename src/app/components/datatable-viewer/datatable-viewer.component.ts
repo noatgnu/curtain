@@ -110,15 +110,15 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
     const df = this.data.where(row => data.includes(row[type])).bake().toPairs()
     if (df.length > 0) {
       const selected: string[] = []
-      console.log(df)
+
       for (const d of df) {
-        console.log(d)
+
         if (temp.includes(d[1]["Primary IDs"])) {
           this.mydatatable.selected.push(d[1])
         }
         selected.push(d[1])
       }
-      console.log(this.mydatatable.selected)
+
       this.mydatatable.offset = Math.floor(df[0][0] / this.mydatatable.pageSize)
       this.rows = [...this.rows]
 

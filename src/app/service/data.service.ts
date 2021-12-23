@@ -67,11 +67,15 @@ export class DataService {
     this.dataPointClickService.next(data)
   }
   updateSelected(value: string[], title: string = "") {
-    console.log(title)
-    this.allSelected = value.slice()
-    console.log(this.allSelected)
-    this.allSelectedGenes = []
-    for (const p of value) {
+    const all: string[] = this.allSelected.slice()
+    for (const v of value) {
+      if (!this.allSelected.includes(v)) {
+        all.push(v)
+      }
+    }
+    this.allSelected = all
+    const a: string[] = []
+    for (const p of all) {
       if (!this.selectionMap.has(p)) {
         this.selectionMap.set(p, [])
       }
@@ -85,12 +89,14 @@ export class DataService {
         }
       }
       if (this.uniprot.results.has(p)) {
-        this.allSelectedGenes.push(this.uniprot.results.get(p)["Gene names"])
+        a.push(this.uniprot.results.get(p)["Gene names"])
       } else {
-        this.allSelectedGenes.push("")
+        a.push("")
       }
     }
-    console.log(this.selectionMap)
+    this.allSelectedGenes = a
+    console.log(this.allSelected)
+    console.log(this.allSelectedGenes)
   }
   private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean, title: string = "") {
     const arr: string[] = []
@@ -185,7 +191,7 @@ export class DataService {
     if (this.settings.selectionTitles.indexOf(title) === -1) {
       this.settings.selectionTitles.push(title)
     }
-    console.log(initialSearch)
+
     this.batchSelectionService.next({title: title, type: type, data: data})
     this.searchService.next({term: data, type: type, annotate: false, title: title, initialSearch: initialSearch})
   }
@@ -194,7 +200,6 @@ export class DataService {
   clearSpecificSelected(title: string) {
 
     const setForRemove: string[] = []
-    const newAllSelectedGenes: string[] = []
     const newSelected: string[] = []
 
     for (let i = 0; i < this.allSelected.length; i++) {
@@ -224,11 +229,19 @@ export class DataService {
       const s = this.allSelected[i]
       if (setForRemove.indexOf(s) === -1) {
         newSelected.push(s)
-        newAllSelectedGenes.push(this.allSelectedGenes[i])
       }
     }
     this.allSelected = newSelected
-    this.allSelectedGenes = newAllSelectedGenes
+    const a: string[] = []
+    for (const p of this.allSelected) {
+      if (this.uniprot.results.has(p)) {
+        a.push(this.uniprot.results.get(p)["Gene names"])
+      } else {
+        a.push("")
+      }
+    }
+    this.allSelectedGenes = a
+
     this.annotations = []
     this.upRegSelected = []
     this.downRegSelected = []

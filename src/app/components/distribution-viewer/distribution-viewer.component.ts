@@ -83,7 +83,6 @@ export class DistributionViewerComponent implements OnInit {
     this.dataService.clearSpecificService.asObservable().subscribe(data => {
 
       this.allSelected = this.dataService.allSelected
-      console.log(this.allSelected)
       this.selectedRawData = {}
       this.rows = this.dataComp.where(row => this.allSelected.includes(row["Primary IDs"])).bake().toArray()
       let count = 0
