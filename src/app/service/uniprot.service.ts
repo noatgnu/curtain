@@ -6,15 +6,15 @@ import {max} from "rxjs/operators";
 import {NotificationService} from "./notification.service";
 import {stringify} from "@angular/compiler/src/util";
 import {parse} from "@angular/compiler/src/render3/view/style_parser";
+import {CurtainLink} from "../classes/curtain-link";
 
 @Injectable({
   providedIn: 'root'
 })
 export class UniprotService {
-  private baseURL = 'https://www.uniprot.org/uploadlists/?';
+  links = new CurtainLink()
+  private baseURL = this.links.uniprotBASE;
   public Re = /[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}/;
-  private base = 'https://www.uniprot.org';
-  private toolEndpoint = '/uploadlists/?';
   accMap: Map<any, any> = new Map<string, string>()
   results: Map<string, any> = new Map<string, any>()
   organism: string = ""

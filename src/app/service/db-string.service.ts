@@ -4,13 +4,15 @@ import {fromCSV, Series} from "data-forge";
 import {BehaviorSubject, forkJoin} from "rxjs";
 import {UniprotService} from "./uniprot.service";
 import {DataService} from "./data.service";
+import {CurtainLink} from "../classes/curtain-link";
 
 @Injectable({
   providedIn: 'root'
 })
 export class DbStringService {
-  proxyUrl: string = "http://www.conducto.me/"
-  baseUrl: string = "http://string-db.org/"
+  links = new CurtainLink()
+  proxyUrl: string = this.links.proxyURL
+  baseUrl: string = this.links.stringURL
   stringMap: Map<string, any> = new Map<string, any>()
   reverseStringMap: Map<string, string> = new Map<string, string>()
   run: number = 0
