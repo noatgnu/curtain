@@ -166,6 +166,7 @@ export class DataService {
   }
 
   updateRegTableSelect(table: string, data: any[], annotate: boolean, title: string = "") {
+    console.log(data)
     if (table==="up") {
       this.notification.show("Selected " + data.length + " from Up-regulated datasets", {delay: 1000})
       this.selectedDataAnnotate(data, true, annotate, title)
@@ -224,7 +225,7 @@ export class DataService {
         }
       }
     }
-
+    console.log(this.selectionMap)
     for (let i = 0; i < this.allSelected.length; i++) {
       const s = this.allSelected[i]
       if (setForRemove.indexOf(s) === -1) {

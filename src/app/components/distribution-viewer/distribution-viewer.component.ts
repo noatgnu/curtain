@@ -106,7 +106,7 @@ export class DistributionViewerComponent implements OnInit {
             if (i in this.dataService.settings.selectedIDs) {
               selectedIDs[i] = {visible: this.dataService.settings.selectedIDs[i].visible}
             } else {
-              selectedIDs[i] = {visible: true}
+              selectedIDs[i] = {visible: false}
             }
             this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: selectedIDs[i].visible}
           } else {
