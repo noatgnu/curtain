@@ -232,6 +232,7 @@ export class DataService {
       }
     }
     this.allSelected = newSelected
+    console.log(this.allSelected)
     const a: string[] = []
     for (const p of this.allSelected) {
       if (this.uniprot.results.has(p)) {
@@ -241,7 +242,6 @@ export class DataService {
       }
     }
     this.allSelectedGenes = a
-
     this.annotations = []
     this.upRegSelected = []
     this.downRegSelected = []

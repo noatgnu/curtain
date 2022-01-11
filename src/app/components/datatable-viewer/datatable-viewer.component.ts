@@ -212,7 +212,7 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
       const newSelected: any[] = []
       if (this.selected){
         for (const i of this.selected){
-          if (this.dataService.allSelected.indexOf(i["Primary IDs"]) === -1) {
+          if (this.dataService.allSelected.indexOf(i["Primary IDs"]) !== -1) {
             newSelected.push(i)
           }
         }
