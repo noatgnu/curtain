@@ -52,7 +52,7 @@ export class DataService {
   selectionMap: Map<string, string[]> = new Map<string, string[]>()
   currentSelection: string = ""
   initialBatchSelection: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
-
+  annotated: any = {}
   constructor(private uniprot: UniprotService, private notification: NotificationService) {
     this.barChartSampleUpdateChannel.asObservable().subscribe(key => {
       this.updateBarChartKey(key)
@@ -67,15 +67,17 @@ export class DataService {
     this.dataPointClickService.next(data)
   }
   updateSelected(value: string[], title: string = "") {
+    console.log(value)
     const all: string[] = this.allSelected.slice()
     for (const v of value) {
       if (!this.allSelected.includes(v)) {
         all.push(v)
       }
     }
-    this.allSelected = all
+
     const a: string[] = []
-    for (const p of all) {
+    this.allSelected = all
+    for (const p of value) {
       if (!this.selectionMap.has(p)) {
         this.selectionMap.set(p, [])
       }
@@ -88,14 +90,17 @@ export class DataService {
           this.selectionMap.set(p, s)
         }
       }
+
+    }
+    for (const p of this.allSelected) {
       if (this.uniprot.results.has(p)) {
         a.push(this.uniprot.results.get(p)["Gene names"])
       } else {
         a.push("")
       }
     }
-    console.log(this.selectionMap)
     this.allSelectedGenes = a
+    console.log(this.allSelected)
   }
   private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean, title: string = "") {
     console.log(data)
@@ -129,23 +134,9 @@ export class DataService {
 
     for (const d of data) {
       if (!setForKeep.includes(d["Primary IDs"])) {
-        let t = d["Primary IDs"]
-        if (this.uniprot.results.has(t)) {
-          t = this.uniprot.results.get(t)["Gene names"] + "(" + t + ")"
-        }
+
         if (annotate) {
-          annotations.push({
-            xref: 'x',
-            yref: 'y',
-            x: d.logFC,
-            y: -Math.log10(d.pvalue),
-            text: t,
-            showarrow: true,
-            arrowhead: 0.5,
-            font: {
-              size: 10
-            }
-          })
+          this.annotated[d["Primary IDs"]] = d
         }
 
         if (up) {
@@ -155,6 +146,26 @@ export class DataService {
         }
       }
     }
+
+    for (const a in this.annotated) {
+      let t = a
+      if (this.uniprot.results.has(t)) {
+        t = this.uniprot.results.get(t)["Gene names"] + "(" + t + ")"
+      }
+      annotations.push({
+        xref: 'x',
+        yref: 'y',
+        x: this.annotated[a].logFC,
+        y: -Math.log10(this.annotated[a].pvalue),
+        text: t,
+        showarrow: true,
+        arrowhead: 0.5,
+        font: {
+          size: 10
+        }
+      })
+    }
+
     if (up) {
       this.updateSelected(this.upRegSelected.concat(this.downRegSelected), title)
     } else {
@@ -182,6 +193,7 @@ export class DataService {
     this.clearService.next(true)
     this.allSelected = []
     this.allSelectedGenes = []
+    this.annotated = {}
     this.annotations = []
     this.upRegSelected = []
     this.downRegSelected = []
