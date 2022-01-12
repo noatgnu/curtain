@@ -90,8 +90,8 @@ export class DataService {
           this.selectionMap.set(p, s)
         }
       }
-
     }
+    console.log(this.selectionMap)
     for (const p of this.allSelected) {
       if (this.uniprot.results.has(p)) {
         a.push(this.uniprot.results.get(p)["Gene names"])
@@ -102,12 +102,29 @@ export class DataService {
     this.allSelectedGenes = a
     console.log(this.allSelected)
   }
+
+  search: any = {}
+
   private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean, title: string = "") {
     console.log(data)
     const arr: string[] = []
+    if (!(title in this.search)) {
+      this.search[title] = []
+    }
+
     for (const d of data) {
       arr.push(d["Primary IDs"])
+      if (title === "Selected") {
+        if (!this.search[title].includes(d["Primary IDs"])) {
+          this.search[title].push(d["Primary IDs"])
+        }
+      }
     }
+
+    if (title !== "Selected") {
+      this.search[title] = arr
+    }
+
     let setForKeep = []
     let setForRemove = []
     if (!up) {
@@ -167,9 +184,9 @@ export class DataService {
     }
 
     if (up) {
-      this.updateSelected(this.upRegSelected.concat(this.downRegSelected), title)
+      this.updateSelected(this.search[title], title)
     } else {
-      this.updateSelected(this.downRegSelected.concat(this.upRegSelected), title)
+      this.updateSelected(this.search[title], title)
     }
 
     this.annotations = annotations
