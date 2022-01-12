@@ -65,7 +65,8 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
 
   }
 
-  private selectingData(data: string[], type: string = "Primary IDs", annotate: boolean = true, title: string = "", initialSearch: boolean = false) {
+  private selectingData(data: string[], type: string = "Primary IDs", annotate: boolean = true, title: string = "Selected", initialSearch: boolean = false) {
+    console.log(data)
     let temp: string[] = []
     if (this.mydatatable.selected) {
       for (const d of data) {
@@ -80,15 +81,18 @@ export class DatatableViewerComponent implements OnInit, AfterViewInit, AfterCon
       this.mydatatable.selected = []
       temp = data
     }
+    console.log(temp)
     const df = this.data.where(row => temp.includes(row[type])).bake().toPairs()
     if (df.length > 0) {
+      const selected: any[] = []
       for (const d of df) {
         this.mydatatable.selected.push(d[1])
+        selected.push(d[1])
       }
       this.mydatatable.offset = Math.floor(df[0][0] / this.mydatatable.pageSize)
       this.rows = [...this.rows]
-
-      this.dataService.updateRegTableSelect(this.tableType, this.mydatatable.selected, annotate, title)
+      console.log(selected)
+      this.dataService.updateRegTableSelect(this.tableType, selected, annotate, title)
     }
   }
 

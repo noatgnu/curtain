@@ -94,11 +94,11 @@ export class DataService {
         a.push("")
       }
     }
+    console.log(this.selectionMap)
     this.allSelectedGenes = a
-    console.log(this.allSelected)
-    console.log(this.allSelectedGenes)
   }
   private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean, title: string = "") {
+    console.log(data)
     const arr: string[] = []
     for (const d of data) {
       arr.push(d["Primary IDs"])

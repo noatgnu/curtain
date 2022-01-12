@@ -332,7 +332,6 @@ export class ScatterPlotComponent implements OnInit {
   selectData(e: any) {
     if ("points" in e) {
       const ind = e["points"][0].text.indexOf("(")
-      console.log(e)
       if (e["points"][0].text.indexOf("(") !== -1) {
         if (e["points"][0].text.startsWith("UID")) {
           this.dataService.updateDataPointClick([e["points"][0].text])
