@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DataFrame, fromCSV, IDataFrame} from "data-forge";
+import {DataFrame, fromCSV, IDataFrame, Series} from "data-forge";
 import {PlotlyService} from "angular-plotly.js";
 import {DrawPack} from "../../classes/draw-pack";
 import {UniprotService} from "../../service/uniprot.service";
@@ -112,7 +112,9 @@ export class ScatterPlotComponent implements OnInit {
 
   conditions = ["p >" + this.pCutOff, "p <=" + this.pCutOff, "log2FC >" + this.log2FCCutoff, "log2FC <=" + this.log2FCCutoff]
 
-  selectConditions(pvalue: number, log2FC: number) {
+  significantHits: string[] = []
+
+  selectConditions(pvalue: number, log2FC: number, primaryID: string) {
     let conditions = ""
     if (pvalue > this.pCutOff) {
       conditions = conditions + "p >" + this.pCutOff.toString()
@@ -120,7 +122,11 @@ export class ScatterPlotComponent implements OnInit {
       conditions = conditions + "p <=" + this.pCutOff.toString()
     }
     if (Math.abs(log2FC) > this.log2FCCutoff) {
+      if (conditions.indexOf(">") !== -1) {
+        this.significantHits.push(primaryID)
+      }
       conditions = conditions + ", log2FC >" + this.log2FCCutoff.toString()
+
     } else {
       conditions = conditions + ", log2FC <=" + this.log2FCCutoff.toString()
     }
@@ -128,6 +134,7 @@ export class ScatterPlotComponent implements OnInit {
   }
 
   graphScatterPlot(group: any = {}) {
+    this.significantHits = []
     const temp: any = {}
     this.graphData = []
     const minMax = {
@@ -201,7 +208,7 @@ export class ScatterPlotComponent implements OnInit {
         }
 
         if (!selected) {
-          const conditions = this.selectConditions(row["pvalue"], row["logFC"])
+          const conditions = this.selectConditions(row["pvalue"], row["logFC"], row["Primary IDs"])
 
           if (!(conditions in temp)) {
             temp[conditions] = {x: [], y: [], text:[], type: 'scatter', name: conditions, mode: 'markers'}
@@ -385,6 +392,52 @@ export class ScatterPlotComponent implements OnInit {
 
   }
 
+  downloadSignificantData() {
+    let data = this._data.where(row => this.significantHits.includes(row["Primary IDs"])).bake()
+    data = this.addGeneNameToDF(data);
+    ScatterPlotComponent.buildDataBlob(data);
+    data = this.dataService.settings.dataColumns.raw.where(row => this.significantHits.includes(row["Primary IDs"])).bake()
+    data = this.addGeneNameToDF(data);
+    ScatterPlotComponent.buildDataBlob(data, "raw.csv");
+  }
+
+
+  private addGeneNameToDF(data: IDataFrame<number, any>) {
+    data = data.resetIndex().bake()
+    if (this.dataService.settings.uniprot) {
+      let geneNames: string[] = []
+      for (const r of data) {
+        if (this.uniprot.results.has(r["Primary IDs"])) {
+          geneNames.push(this.uniprot.results.get(r["Primary IDs"])["Gene names"])
+        } else {
+          geneNames.push("")
+        }
+      }
+      const a = new Series(geneNames)
+      console.log(a)
+      data = data.withSeries("Gene names", a).bake()
+      console.log(data)
+    }
+    return data;
+  }
+
+  private static buildDataBlob(data: IDataFrame<number, any>, filename: string = "data.csv") {
+    const blob = new Blob([data.toCSV()], {type: 'text/csv'})
+    const url = window.URL.createObjectURL(blob);
+
+    if (typeof (navigator.msSaveOrOpenBlob) === "function") {
+      navigator.msSaveBlob(blob, "data.csv")
+    } else {
+      const a = document.createElement("a")
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click();
+      document.body.removeChild(a);
+    }
+    window.URL.revokeObjectURL(url)
+  }
+
   downloadCurrentData() {
     const maxY = 10**(-this.boundary.y0)
     const minY = 10**(-this.boundary.y1)
@@ -393,21 +446,12 @@ export class ScatterPlotComponent implements OnInit {
 
     let data = this._data
       .where(row => row["pvalue"] >= minY).where(row => row["pvalue"] <= maxY).where(row => row["logFC"] >= minX).where(row => row["logFC"] <= maxX).bake()
-
-    const blob = new Blob([data.toCSV()], {type: 'text/csv'})
-    const url = window.URL.createObjectURL(blob);
-
-    if (typeof(navigator.msSaveOrOpenBlob)==="function") {
-      navigator.msSaveBlob(blob, "data.csv")
-    } else {
-      const a = document.createElement("a")
-      a.href = url
-      a.download = "data.csv"
-      document.body.appendChild(a)
-      a.click();
-      document.body.removeChild(a);
-    }
-    window.URL.revokeObjectURL(url)
+    data = this.addGeneNameToDF(data);
+    ScatterPlotComponent.buildDataBlob(data);
+    const downloadIDs = data.getSeries("Primary IDs").bake().toArray()
+    data = this.dataService.settings.dataColumns.raw.where(row => downloadIDs.includes(row["Primary IDs"])).bake()
+    data = this.addGeneNameToDF(data);
+    ScatterPlotComponent.buildDataBlob(data, "raw.csv");
   }
 
   selectCurrentData() {
