@@ -2,6 +2,8 @@ import {Component, Input, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {StringdbInteractComponent} from "../stringdb-interact/stringdb-interact.component";
 
 @Component({
   selector: 'app-bar-chart-switch',
@@ -42,12 +44,18 @@ export class BarChartSwitchComponent implements OnInit {
   average: boolean = false;
   hasUniprot: boolean = false;
   selectionArray: string[] = []
-  constructor(private uniprot: UniprotService, private dataService: DataService) { }
+  constructor(public uniprot: UniprotService, private dataService: DataService, private modalService: NgbModal) { }
 
   ngOnInit(): void {
   }
 
   viewing() {
     this.dataService.currentBrowsePosition = this.proteinID
+  }
+
+  openSTRING() {
+
+    const modalRef = this.modalService.open(StringdbInteractComponent, {size: 'xl', scrollable: false});
+    modalRef.componentInstance.data = {organism: this.uniprot.organism, identifiers: this.uniprot.results.get(this.proteinID)["Cross-reference (STRING)"].split(";")}
   }
 }

@@ -2,6 +2,8 @@
   <div class="card-body">
     <h1 class="card-title" *ngIf="hasUniprot">{{title}}</h1>
     <span *ngFor="let a of selectionArray" class="badge badge-info mr-2">{{a}}</span>
+    <p><span class="badge badge-dark" (click)="openSTRING()" *ngIf="uniprot.fetched">View Interacting Partners</span></p>
+
     <p class="card-text" *ngIf="hasUniprot">{{proteinFunction}}</p>
     <ngui-inview (inview)="viewing()">
     </ngui-inview>

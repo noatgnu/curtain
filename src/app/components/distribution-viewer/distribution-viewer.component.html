@@ -179,10 +179,20 @@
     <button type="button" class="btn btn-outline-dark" (click)="changeLabel(modal)">Update Labels</button>
   </div>
 </ng-template>
+
 <div class="container-fluid" *ngIf="rows.length > 0">
   <div class="row mb-1">
     <div class="col-3">
-      <button class="btn btn-outline-info" (click)="modalViewer(selectedt, 'selected-data')">View Selected</button>
+      <div ngbDropdown class="d-inline-block">
+        <button class="btn btn-primary" id="selectedAction" ngbDropdownToggle>
+          Selected Data Action
+        </button>
+        <div ngbDropdownMenu aria-labelledby="selectedAction">
+          <button ngbDropdownItem (click)="modalViewer(selectedt, 'selected-data')">View Selected</button>
+          <button ngbDropdownItem (click)="downloadSelectedData()">Download Selected Raw Data as CSV</button>
+        </div>
+      </div>
+
     </div>
     <div class="col-3">
       <button class="btn btn-outline-info" (click)="modalViewer(sampleLabel, 'sample-relabel')">Change Sample Label</button>

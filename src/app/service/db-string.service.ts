@@ -126,11 +126,9 @@ export class DbStringService {
       if (this.uniprot.results.has(a)) {
         const p = this.uniprot.results.get(a)
         for (const e of p["Cross-reference (STRING)"].split(";")) {
-          console.log(e)
           if (e) {
             let newDF = df.where(row => row.stringId_A === e).bake()
             newDF = newDF.where(row => data.includes(row.stringId_B)).bake()
-            console.log(newDF)
             /*            const proteinB = []
                         for (const r of newDF) {
                           const a = this.reverseStringMap.get(r.stringId_B)

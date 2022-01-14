@@ -60,9 +60,16 @@ export class ScatterPlotComponent implements OnInit {
   uniprotMap = new Map<string, any>()
 
   batchSelection: any = {}
+
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService, private modal: NgbModal) {
     this.uniprotMap = uniprot.results
-
+    this.dataService.downloadCurrentSelectedDataComparison.asObservable().subscribe(data => {
+      if (data) {
+        let data = this._data.where(row => this.dataService.allSelected.includes(row["Primary IDs"])).bake()
+        data = this.addGeneNameToDF(data);
+        ScatterPlotComponent.buildDataBlob(data);
+      }
+    })
     this.dataService.annotationSelect.subscribe(data => {
       this.graphLayout.annotations = data
       this.dataService.settings.annotatedIDs = data
@@ -414,9 +421,7 @@ export class ScatterPlotComponent implements OnInit {
         }
       }
       const a = new Series(geneNames)
-      console.log(a)
       data = data.withSeries("Gene names", a).bake()
-      console.log(data)
     }
     return data;
   }

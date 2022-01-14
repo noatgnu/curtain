@@ -234,21 +234,27 @@ export class ComparisonViewerComponent implements OnInit, AfterViewInit, OnDestr
   runDBStringAnalysis(){
     //this.dbstring.dbstringIDRunStatus.next(false)
     if (this.uniprot.fetched) {
-      this.dbstring.interactionAnalysis.next(false)
+
       const data_up: string[] = []
       if (this.dataService.allSelected.length > 0) {
         for (const u of this.dataService.allSelected) {
           if (this.uniprot.results.has(u)) {
             for (const c of this.uniprot.results.get(u)["Cross-reference (STRING)"].split(";")) {
               if (c !== "") {
-                this.dbstring.reverseStringMap.set(c, u)
-                data_up.push(c)
+                if (!this.dbstring.reverseStringMap.has(c)) {
+                  this.dbstring.reverseStringMap.set(c, u)
+                  data_up.push(c)
+                }
               }
             }
           }
         }
-        this.notification.show("Performing DB-String interaction analysis for " + data_up.length + " proteins", {delay: 1000})
-        this.dbstring.getInteractingPartners(data_up, this.uniprot.organism)
+        if (data_up.length >0) {
+          this.dbstring.interactionAnalysis.next(false)
+          this.notification.show("Performing DB-String interaction analysis for " + data_up.length + " proteins", {delay: 1000})
+          this.dbstring.getInteractingPartners(data_up, this.uniprot.organism)
+        }
+
       }
     }
   }

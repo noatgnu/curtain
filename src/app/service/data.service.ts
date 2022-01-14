@@ -52,6 +52,7 @@ export class DataService {
   selectionMap: Map<string, string[]> = new Map<string, string[]>()
   currentSelection: string = ""
   initialBatchSelection: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
+  downloadCurrentSelectedDataComparison: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
   annotated: any = {}
   constructor(private uniprot: UniprotService, private notification: NotificationService) {
     this.barChartSampleUpdateChannel.asObservable().subscribe(key => {
@@ -67,7 +68,7 @@ export class DataService {
     this.dataPointClickService.next(data)
   }
   updateSelected(value: string[], title: string = "") {
-    console.log(value)
+
     const all: string[] = this.allSelected.slice()
     for (const v of value) {
       if (!this.allSelected.includes(v)) {
@@ -77,21 +78,23 @@ export class DataService {
 
     const a: string[] = []
     this.allSelected = all
-    for (const p of value) {
-      if (!this.selectionMap.has(p)) {
-        this.selectionMap.set(p, [])
-      }
-      const s = this.selectionMap.get(p)
-      if (s !== undefined) {
-        // @ts-ignore
-        if (s.indexOf(title) === -1) {
+    if (title !== "") {
+      for (const p of value) {
+        if (!this.selectionMap.has(p)) {
+          this.selectionMap.set(p, [])
+        }
+        const s = this.selectionMap.get(p)
+        if (s !== undefined) {
           // @ts-ignore
-          s.push(title)
-          this.selectionMap.set(p, s)
+          if (s.indexOf(title) === -1) {
+            // @ts-ignore
+            s.push(title)
+            this.selectionMap.set(p, s)
+          }
         }
       }
     }
-    console.log(this.selectionMap)
+
     for (const p of this.allSelected) {
       if (this.uniprot.results.has(p)) {
         a.push(this.uniprot.results.get(p)["Gene names"])

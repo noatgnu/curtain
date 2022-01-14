@@ -25,6 +25,7 @@ import { BarChartAverageComponent } from './components/bar-chart-average/bar-cha
 import { BarChartSwitchComponent } from './components/bar-chart-switch/bar-chart-switch.component';
 import { ProteinDomainComponent } from './components/protein-domain/protein-domain.component';
 import {NguiInviewModule, NguiListModule, NguiUtilsModule} from "@ngui/common";
+import { StringdbInteractComponent } from './components/stringdb-interact/stringdb-interact.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -45,7 +46,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     NotificationContainerComponent,
     BarChartAverageComponent,
     BarChartSwitchComponent,
-    ProteinDomainComponent
+    ProteinDomainComponent,
+    StringdbInteractComponent
   ],
   imports: [
     BrowserModule,

@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DataFrame, IDataFrame} from "data-forge";
+import {DataFrame, IDataFrame, Series} from "data-forge";
 import {DataService} from "../../service/data.service";
 import {UniprotService} from "../../service/uniprot.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -72,8 +72,6 @@ export class DistributionViewerComponent implements OnInit {
 
         }
       }
-
-
     })
     this.dataService.clearService.asObservable().subscribe(data => {
       this.allSelected = []
@@ -275,4 +273,66 @@ export class DistributionViewerComponent implements OnInit {
     }
   }
 
+  addGeneNameToDF(data: IDataFrame<number, any>) {
+    data = data.resetIndex().bake()
+    if (this.dataService.settings.uniprot) {
+      let geneNames: string[] = []
+      for (const r of data) {
+        if (this.uniprot.results.has(r["Primary IDs"])) {
+          geneNames.push(this.uniprot.results.get(r["Primary IDs"])["Gene names"])
+        } else {
+          geneNames.push("")
+        }
+      }
+      const a = new Series(geneNames)
+      data = data.withSeries("Gene names", a).bake()
+    }
+    return data;
+  }
+
+  static buildDataBlob(data: IDataFrame<number, any>, filename: string = "data.csv") {
+    const blob = new Blob([data.toCSV()], {type: 'text/csv'})
+    const url = window.URL.createObjectURL(blob);
+
+    if (typeof (navigator.msSaveOrOpenBlob) === "function") {
+      navigator.msSaveBlob(blob, "data.csv")
+    } else {
+      const a = document.createElement("a")
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click();
+      document.body.removeChild(a);
+    }
+    window.URL.revokeObjectURL(url)
+  }
+
+  downloadSelectedData() {
+    let data = this._data.where(row => this.dataService.allSelected.includes(row["Primary IDs"])).bake()
+    data = this.addGeneNameToDF(data)
+    DistributionViewerComponent.buildDataBlob(data, "raw.csv")
+    this.dataService.downloadCurrentSelectedDataComparison.next(true)
+  }
+
+  getInteraction() {
+    const data_up: string[] = []
+    if (this.dataService.allSelected.length > 0) {
+      for (const u of this.dataService.allSelected) {
+        if (this.uniprot.results.has(u)) {
+          for (const c of this.uniprot.results.get(u)["Cross-reference (STRING)"].split(";")) {
+            if (c !== "") {
+              if (!this.dbstring.reverseStringMap.has(c)) {
+                this.dbstring.reverseStringMap.set(c, u)
+                data_up.push(c)
+              }
+            }
+          }
+        }
+      }
+      if (data_up.length > 0) {
+        this.dbstring.interactionAnalysis.next(false)
+        this.dbstring.getInteractingPartners(data_up, this.uniprot.organism)
+      }
+    }
+  }
 }

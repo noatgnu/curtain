@@ -36,7 +36,9 @@
               "./node_modules/@swimlane/ngx-datatable/index.scss",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/combined_embedded_network_v2.0.3.js"
+            ]
           },
           "configurations": {
             "production": {
