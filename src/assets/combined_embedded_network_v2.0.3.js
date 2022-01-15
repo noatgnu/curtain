@@ -6,6 +6,9 @@
 // Sentry reports of STRING
 //
 
+var selectedGenes = []
+var decrease = []
+var increase = []
 var for_each_node = function (array, callback, scope) {
 
     "use strict";
@@ -88,10 +91,7 @@ function loadFloatingProteinWindow (event, node, action_option, width, height, l
             yPositionOffset = domRect.top - yPositionOffset;
         }
     }
-    console.log(xPositionOffset)
-    console.log(yPositionOffset)
-    console.log(event.clientX)
-    console.log(event.clientY)
+
     event.stopPropagation();   // prevent bubbling up - or else the click event gets processed at the document level as well, and closes the div again.
 
     return loadFloatingProteinWindowCoor (node, action_option, width, height, label, event.clientX + xPositionOffset, event.clientY + yPositionOffset);
@@ -218,10 +218,13 @@ function toggle_structure_section (offset, identifier) {
 }
 
 
-function getSTRING(root_url, params) {
+function getSTRING(root_url, params, selected, increaseGenes, decreaseGenes) {
 
     js_comm_globals.web_cgi_dir = root_url + /cgi/;
     js_comm_globals.web_images_dir = root_url + /images/;
+    selectedGenes = selected
+    decrease = decreaseGenes
+    increase = increaseGenes
 
     var stringDiv = document.getElementById('stringEmbedded');
 
@@ -253,7 +256,6 @@ function getSTRING(root_url, params) {
 function submit_current_network() {
     var form = document.getElementById('string_embedded_linkout');
     form.submit();
-    console.log(form);
 }
 
 function getSTRINGpost(root_url, params) {
@@ -738,6 +740,18 @@ function init_network_interactive_functionalities (event) {
     if (node_wrapper_elements !== null) {
         for_each_node(node_wrapper_elements, function register_node_wrapper_elements (elm) {
             var this_id = elm.id;
+            var texts = elm.getElementsByTagName("text")
+            for (const t of texts) {
+              var nodeName = t.innerHTML.toUpperCase()
+              if (selectedGenes.includes(nodeName)) {
+                t.setAttribute("font-weight", "bold")
+                if (increase.includes(nodeName)) {
+                  t.setAttribute("fill", "red")
+                } else if (decrease.includes(nodeName)) {
+                  t.setAttribute("fill", "blue")
+                }
+              }
+            }
             svg_metainfo_nodes[this_id] = {};
             svg_metainfo_nodes[this_id].elm = elm;
             svg_metainfo_nodes[this_id].elm.node = svg_metainfo_nodes[this_id];
@@ -928,7 +942,7 @@ function displayFloatingDivImp (divId, title, width, height, left, top, headerCo
             windowHeight = document.body.clientHeight;
 
         }
-        console.log(scrOfY)
+
         //if (top != null) { top = top + scrOfY; }
         //if (left != null) { left = left + scrOfX; }
 
@@ -1036,7 +1050,7 @@ function displayFloatingDiv (divId, title, expected_width, expected_height, widt
             "<img src='" + loadingImgUrl + "' style='vertical-align: middle;'></img>" +
             "</div></div>";
     }
-    console.log(top)
+
     displayFloatingDivImp (divId, title, width, height, left, top, headerColor, hideDelay);
 }
 

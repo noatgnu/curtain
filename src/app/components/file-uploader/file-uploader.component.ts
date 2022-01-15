@@ -120,12 +120,37 @@ export class FileUploaderComponent implements OnInit {
             //this.notification.show("Converting " + c + " to numbers.", {delay: 1000})
             const d: any = []
             for (const a of this.graphData.processed.getSeries(c).toArray()) {
-              d.push(parseFloat(a))
+              const v = parseFloat(a)
+              d.push(v)
             }
-
             this.graphData.processed = this.graphData.processed.withSeries(c, new Series(d)).bake()
           }
         }
+        const decrease: string[] = []
+        const increase: string[] = []
+        if (this.uniprot.fetched) {
+          for (const r of this.graphData.processed) {
+            if (this.uniprot.results.has(r["Primary IDs"])) {
+              if (r["logFC"] > 0) {
+                for (const gene of this.uniprot.results.get(r["Primary IDs"])["Gene names"].split(";")) {
+                  if (gene !== "") {
+                    increase.push(gene.toUpperCase())
+                  }
+                }
+              } else if (r["logFC"] < 0) {
+                for (const gene of this.uniprot.results.get(r["Primary IDs"])["Gene names"].split(";")) {
+                  if (gene !== "") {
+                    decrease.push(gene.toUpperCase())
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        this.dataService.increase = increase
+        this.dataService.decrease = decrease
+
         if (this.log10pvalue) {
           const temp = []
           //this.notification.show("Perform anti-log10 transform of log10 p-value", {delay: 1000})
@@ -346,7 +371,7 @@ export class FileUploaderComponent implements OnInit {
     this.dataService.settings.uniprot = this.enableFetch
     this.uniprot.accMap = new Map<string, string>()
     if (this.enableFetch) {
-
+      this.uniprot.fetched = true
       this.accessionList = []
       const accList: string[] = []
       for (const a of this.raw.getSeries(this.graphData.rawIdentifierCol).bake().toArray()) {

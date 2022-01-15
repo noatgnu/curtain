@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {DataService} from "../../service/data.service";
 declare const getSTRING: any;
 @Component({
   selector: 'app-stringdb-interact',
@@ -22,17 +23,27 @@ export class StringdbInteractComponent implements OnInit {
           ids.push(i)
         }
       }
-      this.getString(value.organism, ids)
-      console.log(value)
+      this.getString(value.organism, ids, value.selectedGenes)
     }
   }
-  constructor(public activeModal: NgbActiveModal) { }
+  constructor(public activeModal: NgbActiveModal, private dataService: DataService) { }
 
   ngOnInit(): void {
 
   }
-  getString(species: string, identifiers: string[]) {
-    getSTRING('https://string-db.org',{'species':species, 'identifiers':identifiers, 'network_flavor':'confidence', 'caller_identity': 'dundee.ac.uk', 'network_type': 'physical', 'required_score': 0})
+
+  getString(species: string, identifiers: string[], selectedGenes: string[]) {
+    getSTRING('https://string-db.org',
+      {'species':species,
+        'identifiers':identifiers,
+        'network_flavor':'confidence',
+        'caller_identity': 'dundee.ac.uk',
+        'network_type': 'physical',
+        'required_score': 0},
+      selectedGenes,
+      this.dataService.increase,
+      this.dataService.decrease
+    )
   }
 
   clickEvent(e:any) {

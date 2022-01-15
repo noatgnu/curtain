@@ -56,6 +56,12 @@ export class BarChartSwitchComponent implements OnInit {
   openSTRING() {
 
     const modalRef = this.modalService.open(StringdbInteractComponent, {size: 'xl', scrollable: false});
-    modalRef.componentInstance.data = {organism: this.uniprot.organism, identifiers: this.uniprot.results.get(this.proteinID)["Cross-reference (STRING)"].split(";")}
+    const geneNames: string[] = []
+    for (const g of this.dataService.allSelectedGenes) {
+      for (const g1 of g.split(";")) {
+        geneNames.push(g1.toUpperCase())
+      }
+    }
+    modalRef.componentInstance.data = {organism: this.uniprot.organism, identifiers: this.uniprot.results.get(this.proteinID)["Cross-reference (STRING)"].split(";"), selectedGenes: geneNames}
   }
 }

@@ -11,7 +11,8 @@ import {NotificationService} from "./notification.service";
 })
 export class DataService {
   initialSearch: any = {}
-
+  decrease: string[] = []
+  increase: string[] = []
   get currentBrowsePosition(): string {
     return this._currentBrowsePosition;
   }
