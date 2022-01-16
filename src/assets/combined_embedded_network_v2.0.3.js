@@ -745,11 +745,11 @@ function init_network_interactive_functionalities (event) {
               var nodeName = t.innerHTML.toUpperCase()
               if (selectedGenes.includes(nodeName)) {
                 t.setAttribute("font-weight", "bold")
-                if (increase.includes(nodeName)) {
-                  t.setAttribute("fill", "red")
-                } else if (decrease.includes(nodeName)) {
-                  t.setAttribute("fill", "blue")
-                }
+              }
+              if (increase.includes(nodeName)) {
+                t.setAttribute("fill", "red")
+              } else if (decrease.includes(nodeName)) {
+                t.setAttribute("fill", "blue")
               }
             }
             svg_metainfo_nodes[this_id] = {};
