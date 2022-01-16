@@ -4,7 +4,16 @@
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
-<div id="stringEmbedded" (click)="clickEvent($event)"></div>
+<div class="mt-2 ml-2">
+  <div ngbDropdown class="d-inline-block">
+    <button class="btn btn-outline-secondary" ngbDropdownToggle id="networkType">Network Type</button>
+    <div ngbDropdownMenu aria-labelledby="networkType">
+      <button ngbDropdownItem (click)="getString('physical')">Physical Network</button>
+      <button ngbDropdownItem (click)="getString('functional')">Functional Network</button>
+    </div>
+  </div>
+</div>
+<div id="stringEmbedded"></div>
 <div class="modal-footer">
   <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss('Cross click')">Close</button>
 </div>

@@ -13,6 +13,10 @@ export class StringdbInteractComponent implements OnInit {
   }
 
   private _data: any = {}
+  networkType = "physical"
+  organism = ""
+  ids: string[] = []
+  selectedGenes: string[] = []
 
   @Input() set data(value: any) {
     this._data = value;
@@ -23,7 +27,10 @@ export class StringdbInteractComponent implements OnInit {
           ids.push(i)
         }
       }
-      this.getString(value.organism, ids, value.selectedGenes)
+      this.organism = value.organism
+      this.ids = ids
+      this.selectedGenes = value.selectedGenes
+      this.getString("physical")
     }
   }
   constructor(public activeModal: NgbActiveModal, private dataService: DataService) { }
@@ -32,15 +39,16 @@ export class StringdbInteractComponent implements OnInit {
 
   }
 
-  getString(species: string, identifiers: string[], selectedGenes: string[]) {
+  getString(networkType: string) {
+    this.networkType = networkType
     getSTRING('https://string-db.org',
-      {'species':species,
-        'identifiers':identifiers,
+      {'species': this.organism,
+        'identifiers': this.ids,
         'network_flavor':'confidence',
         'caller_identity': 'dundee.ac.uk',
-        'network_type': 'physical',
+        'network_type': networkType,
         'required_score': 0},
-      selectedGenes,
+      this.selectedGenes,
       this.dataService.increase,
       this.dataService.decrease
     )
