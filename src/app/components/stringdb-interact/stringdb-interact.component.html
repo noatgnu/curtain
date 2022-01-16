@@ -6,7 +6,7 @@
 </div>
 <div class="mt-2 ml-2">
   <div ngbDropdown class="d-inline-block">
-    <button class="btn btn-outline-secondary" ngbDropdownToggle id="networkType">Network Type</button>
+    <button class="btn btn-outline-secondary" ngbDropdownToggle id="networkType">Current Network Type: {{networkType}}</button>
     <div ngbDropdownMenu aria-labelledby="networkType">
       <button ngbDropdownItem (click)="getString('physical')">Physical Network</button>
       <button ngbDropdownItem (click)="getString('functional')">Functional Network</button>
