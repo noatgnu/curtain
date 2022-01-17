@@ -681,8 +681,8 @@ function handle_network_node_click (event) {
     "use strict";
 
     if (this.has_moved) return;     // don't proceed if we have just come out of a dragging operation.
-
     var id_fields = this.id.split (".");
+    window.parent.postMessage(this.getAttribute("data-safe_div_label"), "*")
     var node_id = id_fields[1];
     var action_option = this.getAttribute ("data-action_option");
     var expected_popup_width = Number (this.getAttribute ("data-exp_width"));

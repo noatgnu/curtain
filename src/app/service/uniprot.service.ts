@@ -12,6 +12,7 @@ import {CurtainLink} from "../classes/curtain-link";
   providedIn: 'root'
 })
 export class UniprotService {
+
   links = new CurtainLink()
   private baseURL = this.links.uniprotBASE;
   public Re = /[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}/;

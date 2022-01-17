@@ -36,7 +36,13 @@ export class StringdbInteractComponent implements OnInit {
   constructor(public activeModal: NgbActiveModal, private dataService: DataService) { }
 
   ngOnInit(): void {
+    const currentData = this
+    window.parent.addEventListener("message", function (data) {
+      if (data.origin.startsWith("http://localhost:4200")||data.origin.startsWith("http://curtain.proteo.info")) {
+        console.log(currentData.dataService.geneToPrimaryMap.get(data.data.toUpperCase()))
+      }
 
+    })
   }
 
   getString(networkType: string) {

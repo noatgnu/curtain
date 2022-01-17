@@ -135,12 +135,14 @@ export class FileUploaderComponent implements OnInit {
                 for (const gene of this.uniprot.results.get(r["Primary IDs"])["Gene names"].split(";")) {
                   if (gene !== "") {
                     increase.push(gene.toUpperCase())
+                    this.dataService.geneToPrimaryMap.set(gene.toUpperCase(), r["Primary IDs"])
                   }
                 }
               } else if (r["logFC"] < 0) {
                 for (const gene of this.uniprot.results.get(r["Primary IDs"])["Gene names"].split(";")) {
                   if (gene !== "") {
                     decrease.push(gene.toUpperCase())
+                    this.dataService.geneToPrimaryMap.set(gene.toUpperCase(), r["Primary IDs"])
                   }
                 }
               }

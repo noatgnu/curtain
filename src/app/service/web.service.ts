@@ -97,10 +97,4 @@ export class WebService {
     return this.http.post("http://www.conducto.me/file_data", JSON.stringify({id: id, password: password}), {responseType: "json", observe: "response"})
   }
 
-  getExpression() {
-    return this.http.get(
-      "http://www.proteomicsdb.org/proteomicsdb/logic/api/peptidesperprotein.xsodata/InputParams(PROTEINFILTER='P00533')/Results?$select=SEARCH_ENGINE,IDENTIFICATION_ID,PRECURSOR_MZ,PRECURSOR_CHARGE,RECALIBRATED_PRECURSOR_MZ,SEQUENCE,SCORE,DELTA_SCORE,THRESHOLD_SCORE,PEP,PEPTIDE_ID,Q_VALUE,LLD_FDR_CUTOFF,VARIABLE_MODIFICATION_STRING,FIXED_MODIFICATION_STRING,MODIFICATION_DELTA_MASS,EXPECTED_PEPTIDE_MASS,OBSERVED_PEPTIDE_MASS,MASS_ERROR_DA,MASS_ERROR_PPM,PROJECT_NAME,EXPERIMENT_NAME,EXPERIMENT_ID,SCAN_NUMBER,FILE_NAME&$format=xml",
-      {responseType: "json", observe: "response"}
-    )
-  }
 }
