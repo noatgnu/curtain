@@ -943,8 +943,8 @@ function displayFloatingDivImp (divId, title, width, height, left, top, headerCo
 
         }
 
-        //if (top != null) { top = top + scrOfY; }
-        //if (left != null) { left = left + scrOfX; }
+        if (top != null) { top = top - scrOfY; }
+        if (left != null) { left = left + scrOfX; }
 
         if (width != null  &&  width > 0) { document.getElementById(divId).style.width = width + 'px'; }
         if (height != null  &&  height > 0) { document.getElementById(divId).style.height = height + 'px'; }

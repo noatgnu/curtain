@@ -162,7 +162,7 @@ export class ComparisonViewerComponent implements OnInit, AfterViewInit, OnDestr
   findInData(e: Event) {
     e.stopPropagation()
     e.preventDefault()
-    this.dataService.searchService.next({term: [this.tableFilterModel], type: this.searchType})
+    this.dataService.searchService.next({term: [this.tableFilterModel], type: this.searchType, annotate: true})
   }
 
   clearAllSelected(e: Event) {
