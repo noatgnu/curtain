@@ -53,9 +53,6 @@ export class HomeComponent implements OnInit {
   private _selectedComparison: string = ""
   constructor(private webService: WebService, private dbstring: DbStringService, private route: ActivatedRoute, private uniprot: UniprotService, public dataService: DataService, private notification: NotificationService) {
     this.webService.getFilter()
-    this.webService.getExpression().subscribe(data => {
-      console.log(data)
-    })
   }
 
   enableQuickNav: boolean = true;
