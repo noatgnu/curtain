@@ -65,7 +65,7 @@ export class DbStringService {
         ["id", data.join("\r")],
         ["species", species]
       ])
-      const dbstringUrl = this.proxyUrl + "string/getid"
+      const dbstringUrl = this.links.proxyURL + "string/getid"
       this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"}).subscribe((data) => {
         const df = fromCSV(<string>data.body);
         for (const r of df) {
@@ -91,7 +91,7 @@ export class DbStringService {
       ["universe", data_background.join("\r")],
       ["species", species]
     ])
-    const dbstringUrl = this.proxyUrl + "string/enrichment"
+    const dbstringUrl = this.links.proxyURL + "string/enrichment"
     this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"}).subscribe(data => {
       console.log(data)
     })
@@ -100,7 +100,7 @@ export class DbStringService {
   getInteractingPartners(data: string[], species: string) {
 
     const options: any = {id: data.join("\r"), species: species, network: "physical"}
-    const dbstringUrl = this.proxyUrl + "string/interaction"
+    const dbstringUrl = this.links.proxyURL + "string/interaction"
     let physical = this.http.post(dbstringUrl, JSON.stringify(options), {responseType: "text", observe: "response"})
     options.network = "functional"
     let functional =   this.http.post(dbstringUrl, JSON.stringify(options), {responseType: "text", observe: "response"})
@@ -155,7 +155,7 @@ export class DbStringService {
       ["species", species],
       ["network_type", "physical"]
     ])
-    const dbstringUrl = this.proxyUrl + this.baseUrl + "api/tsv/interaction_partners?" + this.toParamString(options)
+    const dbstringUrl = this.links.proxyURL + this.baseUrl + "api/tsv/interaction_partners?" + this.toParamString(options)
     let physical = this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"})
     options.set("network_type", "functional")
     let functional =   this.http.post(dbstringUrl, this.toParamString(options), {responseType: "text", observe: "response"})
