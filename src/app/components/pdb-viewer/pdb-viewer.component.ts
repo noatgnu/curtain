@@ -19,7 +19,9 @@ export class PdbViewerComponent implements OnInit, AfterContentInit {
     this._data = value;
     this.getEbi()
   }
-
+  link = ""
+  modelCreatedDate = ""
+  version = 0
   constructor(public activeModal: NgbActiveModal, private ebi: EbiService) { }
 
   ngOnInit(): void {
@@ -28,9 +30,18 @@ export class PdbViewerComponent implements OnInit, AfterContentInit {
 
   ngAfterContentInit() {
     this.ebi.getEBIAlpha(this.data).subscribe(data => {
-      const stage = new ngl.Stage("pdbViewer");
       // @ts-ignore
-      stage.loadFile(data.body[0]["pdbUrl"], {defaultRepresentation: true})
+      this.link = data.body[0]["pdbUrl"]
+      // @ts-ignore
+      this.modelCreatedDate = data.body[0]["modelCreateDate"]
+      // @ts-ignore
+      this.version = data.body[0]["latestVersion"]
+      const stage = new ngl.Stage("pdbViewer");
+
+      stage.setParameters({backgroundColor: "white", hoverTimeout: -1})
+
+      stage.loadFile(this.link, {defaultRepresentation: true})
+
     })
   }
 

@@ -4,7 +4,25 @@
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
-<div id="pdbViewer" style="width:800px; height:800px;"></div>
+<div class="ml-2 mt-2 row">
+  <div class="col-6">
+    <div id="pdbViewer" style="width:400px; height:400px;"></div>
+  </div>
+  <div class="col-6">
+    <div class="card">
+      <div class="card-body">
+        <p class="card-text">
+          PDB File: <a [href]="link">Download</a><br>
+          Model Created Date: {{modelCreatedDate}}<br>
+          Version: {{version}}<br>
+          Source: EBI AlphaFold Predicted Structure Database
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal-footer">
   <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss('Cross click')">Close</button>
 </div>
