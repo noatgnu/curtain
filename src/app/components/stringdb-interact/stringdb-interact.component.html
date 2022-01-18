@@ -16,16 +16,21 @@
 <div id="stringEmbedded"></div>
 <div class="mt-2 ml-2">
   <p>
-    <span style="color: red">Red</span><span> - LogFC < 0</span><br>
+    <span style="color: red">Red</span><span> - Proteins with increased abundance</span><br>
   </p>
   <p>
-    <span style="color: blue">Blue</span><span> - LogFC > 0</span><br>
+    <span style="color: blue">Blue</span><span> - Proteins with decreased abundance</span><br>
+  </p>
+  <p>
+    <span style="color: saddlebrown">Brown</span><span> - Proteins with no changes (FC < absolute 0.6)</span><br>
   </p>
   <p>
     <span style="font-weight: bold">Bold</span><span> - Proteins that have been selected</span><br>
   </p>
+  <p>
+    <span style="color: black">Black</span><span> - Proteins that are not in the dataset</span><br>
+  </p>
 </div>
-
 <div class="modal-footer">
   <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss('Cross click')">Close</button>
 </div>

@@ -4,6 +4,7 @@ import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {StringdbInteractComponent} from "../stringdb-interact/stringdb-interact.component";
+import {ProteomicsDbExpressionComponent} from "../proteomics-db-expression/proteomics-db-expression.component";
 
 @Component({
   selector: 'app-bar-chart-switch',
@@ -63,5 +64,10 @@ export class BarChartSwitchComponent implements OnInit {
       }
     }
     modalRef.componentInstance.data = {organism: this.uniprot.organism, identifiers: this.uniprot.results.get(this.proteinID)["Cross-reference (STRING)"].split(";"), selectedGenes: geneNames}
+  }
+
+  openProteomicsDB() {
+    const modalRef = this.modalService.open(ProteomicsDbExpressionComponent, {size: 'xl', scrollable: false});
+    modalRef.componentInstance.data = this.proteinID
   }
 }

@@ -12,6 +12,7 @@ import {NotificationService} from "./notification.service";
 export class DataService {
   geneToPrimaryMap: Map<string, string> = new Map<string, string>()
   initialSearch: any = {}
+  noChange: string[] = []
   decrease: string[] = []
   increase: string[] = []
   get currentBrowsePosition(): string {

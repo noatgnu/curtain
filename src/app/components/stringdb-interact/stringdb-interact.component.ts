@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {DataService} from "../../service/data.service";
+import {ProteomicsDbService} from "../../service/proteomics-db.service";
 declare const getSTRING: any;
 @Component({
   selector: 'app-stringdb-interact',
@@ -33,13 +34,13 @@ export class StringdbInteractComponent implements OnInit {
       this.getString("physical")
     }
   }
-  constructor(public activeModal: NgbActiveModal, private dataService: DataService) { }
+  constructor(public activeModal: NgbActiveModal, private dataService: DataService, private proteomicsDB: ProteomicsDbService) { }
 
   ngOnInit(): void {
     const currentData = this
     window.parent.addEventListener("message", function (data) {
       if (data.origin.startsWith("http://localhost:4200")||data.origin.startsWith("http://curtain.proteo.info")) {
-        console.log(currentData.dataService.geneToPrimaryMap.get(data.data.toUpperCase()))
+
       }
 
     })

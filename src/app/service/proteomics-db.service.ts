@@ -11,10 +11,8 @@ export class ProteomicsDbService {
   constructor(private http: HttpClient) { }
 
   getExpression(data: string) {
-
     const options: any = {id: data}
-    const proteomicsDBUrl = this.links.proxyURL + "string/interaction"
-    let physical = this.http.post(proteomicsDBUrl, JSON.stringify(options), {responseType: "text", observe: "response"})
-
+    const proteomicsDBUrl = this.links.proxyURL + "proteomics/expression"
+    return this.http.post(proteomicsDBUrl, JSON.stringify(options), {responseType: "json", observe: "response"})
   }
 }

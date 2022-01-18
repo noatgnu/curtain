@@ -128,20 +128,28 @@ export class FileUploaderComponent implements OnInit {
         }
         const decrease: string[] = []
         const increase: string[] = []
+        const noChange: string[] = []
         if (this.uniprot.fetched) {
           for (const r of this.graphData.processed) {
             if (this.uniprot.results.has(r["Primary IDs"])) {
-              if (r["logFC"] > 0) {
+              if (r["logFC"] > 0.6) {
                 for (const gene of this.uniprot.results.get(r["Primary IDs"])["Gene names"].split(";")) {
                   if (gene !== "") {
                     increase.push(gene.toUpperCase())
                     this.dataService.geneToPrimaryMap.set(gene.toUpperCase(), r["Primary IDs"])
                   }
                 }
-              } else if (r["logFC"] < 0) {
+              } else if (r["logFC"] < -0.6) {
                 for (const gene of this.uniprot.results.get(r["Primary IDs"])["Gene names"].split(";")) {
                   if (gene !== "") {
                     decrease.push(gene.toUpperCase())
+                    this.dataService.geneToPrimaryMap.set(gene.toUpperCase(), r["Primary IDs"])
+                  }
+                }
+              } else {
+                for (const gene of this.uniprot.results.get(r["Primary IDs"])["Gene names"].split(";")) {
+                  if (gene !== "") {
+                    noChange.push(gene.toUpperCase())
                     this.dataService.geneToPrimaryMap.set(gene.toUpperCase(), r["Primary IDs"])
                   }
                 }
@@ -149,7 +157,7 @@ export class FileUploaderComponent implements OnInit {
             }
           }
         }
-
+        this.dataService.noChange = noChange
         this.dataService.increase = increase
         this.dataService.decrease = decrease
 

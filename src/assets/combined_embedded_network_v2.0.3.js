@@ -750,6 +750,8 @@ function init_network_interactive_functionalities (event) {
                 t.setAttribute("fill", "red")
               } else if (decrease.includes(nodeName)) {
                 t.setAttribute("fill", "blue")
+              } else {
+                t.setAttribute("fill", "saddlebrown")
               }
             }
             svg_metainfo_nodes[this_id] = {};
