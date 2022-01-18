@@ -27,6 +27,7 @@ import { ProteinDomainComponent } from './components/protein-domain/protein-doma
 import {NguiInviewModule, NguiListModule, NguiUtilsModule} from "@ngui/common";
 import { StringdbInteractComponent } from './components/stringdb-interact/stringdb-interact.component';
 import { ProteomicsDbExpressionComponent } from './components/proteomics-db-expression/proteomics-db-expression.component';
+import { PdbViewerComponent } from './components/pdb-viewer/pdb-viewer.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -49,7 +50,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     BarChartSwitchComponent,
     ProteinDomainComponent,
     StringdbInteractComponent,
-    ProteomicsDbExpressionComponent
+    ProteomicsDbExpressionComponent,
+    PdbViewerComponent
   ],
   imports: [
     BrowserModule,

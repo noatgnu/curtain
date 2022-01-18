@@ -5,6 +5,7 @@ import {DataService} from "../../service/data.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {StringdbInteractComponent} from "../stringdb-interact/stringdb-interact.component";
 import {ProteomicsDbExpressionComponent} from "../proteomics-db-expression/proteomics-db-expression.component";
+import {PdbViewerComponent} from "../pdb-viewer/pdb-viewer.component";
 
 @Component({
   selector: 'app-bar-chart-switch',
@@ -68,6 +69,11 @@ export class BarChartSwitchComponent implements OnInit {
 
   openProteomicsDB() {
     const modalRef = this.modalService.open(ProteomicsDbExpressionComponent, {size: 'xl', scrollable: false});
+    modalRef.componentInstance.data = this.proteinID
+  }
+
+  openAlphaFold() {
+    const modalRef = this.modalService.open(PdbViewerComponent, {size: 'xl', scrollable: false});
     modalRef.componentInstance.data = this.proteinID
   }
 }

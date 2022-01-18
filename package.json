@@ -27,6 +27,7 @@
     "async-mutex": "^0.3.2",
     "bootstrap": "^4.5.0",
     "data-forge": "^1.8.17",
+    "ngl": "^0.10.4",
     "plotly.js": "^2.4.1",
     "plotly.js-dist-min": "^2.4.1",
     "rxjs": "~6.6.0",
