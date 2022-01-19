@@ -20,8 +20,11 @@ export class PdbViewerComponent implements OnInit, AfterContentInit {
     this.getEbi()
   }
   link = ""
+  cifLink = ""
   modelCreatedDate = ""
+  entryID = ""
   version = 0
+  alignmentError = ""
   constructor(public activeModal: NgbActiveModal, private ebi: EbiService) { }
 
   ngOnInit(): void {
@@ -30,12 +33,20 @@ export class PdbViewerComponent implements OnInit, AfterContentInit {
 
   ngAfterContentInit() {
     this.ebi.getEBIAlpha(this.data).subscribe(data => {
+      console.log(data.body)
       // @ts-ignore
       this.link = data.body[0]["pdbUrl"]
       // @ts-ignore
-      this.modelCreatedDate = data.body[0]["modelCreateDate"]
+      this.modelCreatedDate = data.body[0]["modelCreatedDate"]
       // @ts-ignore
       this.version = data.body[0]["latestVersion"]
+      // @ts-ignore
+      this.entryID = data.body[0]["entryId"]
+      // @ts-ignore
+      this.alignmentError = data.body[0]["paeImageUrl"]
+      // @ts-ignore
+      this.cifLink = data.body[0]["cifUrl"]
+
       const stage = new ngl.Stage("pdbViewer");
 
       stage.setParameters({backgroundColor: "white", hoverTimeout: -1})

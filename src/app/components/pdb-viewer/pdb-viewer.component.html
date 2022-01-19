@@ -5,21 +5,26 @@
   </button>
 </div>
 <div class="ml-2 mt-2 row">
-  <div class="col-6">
-    <div id="pdbViewer" style="width:600px; height:400px;"></div>
-  </div>
-  <div class="col-6">
+  <div class="col-4">
     <div class="card mr-2">
+      <img class="card-img-top" src="{{alignmentError}}" height="350" alt="card alignment error">
       <div class="card-body">
         <p class="card-text">
+          Entry ID: {{entryID}} <br>
           PDB File: <a [href]="link">Download</a><br>
           Model Created Date: {{modelCreatedDate}}<br>
           Version: {{version}}<br>
-          Source: EBI AlphaFold Predicted Structure Database
+          Original Source: <a href="https://alphafold.ebi.ac.uk/entry/{{data}}" target="_blank">Link</a> <br>
+          EBI AlphaFold Predicted Structure Database
         </p>
       </div>
+
     </div>
   </div>
+  <div class="col-8">
+    <div id="pdbViewer" style="width:800px; height:600px;"></div>
+  </div>
+
 </div>
 
 
