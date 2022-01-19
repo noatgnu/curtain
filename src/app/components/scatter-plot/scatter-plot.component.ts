@@ -249,6 +249,12 @@ export class ScatterPlotComponent implements OnInit {
     this.graphLayout.shapes = []
 
     if (this.drawFDRCurve) {
+      if (this.graphLayout.xaxis.range === undefined) {
+        this.graphLayout.xaxis.range = [minMax.xMin - 0.5, minMax.xMax + 0.5]
+        this.graphLayout.xaxis.autoscale = true
+        this.graphLayout.yaxis.range = [0, -Math.log10(minMax.yMin - minMax.yMin/2)]
+        this.graphLayout.yaxis.autoscale = true
+      }
       const left: IDataFrame = this.fdrDF.where(row => row.x < 0).bake()
       const right: IDataFrame = this.fdrDF.where(row => row.x >= 0).bake()
       const fdrLeft: any = {
@@ -297,7 +303,8 @@ export class ScatterPlotComponent implements OnInit {
       }
       this.graphData.push(fdrLeft)
       this.graphData.push(fdrRight)
-
+      this.graphLayout.xaxis.autorange = true
+      this.graphLayout.yaxis.autorange = true
     } else {
       this.graphLayout.xaxis.range = [minMax.xMin - 0.5, minMax.xMax + 0.5]
       this.graphLayout.yaxis.range = [0, -Math.log10(minMax.yMin - minMax.yMin/2)]
@@ -408,6 +415,7 @@ export class ScatterPlotComponent implements OnInit {
   changeLayout(e: any) {
 
     if (e) {
+
       this.boundary.x0 = e["xaxis.range[0]"]
       this.boundary.x1 = e["xaxis.range[1]"]
       this.boundary.y0 = e["yaxis.range[0]"]
