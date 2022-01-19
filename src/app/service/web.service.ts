@@ -20,7 +20,8 @@ export class WebService {
     MitoMouse: "Mito.Mouse.txt",
     Golgi: "Golgi.txt",
     Lysosome: "Lysosome.txt",
-    Glycosylation: "glyco.txt"
+    Glycosylation: "glyco.txt",
+    Metabolism: "metabolism.txt"
   }
   filters: any = {}
 
