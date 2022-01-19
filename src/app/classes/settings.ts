@@ -5,6 +5,7 @@ export class Settings {
   processedFile: string = ""
   selectedIDs: any = {}
   annotatedIDs: any[] = []
+  fdrCurveText: string = ""
   uniprot: boolean = false
   dbString: boolean = false
   antilogP: boolean = false

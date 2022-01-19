@@ -17,7 +17,10 @@ export class WebService {
     E3Ligase: "e3ligase.txt",
     AD: "AD.txt",
     MitoHuman: "Mito.Human.txt",
-    MitoMouse: "Mito.Mouse.txt"
+    MitoMouse: "Mito.Mouse.txt",
+    Golgi: "Golgi.txt",
+    Lysosome: "Lysosome.txt",
+    Glycosylation: "glyco.txt"
   }
   filters: any = {}
 

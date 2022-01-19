@@ -13,6 +13,14 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
   styleUrls: ['./scatter-plot.component.css']
 })
 export class ScatterPlotComponent implements OnInit {
+  get fdrCurveText(): string {
+    return this._fdrCurveText;
+  }
+
+  set fdrCurveText(value: string) {
+    this.dataService.settings.fdrCurveText = value
+    this._fdrCurveText = value;
+  }
   drawFDRCurve: boolean = false
   graphData: any[] = []
   fdrDF: IDataFrame = new DataFrame()
@@ -62,6 +70,14 @@ export class ScatterPlotComponent implements OnInit {
   batchSelection: any = {}
 
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService, private modal: NgbModal) {
+    if (this.dataService.settings.fdrCurveText !== undefined) {
+      this.fdrCurveText = this.dataService.settings.fdrCurveText
+      if (this.fdrCurveText !== "") {
+        this.drawFDRCurve = true
+        this.fdrDF = fromCSV(<string>this.fdrCurveText)
+      }
+    }
+
     this.uniprotMap = uniprot.results
     this.dataService.downloadCurrentSelectedDataComparison.asObservable().subscribe(data => {
       if (data) {
@@ -360,7 +376,7 @@ export class ScatterPlotComponent implements OnInit {
 
   plotUpdated(e: any) {
   }
-  fdrCurveText: string = ""
+  private _fdrCurveText: string = ""
 
   customCurve(content: any) {
     this.modal.open(content, {ariaLabelledBy: "custom-fdr-curve"}).result.then((result) => {
@@ -370,15 +386,16 @@ export class ScatterPlotComponent implements OnInit {
 
   removeCurve() {
     this.drawFDRCurve = false
+    this.fdrCurveText = ""
+    this.fdrDF = new DataFrame()
     this.graphScatterPlot()
   }
 
   updatePlotWithFDRCurve(content: any) {
-    this.fdrDF = fromCSV(this.fdrCurveText)
+    this.fdrDF = fromCSV(this._fdrCurveText)
     this.drawFDRCurve = true
     this.graphScatterPlot()
     content.dismiss()
-
   }
   boundary = {
     x0: 0,

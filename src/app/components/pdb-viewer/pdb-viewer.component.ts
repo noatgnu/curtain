@@ -3,6 +3,8 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {EbiService} from "../../service/ebi.service";
 // @ts-ignore
 import * as ngl from "ngl";
+
+declare const PDBeMolstarPlugin: any;
 @Component({
   selector: 'app-pdb-viewer',
   templateUrl: './pdb-viewer.component.html',
@@ -47,11 +49,19 @@ export class PdbViewerComponent implements OnInit, AfterContentInit {
       // @ts-ignore
       this.cifLink = data.body[0]["cifUrl"]
 
-      const stage = new ngl.Stage("pdbViewer");
+      const molstar = new PDBeMolstarPlugin()
+      var options = {
+        customData: {url: this.cifLink, format: "cif", binary: false},
+        alphafoldView: true,
+        bgColor: {r:255, g:255, b:255}
+      }
 
-      stage.setParameters({backgroundColor: "white", hoverTimeout: -1})
+      //Get element from HTML/Template to place the viewer
+      const viewerContainer = document.getElementById('molstar');
 
-      stage.loadFile(this.link, {defaultRepresentation: true})
+      //Call render method to display the 3D view
+      molstar.render(viewerContainer, options);
+
 
     })
   }
