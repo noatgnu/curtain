@@ -14,7 +14,10 @@ export class WebService {
     PINK1: "pink1.txt",
     PDGWAS: "pd.gwas.txt",
     DUBS: "dubs.txt",
-    E3Ligase: "e3ligase.txt"
+    E3Ligase: "e3ligase.txt",
+    AD: "AD.txt",
+    MitoHuman: "Mito.Human.txt",
+    MitoMouse: "Mito.Mouse.txt"
   }
   filters: any = {}
 
