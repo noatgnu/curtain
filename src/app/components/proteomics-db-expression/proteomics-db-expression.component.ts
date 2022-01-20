@@ -29,7 +29,7 @@ export class ProteomicsDbExpressionComponent implements OnInit {
         size: 24,
       }
     },
-    margin: {l:200, r:50, t:50, b:50},
+    margin: {l:300, r:50, t:50, b:50},
     height: 400,
     xaxis: {
       "title": "<b>Unnormalized Intensity</b>"
@@ -38,7 +38,11 @@ export class ProteomicsDbExpressionComponent implements OnInit {
       "title" : "<b>Sample Categories</b>",
       "type" : "category",
       "tickmode": "array",
-      "tickvals": []
+      "tickvals": [],
+      "tickfont": {
+        "size": 17,
+        "color": 'black'
+      }
     }
   }
   constructor(public activeModal: NgbActiveModal, private dataService: DataService, private proteomicsDB: ProteomicsDbService) { }
@@ -76,7 +80,7 @@ export class ProteomicsDbExpressionComponent implements OnInit {
             }
             this.graphData = [temp]
             this.graphLayout.yaxis.tickvals = temp.y
-            this.graphLayout.height = 400 + 50*temp.y.length
+            this.graphLayout.height = 400 + 30*temp.y.length
             console.log(this.graphData)
           }
         }

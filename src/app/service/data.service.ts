@@ -180,11 +180,11 @@ export class DataService {
         yref: 'y',
         x: this.annotated[a].logFC,
         y: -Math.log10(this.annotated[a].pvalue),
-        text: t,
+        text: "<b>"+t+"</b>",
         showarrow: true,
         arrowhead: 0.5,
         font: {
-          size: 10
+          size: 15
         }
       })
     }
