@@ -32,7 +32,7 @@ export class ProteomicsDbExpressionComponent implements OnInit {
     margin: {l:300, r:50, t:50, b:50},
     height: 400,
     xaxis: {
-      "title": "<b>Unnormalized Intensity</b>"
+      "title": "<b>Normalized Intensity</b>"
     },
     yaxis: {
       "title" : "<b>Sample Categories</b>",
@@ -65,7 +65,7 @@ export class ProteomicsDbExpressionComponent implements OnInit {
             const results: any[] = []
             // @ts-ignore
             for (const r of data.body["d"]["results"] ) {
-              results.push({value: parseFloat(r["UNNORMALIZED_INTENSITY"]), name: r["TISSUE_NAME"]})
+              results.push({value: parseFloat(r["NORMALIZED_INTENSITY"]), name: r["TISSUE_NAME"]})
             }
             results.sort((a, b) => (a.value > b.value) ? 1: -1)
             for (const r of results) {

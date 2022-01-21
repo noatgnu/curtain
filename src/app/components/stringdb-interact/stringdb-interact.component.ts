@@ -18,7 +18,8 @@ export class StringdbInteractComponent implements OnInit {
   organism = ""
   ids: string[] = []
   selectedGenes: string[] = []
-
+  requiredScore: number = 0
+  networkFlavor: string = "evidence"
   @Input() set data(value: any) {
     this._data = value;
     if ("organism" in value) {
@@ -51,10 +52,10 @@ export class StringdbInteractComponent implements OnInit {
     getSTRING('https://string-db.org',
       {'species': this.organism,
         'identifiers': this.ids,
-        'network_flavor':'confidence',
+        'network_flavor': this.networkFlavor,
         'caller_identity': 'dundee.ac.uk',
         'network_type': networkType,
-        'required_score': 0},
+        'required_score': this.requiredScore},
       this.selectedGenes,
       this.dataService.increase,
       this.dataService.decrease
