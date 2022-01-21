@@ -84,7 +84,10 @@ export class UniprotService {
           this.notification.progress ++
 
           for (const r of new_df) {
-            r["Gene names"] = r["Gene names"].replaceAll(" ", ";").toUpperCase()
+            if (r["Gene names"]) {
+              r["Gene names"] = r["Gene names"].replaceAll(" ", ";").toUpperCase()
+            }
+
             const ind = r["Subcellular location [CC]"].indexOf("Note=")
             if (ind > -1) {
               r["Subcellular location [CC]"] = r["Subcellular location [CC]"].slice(0, ind)
