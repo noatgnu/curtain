@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {DataService} from "../../service/data.service";
 import {ProteomicsDbService} from "../../service/proteomics-db.service";
+import {UniprotService} from "../../service/uniprot.service";
 
 @Component({
   selector: 'app-proteomics-db-expression',
@@ -15,8 +16,13 @@ export class ProteomicsDbExpressionComponent implements OnInit {
 
   private _data: any = {}
 
+  geneName: string = ""
+
   @Input() set data(value: any) {
     this._data = value;
+    if (this.uniprot.results.has(value)) {
+      this.geneName = this.uniprot.results.get(value)["Gene names"]
+    }
     this.getExpression()
   }
 
@@ -45,7 +51,7 @@ export class ProteomicsDbExpressionComponent implements OnInit {
       }
     }
   }
-  constructor(public activeModal: NgbActiveModal, private dataService: DataService, private proteomicsDB: ProteomicsDbService) { }
+  constructor(public activeModal: NgbActiveModal, private dataService: DataService, private proteomicsDB: ProteomicsDbService, private uniprot: UniprotService) { }
 
   ngOnInit(): void {
   }

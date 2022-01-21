@@ -3,6 +3,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {EbiService} from "../../service/ebi.service";
 // @ts-ignore
 import * as ngl from "ngl";
+import {UniprotService} from "../../service/uniprot.service";
 
 declare const PDBeMolstarPlugin: any;
 @Component({
@@ -19,6 +20,9 @@ export class PdbViewerComponent implements OnInit, AfterContentInit {
 
   @Input() set data(value: any) {
     this._data = value;
+    if (this.uniprot.results.has(value)) {
+      this.geneName = this.uniprot.results.get(value)["Gene names"]
+    }
     this.getEbi()
   }
   link = ""
@@ -27,7 +31,8 @@ export class PdbViewerComponent implements OnInit, AfterContentInit {
   entryID = ""
   version = 0
   alignmentError = ""
-  constructor(public activeModal: NgbActiveModal, private ebi: EbiService) { }
+  geneName: string = ""
+  constructor(public activeModal: NgbActiveModal, private ebi: EbiService, private uniprot: UniprotService) { }
 
   ngOnInit(): void {
 
