@@ -87,53 +87,57 @@ export class UniprotService {
             if (r["Gene names"]) {
               r["Gene names"] = r["Gene names"].replaceAll(" ", ";").toUpperCase()
             }
-
-            const ind = r["Subcellular location [CC]"].indexOf("Note=")
-            if (ind > -1) {
-              r["Subcellular location [CC]"] = r["Subcellular location [CC]"].slice(0, ind)
-            }
-
-            const subLoc = []
-            for (const s of r["Subcellular location [CC]"].split(/[.;]/g)) {
-              if (s !== "") {
-                let su = s.replace(/\s*\{.*?\}\s*/g, "")
-                su = su.split(": ")
-                const a = su[su.length-1].trim()
-                if (a !== "") {
-                  subLoc.push(a.slice())
-                }
-
+            if (r["Subcellular location [CC]"]) {
+              const ind = r["Subcellular location [CC]"].indexOf("Note=")
+              if (ind > -1) {
+                r["Subcellular location [CC]"] = r["Subcellular location [CC]"].slice(0, ind)
               }
+
+              const subLoc = []
+              for (const s of r["Subcellular location [CC]"].split(/[.;]/g)) {
+                if (s !== "") {
+                  let su = s.replace(/\s*\{.*?\}\s*/g, "")
+                  su = su.split(": ")
+                  const a = su[su.length-1].trim()
+                  if (a !== "") {
+                    subLoc.push(a.slice())
+                  }
+
+                }
+              }
+              r["Subcellular location [CC]"] = subLoc
+
             }
-            r["Subcellular location [CC]"] = subLoc
-            let domains: any[] = []
-            let l: number = 0;
-            for (const s of r["Domain [FT]"].split(/;/g)) {
-              if (s !== "") {
-                if (s.indexOf("DOMAIN") > -1) {
-                  domains.push({})
-                  l = domains.length
-                  for (const match of s.matchAll(/(\d+)/g)) {
-                    if (!("start" in domains[l-1])) {
-                      domains[l-1].start = parseInt(match[0])
-                    } else {
-                      domains[l-1].end = parseInt(match[0])
+            if (r["Domain [FT]"]) {
+              let domains: any[] = []
+              let l: number = 0;
+              for (const s of r["Domain [FT]"].split(/;/g)) {
+                if (s !== "") {
+                  if (s.indexOf("DOMAIN") > -1) {
+                    domains.push({})
+                    l = domains.length
+                    for (const match of s.matchAll(/(\d+)/g)) {
+                      if (!("start" in domains[l-1])) {
+                        domains[l-1].start = parseInt(match[0])
+                      } else {
+                        domains[l-1].end = parseInt(match[0])
+                      }
+                    }
+                  } else if (s.indexOf("/note=") > -1) {
+                    const match = /"(.+)"/.exec(s)
+                    if (match !== null) {
+                      domains[l-1].name = match[1]
                     }
                   }
-                } else if (s.indexOf("/note=") > -1) {
-                  const match = /"(.+)"/.exec(s)
-                  if (match !== null) {
-                    domains[l-1].name = match[1]
-                  }
                 }
               }
+              r["Domain [FT]"] = domains
             }
-            r["Domain [FT]"] = domains
             if (r["query"]) {
-              this.results.set(this.accMap.get(r["query"]), r)
+              if (r["query"]) {
+                this.results.set(this.accMap.get(r["query"]), r)
+              }
             }
-
-
           }
           this.notification.show("Processed job " + this.notification.progress + "/" + this.run, {delay: 1000})
           if (currentRun === this.run) {
@@ -141,7 +145,6 @@ export class UniprotService {
             this.notification.show("Finished acquiring UniProt data", {classname: 'bg-success text-light', delay: 10000})
             this.uniprotParseStatus.next(true)
             this.fetched = true
-            console.log(this.results)
           }
         });
       }
