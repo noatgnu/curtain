@@ -3,7 +3,8 @@
     <h1 class="card-title" *ngIf="hasUniprot">{{title}}</h1>
     <span *ngFor="let a of selectionArray" class="badge badge-info mr-2">{{a}}</span>
     <p>
-      <span class="badge badge-dark" (click)="openSTRING()" *ngIf="uniprot.fetched">View Interacting Partners</span>
+      <span class="badge badge-dark" (click)="openSTRING()" *ngIf="uniprot.fetched">View Interacting Partners (StringDB)</span>
+      <span class="badge badge-dark ml-2" (click)="openInteractomeAtlas()" *ngIf="uniprot.fetched">View Interacting Partners (Interactome Atlas)</span>
       <span class="badge badge-dark ml-2" (click)="openProteomicsDB()" *ngIf="uniprot.fetched">View ProteomicsDB Expression Data</span>
       <span class="badge badge-dark ml-2" (click)="openAlphaFold()" *ngIf="uniprot.fetched">View AlphaFold Predicted Structure</span>
     </p>

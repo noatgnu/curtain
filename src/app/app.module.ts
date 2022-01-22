@@ -28,6 +28,8 @@ import {NguiInviewModule, NguiListModule, NguiUtilsModule} from "@ngui/common";
 import { StringdbInteractComponent } from './components/stringdb-interact/stringdb-interact.component';
 import { ProteomicsDbExpressionComponent } from './components/proteomics-db-expression/proteomics-db-expression.component';
 import { PdbViewerComponent } from './components/pdb-viewer/pdb-viewer.component';
+import { InteractomeComponent } from './components/interactome/interactome.component';
+import { CytoplotComponent } from './components/cytoplot/cytoplot.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -51,7 +53,9 @@ PlotlyModule.plotlyjs = PlotlyJS;
     ProteinDomainComponent,
     StringdbInteractComponent,
     ProteomicsDbExpressionComponent,
-    PdbViewerComponent
+    PdbViewerComponent,
+    InteractomeComponent,
+    CytoplotComponent
   ],
   imports: [
     BrowserModule,

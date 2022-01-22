@@ -7,6 +7,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {DbStringService} from "./service/db-string.service";
 import {ActivatedRoute} from "@angular/router";
 import {EbiService} from "./service/ebi.service";
+import {InteractomeAtlasService} from "./service/interactome-atlas.service";
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,6 @@ export class AppComponent {
   title = 'curtain';
 
   constructor() {
-
 
   }
 
