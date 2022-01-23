@@ -6,7 +6,7 @@
 </div>
 <div class="row mt-2 ml-2 mr-2">
   <div class="col-8">
-    <app-cytoplot [drawData]="drawData"></app-cytoplot>
+    <app-cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
   </div>
   <div class="col-4">
     <div class="card">
@@ -32,7 +32,7 @@
           <span style="color: #16458c">Decrease</span><span> - Decreased abundance</span><br>
         </p>
         <p>
-          <span style="color: black">Black</span><span> - Protein found in data set but was not changed (FC < 1.5)</span><br>
+          <span style="color: rgba(47,39,40,0.96)">Brown</span><span> - Protein found in data set but was not changed (FC < 1.5)</span><br>
         </p>
       </div>
     </div>

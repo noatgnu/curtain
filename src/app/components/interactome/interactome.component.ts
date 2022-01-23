@@ -29,7 +29,7 @@ export class InteractomeComponent implements OnInit {
   geneName: string = ""
   interactions: any = {}
   drawData: any = {data: [], stylesheet: []}
-
+  evidences: any = {}
   constructor(public activeModal: NgbActiveModal, private uniprot: UniprotService, private interac: InteractomeAtlasService, private dataService: DataService) { }
 
   ngOnInit(): void {
@@ -53,6 +53,7 @@ export class InteractomeComponent implements OnInit {
   reformatInteraction() {
     const styles: any[] = []
     const nodes: any[] = []
+    console.log(this.interactions)
     for (const i of this.interactions["all_proteins"]) {
       let classes: string[] = []
       /**/
@@ -64,6 +65,8 @@ export class InteractomeComponent implements OnInit {
         classes.push("increase")
       } else if (this.dataService.decrease.includes(i["protein_gene_name"])) {
         classes.push("decrease")
+      } else if (this.dataService.noChange.includes(i["protein_gene_name"])) {
+        classes.push("noChange")
       }
 
       nodes.push({data:
@@ -75,10 +78,11 @@ export class InteractomeComponent implements OnInit {
       })
     }
     for (const i of this.interactions["all_interactions"]) {
-
-
       let score = parseFloat(i["score"])
-
+      this.evidences[i["interaction_id"]] = []
+      for (const d of i["dataset_array"]) {
+        this.evidences[i["interaction_id"]].push({status: d["interaction_status"], reference: d["dataset_reference"], name: d["year"]})
+      }
       let classes: string[] = []
       const interactions: string[] = []
       for (const interaction of i["interaction_category_array"]["interaction_category_array"]) {
@@ -144,7 +148,13 @@ export class InteractomeComponent implements OnInit {
     styles.push(
       {selector: ".decrease", style: {label: "data(label)", "background-color": "#16458c", "color": "#16458c",}}
     )
-
+    styles.push(
+      {selector: ".decrease", style: {label: "data(label)", "background-color": "rgba(25,128,128,0.96)", "color": "rgba(47,39,40,0.96)",}}
+    )
     this.drawData = {data: nodes, stylesheet: styles}
+  }
+
+  viewEvidences(event: any) {
+
   }
 }

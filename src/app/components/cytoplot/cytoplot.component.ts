@@ -1,5 +1,5 @@
 
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 import * as cytoscape from "cytoscape";
 
@@ -9,6 +9,7 @@ import * as cytoscape from "cytoscape";
   styleUrls: ['./cytoplot.component.css']
 })
 export class CytoplotComponent implements OnInit, AfterViewInit {
+  @Output() clickedID = new EventEmitter<string>()
   cy: any
   get drawData(): any {
     return this._drawData
@@ -38,6 +39,18 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
       }
       )
 
+    const ad = this
+
     this.cy.layout({name: "cose", maxSimulationTime: 10000}).run()
+    for (const n of this.cy.nodes()) {
+      n.bind("click", function (event:any) {
+        ad.clickedID.emit(event.target.id())
+      })
+    }
+    for (const n of this.cy.edges()) {
+      n.bind("click", function (event:any) {
+        ad.clickedID.emit(event.target.id())
+      })
+    }
   }
 }
