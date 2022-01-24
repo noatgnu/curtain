@@ -54,13 +54,15 @@ export class InteractomeComponent implements OnInit {
     const styles: any[] = []
     const nodes: any[] = []
     console.log(this.interactions)
+    console.log(this.dataService.noChange)
+
     for (const i of this.interactions["all_proteins"]) {
       let classes: string[] = []
       /**/
       if (i["protein_gene_name"] === this.data) {
         classes.push("root")
       }
-
+      console.log(i["protein_gene_name"])
       if (this.dataService.increase.includes(i["protein_gene_name"])) {
         classes.push("increase")
       } else if (this.dataService.decrease.includes(i["protein_gene_name"])) {
@@ -149,7 +151,7 @@ export class InteractomeComponent implements OnInit {
       {selector: ".decrease", style: {label: "data(label)", "background-color": "#16458c", "color": "#16458c",}}
     )
     styles.push(
-      {selector: ".decrease", style: {label: "data(label)", "background-color": "rgba(25,128,128,0.96)", "color": "rgba(47,39,40,0.96)",}}
+      {selector: ".noChange", style: {label: "data(label)", "background-color": "rgba(25,128,128,0.96)", "color": "rgba(47,39,40,0.96)",}}
     )
     this.drawData = {data: nodes, stylesheet: styles}
   }
