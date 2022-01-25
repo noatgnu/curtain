@@ -6,7 +6,39 @@
 </div>
 <div class="row mt-2 ml-2 mr-2">
   <div class="col-8">
-    <app-cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
+    <div class="card">
+      <div class="card-body">
+        <app-cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
+      </div>
+    </div>
+    <div class="card mt-2 mb-2" *ngIf="selected">
+      <div class="card-body">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Author</th>
+            <th scope="col">Year</th>
+            <th scope="col">Description</th>
+            <th scope="col">Status</th>
+            <th scope="col">Reference</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let s of selected; index as i">
+            <th scope="row">{{ i + 1 }}</th>
+            <td>{{s["name"]}}</td>
+            <td>{{s["dataset_author"]}}</td>
+            <td>{{s["year"]}}</td>
+            <td>{{s["description"]}}</td>
+            <td>{{s["interaction_status"]}}</td>
+            <td>{{s["dataset_reference"]}}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
   <div class="col-4">
     <div class="card">

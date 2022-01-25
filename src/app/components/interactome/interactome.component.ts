@@ -13,10 +13,11 @@ export class InteractomeComponent implements OnInit {
   get data(): any {
     return this._data;
   }
-
+  interactedMap: Map<string, any[]> = new Map<string, any[]>()
   private _data: any = {}
   cutoff: number = 0
   enableFilter: boolean = false
+  selected: any[] = []
   @Input() set data(value: any) {
     this._data = value
     if (this.uniprot.results.has(value)) {
@@ -38,8 +39,6 @@ export class InteractomeComponent implements OnInit {
   getInteractions() {
     if (this.geneName !== "") {
       this.interac.getInteractions(this.geneName).subscribe(data => {
-        console.log(this.geneName)
-        console.log(this.data)
         if (data.body) {
           if (typeof data.body === "string") {
             this.interactions = JSON.parse(data.body)
@@ -53,38 +52,15 @@ export class InteractomeComponent implements OnInit {
   reformatInteraction() {
     const styles: any[] = []
     const nodes: any[] = []
-    console.log(this.interactions)
-    console.log(this.dataService.noChange)
-
-    for (const i of this.interactions["all_proteins"]) {
-      let classes: string[] = []
-      /**/
-      if (i["protein_gene_name"] === this.data) {
-        classes.push("root")
-      }
-      console.log(i["protein_gene_name"])
-      if (this.dataService.increase.includes(i["protein_gene_name"])) {
-        classes.push("increase")
-      } else if (this.dataService.decrease.includes(i["protein_gene_name"])) {
-        classes.push("decrease")
-      } else if (this.dataService.noChange.includes(i["protein_gene_name"])) {
-        classes.push("noChange")
-      }
-
-      nodes.push({data:
-          {
-            id: "node" + i["protein_id"],
-            label: i["protein_gene_name"],
-            size: 5
-          }, classes: classes.join(" ")
-      })
-    }
+    const interacted: string[] = []
+    const interactedMap: Map<string, any[]> = new Map<string, any[]>()
     for (const i of this.interactions["all_interactions"]) {
-      let score = parseFloat(i["score"])
+      let oScore = parseFloat(i["score"])
       this.evidences[i["interaction_id"]] = []
       for (const d of i["dataset_array"]) {
-        this.evidences[i["interaction_id"]].push({status: d["interaction_status"], reference: d["dataset_reference"], name: d["year"]})
+        this.evidences[i["interaction_id"]].push(d)
       }
+      interactedMap.set("edge"+i["interaction_id"], this.evidences[i["interaction_id"]].slice())
       let classes: string[] = []
       const interactions: string[] = []
       for (const interaction of i["interaction_category_array"]["interaction_category_array"]) {
@@ -92,19 +68,39 @@ export class InteractomeComponent implements OnInit {
       }
       classes.push(interactions.join(""))
       classes.push(i["interaction_id"] + i["interactor_A"]["protein_id"])
-      if (isNaN(score)) {
+      let score = oScore
+      if (isNaN(oScore)) {
         score = 2
         classes.push("noscore")
       } else {
-        score = 2 + 3*score
+        score = 2 + 3*oScore
+      }
+      if (!interactedMap.has("node"+i["interactor_A"]["protein_id"])) {
+        interactedMap.set("node"+i["interactor_A"]["protein_id"], this.evidences[i["interaction_id"]].slice())
+      } else {
+        for (const i2 of this.evidences[i["interaction_id"]]) {
+          // @ts-ignore
+          interactedMap.get("node"+i["interactor_A"]["protein_id"]).push(i2)
+        }
+      }
+      if (!interactedMap.has("node"+i["interactor_B"]["protein_id"])) {
+        interactedMap.set("node"+i["interactor_B"]["protein_id"], this.evidences[i["interaction_id"]].slice())
+      } else {
+        for (const i2 of this.evidences[i["interaction_id"]]) {
+          // @ts-ignore
+          interactedMap.get("node"+i["interactor_B"]["protein_id"]).push(i2)
+        }
       }
       if (this.enableFilter) {
-        if (!isNaN(score)) {
-          if (score > this.cutoff) {
+        if (!isNaN(oScore)) {
+          if (oScore > this.cutoff) {
+            interacted.push(i["interactor_A"]["protein_id"])
+            interacted.push(i["interactor_B"]["protein_id"])
             nodes.push({
               data: {id: "edge"+i["interaction_id"], source: "node"+i["interactor_A"]["protein_id"], target: "node"+i["interactor_B"]["protein_id"], score: score},
               classes: classes.join(" ")
             })
+
           }
         }
       } else {
@@ -113,8 +109,44 @@ export class InteractomeComponent implements OnInit {
           classes: classes.join(" ")
         })
       }
+    }
+
+    this.interactedMap = interactedMap
+
+    for (const i of this.interactions["all_proteins"]) {
+      let classes: string[] = []
+      if (i["protein_gene_name"] === this.data) {
+        classes.push("root")
+      }
+      if (this.dataService.increase.includes(i["protein_gene_name"])) {
+        classes.push("increase")
+      } else if (this.dataService.decrease.includes(i["protein_gene_name"])) {
+        classes.push("decrease")
+      } else if (this.dataService.noChange.includes(i["protein_gene_name"])) {
+        classes.push("noChange")
+      }
+      if (this.enableFilter) {
+        if (interacted.includes(i["protein_id"])) {
+          nodes.push({data:
+              {
+                id: "node" + i["protein_id"],
+                label: i["protein_gene_name"],
+                size: 5
+              }, classes: classes.join(" ")
+          })
+        }
+      } else {
+        nodes.push({data:
+            {
+              id: "node" + i["protein_id"],
+              label: i["protein_gene_name"],
+              size: 5
+            }, classes: classes.join(" ")
+        })
+      }
 
     }
+
     styles.push(
       {selector: "node", style:
           {label: "data(label)",
@@ -157,6 +189,8 @@ export class InteractomeComponent implements OnInit {
   }
 
   viewEvidences(event: any) {
-
+    // @ts-ignore
+    this.selected = this.interactedMap.get(event)
+    console.log(this.interactedMap.get(event))
   }
 }
