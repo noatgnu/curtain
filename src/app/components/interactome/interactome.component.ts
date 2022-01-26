@@ -177,10 +177,10 @@ export class InteractomeComponent implements OnInit {
       {selector: ".root", style: {label: "data(label)", "background-color": "#765cd0"}}
     )
     styles.push(
-      {selector: ".increase", style: {label: "data(label)", "background-color": "#a12323", "color": "#a12323",}}
+      {selector: ".increase", style: {label: "data(label)", "background-color": "#a12323", "color": "#ce8080",}}
     )
     styles.push(
-      {selector: ".decrease", style: {label: "data(label)", "background-color": "#16458c", "color": "#16458c",}}
+      {selector: ".decrease", style: {label: "data(label)", "background-color": "#16458c", "color": "#6f94bb",}}
     )
     styles.push(
       {selector: ".noChange", style: {label: "data(label)", "background-color": "rgba(25,128,128,0.96)", "color": "rgba(47,39,40,0.96)",}}
