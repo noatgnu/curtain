@@ -15,6 +15,7 @@ export class DataService {
   noChange: string[] = []
   decrease: string[] = []
   increase: string[] = []
+  allPages: any[] = []
   get currentBrowsePosition(): string {
     return this._currentBrowsePosition;
   }
@@ -34,6 +35,7 @@ export class DataService {
   searchService: BehaviorSubject<any> = new BehaviorSubject<any>(null)
   clearService: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true)
   clearSpecificService: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true)
+  changePageService: Subject<any> = new Subject<any>();
   annotations: any[] = []
   upRegSelected: string[] = []
   downRegSelected: string[] = []

@@ -18,14 +18,14 @@ export class DistributionViewerComponent implements OnInit {
   get data(): IDataFrame {
     return this._data
   }
-
+  pageSize: number = 20
   selectedRawData: any = {}
-
+  allPages: any[] = []
   allSelected: string[] = []
   rows: any[] = []
   @Input() dataComp: IDataFrame = new DataFrame()
   uniData: Map<string, any> = new Map<string, any>()
-
+  currentPage: number = 1
   labelKeys: string[] = []
   labelSamples: any = {}
   disableInteractionFilter: boolean = true
@@ -46,48 +46,139 @@ export class DistributionViewerComponent implements OnInit {
     })
 
     this.dataService.annotationSelect.subscribe(data => {
+      this.allPages = []
+      this.currentPage = 1
       this.uniData = this.uniprot.results
       this.selectedRawData = {}
       let count = 0
       this.allSelected = this.dataService.allSelected
       this.filteredAllSelected = this.allSelected
       this.rows = this.dataComp.where(row => this.allSelected.includes(row["Primary IDs"])).bake().toArray()
-
+      let totalCount = 0
+      const selectedIDs: any = {}
+      let currentPage = 0
+      let Page: any[] = []
+      const arrLength = this.dataService.allSelected.length
       for (const i of this.dataService.allSelected) {
         count ++
-        if (count > 20) {
+        totalCount ++
+        if (!(i in this.dataService.settings.selectedIDs)) {
+          this.dataService.settings.selectedIDs[i] = {visible: true}
+          this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: true, id: i}
+
+        } else {
+          this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: this.dataService.settings.selectedIDs[i].visible, id: i}
+        }
+
+        if (this.selectedRawData[i].visible) {
+          Page.push(this.selectedRawData[i])
+        }
+        if (count === this.pageSize) {
+
+          const page = {items: Page.slice(), pageNumber: currentPage, start: currentPage === 0, end: false}
+          if (arrLength === count) {
+            page.end = true
+          } else if (arrLength === totalCount) {
+            page.end = true
+          }
+          this.allPages.push(page)
+          Page = []
+          currentPage ++
+          count = 0
+        }
+        /*if (count > 20) {
           if (!(i in this.dataService.settings.selectedIDs)) {
             this.dataService.settings.selectedIDs[i] = {visible: false}
             this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: false}
           } else {
             this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: this.dataService.settings.selectedIDs[i].visible}
+
           }
+
         } else {
           if (!(i in this.dataService.settings.selectedIDs)) {
             this.dataService.settings.selectedIDs[i] = {visible: true}
             this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: true}
+            this.currentPage.push(this.selectedRawData[i])
           } else {
             this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: this.dataService.settings.selectedIDs[i].visible}
           }
-
         }
+        this.selectedRawData[i].id = i
+        if (this.selectedRawData[i].visible) {
+          this.currentPage.push(this.selectedRawData[i])
+        }*/
+      }
+      if (count > 0) {
+        this.allPages.push({items: Page.slice(), pageNumber: currentPage, start: false, end: true})
+      }
+      this.dataService.settings.selectedIDs = selectedIDs
+      this.dataService.allPages = this.allPages
+    })
+
+    this.dataService.changePageService.asObservable().subscribe(data => {
+      this.currentPage = data.page
+      let e = document.getElementById(data.acc+"id")
+      if (e) {
+        e.scrollIntoView()
+      } else {
+        let observer = new MutationObserver(mutations => {
+          mutations.forEach(function (mutation) {
+            let nodes = Array.from(mutation.addedNodes)
+            for (const node of nodes) {
+              if (node.contains(document.getElementById(data.acc+"id"))) {
+                e = document.getElementById(data.acc+"id")
+                if (e) {
+                  e.scrollIntoView()
+                }
+                observer.disconnect()
+                break
+              }
+            }
+          })
+        })
+        observer.observe(document.documentElement, {
+          childList: true,
+          subtree: true
+        })
       }
     })
+
     this.dataService.clearService.asObservable().subscribe(data => {
+      this.currentPage = 1
+      this.allPages = []
       this.allSelected = []
       this.selectedRawData = {}
       this.dataService.settings.selectedIDs = {}
+      this.dataService.allPages = []
     })
     this.dataService.clearSpecificService.asObservable().subscribe(data => {
-
+      this.allPages = []
+      this.currentPage = 1
       this.allSelected = this.dataService.allSelected
       this.selectedRawData = {}
       this.rows = this.dataComp.where(row => this.allSelected.includes(row["Primary IDs"])).bake().toArray()
       let count = 0
+      let totalCount = 0
       const selectedIDs: any = {}
+      let currentPage = 0
+      let Page: any[] = []
+      const arrLength = this.dataService.allSelected.length
       for (const i of this.dataService.allSelected) {
         count ++
-        if (count > 20) {
+        totalCount ++
+        if (!(i in selectedIDs)) {
+          if (i in this.dataService.settings.selectedIDs) {
+            selectedIDs[i] = {visible: this.dataService.settings.selectedIDs[i].visible}
+          } else {
+            selectedIDs[i] = {visible: false}
+          }
+
+          this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: selectedIDs[i].visible, id: i}
+        } else {
+          this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: selectedIDs[i].visible, id: i}
+        }
+        /*if (count > 20) {
           if (!(i in selectedIDs)) {
             if (i in this.dataService.settings.selectedIDs) {
               selectedIDs[i] = {visible: this.dataService.settings.selectedIDs[i].visible}
@@ -99,6 +190,7 @@ export class DistributionViewerComponent implements OnInit {
           } else {
             this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: selectedIDs[i].visible}
           }
+
         } else {
           if (!(i in selectedIDs)) {
             if (i in this.dataService.settings.selectedIDs) {
@@ -110,9 +202,29 @@ export class DistributionViewerComponent implements OnInit {
           } else {
             this.selectedRawData[i] = {df: this._data.where(row => row["Primary IDs"] === i).bake(), visible: selectedIDs[i].visible}
           }
+        }*/
+        if (this.selectedRawData[i].visible) {
+          Page.push(this.selectedRawData[i])
+        }
+        if (count === this.pageSize) {
+          const page = {items: Page.slice(), pageNumber: currentPage, start: currentPage === 0, end: false}
+          if (arrLength === count) {
+            page.end = true
+          } else if (arrLength === totalCount) {
+            page.end = true
+          }
+          this.allPages.push(page)
+          Page = []
+          currentPage ++
+          count = 0
         }
       }
+      if (count > 0) {
+        this.allPages.push({items: Page.slice(), pageNumber: currentPage, start: false, end: true})
+      }
+
       this.dataService.settings.selectedIDs = selectedIDs
+      this.dataService.allPages = this.allPages
     })
 
     this.dataService.barChartSampleLabels.asObservable().subscribe(data => {

@@ -197,12 +197,19 @@
     <div class="col-3">
       <button class="btn btn-outline-info" (click)="modalViewer(sampleLabel, 'sample-relabel')">Change Sample Label</button>
     </div>
+    <div class="col-6" *ngIf="allPages.length > 0">
+      <ngb-pagination [collectionSize]="allSelected.length" [(page)]="currentPage" [maxSize]="20" [rotate]="true" [boundaryLinks]="true" class="ml-auto"></ngb-pagination>
+    </div>
   </div>
 </div>
 
-<div class="mt-2" *ngIf="allSelected.length > 0">
-  <div *ngFor="let d of allSelected; let ind = index" class="mb-2">
-    <app-bar-chart-switch [id]="d+'id'"  [data]="selectedRawData[d].df" [proteinID]="d" *ngIf="selectedRawData[d].visible"></app-bar-chart-switch>
+<div class="mt-2" *ngIf="allPages.length > 0">
+  <div *ngFor="let d of allPages[currentPage-1].items; let ind = index" class="mb-2">
+    <app-bar-chart-switch [id]="d.id+'id'"  [data]="d.df" [proteinID]="d.id" *ngIf="d.visible"></app-bar-chart-switch>
   </div>
+
+</div>
+<div class="row" *ngIf="allPages.length > 0">
+  <ngb-pagination [collectionSize]="allSelected.length" [(page)]="currentPage" [maxSize]="20" [rotate]="true" [boundaryLinks]="true" class="ml-auto"></ngb-pagination>
 </div>
 

@@ -126,11 +126,21 @@ export class HomeComponent implements OnInit {
       acc = this.selectedProteinModel
     }
 
-    const e = document.getElementById(acc+"id")
-    console.log(e)
-    if (e) {
-      e.scrollIntoView()
+    let found = false
+
+    for (const p of this.dataService.allPages) {
+      for (const i of p.items) {
+        if (i.id === acc) {
+          this.dataService.changePageService.next({acc: acc, page: p.pageNumber+1})
+          found = true
+          break
+        }
+      }
+      if (found) {
+        break
+      }
     }
+
   }
 
   browseToInd(next: boolean) {
