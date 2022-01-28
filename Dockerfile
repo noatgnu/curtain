@@ -7,7 +7,11 @@ RUN apt-get -y install git
 RUN apt-get -y install nginx
 
 RUN git clone https://github.com/noatgnu/curtain.git
-
+RUN mkdir /app/nginx
+RUN touch /app/nginx/error.log
+RUN touch /app/nginx/access.log
+RUN cp nginx.conf /etc/nginx/nginx.conf
+RUN service nginx reload
 WORKDIR /app/curtain
 
 RUN npm install
