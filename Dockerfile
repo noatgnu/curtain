@@ -16,5 +16,5 @@ RUN cp nginx.conf /etc/nginx/nginx.conf
 RUN service nginx reload
 RUN npm install
 RUN node_modules/.bin/ng build
-
+RUN service nginx stop
 CMD ["bash", "/app/curtain/start.sh"]
