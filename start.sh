@@ -1,5 +1,5 @@
 #!/bin/bash
 
-service nginx reload
+service nginx restart
 nginx -g "daemon off"
 bash
