@@ -17,7 +17,6 @@ RUN mkdir /app/nginx
 RUN touch /app/nginx/error.log
 RUN touch /app/nginx/access.log
 RUN cp nginx.conf /etc/nginx/nginx.conf
-RUN service nginx reload
 RUN npm install
 RUN node_modules/.bin/ng build
 RUN service nginx stop

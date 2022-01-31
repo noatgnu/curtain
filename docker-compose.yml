@@ -19,5 +19,4 @@ services:
       - curtain-net
 networks:
   curtain-net:
-    external: true
 
