@@ -1,7 +1,9 @@
 version: "1"
 services:
   curtain:
-    build: .
+    tty: true
+    stdin_open: true
+    image: curtain:latest
     container_name: production_curtain
     ports:
       - 80:80
@@ -13,6 +15,9 @@ services:
     ports:
       - 8000:8000
       - 8001:8001
+    networks:
+      - curtain-net
 networks:
   curtain-net:
+    external: true
 
