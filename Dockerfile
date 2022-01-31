@@ -1,4 +1,4 @@
-FROM node:16-bullseye-slim
+FROM node:16-bullseye
 
 EXPOSE 80
 WORKDIR /app
@@ -17,7 +17,6 @@ RUN service nginx reload
 
 
 RUN npm install
-
 RUN node_modules/.bin/ng build
 
 CMD ["bash", "/app/curtain/start.sh"]
