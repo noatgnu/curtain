@@ -3,18 +3,19 @@ services:
   curtain:
     tty: true
     stdin_open: true
-    image: curtain:latest
+    build:
+      context: ./dockerfiles
+      dockerfile: Dockerfile-curtain
     container_name: production_curtain
     ports:
       - 80:80
     networks:
       - curtain-net
   cactus:
-    image: cactus:latest
+    build:
+      context: ./dockerfiles
+      dockerfile: Dockerfile-cactus
     container_name: production_cactus
-    ports:
-      - 8000:8000
-      - 8001:8001
     networks:
       - curtain-net
 networks:
