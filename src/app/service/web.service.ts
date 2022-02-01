@@ -98,11 +98,11 @@ export class WebService {
   }
 
   putSettings(settings: any) {
-    return this.http.put(this.links.proxyURL + "/file_data", JSON.stringify(settings), {responseType: "text", observe: "response"})
+    return this.http.put(this.links.proxyURL + "file_data", JSON.stringify(settings), {responseType: "text", observe: "response"})
   }
 
   postSettingsId(id: string, password: string) {
-    return this.http.post(this.links.proxyURL +"/file_data", JSON.stringify({id: id, password: password}), {responseType: "json", observe: "response"})
+    return this.http.post(this.links.proxyURL +"file_data", JSON.stringify({id: id, password: password}), {responseType: "json", observe: "response"})
   }
 
 }
