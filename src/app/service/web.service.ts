@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {DataService} from "./data.service";
+import {CurtainLink} from "../classes/curtain-link";
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebService {
+  links = new CurtainLink()
   private _filters: any = {
     Kinases: "kinases.txt",
     LRRK2: "lrrk2.txt",
@@ -96,11 +98,11 @@ export class WebService {
   }
 
   putSettings(settings: any) {
-    return this.http.put("http://www.conducto.me/file_data", JSON.stringify(settings), {responseType: "text", observe: "response"})
+    return this.http.put(this.links.proxyURL + "/file_data", JSON.stringify(settings), {responseType: "text", observe: "response"})
   }
 
   postSettingsId(id: string, password: string) {
-    return this.http.post("http://www.conducto.me/file_data", JSON.stringify({id: id, password: password}), {responseType: "json", observe: "response"})
+    return this.http.post(this.links.proxyURL +"/file_data", JSON.stringify({id: id, password: password}), {responseType: "json", observe: "response"})
   }
 
 }

@@ -158,7 +158,7 @@ export class UniprotService {
 
     const maxLength = accList.length;
     if (maxLength >0) {
-      this.http.post("http://www.conducto.me/uniprot", {acc: accList}, {responseType: "text", observe: "response"}).subscribe(data => {
+      this.http.post(this.links.proxyURL + "/uniprot", {acc: accList}, {responseType: "text", observe: "response"}).subscribe(data => {
         const df = fromCSV(<string>data.body);
         console.log(df)
         const columns = df.getColumnNames()
