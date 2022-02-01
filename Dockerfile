@@ -18,6 +18,6 @@ RUN touch /app/nginx/error.log
 RUN touch /app/nginx/access.log
 RUN cp nginx.conf /etc/nginx/nginx.conf
 RUN npm install
-RUN node_modules/.bin/ng build
+RUN node_modules/.bin/ng build --configuration=docker
 RUN service nginx stop
 CMD ["bash", "/app/curtain/start.sh"]
