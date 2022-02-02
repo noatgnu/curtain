@@ -17,7 +17,8 @@ RUN mkdir /app/nginx
 RUN touch /app/nginx/error.log
 RUN touch /app/nginx/access.log
 RUN cp nginx.conf /etc/nginx/nginx.conf
-RUN npm -g config set user root RUN npm install --quiet --no-progress -g @angular/cli@latest
+RUN npm -g config set user root
+RUN npm install --quiet --no-progress -g @angular/cli@latest
 RUN npm install
 RUN service nginx stop
 RUN node_modules/.bin/ng build
