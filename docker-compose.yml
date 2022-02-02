@@ -18,6 +18,17 @@ services:
     container_name: production_cactus
     networks:
       - curtain-net
+    volumes:
+      - type: bind
+        source: ./files
+        target: /app/cactus/files
+        volume:
+          nocopy: false
+      - type: bind
+        source: ./db
+        target: /app/cactus/db
+        volume:
+          nocopy: false
 networks:
   curtain-net:
 
