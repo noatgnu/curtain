@@ -9,11 +9,22 @@
     Source: ProteomicsDB <br>
     MS Level: MS1
   </p>
+  <div class="form-group">
+    <label>Network Flavour:</label>
+    <select class="form-control" [(ngModel)]="tissue_type">
+      <option value="tissue" selected>
+        Tissue
+      </option>
+      <option value="cell line">
+        Cell line
+      </option>
+    </select>
+  </div>
 </div>
 <div class="mt-2 ml-2">
   <plotly-plot
-    [data]="graphData"
-    [layout]="graphLayout"
+    [data]="graph[tissue_type].graphData"
+    [layout]="graph[tissue_type].graphLayout"
     [updateOnDataChange]="true"
   ></plotly-plot>
 </div>
