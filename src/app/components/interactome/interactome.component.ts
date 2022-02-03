@@ -38,7 +38,7 @@ export class InteractomeComponent implements OnInit {
 
   getInteractions() {
     if (this.geneName !== "") {
-      this.interac.getInteractions(this.geneName).subscribe(data => {
+      this.interac.getInteractions(this.geneName.split(";")[0]).subscribe(data => {
         if (data.body) {
           if (typeof data.body === "string") {
             this.interactions = JSON.parse(data.body)
