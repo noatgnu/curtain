@@ -39,7 +39,7 @@ export class BarChartComponent implements OnInit {
     //xaxis:{"tickangle": 90}
   }
   _data: IDataFrame = new DataFrame()
-  uniprotMap = new Map<string, any>()
+
   @Input() set data(value: IDataFrame) {
     this.drawBarChart(value);
     this._data = value
@@ -58,9 +58,10 @@ export class BarChartComponent implements OnInit {
       let primaryIDs = r["Primary IDs"]
       this.id = r["Primary IDs"]
       let proteinName = ""
-      if (this.uniprotMap.has(primaryIDs)) {
-        primaryIDs = this.uniprotMap.get(primaryIDs)["Gene names"] + "(" + primaryIDs + ")"
-        proteinName = "<br>" + this.uniprot.results.get(r["Primary IDs"])["Protein names"]
+      const uni = this.uniprot.getUniprotFromPrimary(r["Primary IDs"])
+      if (uni !== null) {
+        primaryIDs = uni["Gene names"] + "(" + primaryIDs + ")"
+        proteinName = "<br>" + uni["Protein names"]
         this.title = primaryIDs + proteinName
       }
       this.graphLayout.title.text = "<b>" + primaryIDs + proteinName + "</b>"
@@ -113,7 +114,6 @@ export class BarChartComponent implements OnInit {
     if (!this.dataService.settings.conditionParsePattern) {
       this.dataService.settings.conditionParsePattern = /^(.+)\.(\d+)$/
     }
-    this.uniprotMap = this.uniprot.results
     this.dataService.titleGraph.asObservable().subscribe(data => {
       this.graphLayout.title.text = "<b>" + data + "<br>" + this.title + "</b>"
     })

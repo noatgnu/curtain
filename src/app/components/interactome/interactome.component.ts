@@ -20,8 +20,9 @@ export class InteractomeComponent implements OnInit {
   selected: any[] = []
   @Input() set data(value: any) {
     this._data = value
-    if (this.uniprot.results.has(value)) {
-      this.geneName = this.uniprot.results.get(value)["Gene names"]
+    const uni = this.uniprot.getUniprotFromPrimary(value)
+    if (uni !== null) {
+      this.geneName = uni["Gene names"]
     } else {
       this.geneName = ""
     }

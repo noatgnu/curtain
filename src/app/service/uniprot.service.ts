@@ -199,4 +199,19 @@ export class UniprotService {
     }
 
   }
+
+  getUniprotFromPrimary(primary_id: string) {
+    if (this.accMap.has(primary_id)) {
+      const a = this.accMap.get(primary_id)
+      if (a) {
+        if (this.results.has(a)) {
+          const ac = this.results.get(a)
+          if (ac) {
+            return ac
+          }
+        }
+      }
+    }
+    return null
+  }
 }

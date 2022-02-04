@@ -20,8 +20,9 @@ export class PdbViewerComponent implements OnInit, AfterContentInit {
 
   @Input() set data(value: any) {
     this._data = value;
-    if (this.uniprot.results.has(value)) {
-      this.geneName = this.uniprot.results.get(value)["Gene names"]
+    const uni = this.uniprot.getUniprotFromPrimary(value)
+    if (uni !== uni) {
+      this.geneName = uni["Gene names"]
     }
     this.getEbi()
   }

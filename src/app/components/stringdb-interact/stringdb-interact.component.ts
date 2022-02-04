@@ -35,7 +35,7 @@ export class StringdbInteractComponent implements OnInit {
       this.getString()
     }
   }
-  constructor(public activeModal: NgbActiveModal, private dataService: DataService, private proteomicsDB: ProteomicsDbService) { }
+  constructor(public activeModal: NgbActiveModal, private dataService: DataService) { }
 
   ngOnInit(): void {
     const currentData = this

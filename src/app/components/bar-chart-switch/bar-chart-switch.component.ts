@@ -18,7 +18,7 @@ export class BarChartSwitchComponent implements OnInit {
     return this._proteinID;
   }
 
-
+  uniData: any = null
   private _proteinID: string = ""
   @Input() data: IDataFrame = new DataFrame();
   @Input() set proteinID(value: string) {
@@ -29,8 +29,10 @@ export class BarChartSwitchComponent implements OnInit {
         // @ts-ignore
         this.selectionArray = this.dataService.selectionMap.get(this.dataService.allSelected[ind])
         if (this.dataService.allSelectedGenes.length >0) {
-          if (this.uniprot.results.has(this.dataService.allSelected[ind])) {
-            this.proteinFunction = this.uniprot.results.get(this.dataService.allSelected[ind])["Function [CC]"].replace("FUNCTION: ", "")
+          const uni = this.uniprot.getUniprotFromPrimary(this.dataService.allSelected[ind])
+          if (uni !== null) {
+            this.uniData = uni
+            this.proteinFunction = uni["Function [CC]"].replace("FUNCTION: ", "")
             this.title = this.dataService.allSelectedGenes[ind]
             this.hasUniprot = true
           }
@@ -57,7 +59,6 @@ export class BarChartSwitchComponent implements OnInit {
   }
 
   openSTRING() {
-
     const modalRef = this.modalService.open(StringdbInteractComponent, {size: 'xl', scrollable: false});
     const geneNames: string[] = []
     for (const g of this.dataService.allSelectedGenes) {
@@ -65,7 +66,8 @@ export class BarChartSwitchComponent implements OnInit {
         geneNames.push(g1.toUpperCase())
       }
     }
-    modalRef.componentInstance.data = {organism: this.uniprot.organism, identifiers: this.uniprot.results.get(this.proteinID)["Cross-reference (STRING)"].split(";"), selectedGenes: geneNames}
+
+    modalRef.componentInstance.data = {organism: this.uniprot.organism, identifiers: this.uniData["Cross-reference (STRING)"].split(";"), selectedGenes: geneNames}
   }
 
   openProteomicsDB() {

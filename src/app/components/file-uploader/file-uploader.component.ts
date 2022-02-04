@@ -386,14 +386,19 @@ export class FileUploaderComponent implements OnInit {
       const accList: string[] = []
       for (const a of this.raw.getSeries(this.graphData.rawIdentifierCol).bake().toArray()) {
         const d = a.split(";")
-        const accession = this.uniprot.Re.exec(d[0])
-        if (accession !== null) {
-          this.uniprot.accMap.set(accession[0], a)
-          this.accessionList.push(accession[0])
-          if (!this.uniprot.results.has(a)) {
-            accList.push(accession[0])
+        for (const acc of d) {
+          const accession = this.uniprot.Re.exec(acc)
+          if (accession !== null) {
+            this.uniprot.accMap.set(accession[0], a)
+            this.uniprot.accMap.set(a, accession[0])
+            this.accessionList.push(accession[0])
+            if (!this.uniprot.results.has(a)) {
+              accList.push(accession[0])
+            }
+            break
           }
         }
+
       }
 
       this.uniprot.uniprotParseStatus.next(false)
