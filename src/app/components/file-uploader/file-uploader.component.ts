@@ -423,10 +423,10 @@ export class FileUploaderComponent implements OnInit {
     let fileContent = ""
     switch (filename) {
       case "differential":
-        fileContent = this.graphData.processed.toCSV()
+        fileContent = this.processed.toCSV()
         break
       case "raw":
-        fileContent = this.graphData.raw.toCSV()
+        fileContent = this.raw.toCSV()
         break
       default:
         break

@@ -25,6 +25,8 @@ export class BarChartSwitchComponent implements OnInit {
     this._proteinID = value;
     if (value) {
       const ind = this.dataService.allSelected.indexOf(value)
+      console.log(value)
+      console.log(this.dataService.allSelected)
       if (ind !== -1) {
         // @ts-ignore
         this.selectionArray = this.dataService.selectionMap.get(this.dataService.allSelected[ind])

@@ -45,8 +45,8 @@ export class HomeComponent implements OnInit {
       default:
         return [""]
     }
-
   }
+
   g: GraphData = new GraphData()
   comparison: string[] = []
   selectedDF: IDataFrame = new DataFrame()

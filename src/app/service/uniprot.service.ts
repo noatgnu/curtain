@@ -2,10 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {DataFrame, fromCSV, IDataFrame, Series} from "data-forge";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
-import {max} from "rxjs/operators";
 import {NotificationService} from "./notification.service";
-import {stringify} from "@angular/compiler/src/util";
-import {parse} from "@angular/compiler/src/render3/view/style_parser";
 import {CurtainLink} from "../classes/curtain-link";
 
 @Injectable({
