@@ -215,7 +215,7 @@ export class ScatterPlotComponent implements OnInit {
             if (s.data.includes(r[s.type])) {
 
               if (!(s.title in temp)) {
-                temp[s.title] = {x: [], y: [], text:[], type: 'scatter', name: s.title, mode: 'markers'}
+                temp[s.title] = {x: [], y: [], text:[], type: 'scattergl', name: s.title, mode: 'markers'}
               }
 
               temp[s.title].y.push(-Math.log10(row["pvalue"]))
@@ -234,7 +234,7 @@ export class ScatterPlotComponent implements OnInit {
           const conditions = this.selectConditions(row["pvalue"], row["logFC"], row["Primary IDs"])
 
           if (!(conditions in temp)) {
-            temp[conditions] = {x: [], y: [], text:[], type: 'scatter', name: conditions, mode: 'markers'}
+            temp[conditions] = {x: [], y: [], text:[], type: 'scattergl', name: conditions, mode: 'markers'}
           }
           temp[conditions].y.push(-Math.log10(row["pvalue"]))
           temp[conditions].x.push(row["logFC"])
