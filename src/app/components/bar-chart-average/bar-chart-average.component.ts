@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DataFrame, IDataFrame} from "data-forge";
+import {DataFrame, IDataFrame, Series} from "data-forge";
 import {PlotlyService} from "angular-plotly.js";
 import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
@@ -112,12 +112,20 @@ export class BarChartAverageComponent implements OnInit {
       for (const y of this.tempValue[t]) {
         total = total + y
       }
+      const s = new Series(this.tempValue[t])
+      const std = s.std()
+      const standardError = std/Math.sqrt(s.count())
       const ave = total/this.tempValue[t].length
       this.graphData.push({
         x: [temp[t].name], y: [ave],
         type: 'bar',
         mode: 'markers',
         name: temp[t].name,
+        error_y: {
+          type: 'data',
+          array: [standardError],
+          visible: true
+        },
         //visible: temp[t].visible,
         showlegend: false
       })
