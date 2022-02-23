@@ -372,6 +372,8 @@ export class ScatterPlotComponent implements OnInit {
       if (e["points"][0].text.indexOf("(") !== -1) {
         if (e["points"][0].text.startsWith("UID")) {
           this.dataService.updateDataPointClick([e["points"][0].text])
+        } else if (e["points"][0].text[e["points"][0].text.length-1] !== ")") {
+          this.dataService.updateDataPointClick([e["points"][0].text])
         } else {
           this.dataService.updateDataPointClick([e["points"][0].text.slice(ind+1, -1)])
         }
