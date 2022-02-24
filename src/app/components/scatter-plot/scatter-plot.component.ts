@@ -6,6 +6,7 @@ import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
 import * as d3 from "d3";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {VolcanoColorGroupsComponent} from "../volcano-color-groups/volcano-color-groups.component";
 
 @Component({
   selector: 'app-scatter-plot',
@@ -13,6 +14,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
   styleUrls: ['./scatter-plot.component.css']
 })
 export class ScatterPlotComponent implements OnInit {
+  colorGroups: string[] = []
   get fdrCurveText(): string {
     return this._fdrCurveText;
   }
@@ -351,10 +353,19 @@ export class ScatterPlotComponent implements OnInit {
     }
 
 
-
+    const colorGroups: string[] = []
     for (const t in temp) {
+      colorGroups.push(t)
+      if (t in this.dataService.colorMap) {
+        console.log(t)
+        if (this.dataService.colorMap[t] !== "") {
+          temp[t]["marker"] = {color: this.dataService.colorMap[t]}
+        }
+      }
+      console.log(temp[t])
       this.graphData.push(temp[t])
     }
+    this.colorGroups = colorGroups
     if (!this.xaxisLog) {
       this.graphLayout.xaxis.title = "FC"
     } else {
@@ -501,5 +512,26 @@ export class ScatterPlotComponent implements OnInit {
 
   finishPlot(e: any) {
     this.afterPlotTrigger = true
+  }
+
+  updateColor(event: any) {
+    this.dataService.colorMap[event.group] = event.color
+    console.log(this.dataService.colorMap)
+  }
+
+  openColorChange() {
+    const modalRef = this.modal.open(VolcanoColorGroupsComponent)
+    modalRef.componentInstance.colorGroups = this.colorGroups
+    modalRef.result.then((result) => {
+      console.log(result)
+      for (const c in result) {
+        if (result[c] !== "") {
+          this.dataService.colorMap[c] = result[c]
+        }
+      }
+      this.dataService.settings.colorMap = this.dataService.colorMap
+      this.graphScatterPlot()
+    })
+
   }
 }

@@ -18,4 +18,5 @@ export class Settings {
   conditionParsePattern = /^(.+)\.(\d+)$/
   selectionTitles: string[] = []
   dataColumns: GraphData = new GraphData()
+  colorMap: any = {}
 }

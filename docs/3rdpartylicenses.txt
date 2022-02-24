@@ -348,6 +348,9 @@ licenses; we recommend you read them, as their terms may differ from the
 terms above.
 
 
+ngx-color-picker
+MIT
+
 numeral
 MIT
 Copyright (c) 2016 Adam Draper

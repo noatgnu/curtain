@@ -1,0 +1,14 @@
+<div class="modal-header">
+  Volcano Plot Marker Color Selector
+</div>
+<div class="row" *ngFor="let c of colorGroups">
+  <div class="form-group">
+    <label for="{{c}}id" class="col-9">{{c}}</label>
+    <input id="{{c}}id" class="col-3" [(colorPicker)]="data[c]" [style.background]="data[c]" (colorPickerChange)="updateColor(c, $event)">
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss('Cross click')">Close</button>
+  <button type="button" class="btn btn-outline-dark" (click)="activeModal.close(data)">Redraw</button>
+</div>
+

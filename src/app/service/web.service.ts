@@ -77,6 +77,10 @@ export class WebService {
         if (!("data" in res.body)) {
           if ("settings" in res.body) {
             this.dataService.settings = JSON.parse(res.body["settings"])
+            if (!this.dataService.settings.colorMap) {
+              this.dataService.settings.colorMap = {}
+            }
+            this.dataService.colorMap = this.dataService.settings.colorMap
             this.dataService.rawFile = res.body["raw"]
             this.dataService.processedFile = res.body["processed"]
             if ("selections" in res.body) {

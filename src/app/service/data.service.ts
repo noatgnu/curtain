@@ -10,6 +10,7 @@ import {NotificationService} from "./notification.service";
   providedIn: 'root'
 })
 export class DataService {
+  colorMap: any = {}
   geneToPrimaryMap: Map<string, string> = new Map<string, string>()
   initialSearch: any = {}
   noChange: string[] = []

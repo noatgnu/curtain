@@ -30,6 +30,8 @@ import { ProteomicsDbExpressionComponent } from './components/proteomics-db-expr
 import { PdbViewerComponent } from './components/pdb-viewer/pdb-viewer.component';
 import { InteractomeComponent } from './components/interactome/interactome.component';
 import { CytoplotComponent } from './components/cytoplot/cytoplot.component';
+import {ColorPickerModule} from "ngx-color-picker";
+import {VolcanoColorGroupsComponent} from "./components/volcano-color-groups/volcano-color-groups.component";
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -55,7 +57,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     ProteomicsDbExpressionComponent,
     PdbViewerComponent,
     InteractomeComponent,
-    CytoplotComponent
+    CytoplotComponent,
+    VolcanoColorGroupsComponent
   ],
   imports: [
     BrowserModule,
@@ -68,7 +71,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     NgxDatatableModule,
     NguiListModule,
     NguiInviewModule,
-    NguiUtilsModule
+    NguiUtilsModule,
+    ColorPickerModule
   ],
   providers: [],
   bootstrap: [AppComponent]
