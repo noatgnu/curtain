@@ -3,7 +3,9 @@ import {DataFrame, IDataFrame} from "data-forge";
 import {UniprotService} from "../../service/uniprot.service";
 import {DataService} from "../../service/data.service";
 import {PlotlyService} from "angular-plotly.js";
-import {Event} from "@angular/router";
+
+// @ts-ignore
+import * as anova from "anova";
 
 @Component({
   selector: 'app-bar-chart',
@@ -11,6 +13,9 @@ import {Event} from "@angular/router";
   styleUrls: ['./bar-chart.component.css']
 })
 export class BarChartComponent implements OnInit {
+  comparisons: any = {}
+  comparisonGroups: any[] = []
+  groups: string[] = []
   graphData: any[] = []
   graphLayout: any = {title: {
     text: "",
@@ -47,6 +52,15 @@ export class BarChartComponent implements OnInit {
   relabelSample: any = {}
   reverseLinkLabel: any = {}
   id: string = ""
+  selectedGroup: string = ""
+  pairwise(list: any[]): any[] {
+    if (list.length < 2) { return []; }
+    const first = list[0],
+      rest  = list.slice(1),
+      pairs = rest.map(function (x) { return [first, x]; });
+    return pairs.concat(this.pairwise(rest));
+  }
+
   private drawBarChart(value: IDataFrame<number, any>) {
     this.graphData = []
     //this.graphLayout.xaxis.categoryarray = []
@@ -91,8 +105,11 @@ export class BarChartComponent implements OnInit {
         }
       }
     }
+    const conditions: string[] = []
     for (const t in temp) {
+      conditions.push(t)
       this.graphData.push(temp[t])
+
       this.graphLayout.xaxis.tickvals.push(temp[t].x[Math.round(temp[t].x.length/2)-1])
       if (!(t in this.relabelSample)) {
         this.graphLayout.xaxis.ticktext.push(t)
@@ -105,9 +122,26 @@ export class BarChartComponent implements OnInit {
           this.graphLayout.xaxis.ticktext.push(t)
           this.dataService.updateBarChartKeyChannel(t)
         }
-
       }
     }
+    const combos = this.pairwise(conditions)
+    const comparisons: any = {}
+    const comparisonGroups: any[] = []
+    for (const c of combos) {
+      const a = temp[c[0]]
+      const b = temp[c[1]]
+      //const classAB = a.y.concat(b.y)
+      //const dataAB = a.x.concat(b.x)
+      //comparisons[c[0]+ "-" +c[1]] = oneWay(dataAB, classAB)
+      comparisons[c[0]+ "-" +c[1]] = {f: anova.test([a.y, b.y]), ss: anova.SS([a.y, b.y]), df: anova.DF([a.y, b.y]), ms: anova.MS([a.y, b.y])}
+      comparisonGroups.push({name: c[0]+ "-" +c[1], group: c})
+    }
+    this.comparisons = comparisons
+    this.comparisonGroups = comparisonGroups
+    this.groups = conditions
+    console.log(this.groups)
+    console.log(this.comparisons)
+    console.log(this.comparisonGroups)
   }
   title: string = ""
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {

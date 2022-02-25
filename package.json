@@ -27,6 +27,7 @@
     "@types/cytoscape": "^3.19.4",
     "@types/d3": "^7.0.0",
     "angular-plotly.js": "^4.0.4",
+    "anova": "^1.0.2",
     "async-mutex": "^0.3.2",
     "bootstrap": "^4.5.0",
     "cytoscape": "^3.20.0",

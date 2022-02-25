@@ -99,6 +99,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 angular-plotly.js
 MIT
 
+anova
+MIT
+
 bootstrap
 MIT
 The MIT License (MIT)
@@ -631,6 +634,9 @@ Apache-2.0
  limitations under the License.
  
 
+
+statistical-methods
+MIT
 
 tslib
 0BSD

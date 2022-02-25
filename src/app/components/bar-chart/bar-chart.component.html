@@ -14,6 +14,52 @@
     </p>
   </div>
 </div>
+<div class="row">
+  <div class="col-2">
+    <div class="form-group">
+      <label for="comparisonSelect">
+        Comparison Selection for One-way ANOVA
+      </label>
+      <select id="comparisonSelect" [(ngModel)]="selectedGroup" class="form-control">
+        <option *ngFor="let c of groups" [value]="c">
+          {{c}}
+        </option>
+      </select>
+    </div>
+  </div>
+  <div *ngIf="selectedGroup !== ''" class="container-fluid">
+    <div class="card-deck">
+      <div *ngFor="let c of comparisonGroups">
+        <ng-container *ngIf="c.group.includes(selectedGroup)">
+          <div class="card mb-2 border-success" *ngIf="comparisons[c.name].f <= 0.05">
+            <div class="card-body">
+              <p class="card-text">
+                Comparison: {{c.name}}<br>
+                P-value: {{comparisons[c.name].f}}<br>
+                Total sum of square: {{comparisons[c.name].ss.total}}<br>
+                Total degrees of freedom: {{comparisons[c.name].df.total}}<br>
+              </p>
+            </div>
+          </div>
+          <div class="card mb-2 border-danger" *ngIf="comparisons[c.name].f > 0.05">
+            <div class="card-body">
+              <p class="card-text">
+                Comparison: {{c.name}}<br>
+                P-value: {{comparisons[c.name].f}}<br>
+                Total sum of square: {{comparisons[c.name].ss.total}}<br>
+                Total degrees of freedom: {{comparisons[c.name].df.total}}<br>
+
+              </p>
+            </div>
+          </div>
+        </ng-container>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
 <plotly-plot [divId]="title.replace(';', '')"
              [data]="graphData"
              [layout]="graphLayout"
