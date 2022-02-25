@@ -135,10 +135,8 @@ export class BarChartComponent implements OnInit {
       //const classAB = a.y.concat(b.y)
       //const dataAB = a.x.concat(b.x)
       //comparisons[c[0]+ "-" +c[1]] = oneWay(dataAB, classAB)
-      console.log([a.y, b.y])
-      console.log(jstat.anovaftest([a.y, b.y]))
-      console.log(jstat.anovafscore([a.y, b.y]))
-      comparisons[c[0]+ "-" +c[1]] = {f: jstat.anovafscore([a.y, b.y]), ss: anova.SS([a.y, b.y]), df: anova.DF([a.y, b.y]), ms: anova.MS([a.y, b.y])}
+
+      comparisons[c[0]+ "-" +c[1]] = {f: jstat.anovaftest(a.y, b.y), ss: anova.SS([a.y, b.y]), df: anova.DF([a.y, b.y]), ms: anova.MS([a.y, b.y])}
       comparisonGroups.push({name: c[0]+ "-" +c[1], group: c})
     }
     this.comparisons = comparisons
