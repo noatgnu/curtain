@@ -6,6 +6,8 @@ import {PlotlyService} from "angular-plotly.js";
 
 // @ts-ignore
 import * as anova from "anova";
+// @ts-ignore
+import * as jstat from "jstat";
 
 @Component({
   selector: 'app-bar-chart',
@@ -133,15 +135,16 @@ export class BarChartComponent implements OnInit {
       //const classAB = a.y.concat(b.y)
       //const dataAB = a.x.concat(b.x)
       //comparisons[c[0]+ "-" +c[1]] = oneWay(dataAB, classAB)
-      comparisons[c[0]+ "-" +c[1]] = {f: anova.test([a.y, b.y]), ss: anova.SS([a.y, b.y]), df: anova.DF([a.y, b.y]), ms: anova.MS([a.y, b.y])}
+      console.log([a.y, b.y])
+      console.log(jstat.anovaftest([a.y, b.y]))
+      console.log(jstat.anovafscore([a.y, b.y]))
+      comparisons[c[0]+ "-" +c[1]] = {f: jstat.anovafscore([a.y, b.y]), ss: anova.SS([a.y, b.y]), df: anova.DF([a.y, b.y]), ms: anova.MS([a.y, b.y])}
       comparisonGroups.push({name: c[0]+ "-" +c[1], group: c})
     }
     this.comparisons = comparisons
     this.comparisonGroups = comparisonGroups
     this.groups = conditions
-    console.log(this.groups)
-    console.log(this.comparisons)
-    console.log(this.comparisonGroups)
+
   }
   title: string = ""
   constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
