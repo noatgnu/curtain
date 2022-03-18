@@ -27,7 +27,8 @@ export class BarChartAverageComponent implements OnInit {
       "tickvals": [],
       "ticktext": [],
       "tickfont": {
-        "size": 17
+        "size": 17,
+        "color": "black"
       },
       "font": {
         size: 20,

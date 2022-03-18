@@ -154,6 +154,7 @@ export class DistributionViewerComponent implements OnInit {
     })
     this.dataService.clearSpecificService.asObservable().subscribe(data => {
       this.allPages = []
+      this.dataService.allPages = []
       this.currentPage = 1
       this.allSelected = this.dataService.allSelected
       this.selectedRawData = {}
