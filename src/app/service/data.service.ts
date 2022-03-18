@@ -74,7 +74,7 @@ export class DataService {
     this.dataPointClickService.next(data)
   }
   updateSelected(value: string[], title: string = "") {
-
+    console.log(this.allSelected)
     const all: string[] = this.allSelected.slice()
     for (const v of value) {
       if (!this.allSelected.includes(v)) {
@@ -116,6 +116,7 @@ export class DataService {
 
   private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean, title: string = "") {
     console.log(data)
+    console.log(this.search)
     const arr: string[] = []
     if (!(title in this.search)) {
       this.search[title] = []
@@ -217,6 +218,7 @@ export class DataService {
 
   clearAllSelected() {
     this.clearService.next(true)
+    this.search = {}
     this.allSelected = []
     this.allSelectedGenes = []
     this.annotated = {}
