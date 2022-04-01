@@ -58,12 +58,12 @@ export class HomeComponent implements OnInit {
   enableQuickNav: boolean = true;
   ngOnInit() {
     if (location.protocol === "https:" && location.hostname === "curtain.proteo.info") {
-      this.notification.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
+      this.notification.show("Error: The webpage requires the url protocol to be http instead of https")
     } else {
       this.route.params.subscribe(params => {
         if (params) {
           if (params["settings"]) {
-            this.notification.show("Initialization", "Retrieving settings parameters from " + params["settings"])
+            this.notification.show("Initialization: Retrieving settings parameters from " + params["settings"] )
             this.webService.getSettings(params["settings"])
             this.dataService.unique_id = params["settings"]
           }
