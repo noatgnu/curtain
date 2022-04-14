@@ -26,7 +26,7 @@ export class InteractomeComponent implements OnInit {
     } else {
       this.geneName = ""
     }
-    this.getInteractions()
+    this.getInteractions().then()
   }
   geneName: string = ""
   interactions: any = {}
@@ -37,16 +37,22 @@ export class InteractomeComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  getInteractions() {
+  async getInteractions() {
     if (this.geneName !== "") {
-      this.interac.getInteractions(this.geneName.split(";")[0]).subscribe(data => {
+      this.interactions = await this.interac.getInteractome([this.geneName.split(";")[0]])
+      if (this.interactions) {
+
+        this.reformatInteraction()
+      }
+
+      /*this.interac.getInteractions(this.geneName.split(";")[0]).subscribe(data => {
         if (data.body) {
           if (typeof data.body === "string") {
             this.interactions = JSON.parse(data.body)
             this.reformatInteraction()
           }
         }
-      })
+      })*/
     }
   }
 

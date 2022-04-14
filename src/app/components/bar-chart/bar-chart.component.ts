@@ -25,7 +25,7 @@ export class BarChartComponent implements OnInit {
       family: "Arial Black",
       size: 24,
       }
-    }, height: 500,
+    }, height: 500, autosize: true,
     xaxis: {
       "title" : "<b>Samples</b>",
       "tickmode": "array",
@@ -126,6 +126,7 @@ export class BarChartComponent implements OnInit {
         }
       }
     }
+    console.log(this.graphData)
     const combos = this.pairwise(conditions)
     const comparisons: any = {}
     const comparisonGroups: any[] = []

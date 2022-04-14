@@ -1,6 +1,9 @@
 <div class="card">
   <div class="card-body">
-    <h1 class="card-title" *ngIf="hasUniprot">{{title}}</h1>
+    <h1 class="card-title" *ngIf="title !== ''; else accid">{{title}}</h1>
+    <ng-template #accid>
+      <h1 class="card-title">{{proteinID}}</h1>
+    </ng-template>
     <span *ngFor="let a of selectionArray" class="badge badge-info mr-2">{{a}}</span>
     <p *ngIf="hasUniprot">
       <span class="badge badge-dark" (click)="openSTRING()" *ngIf="uniprot.fetched">View Interacting Partners (StringDB)</span>
@@ -11,7 +14,10 @@
     <p class="card-text" *ngIf="hasUniprot">{{proteinFunction}}</p>
     <ngui-inview (inview)="viewing()">
     </ngui-inview>
-    <app-protein-domain *ngIf="hasUniprot" [proteinID]="proteinID"></app-protein-domain>
+    <ng-container *ngIf="hasUniprot">
+      <app-protein-domain *ngIf="proteinID !== ''" [proteinID]="proteinID"></app-protein-domain>
+    </ng-container>
+
     <div class="row">
       <div class="col-4">
         <div class="form-check">

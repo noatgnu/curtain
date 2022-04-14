@@ -12,59 +12,63 @@ export class ProteinDomainComponent implements OnInit {
     return this._proteinID;
   }
 
-
-
   private _proteinID: string = ""
   @Input() set proteinID(value: string) {
-    this._proteinID = value;
-    if (value) {
-      if (value !== "") {
-        let last = 1
-        const waterfallPlot: any = {
-          type: "waterfall",
-          orientation: "h",
-          measure: [],
-          y: [],
-          x: [],
-          connector: {
-            mode: "between"
-          },
-          text: [],
-          hoverinfo: "text",
-          base: 1
-        }
-        for (const d of this.uniprot.results.get(value)["Domain [FT]"]) {
-          if (d.start-1 > last) {
-            waterfallPlot.measure.push("relative")
-            waterfallPlot.y.push("Other")
-            waterfallPlot.x.push(d.start-last)
-            if (last !== 1) {
-              waterfallPlot.text.push((last+1) + " - " + (d.start-1) + "; " + "Other")
-            } else {
-              waterfallPlot.text.push(1 + " - " + (d.start-1) + "; " + "Other")
+    if (value !== this._proteinID && value) {
+      this._proteinID = value;
+      if (this._proteinID) {
+        if (this._proteinID !== "") {
+          let last = 1
+          const waterfallPlot: any = {
+            type: "waterfall",
+            orientation: "h",
+            measure: [],
+            y: [],
+            x: [],
+            connector: {
+              mode: "between"
+            },
+            text: [],
+            hoverinfo: "text",
+            base: 1
+          }
+          console.log(this._proteinID)
+          const uni = this.uniprot.getUniprotFromPrimary(this._proteinID)
+          console.log(uni)
+          if (uni) {
+            for (const d of uni["Domain [FT]"]) {
+              if (d.start-1 > last) {
+                waterfallPlot.measure.push("relative")
+                waterfallPlot.y.push("Other")
+                waterfallPlot.x.push(d.start-last)
+                if (last !== 1) {
+                  waterfallPlot.text.push((last+1) + " - " + (d.start-1) + "; " + "Other")
+                } else {
+                  waterfallPlot.text.push(1 + " - " + (d.start-1) + "; " + "Other")
+                }
+
+                last = d.start-1
+
+              }
+              waterfallPlot.measure.push("relative")
+              waterfallPlot.y.push(d.name)
+              waterfallPlot.x.push(d.end-last)
+              waterfallPlot.text.push(d.start + " - " + (d.end) + "; " + d.name)
+              last = d.end
             }
-
-            last = d.start-1
-
-          }
-          waterfallPlot.measure.push("relative")
-          waterfallPlot.y.push(d.name)
-          waterfallPlot.x.push(d.end-last)
-          waterfallPlot.text.push(d.start + " - " + (d.end) + "; " + d.name)
-          last = d.end
-        }
-        if (parseInt(this.uniprot.results.get(value)["Length"]) - 1 > last) {
-          waterfallPlot.measure.push("relative")
-          waterfallPlot.y.push("Other")
-          waterfallPlot.x.push(parseInt(this.uniprot.results.get(value)["Length"])-last)
-          if (last !== 1) {
-            waterfallPlot.text.push((last+1) + " - " + parseInt(this.uniprot.results.get(value)["Length"])+ "; " + "Other")
-          } else {
-            waterfallPlot.text.push(1 + " - " + parseInt(this.uniprot.results.get(value)["Length"]) + "; " + "Other")
+            if (parseInt(uni["Length"]) - 1 > last) {
+              waterfallPlot.measure.push("relative")
+              waterfallPlot.y.push("Other")
+              waterfallPlot.x.push(parseInt(this.uniprot.results.get(value)["Length"])-last)
+              if (last !== 1) {
+                waterfallPlot.text.push((last+1) + " - " + parseInt(this.uniprot.results.get(value)["Length"])+ "; " + "Other")
+              } else {
+                waterfallPlot.text.push(1 + " - " + parseInt(this.uniprot.results.get(value)["Length"]) + "; " + "Other")
+              }
+            }
+            this.data = [waterfallPlot]
           }
         }
-        this.data = [waterfallPlot]
-
       }
     }
   }

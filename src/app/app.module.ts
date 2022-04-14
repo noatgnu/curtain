@@ -32,6 +32,7 @@ import { InteractomeComponent } from './components/interactome/interactome.compo
 import { CytoplotComponent } from './components/cytoplot/cytoplot.component';
 import {ColorPickerModule} from "ngx-color-picker";
 import {VolcanoColorGroupsComponent} from "./components/volcano-color-groups/volcano-color-groups.component";
+import { ProteinRelationshipComponent } from './components/protein-relationship/protein-relationship.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -58,7 +59,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     PdbViewerComponent,
     InteractomeComponent,
     CytoplotComponent,
-    VolcanoColorGroupsComponent
+    VolcanoColorGroupsComponent,
+    ProteinRelationshipComponent
   ],
   imports: [
     BrowserModule,

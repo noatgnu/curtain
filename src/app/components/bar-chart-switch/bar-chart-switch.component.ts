@@ -25,13 +25,13 @@ export class BarChartSwitchComponent implements OnInit {
     this._proteinID = value;
     if (value) {
       const ind = this.dataService.allSelected.indexOf(value)
-      console.log(value)
-      console.log(this.dataService.allSelected)
       if (ind !== -1) {
         // @ts-ignore
         this.selectionArray = this.dataService.selectionMap.get(this.dataService.allSelected[ind])
         if (this.dataService.allSelectedGenes.length >0) {
           const uni = this.uniprot.getUniprotFromPrimary(this.dataService.allSelected[ind])
+          console.log(this.dataService.allSelected[ind])
+          console.log(uni)
           if (uni !== null) {
             this.uniData = uni
             this.proteinFunction = uni["Function [CC]"].replace("FUNCTION: ", "")

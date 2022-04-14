@@ -131,8 +131,9 @@ export class UniprotService {
               r["Domain [FT]"] = domains
             }
             if (r["query"]) {
-              if (r["query"]) {
-                this.results.set(this.accMap.get(r["query"]), r)
+              const query = r["query"].replace(",", ";")
+              for (const q of query.split(";")) {
+                this.results.set(q, r)
               }
             }
           }

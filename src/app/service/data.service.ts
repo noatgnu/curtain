@@ -74,7 +74,6 @@ export class DataService {
     this.dataPointClickService.next(data)
   }
   updateSelected(value: string[], title: string = "") {
-    console.log(this.allSelected)
     const all: string[] = this.allSelected.slice()
     for (const v of value) {
       if (!this.allSelected.includes(v)) {
@@ -109,14 +108,12 @@ export class DataService {
       }
     }
     this.allSelectedGenes = a
-    console.log(this.allSelected)
   }
 
   search: any = {}
 
   private selectedDataAnnotate(data: any[], up: boolean, annotate: boolean, title: string = "") {
-    console.log(data)
-    console.log(this.search)
+
     const arr: string[] = []
     if (!(title in this.search)) {
       this.search[title] = []
@@ -204,7 +201,6 @@ export class DataService {
   }
 
   updateRegTableSelect(table: string, data: any[], annotate: boolean, title: string = "") {
-    console.log(data)
     if (table==="up") {
       this.notification.show("Selected " + data.length + " from Up-regulated datasets", {delay: 1000})
       this.selectedDataAnnotate(data, true, annotate, title)
@@ -265,7 +261,7 @@ export class DataService {
         }
       }
     }
-    console.log(this.selectionMap)
+
     for (let i = 0; i < this.allSelected.length; i++) {
       const s = this.allSelected[i]
       if (setForRemove.indexOf(s) === -1) {
@@ -273,7 +269,7 @@ export class DataService {
       }
     }
     this.allSelected = newSelected
-    console.log(this.allSelected)
+
     const a: string[] = []
     for (const p of this.allSelected) {
       if (this.uniprot.results.has(p)) {

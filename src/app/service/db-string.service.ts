@@ -167,4 +167,14 @@ export class DbStringService {
       this.interactionAnalysis.next(true)
     })
   }
+
+  getStringDBInteractions(genes: string[], score: number = 400) {
+    const options: Map<string, string> = new Map<string, string>([
+        ["identifiers", genes.join("%0d")],
+        ["required_score", score.toString()],
+        ["species", "9606"]
+      ]
+    )
+    return this.http.get("https://string-db.org/api/tsv/network?" + this.toParamString(options), {responseType: "text", observe: "body"})
+  }
 }

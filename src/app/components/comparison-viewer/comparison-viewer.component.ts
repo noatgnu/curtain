@@ -10,6 +10,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {WebService} from "../../service/web.service";
 import {DbStringService} from "../../service/db-string.service";
 import {NotificationService} from "../../service/notification.service";
+import {ProteinRelationshipComponent} from "../protein-relationship/protein-relationship.component";
 
 @Component({
   selector: 'app-comparison-viewer',
@@ -259,4 +260,8 @@ export class ComparisonViewerComponent implements OnInit, AfterViewInit, OnDestr
     }
   }
 
+  getProteinInteraction() {
+    const dialogRef = this.modalService.open(ProteinRelationshipComponent, {size:"xl"})
+    dialogRef.componentInstance.genes = this.dataService.allSelectedGenes
+  }
 }

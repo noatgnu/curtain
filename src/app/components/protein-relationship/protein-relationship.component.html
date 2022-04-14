@@ -1,0 +1,12 @@
+<div class="modal-header">
+  <h4 class="modal-title">Protein Interactions</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="row mt-2 ml-2 mr-2">
+  <app-cytoplot [drawData]="{data: nodes, stylesheet: styles}"></app-cytoplot>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss('Cross click')">Close</button>
+</div>

@@ -65,6 +65,14 @@ export class WebService {
     }
   }
 
+  toParamString(options: Map<string, string>): string {
+    const pArray: string[] = [];
+    options.forEach((value, key) => {
+      pArray.push(encodeURI(key + '=' + value));
+    });
+
+    return pArray.join('&');
+  }
   getSettings(filename: string) {
     /*this.http.get("assets/" + filename + ".json", {responseType: "text", observe: "response"}).subscribe(res => {
       if (res.body) {
