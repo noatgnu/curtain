@@ -48,20 +48,20 @@ export class ProteinRelationshipComponent implements OnInit {
         width: 6,
         'curve-style': 'bezier',
         'control-point-distance':50,
-        'line-style': 'dashed'
+        //'line-style': 'dashed'
       }
     },
     {
       selector: ".stringdb",
-      style: {"line-color": "rgb(206,128,128)", width: 4}
+      style: {"line-color": "rgb(206,128,128)", width: 2}
     },
     {
       selector: ".interactome",
-      style: {"line-color": "rgb(73,73,101)", width: 4}
+      style: {"line-color": "rgb(73,73,101)", width: 2}
     },
     {
       selector: ".lrrk2",
-      style: {"line-color": "rgb(73,73,101)", width: 4, "line-style": "solid"}
+      style: {"line-color": "rgb(73,73,101)", width: 2, "line-style": "solid"}
     },
   ]
   currentEdges: any = {}
@@ -71,10 +71,16 @@ export class ProteinRelationshipComponent implements OnInit {
       const _genes: string[] = []
       for (const v of value) {
         const g = v.split(";")[0]
-        _genes.push(g)
-        this.geneMap[g] = v
+        if (g!=="") {
+          if (!_genes.includes(g)) {
+            _genes.push(g)
+            this.geneMap[g] = v
+          }
+        }
+
       }
       this._genes = _genes
+
       if (this._genes.length > 2) {
         this.getInteractions().then()
       }
@@ -110,13 +116,11 @@ export class ProteinRelationshipComponent implements OnInit {
             )
           }
         }
-        if (!this.geneMap[this.geneMap[r["preferredName_A"]]]) {
+        if (this.geneMap[r["preferredName_A"]]) {
           this.currentGenes[r["preferredName_A"]] = true
-          this.geneMap[this.geneMap[r["preferredName_A"]]] = true
         }
-        if (!this.geneMap[this.geneMap[r["preferredName_B"]]]) {
+        if (this.geneMap[r["preferredName_B"]]) {
           this.currentGenes[r["preferredName_B"]] = true
-          this.geneMap[this.geneMap[r["preferredName_B"]]] = true
         }
       }
     }
@@ -140,13 +144,11 @@ export class ProteinRelationshipComponent implements OnInit {
             )
           }
         }
-        if (!this.geneMap[this.geneMap[r["interactor_A"]["protein_gene_name"]]]) {
+        if (this.geneMap[r["interactor_A"]["protein_gene_name"]]) {
           this.currentGenes[r["interactor_A"]["protein_gene_name"]] = true
-          this.geneMap[this.geneMap[r["interactor_A"]["protein_gene_name"]]] = true
         }
-        if (!this.geneMap[this.geneMap[r["interactor_B"]["protein_gene_name"]]]) {
+        if (this.geneMap[r["interactor_B"]["protein_gene_name"]]) {
           this.currentGenes[r["interactor_B"]["protein_gene_name"]] = true
-          this.geneMap[this.geneMap[r["interactor_B"]["protein_gene_name"]]] = true
         }
       }
     }
