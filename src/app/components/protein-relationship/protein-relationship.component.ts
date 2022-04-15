@@ -97,7 +97,7 @@ export class ProteinRelationshipComponent implements OnInit {
     let result: any = {}
     let resultInteractome: any = {}
     try {
-      result = await this.dbString.getStringDBInteractions(this.data.allSelectedGenes).toPromise()
+      result = await this.dbString.getStringDBInteractions(this._genes).toPromise()
       const tempDF = fromCSV(<string>result)
       if (tempDF.count() > 0) {
         for (const r of tempDF) {
@@ -130,7 +130,7 @@ export class ProteinRelationshipComponent implements OnInit {
       console.log("Can't get StringDB data")
     }
     try {
-      resultInteractome = await this.interac.getInteractome(this.data.allSelectedGenes, "query_query")
+      resultInteractome = await this.interac.getInteractome(this._genes, "query_query")
       if (resultInteractome["all_interactions"]) {
         if (resultInteractome["all_interactions"].length > 0) {
           for (const r of resultInteractome["all_interactions"]) {
