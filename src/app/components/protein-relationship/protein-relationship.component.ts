@@ -94,64 +94,78 @@ export class ProteinRelationshipComponent implements OnInit {
 
   async getInteractions() {
     const nodes: any[] = this.nodes.slice()
-    const result = await this.dbString.getStringDBInteractions(this.data.allSelectedGenes).toPromise()
-    const resultInteractome = await this.interac.getInteractome(this.data.allSelectedGenes, "query_query")
-    const tempDF = fromCSV(<string>result)
-    if (tempDF.count() > 0) {
-      for (const r of tempDF) {
-        const nodeName = "edge-stringdb-"+r["preferredName_A"]+r["preferredName_B"]
-        if (!this.currentEdges[nodeName]) {
-          let classes = "edge stringdb"
-          if (this._genes.includes(r["preferredName_A"])&&this._genes.includes(r["preferredName_B"])) {
-            this.currentEdges[nodeName] = true
-            nodes.push(
-              {data:
-                  {
-                    id: nodeName,
-                    source: "gene-"+ r["preferredName_A"],
-                    target: "gene-"+ r["preferredName_B"],
-                    score: r["score"]
-                  }, classes: classes
-              }
-            )
+    let result: any = {}
+    let resultInteractome: any = {}
+    try {
+      result = await this.dbString.getStringDBInteractions(this.data.allSelectedGenes).toPromise()
+      const tempDF = fromCSV(<string>result)
+      if (tempDF.count() > 0) {
+        for (const r of tempDF) {
+          const nodeName = "edge-stringdb-"+r["preferredName_A"]+r["preferredName_B"]
+          if (!this.currentEdges[nodeName]) {
+            let classes = "edge stringdb"
+            if (this._genes.includes(r["preferredName_A"])&&this._genes.includes(r["preferredName_B"])) {
+              this.currentEdges[nodeName] = true
+              nodes.push(
+                {data:
+                    {
+                      id: nodeName,
+                      source: "gene-"+ r["preferredName_A"],
+                      target: "gene-"+ r["preferredName_B"],
+                      score: r["score"]
+                    }, classes: classes
+                }
+              )
+            }
+          }
+          if (this.geneMap[r["preferredName_A"]]) {
+            this.currentGenes[r["preferredName_A"]] = true
+          }
+          if (this.geneMap[r["preferredName_B"]]) {
+            this.currentGenes[r["preferredName_B"]] = true
           }
         }
-        if (this.geneMap[r["preferredName_A"]]) {
-          this.currentGenes[r["preferredName_A"]] = true
-        }
-        if (this.geneMap[r["preferredName_B"]]) {
-          this.currentGenes[r["preferredName_B"]] = true
-        }
       }
+    } catch (e) {
+      console.log("Can't get StringDB data")
     }
-    if (resultInteractome["all_interactions"].length > 0) {
-      for (const r of resultInteractome["all_interactions"]) {
-        const nodeName = "edge-interactome-"+r["interactor_A"]["protein_gene_name"]+r["interactor_B"]["protein_gene_name"]
-        if (!this.currentEdges[nodeName]) {
-          let classes = "edge interactome"
-          if (this._genes.includes(r["interactor_A"]["protein_gene_name"])&&this._genes.includes(r["interactor_B"]["protein_gene_name"])){
+    try {
+      resultInteractome = await this.interac.getInteractome(this.data.allSelectedGenes, "query_query")
+      if (resultInteractome["all_interactions"]) {
+        if (resultInteractome["all_interactions"].length > 0) {
+          for (const r of resultInteractome["all_interactions"]) {
+            const nodeName = "edge-interactome-"+r["interactor_A"]["protein_gene_name"]+r["interactor_B"]["protein_gene_name"]
+            if (!this.currentEdges[nodeName]) {
+              let classes = "edge interactome"
+              if (this._genes.includes(r["interactor_A"]["protein_gene_name"])&&this._genes.includes(r["interactor_B"]["protein_gene_name"])){
 
-            this.currentEdges[nodeName] = true
-            nodes.push(
-              {data:
-                  {
-                    id: nodeName,
-                    source: "gene-"+r["interactor_A"]["protein_gene_name"],
-                    target: "gene-"+r["interactor_B"]["protein_gene_name"],
-                    score: r["score"]
-                  }, classes: classes
+                this.currentEdges[nodeName] = true
+                nodes.push(
+                  {data:
+                      {
+                        id: nodeName,
+                        source: "gene-"+r["interactor_A"]["protein_gene_name"],
+                        target: "gene-"+r["interactor_B"]["protein_gene_name"],
+                        score: r["score"]
+                      }, classes: classes
+                  }
+                )
               }
-            )
+            }
+            if (this.geneMap[r["interactor_A"]["protein_gene_name"]]) {
+              this.currentGenes[r["interactor_A"]["protein_gene_name"]] = true
+            }
+            if (this.geneMap[r["interactor_B"]["protein_gene_name"]]) {
+              this.currentGenes[r["interactor_B"]["protein_gene_name"]] = true
+            }
           }
         }
-        if (this.geneMap[r["interactor_A"]["protein_gene_name"]]) {
-          this.currentGenes[r["interactor_A"]["protein_gene_name"]] = true
-        }
-        if (this.geneMap[r["interactor_B"]["protein_gene_name"]]) {
-          this.currentGenes[r["interactor_B"]["protein_gene_name"]] = true
-        }
       }
+    } catch (e) {
+      console.log("Can't get Interactome Atlas")
     }
+
+
     console.log(this.currentGenes)
     for (const n in this.currentGenes) {
       nodes.push({data: {id: "gene-"+n, label: this.geneMap[n], size: 2}, classes: "genes"})
