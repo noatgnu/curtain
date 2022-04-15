@@ -32,39 +32,44 @@ export class ProteinDomainComponent implements OnInit {
             hoverinfo: "text",
             base: 1
           }
-          console.log(this._proteinID)
           const uni = this.uniprot.getUniprotFromPrimary(this._proteinID)
-          console.log(uni)
           if (uni) {
-            for (const d of uni["Domain [FT]"]) {
-              if (d.start-1 > last) {
+            if (uni["Domain [FT]"] !== "") {
+              for (const d of uni["Domain [FT]"]) {
+                if (d.start-1 > last) {
+                  waterfallPlot.measure.push("relative")
+                  waterfallPlot.y.push("Other")
+                  waterfallPlot.x.push(d.start-last)
+                  if (last !== 1) {
+                    waterfallPlot.text.push((last+1) + " - " + (d.start-1) + "; " + "Other")
+                  } else {
+                    waterfallPlot.text.push(1 + " - " + (d.start-1) + "; " + "Other")
+                  }
+
+                  last = d.start-1
+
+                }
+                waterfallPlot.measure.push("relative")
+                waterfallPlot.y.push(d.name)
+                waterfallPlot.x.push(d.end-last)
+                waterfallPlot.text.push(d.start + " - " + (d.end) + "; " + d.name)
+                last = d.end
+              }
+              if (parseInt(uni["Length"]) - 1 > last) {
                 waterfallPlot.measure.push("relative")
                 waterfallPlot.y.push("Other")
-                waterfallPlot.x.push(d.start-last)
+                waterfallPlot.x.push(parseInt(uni["Length"])-last)
                 if (last !== 1) {
-                  waterfallPlot.text.push((last+1) + " - " + (d.start-1) + "; " + "Other")
+                  waterfallPlot.text.push((last+1) + " - " + parseInt(uni["Length"])+ "; " + "Other")
                 } else {
-                  waterfallPlot.text.push(1 + " - " + (d.start-1) + "; " + "Other")
+                  waterfallPlot.text.push(1 + " - " + parseInt(uni["Length"]) + "; " + "Other")
                 }
-
-                last = d.start-1
-
               }
-              waterfallPlot.measure.push("relative")
-              waterfallPlot.y.push(d.name)
-              waterfallPlot.x.push(d.end-last)
-              waterfallPlot.text.push(d.start + " - " + (d.end) + "; " + d.name)
-              last = d.end
-            }
-            if (parseInt(uni["Length"]) - 1 > last) {
+            } else {
               waterfallPlot.measure.push("relative")
               waterfallPlot.y.push("Other")
-              waterfallPlot.x.push(parseInt(this.uniprot.results.get(value)["Length"])-last)
-              if (last !== 1) {
-                waterfallPlot.text.push((last+1) + " - " + parseInt(this.uniprot.results.get(value)["Length"])+ "; " + "Other")
-              } else {
-                waterfallPlot.text.push(1 + " - " + parseInt(this.uniprot.results.get(value)["Length"]) + "; " + "Other")
-              }
+              waterfallPlot.x.push(parseInt(uni["Length"]))
+              waterfallPlot.text.push(1 + " - " + parseInt(uni["Length"]) + "; " + "Other")
             }
             this.data = [waterfallPlot]
           }

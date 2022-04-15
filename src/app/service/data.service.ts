@@ -42,6 +42,7 @@ export class DataService {
   downRegSelected: string[] = []
   allSelected: string[] = []
   allSelectedGenes: string[] = []
+  geneIsoformsMap: any = {}
   sampleColumns: string[] = []
   batchSelectionService: BehaviorSubject<any> = new BehaviorSubject<any>({})
   titleGraph: BehaviorSubject<string> = new BehaviorSubject<string>("")
@@ -101,12 +102,19 @@ export class DataService {
     }
 
     for (const p of this.allSelected) {
-      if (this.uniprot.results.has(p)) {
-        a.push(this.uniprot.results.get(p)["Gene names"])
+      const uni = this.uniprot.getUniprotFromPrimary(p)
+      if (uni) {
+        const gene = uni["Gene names"]
+        if (!this.geneIsoformsMap[gene]) {
+          this.geneIsoformsMap[gene] = []
+        }
+        this.geneIsoformsMap[gene].push(p)
+        a.push(gene)
       } else {
         a.push("")
       }
     }
+    console.log(a)
     this.allSelectedGenes = a
   }
 

@@ -35,7 +35,7 @@ export class BarChartSwitchComponent implements OnInit {
           if (uni !== null) {
             this.uniData = uni
             this.proteinFunction = uni["Function [CC]"].replace("FUNCTION: ", "")
-            this.title = this.dataService.allSelectedGenes[ind]
+            this.title = uni["Gene names"]
             this.hasUniprot = true
           }
 

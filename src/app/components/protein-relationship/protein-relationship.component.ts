@@ -96,7 +96,7 @@ export class ProteinRelationshipComponent implements OnInit {
         const nodeName = "edge-stringdb-"+r["preferredName_A"]+r["preferredName_B"]
         if (!this.currentEdges[nodeName]) {
           let classes = "edge stringdb"
-          if (this._genes.includes(r["preferredName_A"])||this._genes.includes(r["preferredName_B"])) {
+          if (this._genes.includes(r["preferredName_A"])&&this._genes.includes(r["preferredName_B"])) {
             this.currentEdges[nodeName] = true
             nodes.push(
               {data:
@@ -125,7 +125,7 @@ export class ProteinRelationshipComponent implements OnInit {
         const nodeName = "edge-interactome-"+r["interactor_A"]["protein_gene_name"]+r["interactor_B"]["protein_gene_name"]
         if (!this.currentEdges[nodeName]) {
           let classes = "edge interactome"
-          if (this._genes.includes(r["interactor_A"]["protein_gene_name"])||this._genes.includes(r["interactor_B"]["protein_gene_name"])){
+          if (this._genes.includes(r["interactor_A"]["protein_gene_name"])&&this._genes.includes(r["interactor_B"]["protein_gene_name"])){
 
             this.currentEdges[nodeName] = true
             nodes.push(
@@ -150,6 +150,7 @@ export class ProteinRelationshipComponent implements OnInit {
         }
       }
     }
+    console.log(this.currentGenes)
     for (const n in this.currentGenes) {
       nodes.push({data: {id: "gene-"+n, label: this.geneMap[n], size: 2}, classes: "genes"})
     }
