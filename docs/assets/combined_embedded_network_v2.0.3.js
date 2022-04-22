@@ -9,6 +9,7 @@
 var selectedGenes = []
 var decrease = []
 var increase = []
+var allGene = []
 var for_each_node = function (array, callback, scope) {
 
     "use strict";
@@ -35,11 +36,11 @@ function loadFloatingProteinWindowCoor (node, action_option, expected_width, exp
 
     "use strict";
 
-    var left_pos = xPos - expected_width / 2;
+    var left_pos = xPos - expected_width / 2-800;
     if (left_pos < 50) {
         left_pos = 50;
     }
-    var top_pos = yPos - 30;
+    var top_pos = yPos - 30 -400;
     if (top_pos < 20) {
         top_pos = 30;
     }
@@ -78,7 +79,7 @@ function loadFloatingProteinWindow (event, node, action_option, width, height, l
     var yPositionOffset = 0;
 
     if (consider_offset_correction) {
-        var embbed_string = document.getElementById("stringEmbedded")
+        var embbed_string = document.getElementById("stringEmbedded" + selectedGenes[0])
         if (embbed_string) {
           var domRect = embbed_string.getBoundingClientRect();
           xPositionOffset = domRect.left;
@@ -218,7 +219,7 @@ function toggle_structure_section (offset, identifier) {
 }
 
 
-function getSTRING(root_url, params, selected, increaseGenes, decreaseGenes) {
+function getSTRING(root_url, params, selected, increaseGenes, decreaseGenes, geneList) {
 
     js_comm_globals.web_cgi_dir = root_url + /cgi/;
     js_comm_globals.web_images_dir = root_url + /images/;
@@ -226,8 +227,11 @@ function getSTRING(root_url, params, selected, increaseGenes, decreaseGenes) {
     decrease = decreaseGenes
     increase = increaseGenes
 
-    var stringDiv = document.getElementById('stringEmbedded');
-
+    allGene = geneList
+    var stringDiv = document.getElementById('stringEmbedded'+selectedGenes[0]);
+    console.log(selectedGenes)
+    console.log('stringEmbedded'+selectedGenes[0])
+    console.log(stringDiv)
     var form = new FormData(form);
     for (let key in params) {
         let value = params[key]
@@ -263,7 +267,7 @@ function getSTRINGpost(root_url, params) {
     js_comm_globals.web_cgi_dir = root_url + /cgi/;
     js_comm_globals.web_images_dir = root_url + /images/;
 
-    var stringDiv = document.getElementById('stringEmbedded');
+    var stringDiv = document.getElementById('stringEmbedded'+ selectedGenes[0]);
 
     var form = new FormData(form);
     for (let key in params) {
@@ -274,6 +278,7 @@ function getSTRINGpost(root_url, params) {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if (xhr.readyState == XMLHttpRequest.DONE) {
+
             stringDiv.innerHTML = xhr.responseText;
             init_network_interactive_functionalities();
             update_network_coordinates_at_server = function() {};
@@ -747,11 +752,13 @@ function init_network_interactive_functionalities (event) {
                 t.setAttribute("font-weight", "bold")
               }
               if (increase.includes(nodeName)) {
-                t.setAttribute("fill", "red")
+                t.setAttribute("fill", "#8d0606")
               } else if (decrease.includes(nodeName)) {
-                t.setAttribute("fill", "blue")
+                t.setAttribute("fill", "#4f78a4")
+              } else if (allGene.includes(nodeName)) {
+                t.setAttribute("fill", "#ce8080")
               } else {
-                t.setAttribute("fill", "saddlebrown")
+                t.setAttribute("fill", "#676666")
               }
             }
             svg_metainfo_nodes[this_id] = {};
