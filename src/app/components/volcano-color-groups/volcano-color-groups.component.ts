@@ -21,7 +21,6 @@ export class VolcanoColorGroupsComponent implements OnInit {
         } else {
           a[c] = this.dataService.colorMap[c]
         }
-
       }
       this.data = a
       this._colorGroups = value

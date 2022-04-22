@@ -172,7 +172,7 @@ export class DbStringService {
     const options: Map<string, string> = new Map<string, string>([
         ["identifiers", genes.join("%0d")],
         ["required_score", score.toString()],
-        ["species", "9606"]
+        ["species", this.uniprot.organism]
       ]
     )
     return this.http.get("https://string-db.org/api/tsv/network?" + this.toParamString(options), {responseType: "text", observe: "body"})

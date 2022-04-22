@@ -48,7 +48,6 @@ export class ComparisonViewerComponent implements OnInit, AfterViewInit, OnDestr
       default:
         return [""]
     }
-
   }
   search: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
     text$.pipe(
