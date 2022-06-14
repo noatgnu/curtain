@@ -1,14 +1,17 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "cli": {
-    "analytics": "df2a8e11-7571-41b4-803b-cd739cd7f348"
+    "analytics": "5dfaeff8-4536-4f27-aee6-58ce0ca3b69d"
   },
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "curtain": {
+    "CurtainTwo": {
       "projectType": "application",
       "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        },
         "@schematics/angular:application": {
           "strict": true
         }
@@ -20,21 +23,18 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/",
+            "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
               "src/assets"
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "./node_modules/@swimlane/ngx-datatable/themes/bootstrap.scss",
-              "./node_modules/@swimlane/ngx-datatable/assets/icons.css",
-              "./node_modules/@swimlane/ngx-datatable/index.scss",
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": [
               "src/assets/combined_embedded_network_v2.0.3.js"
@@ -98,13 +98,13 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "curtain:build:production"
+              "browserTarget": "CurtainTwo:build:production"
             },
             "docker": {
-              "browserTarget": "curtain:build:docker"
+              "browserTarget": "CurtainTwo:build:docker"
             },
             "development": {
-              "browserTarget": "curtain:build:development"
+              "browserTarget": "CurtainTwo:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -112,7 +112,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "curtain:build"
+            "browserTarget": "CurtainTwo:build"
           }
         },
         "test": {
@@ -122,18 +122,21 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
+            "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/combined_embedded_network_v2.0.3.js"
+            ]
           }
         }
       }
     }
   },
-  "defaultProject": "curtain"
+  "defaultProject": "CurtainTwo"
 }

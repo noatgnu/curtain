@@ -1,0 +1,8 @@
+<ngb-pagination [(page)]="dataService.page" [pageSize]="dataService.pageSize" [collectionSize]="_data.count()"></ngb-pagination>
+<hr>
+<ng-container *ngFor="let r of _data.toArray()|slice: (dataService.page-1) * dataService.pageSize: dataService.page* dataService.pageSize">
+  <app-raw-data-block class="mb-2" [data]="r"></app-raw-data-block>
+</ng-container>
+<ngb-pagination [(page)]="dataService.page" [pageSize]="dataService.pageSize" [collectionSize]="_data.count()"></ngb-pagination>
+
+

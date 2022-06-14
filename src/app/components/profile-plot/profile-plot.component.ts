@@ -1,88 +1,144 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DataFrame, IDataFrame} from "data-forge";
-import {DataService} from "../../service/data.service";
-import {UniprotService} from "../../service/uniprot.service";
+import {DataFrame, IDataFrame, Series} from "data-forge";
+import {DataService} from "../../data.service";
+import {UniprotService} from "../../uniprot.service";
+import {ToastService} from "../../toast.service";
+import {SettingsService} from "../../settings.service";
 
 @Component({
   selector: 'app-profile-plot',
   templateUrl: './profile-plot.component.html',
-  styleUrls: ['./profile-plot.component.css']
+  styleUrls: ['./profile-plot.component.scss']
 })
 export class ProfilePlotComponent implements OnInit {
- _data: IDataFrame = new DataFrame()
-  graphData: any[] = []
-  graphLayout: any = {title: "profile"}
+  _data: IDataFrame = new DataFrame()
   @Input() set data(value: IDataFrame) {
     this._data = value
-    //this.drawBoxPlot()
+    if (this._data.count() > 0) {
+      this.drawBoxPlot().then(r => {
+        this.graphData = this.graphBox
+        this.drawSelected().then()
+      })
+    }
   }
 
-
-
-  allSelected: string[] = []
-  constructor(private dataService: DataService, private uniprot: UniprotService) {
-
+  _selected: string[] = []
+  @Input() set selected(value: string[]) {
+    this._selected = value
   }
-  box: any[] = []
-  ngOnInit(): void {
-    this.dataService.annotationSelect.subscribe(data => {
-      this.allSelected = this.dataService.allSelected
-      this.drawBoxPlot()
+
+  graphData: any[] = []
+  graphBox: any[] = []
+  graphLayout: any = {
+    margin: {t:50, b:100, l:50, r:25},
+    title: "Profile Plot",
+    xaxis: {
+      title: "Samples",
+      tickvals: [],
+      ticktext: []
+    },
+    yaxis: {title: "log2 Intensity Value"},
+    annotations: [],
+    shapes: [],
+    showlegend: true
+  }
+  graphSelected: any[] = []
+  constructor(private toast: ToastService, private dataService: DataService, private uniprot: UniprotService, private settings: SettingsService) {
+    this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
+      this.drawSelected().then()
+    })
+    this.dataService.redrawTrigger.subscribe(data => {
+      if (data) {
+        if (this._data.count() > 0) {
+          this.drawBoxPlot().then(r => {
+            this.graphData = this.graphBox
+            this.drawSelected().then()
+          })
+        }
+      }
     })
   }
-  boxFilled: boolean = false
 
-  drawBoxPlot() {
-    this.graphData = []
-    if (this._data.count() >0){
-      if (this.box.length === 0) {
-        for (const s of this.dataService.sampleColumns) {
-          const y: number[] = []
-          for (const i of this._data.getSeries(s).bake().toArray()) {
-            y.push(Math.log10(i))
-          }
-          const a = {
-            y: y,
-            type: "box",
-            name: s,
-            boxpoints: false,
-            marker: {
-              color: "black"
+  ngOnInit(): void {
+  }
+
+  async drawBoxPlot() {
+    const graphBox: any[] = []
+    const graphBoxData: any = {
+      x: [],
+      y: [],
+      boxpoints: false,
+      marker: {
+        color: '#9b8f8e'
+      },
+      type: 'box',
+      showlegend: false
+    }
+    let sampleNumber: number = 0
+    const tickval: string[] = []
+    const ticktext: string[] = []
+    const temp: any = {}
+    for (const s in this.dataService.sampleMap) {
+      if (this.settings.settings.sampleVisible[s]) {
+        sampleNumber ++
+        const condition = this.dataService.sampleMap[s].condition
+        if (!temp[condition]) {
+          temp[condition] = {
+            x: [],
+            y: [],
+            line: {
+              color: 'black'
             },
+            fillcolor: this.dataService.colorMap[condition],
+            boxpoints: false,
+            type: 'box',
             showlegend: false
           }
-          this.graphData.push(a)
-          //this.box.push(a)
         }
-      } else {
-        for (const b of this.box) {
-          this.graphData.push(this.box)
-        }
-      }
-      if (this.dataService.allSelected.length >0) {
-        for (const r of this._data) {
-          if (this.dataService.allSelected.includes(r["Primary IDs"])) {
-            const x: any[] = []
-            const y: any[] = []
-            for (const s of this.dataService.sampleColumns) {
-              x.push(s)
-              y.push(Math.log10(r[s]))
-            }
-            const g = {
-              x: x,
-              y: y,
-              mode: "lines",
-              name: r["Primary IDs"]
-            }
-            if (this.uniprot.results.has(r["Primary IDs"])) {
-              if (this.uniprot.results.get(r["Primary IDs"])) {
-                g.name = this.uniprot.results.get(r["Primary IDs"])["Gene names"]
-              }
-            }
-            this.graphData.push(g)
-          }
-        }
+        temp[condition].x = temp[condition].x.concat(Array(this._data.count()).fill(s))
+        temp[condition].y = temp[condition].y.concat(this._data.getSeries(s).bake().toArray().map(a=> Math.log2(a)))
       }
     }
+
+    for (const t in temp) {
+      tickval.push(temp[t].x[Math.round(temp[t].x.length/2)-1])
+      ticktext.push(t)
+      graphBox.push(temp[t])
+    }
+    this.graphLayout.xaxis.tickvals = tickval
+    this.graphLayout.xaxis.ticktext = ticktext
+
+    this.graphBox = graphBox
+    this.toast.show("Profile Plot", "Completed Constructing Box Plots").then(r => {})
+  }
+
+  async drawSelected() {
+    const graphData: any[] = []
+    const selected = this._data.where(r => this._selected.includes(r[this.dataService.rawForm.primaryIDs])).bake()
+    for (const r of selected) {
+      let name = r[this.dataService.rawForm.primaryIDs]
+      const uni = this.uniprot.getUniprotFromPrimary(name)
+      if (uni) {
+        if (uni["Gene names"] !== "") {
+          name = uni["Gene names"] + "(" + name + ")"
+        }
+      }
+      const temp: any = {
+        x: [],
+        y: [],
+        mode: "lines+markers",
+        type: "scattergl",
+        name: name
+      }
+      for (const i in this.dataService.sampleMap) {
+        if (this.settings.settings.sampleVisible[i]) {
+          temp.x.push(i)
+          temp.y.push(Math.log2(r[i]))
+        }
+      }
+      graphData.push(temp)
+    }
+    this.graphSelected = graphData
+    this.graphData = this.graphData.concat(this.graphSelected)
   }
 }

@@ -1,44 +1,27 @@
-# Curtain
+# CurtainTwo
 
-This project has been created using Angular as graphical user interface web framework and Python as the backend with nginx handling load balancing.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.3.
 
-- Backend: https://github.com/noatgnu/cactus
-- Frontend: https://github.com/noatgnu/curtain
+## Development server
 
-## Deployment
-### Docker deployment
-Requires `docker` and `docker-compose`
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-#### Building process
-`docker-compose build --no-cache`
+## Code scaffolding
 
-The building process will create two docker images, one for the GUI interface and the other for the backend.
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
-#### Running process
-`docker-compose up -d`
+## Build
 
-The `docker-compose.yml` exposes two directories within the backend, one containing all user upload data, the other is a sqlite that index the uploaded data.
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-### Manual installation
+## Running unit tests
 
-#### Requirements
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-- Node 8
+## Running end-to-end tests
 
-#### GUI installation process
+Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
-`npm install -g @angular/cli@latest`
+## Further help
 
-Within the package folder, `npm install`
-
-#### GUI Building process
-
-Modify values of `apiURL` property in the following file `src/environments/environment.prod.ts` to the web url path of your `cactus` backend.
-
-`ng build`
-
-You can now find the GUI package under the `dist` folder. This can be upload onto any webhosting service to be server at the root of the domain or subdomain.
-
-#### Backend setup
-
-Follow the manual backend setup here https://github.com/noatgnu/cactus
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.

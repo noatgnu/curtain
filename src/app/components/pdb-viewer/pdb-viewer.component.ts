@@ -1,30 +1,30 @@
-import {AfterContentInit, Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
+import {EbiService} from "../../ebi.service";
+import {UniprotService} from "../../uniprot.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {EbiService} from "../../service/ebi.service";
-// @ts-ignore
-import * as ngl from "ngl";
-import {UniprotService} from "../../service/uniprot.service";
+
 
 declare const PDBeMolstarPlugin: any;
 @Component({
   selector: 'app-pdb-viewer',
   templateUrl: './pdb-viewer.component.html',
-  styleUrls: ['./pdb-viewer.component.css']
+  styleUrls: ['./pdb-viewer.component.scss']
 })
-export class PdbViewerComponent implements OnInit, AfterContentInit {
+export class PdbViewerComponent implements OnInit {
+
   get data(): any {
     return this._data;
   }
 
   private _data: any = {}
-
+  uni: any = {}
   @Input() set data(value: any) {
     this._data = value;
     const uni = this.uniprot.getUniprotFromPrimary(value)
     if (uni !== uni) {
       this.geneName = uni["Gene names"]
+      this.uni = uni
     }
-    this.getEbi()
   }
   link = ""
   cifLink = ""
@@ -33,47 +33,47 @@ export class PdbViewerComponent implements OnInit, AfterContentInit {
   version = 0
   alignmentError = ""
   geneName: string = ""
-  constructor(public activeModal: NgbActiveModal, private ebi: EbiService, private uniprot: UniprotService) { }
+  constructor(private ebi: EbiService, private uniprot: UniprotService, public activeModal: NgbActiveModal) { }
 
   ngOnInit(): void {
 
   }
 
   ngAfterContentInit() {
-    this.ebi.getEBIAlpha(this.data).subscribe(data => {
-      console.log(data.body)
-      // @ts-ignore
-      this.link = data.body[0]["pdbUrl"]
-      // @ts-ignore
-      this.modelCreatedDate = data.body[0]["modelCreatedDate"]
-      // @ts-ignore
-      this.version = data.body[0]["latestVersion"]
-      // @ts-ignore
-      this.entryID = data.body[0]["entryId"]
-      // @ts-ignore
-      this.alignmentError = data.body[0]["paeImageUrl"]
-      // @ts-ignore
-      this.cifLink = data.body[0]["cifUrl"]
+    setTimeout(()=> {
+      this.ebi.getEBIAlpha(this._data.split(";")[0]).subscribe(data => {
+        console.log(data.body)
+        // @ts-ignore
+        this.link = data.body[0]["pdbUrl"]
+        // @ts-ignore
+        this.modelCreatedDate = data.body[0]["modelCreatedDate"]
+        // @ts-ignore
+        this.version = data.body[0]["latestVersion"]
+        // @ts-ignore
+        this.entryID = data.body[0]["entryId"]
+        // @ts-ignore
+        this.alignmentError = data.body[0]["paeImageUrl"]
+        // @ts-ignore
+        this.cifLink = data.body[0]["cifUrl"]
 
-      const molstar = new PDBeMolstarPlugin()
-      var options = {
-        customData: {url: this.cifLink, format: "cif", binary: false},
-        alphafoldView: true,
-        bgColor: {r:255, g:255, b:255}
-      }
+        const molstar = new PDBeMolstarPlugin()
+        const options = {
+          customData: {
+            url: this.cifLink,
+            format: "cif",
+            binary: false
+          },
+          alphafoldView: true,
+          bgColor: {r:255, g:255, b:255}
+        }
 
-      //Get element from HTML/Template to place the viewer
-      const viewerContainer = document.getElementById('molstar');
+        //Get element from HTML/Template to place the viewer
+        const viewerContainer = document.getElementById('molstar');
 
-      //Call render method to display the 3D view
-      molstar.render(viewerContainer, options);
-
-
+        //Call render method to display the 3D view
+        molstar.render(viewerContainer, options);
+      }), 4000
     })
-  }
-
-  getEbi() {
-
   }
 
 }

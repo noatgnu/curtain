@@ -1,0 +1,91 @@
+<div class="row">
+  <div class="col-9">
+    <div [id]="'stringEmbedded'+selected"></div>
+  </div>
+  <div class="col-3">
+    <table class="table table-bordered">
+      <thead>
+      <tr>
+        <th scope="col">
+          Node Label Color
+        </th>
+        <th scope="col">
+          Description
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td style="background-color: #8d0606">
+        </td>
+        <td>
+          Increase
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color: #4f78a4">
+        </td>
+        <td>
+          Decrease
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color: #ce8080">
+
+        </td>
+        <td>
+          In dataset
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color: #676666">
+
+        </td>
+        <td>
+          Not in dataset
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col">
+            <label for="string{{selected}}">Minimum Required Score (Max = 1000)</label>
+            <input class="form-control" [id]="'string'+selected" type="number" [(ngModel)]="requiredScore">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="stringNT{{selected}}">Network Type</label>
+            <select class="form-control" [id]="'stringNT'+selected" type="number" [(ngModel)]="networkType">
+              <option value="functional">
+                Functional
+              </option>
+              <option value="physical">
+                Physical
+              </option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="stringNF{{selected}}">Network Flavor</label>
+            <select class="form-control" [id]="'stringNF'+selected" type="number" [(ngModel)]="networkFlavor">
+              <option value="evidence">
+                Evidence
+              </option>
+              <option value="confidence">
+                Confidence
+              </option>
+              <option value="actions">
+                Actions
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button type="button" class="btn btn-primary" (click)="getString()">Redraw</button>
+      </div>
+    </div>
+  </div>
+</div>

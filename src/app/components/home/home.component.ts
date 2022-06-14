@@ -1,179 +1,283 @@
 import { Component, OnInit } from '@angular/core';
-import {GraphData} from "../../classes/graph-data";
-import {DataFrame, IDataFrame, Series} from "data-forge";
-import {WebService} from "../../service/web.service";
-import {DbStringService} from "../../service/db-string.service";
 import {ActivatedRoute} from "@angular/router";
-import {UniprotService} from "../../service/uniprot.service";
-import {DataService} from "../../service/data.service";
-import {Observable, OperatorFunction} from "rxjs";
-import {debounceTime, distinctUntilChanged, map} from "rxjs/operators";
-import {NotificationService} from "../../service/notification.service";
+import {DataService} from "../../data.service";
+import {selectionData} from "../protein-selections/protein-selections.component";
+import {DataFrame, fromCSV, IDataFrame} from "data-forge";
+import {Settings} from "../../classes/settings";
+import {SettingsService} from "../../settings.service";
+import {WebService} from "../../web.service";
+import {InputFile} from "../../classes/input-file";
+import {Differential} from "../../classes/differential";
+import {Raw} from "../../classes/raw";
+import {UniprotService} from "../../uniprot.service";
+import {ScrollService} from "../../scroll.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {ProfileCompareComponent} from "../profile-compare/profile-compare.component";
+import {CorrelationMatrixComponent} from "../correlation-matrix/correlation-matrix.component";
+import {ToastService} from "../../toast.service";
+import {CitationComponent} from "../citation/citation.component";
+import {SampleAnnotationComponent} from "../sample-annotation/sample-annotation.component";
+import {Project} from "../../classes/project";
+import {SampleOrderAndHideComponent} from "../sample-order-and-hide/sample-order-and-hide.component";
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  get selectedComparison(): string {
-    return this._selectedComparison;
-  }
-
-  set selectedComparison(value: string) {
-    this._selectedComparison = value;
-    this.dataService.settings.dataColumns.comparison = value
-  }
-  selectedProteinModel: string = ""
-  selectedProtein: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
-  text$.pipe(
-    debounceTime(200),
-  distinctUntilChanged(),
-  map(term => term.length < 2 ? []
-    : this.searchFilter(term))
-  )
-
-  searchType: string = "Gene names"
-
-  searchFilter(term: string) {
-    console.log(term)
-    switch (this.searchType) {
-      case "Primary IDs":
-        return this.dataService.allSelected.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
-      case "Gene names":
-        return this.dataService.allSelectedGenes.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
-      default:
-        return [""]
+  finished: boolean = false
+  rawFiltered: IDataFrame = new DataFrame()
+  uniqueLink: string = ""
+  filterModel: string = ""
+  currentID: string = ""
+  constructor(private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, private settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
+    if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
+      this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     }
-  }
 
-  g: GraphData = new GraphData()
-  comparison: string[] = []
-  selectedDF: IDataFrame = new DataFrame()
-  private _selectedComparison: string = ""
-  constructor(private webService: WebService, private dbstring: DbStringService, private route: ActivatedRoute, private uniprot: UniprotService, public dataService: DataService, private notification: NotificationService) {
-    this.webService.getFilter()
-  }
+    this.route.params.subscribe(params => {
+      if (params) {
+        if (params["settings"]) {
+          this.toast.show("Initialization", "Fetching data from session " + params["settings"])
+          if (this.currentID !== params["settings"]) {
+            this.currentID = params["settings"]
+            this.web.postSettings(params["settings"], "").subscribe(data => {
+              if (data.body) {
 
-  enableQuickNav: boolean = true;
-  ngOnInit() {
-    if (location.protocol === "https:" && location.hostname === "curtain.proteo.info") {
-      this.notification.show("Error: The webpage requires the url protocol to be http instead of https")
-    } else {
-      this.route.params.subscribe(params => {
-        if (params) {
-          if (params["settings"]) {
-            this.notification.show("Initialization: Retrieving settings parameters from " + params["settings"] )
-            this.webService.getSettings(params["settings"])
-            this.dataService.unique_id = params["settings"]
+                const a = JSON.parse(<string>data.body, this.web.reviver)
+                this.restoreSettings(a).then()
+              }
+            })
           }
         }
-      })
-    }
-  }
-
-  handleData(e: GraphData) {
-    this.g = e
-    if (this.g.processedCompLabel !== "") {
-      this.comparison = this.g.processed.getSeries("comparison").distinct().bake().toArray()
-    } else {
-      this.comparison = ["Default"]
-    }
-    const genes = []
-    const subCel = []
-    for (const r of this.g.processed) {
-      const g = this.getGene(r["Primary IDs"])
-      genes.push(g)
-      const s = this.getSubLoc(r["Primary IDs"])
-      subCel.push(s)
-    }
-    this.g.processed = this.g.processed.withSeries("Gene names", new Series(genes)).bake()
-    this.g.processed = this.g.processed.withSeries("Subcellular locations", new Series(subCel)).bake()
-
-    if ((this.comparison.includes(this.g.comparison))) {
-      this._selectedComparison = this.g.comparison
-    } else {
-      this.selectedComparison = this.comparison[0]
-    }
-    this.selectedDF = this.g.processed.where(row => row.comparison === this._selectedComparison).bake()
-
-  }
-  getGene(protein: string) {
-    if (this.uniprot.results.has(protein)) {
-      return this.uniprot.results.get(protein)["Gene names"].slice()
-    } else {
-      return ""
-    }
-  }
-
-  getSubLoc(protein: string) {
-    if (this.uniprot.results.has(protein)) {
-      return this.uniprot.results.get(protein)["Subcellular location [CC]"]
-    } else {
-      return ""
-    }
-  }
-  selectComparison(e: Event) {
-    e.stopPropagation()
-
-    this.selectedDF = this.g.processed.where(row => row.comparison === this._selectedComparison).bake()
-  }
-
-  browseTo() {
-    let acc = ""
-    if (this.searchType === "Gene names") {
-      const ind = this.dataService.allSelectedGenes.indexOf(this.selectedProteinModel)
-      if (ind > -1) {
-        acc = this.dataService.allSelected[ind]
       }
-    } else {
-      acc = this.selectedProteinModel
-    }
+    })
 
-    let found = false
+  }
 
-    for (const p of this.dataService.allPages) {
-      for (const i of p.items) {
-        if (i.id === acc) {
-          this.dataService.changePageService.next({acc: acc, page: p.pageNumber+1})
-          found = true
-          break
+  ngOnInit(): void {
+
+  }
+
+  handleFinish(e: boolean) {
+    this.finished = e
+    if (this.finished) {
+      if (this.data.selected.length > 0) {
+        this.data.finishedProcessingData.next(e)
+        this.rawFiltered = this.data.raw.df.where(r => this.data.selected.includes(r[this.data.rawForm.primaryIDs])).bake()
+        for (const s of this.rawFiltered) {
+          this.addGeneToSelected(s);
         }
       }
-      if (found) {
-        break
-      }
     }
-
   }
 
-  browseToInd(next: boolean) {
-    let nextPosition;
-    const currentPosition = this.dataService.allSelected.indexOf(this.dataService.currentBrowsePosition)
-    if (next) {
-      if (currentPosition + 1 < this.dataService.allSelected.length) {
-        nextPosition = currentPosition + 1
+  private addGeneToSelected(s: any) {
+    const uni = this.uniprot.getUniprotFromPrimary(s[this.data.rawForm.primaryIDs])
+    if (uni) {
+      if (uni["Gene names"] !== "") {
+        if (!this.data.selectedGenes.includes(uni["Gene names"])) {
+          this.data.selectedGenes.push(uni["Gene names"])
+        }
+      }
+    }
+  }
+
+  handleSearch(e: selectionData) {
+    console.log(e)
+    const rawFiltered = this.data.raw.df.where(r => e.data.includes(r[this.data.rawForm.primaryIDs])).bake()
+    this.data.selected = this.data.selected.concat(e.data)
+    if (!this.data.selectOperationNames.includes(e.title)) {
+      this.data.selectOperationNames.push(e.title)
+    }
+    for (const s of e.data) {
+      if (!this.data.selectedMap[s]) {
+        this.data.selectedMap[s] = {}
+      }
+      this.addGeneToSelected(s);
+      this.data.selectedMap[s][e.title] = true
+    }
+    this.rawFiltered = DataFrame.concat([rawFiltered, this.rawFiltered])
+    this.data.selectionUpdateTrigger.next(true)
+  }
+
+  scrollTo() {
+    let primaryIDs = ""
+    switch (this.data.searchType) {
+      case "Gene names":
+        const res = this.data.getPrimaryIDsFromGeneNames(this.filterModel)
+        if (res.length > 0) {
+          primaryIDs = res[0]
+        }
+        break
+      case "Primary IDs":
+        primaryIDs = this.filterModel
+        break
+    }
+    const ind = this.data.selected.indexOf(primaryIDs)
+    const newPage = ind + 1
+    if (this.data.page !== newPage) {
+      this.data.page = ind + 1
+    }
+    this.scroll.scrollToID(primaryIDs+"scrollID")
+  }
+
+  saveSession() {
+    const data: any = {
+      raw: this.data.raw.originalFile,
+      rawForm: this.data.rawForm,
+      differentialForm: this.data.differentialForm,
+      processed: this.data.differential.originalFile,
+      password: "",
+      selections: this.data.selected,
+      selectionsMap: this.data.selectedMap,
+      selectionsName: this.data.selectOperationNames,
+      settings: this.settings.settings,
+      fetchUniprot: this.data.fetchUniprot,
+      annotatedData: this.data.annotatedData
+    }
+    console.log(data.settings)
+    this.web.putSettings(data).subscribe(data => {
+      if (data.body) {
+        this.settings.settings.currentID = data.body
+        this.uniqueLink = location.origin +"/#/" + this.settings.settings.currentID
+      }
+    })
+  }
+
+  async restoreSettings(object: any) {
+
+    if (typeof object.settings === "string") {
+      object.settings = JSON.parse(object.settings)
+    }
+    console.log(object.settings)
+    if (!object.settings.project) {
+      object.settings.project = new Project()
+    }
+    if (!object.settings.prideAccession) {
+      object.settings.prideAccession = ""
+    }
+    if (!object.settings.sampleOrder) {
+      object.settings.sampleOrder = {}
+    }
+    if (!object.settings.sampleVisible) {
+      object.settings.sampleVisible = {}
+    }
+    if (!object.settings.conditionOrder) {
+      object.settings.conditionOrder = []
+    }
+    if (object.settings.version) {
+      if (object.settings.version === 2) {
+        this.data.selected = object.selections
+        this.data.selectedMap = object.selectionsMap
+        this.data.selectOperationNames = object.selectionsName
+        this.data.differentialForm = new Differential()
+        this.data.differentialForm.restore(object.differentialForm)
+        this.data.rawForm = new Raw()
+        this.data.rawForm.restore(object.rawForm)
+        this.data.fetchUniprot = object.fetchUniprot
+        if (object.annotatedData) {
+          this.data.annotatedData = object.annotatedData
+        }
       }
     } else {
-      if (currentPosition - 1 >= 0) {
-        nextPosition = currentPosition - 1
+      this.data.fetchUniprot = object.settings.uniprot
+      if (!object.settings.colormap) {
+        object.settings["colormap"] = {}
+      }
+      if (!object.settings.pCutoff){
+        object.settings["pCutoff"] = 0.05
+      }
+      if (!object.settings.logFCCutoff){
+        object.settings["log2FCCutoff"] = 0.6
+      }
+      if (object.settings.dataColumns) {
+        this.data.rawForm = new Raw()
+        this.data.rawForm.samples = object.settings.dataColumns["rawSamplesCol"]
+        this.data.rawForm.primaryIDs = object.settings.dataColumns["rawIdentifierCol"]
+        this.data.differentialForm = new Differential()
+        this.data.differentialForm.primaryIDs = object.settings.dataColumns["processedIdentifierCol"]
+        this.data.differentialForm.significant = object.settings.dataColumns["processedPValue"]
+        this.data.differentialForm.foldChange = object.settings.dataColumns["processedLog2FC"]
+        this.data.differentialForm.comparison = object.settings.dataColumns["processedCompLabel"]
+        this.data.differentialForm.comparisonSelect = object.settings.dataColumns["comparison"]
+        if (object.settings.antilogP) {
+          this.data.differentialForm.transformSignificant = false
+        } else {
+          this.data.differentialForm.transformSignificant = true
+        }
+      }
+      if (object.selections) {
+        for (const s in object.selections) {
+          if (!this.data.selectOperationNames.includes(s)) {
+            this.data.selectOperationNames.push(s)
+          }
+          for (const i of object.selections[s]) {
+            this.data.selected.push(i)
+            if (!this.data.selectedMap[i]) {
+              this.data.selectedMap[i] = {}
+            }
+            this.data.selectedMap[i][s] = true
+          }
+        }
       }
     }
-    if (nextPosition!==undefined) {
-      const acc = this.dataService.allSelected[nextPosition]
-      const e = document.getElementById(acc+"id")
-      if (e) {
-        e.scrollIntoView()
-      }
+    if (/\t/.test(object.raw)) {
+      // @ts-ignore
+      this.data.raw = new InputFile(fromCSV(object.raw, {delimiter: "\t"}), "rawFile.txt", object.raw)
+    } else {
+      // @ts-ignore
+      this.data.raw = new InputFile(fromCSV(object.raw), "rawFile.txt", object.raw)
     }
-
+    if (/\t/.test(object.processed)) {
+      // @ts-ignore
+      this.data.differential = new InputFile(fromCSV(object.processed, {delimiter: "\t"}), "processedFile.txt", object.processed)
+    } else {
+      this.data.differential = new InputFile(fromCSV(object.processed), "processedFile.txt", object.processed)
+    }
+    this.settings.settings = object.settings;
+    this.data.restoreTrigger.next(true)
   }
 
-  copyLink() {
-    navigator.clipboard.writeText(location.origin +"/#/"+ this.dataService.unique_id).then(
-      result => {
-        this.notification.show("Unique link has been copied to clipboard", {delay: 1000})
-      }
-    )
+  clearSelections() {
+    this.data.selected = []
+    this.data.selectedGenes = []
+    this.data.selectedMap = {}
+    this.data.selectOperationNames = []
+    this.settings.settings.colorMap = {}
+    this.rawFiltered = new DataFrame()
+  }
+
+  openProfileCompare() {
+    const ref = this.modal.open(ProfileCompareComponent, {size: "xl"})
+    ref.componentInstance.selected = this.data.selectedComparison
+    ref.componentInstance.data = this.data.raw.df
+  }
+
+  openCorrelationMatrix() {
+    this.modal.open(CorrelationMatrixComponent, {size: "xl"})
+  }
+
+  openResourceCitation() {
+    this.modal.open(CitationComponent)
+  }
+
+  openAnnotation() {
+    const ref = this.modal.open(SampleAnnotationComponent, {size: "lg"})
+    ref.closed.subscribe(data => {
+      this.settings.settings.project = data
+    })
+  }
+
+  getSelectedList() {
+    this.web.downloadFile("SelectedPrimaryIDs.txt", this.data.selected.join("\n"))
+    this.web.downloadFile("SelectedGenes.txt", this.data.selectedGenes.join("\n"))
+  }
+
+  openSampleSettings() {
+    const ref = this.modal.open(SampleOrderAndHideComponent)
+
   }
 }
+

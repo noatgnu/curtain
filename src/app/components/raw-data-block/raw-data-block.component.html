@@ -1,0 +1,79 @@
+<div class="row" [id]="primaryID+'scrollID'">
+  <div class="col-3">
+    <div class="card border-primary">
+      <div class="card-body">
+        <h3 class="card-title">
+          <p class="text-success">{{title}}</p>
+        </h3>
+        <p>
+          <b>Found in searches:</b> {{foundIn.join(";")}}<br>
+        </p>
+        <p>
+          <b>Primary ID:</b> {{primaryID}}<br>
+        </p>
+        <ng-container *ngIf="dataService.fetchUniprot && uni">
+          <p>
+            <b>UniProt Accession:</b> {{uni["Entry"]}}<br>
+          </p>
+          <p>
+            <b>Protein names:</b> {{uni["Protein names"]}}<br>
+          </p>
+        </ng-container>
+        <div class="form-check">
+          <input type="checkbox" [(ngModel)]="profileComparisonToggle" (change)="profileCompare()" class="form-check-input">
+          <label class="form-check-label">Include in profile comparison</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" [(ngModel)]="annotateTrigger" (change)="annotate()" class="form-check-input">
+          <label class="form-check-label">Annotate on volcano plot</label>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-sm btn-primary" (click)="openAlphaFold()">AlphaFold Structure</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-9">
+    <div class="card border-dark">
+      <div class="card-body">
+        <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+          <li [ngbNavItem]="1" *ngIf="uni">
+            <a ngbNavLink>Protein Information</a>
+            <ng-template ngbNavContent>
+              <app-protein-information [data]="uni"></app-protein-information>
+            </ng-template>
+          </li>
+          <li [ngbNavItem]="2">
+            <a ngbNavLink>Raw Data Distribution</a>
+            <ng-template ngbNavContent>
+              <app-bar-chart [data]="_data"></app-bar-chart>
+            </ng-template>
+          </li>
+          <li [ngbNavItem]="3" *ngIf="uni">
+            <a ngbNavLink>Proteomics DB</a>
+            <ng-template ngbNavContent>
+              <app-proteomics-db [uniprotID]="uni['Entry']"></app-proteomics-db>
+            </ng-template>
+          </li>
+          <li [ngbNavItem]="4" *ngIf="uni">
+            <a ngbNavLink>String DB</a>
+            <ng-template ngbNavContent>
+              <app-string-db [uniProtData]="primaryID"></app-string-db>
+            </ng-template>
+          </li>
+          <li [ngbNavItem]="5" *ngIf="uni">
+            <a ngbNavLink>Interactome Atlas</a>
+            <ng-template ngbNavContent>
+              <app-interactome-atlas [data]="primaryID"></app-interactome-atlas>
+            </ng-template>
+          </li>
+        </ul>
+        <div [ngbNavOutlet]="nav" class="mt-2"></div>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-secondary" (click)="goToTop()">Go to top</button>
+      </div>
+    </div>
+  </div>
+</div>
+<hr>

@@ -1,22 +1,24 @@
-import {GraphData} from "./graph-data";
+import {Project} from "./project";
 
 export class Settings {
-  rawFile: string = ""
-  processedFile: string = ""
-  selectedIDs: any = {}
-  annotatedIDs: any[] = []
-  fdrCurveText: string = ""
-  uniprot: boolean = false
-  dbString: boolean = false
-  antilogP: boolean = false
-  fileSavedOnSever: boolean = false
-  sampleLables: any = {}
-  fileIsLink: boolean = false
+  fetchUniprot: boolean = true
+  inputDataCols: any = {}
+  probabilityFilterMap: any = {}
+  pCutoff: number = 0.05
+  log2FCCutoff: number = 0.6
   description: string = ""
-  pCutOff: number = 0.00001
-  logFCCutOff: number = 2
-  conditionParsePattern = /^(.+)\.(\d+)$/
-  selectionTitles: string[] = []
-  dataColumns: GraphData = new GraphData()
+  uniprot: boolean = true
   colorMap: any = {}
+  academic: boolean = true
+  backGroundColorGrey: boolean = false
+  currentComparison: string = ""
+  version: number = 2
+  currentID: string = ""
+  fdrCurveText: string = ""
+  fdrCurveTextEnable: boolean = false
+  prideAccession: string = ""
+  project: Project = new Project()
+  sampleOrder: any = {}
+  sampleVisible: any = {}
+  conditionOrder: string[] = []
 }

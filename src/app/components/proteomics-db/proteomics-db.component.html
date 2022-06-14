@@ -1,0 +1,24 @@
+<form [formGroup]="form">
+  <div class="row">
+    <div class="col-2">
+      <label for="tissueType">Select Tissue or Cell Line</label>
+    </div>
+    <div class="col-2">
+      <select id="tissueType" class="form-control" formControlName="selected">
+        <option value="tissue">
+          Tissue
+        </option>
+        <option value="cell line">
+          Cell line
+        </option>
+      </select>
+    </div>
+  </div>
+</form>
+
+<plotly-plot [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
+<div class="row align-content-end">
+  <div class="col">
+<!--    <button class="btn btn-sm btn-link" (click)="credit.openCredit('ProteomicsDB')">Resource Citations</button>-->
+  </div>
+</div>

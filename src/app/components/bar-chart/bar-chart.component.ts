@@ -1,251 +1,303 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DataFrame, IDataFrame} from "data-forge";
-import {UniprotService} from "../../service/uniprot.service";
-import {DataService} from "../../service/data.service";
+import {DataService} from "../../data.service";
+import {Series} from "data-forge";
+import {UniprotService} from "../../uniprot.service";
 import {PlotlyService} from "angular-plotly.js";
-
-// @ts-ignore
-import * as anova from "anova";
-// @ts-ignore
-import * as jstat from "jstat";
+import {WebService} from "../../web.service";
+import {StatsService} from "../../stats.service";
+import {SettingsService} from "../../settings.service";
 
 @Component({
   selector: 'app-bar-chart',
   templateUrl: './bar-chart.component.html',
-  styleUrls: ['./bar-chart.component.css']
+  styleUrls: ['./bar-chart.component.scss']
 })
 export class BarChartComponent implements OnInit {
-  comparisons: any = {}
-  comparisonGroups: any[] = []
-  groups: string[] = []
+  _data: any = {}
+  uni: any = {}
+  comparisons: any[] = []
+  conditionA: string = ""
+  conditionB: string = ""
+  conditions: string[] = []
+  testType: string = "ANOVA"
+  barChartErrorType: string = "Standard Error"
+  @Input() set data(value: any) {
+    this._data = value
+    this.title = "<b>" + this._data[this.dataService.rawForm.primaryIDs] + "</b>"
+    this.uni = this.uniprot.getUniprotFromPrimary(this._data[this.dataService.rawForm.primaryIDs])
+    if (this.uni) {
+      if (this.uni["Gene names"] !== "") {
+        this.title = "<b>" + this.uni["Gene names"] + "(" + this._data[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
+      }
+    }
+    this.drawBarChart()
+    this.graphLayout["title"] = this.title
+    this.graphLayoutAverage["title"] = this.title
+    this.graphLayoutViolin["title"] = this.title
+    this.drawAverageBarChart()
+  }
+  title = ""
+  graph: any = {}
   graphData: any[] = []
-  graphLayout: any = {title: {
-    text: "",
-      font: {
-      family: "Arial Black",
-      size: 24,
-      }
-    }, height: 500, autosize: true,
+  graphLayout: any = {
     xaxis: {
-      "title" : "<b>Samples</b>",
-      "tickmode": "array",
-      //"categoryorder" : "array",
-      //"categoryarray": [],
-      "tickvals": [],
-      "ticktext": [],
-      "tickfont": {
-        "size": 17
+      tickfont: {
+        size: 17,
+        color: "black",
       },
-      "font": {
-        size: 20,
-      }
+      tickvals: [],
+      ticktext: []
     },
     yaxis: {
-      "title" : "<b>Intensity</b>"
-    }
-    //xaxis:{"tickangle": 90}
-  }
-  _data: IDataFrame = new DataFrame()
-
-  @Input() set data(value: IDataFrame) {
-    this.drawBarChart(value);
-    this._data = value
-  }
-  relabelSample: any = {}
-  reverseLinkLabel: any = {}
-  id: string = ""
-  selectedGroup: string = ""
-  pairwise(list: any[]): any[] {
-    if (list.length < 2) { return []; }
-    const first = list[0],
-      rest  = list.slice(1),
-      pairs = rest.map(function (x) { return [first, x]; });
-    return pairs.concat(this.pairwise(rest));
+      tickfont: {
+        size: 17,
+        color: "black",
+      },
+    },
+    annotations: [],
+    shapes: [],
+    margin: {r: 50, l: 50, b: 100, t: 100}
   }
 
-  private drawBarChart(value: IDataFrame<number, any>) {
-    this.graphData = []
-    //this.graphLayout.xaxis.categoryarray = []
-    this.graphLayout.xaxis.ticktext = []
-    this.graphLayout.xaxis.tickvals = []
-    const temp: any = {}
-
-    for (const r of value) {
-      let primaryIDs = r["Primary IDs"]
-      this.id = r["Primary IDs"]
-      let proteinName = ""
-      const uni = this.uniprot.getUniprotFromPrimary(r["Primary IDs"])
-      if (uni !== null) {
-        primaryIDs = uni["Gene names"] + "(" + primaryIDs + ")"
-        proteinName = "<br>" + uni["Protein names"]
-        this.title = primaryIDs + proteinName
-      }
-      this.graphLayout.title.text = "<b>" + primaryIDs + proteinName + "</b>"
-      for (const c of value.getColumnNames()) {
-        if (this.dataService.sampleColumns.includes(c)) {
-          let visible: any = true
-          const name = this.getHighlighted(c)
-          if (name[0] !== ""){
-            if (this.legendHideList.includes(name[0])) {
-              visible = "legendonly"
-            }
-            if (!(name[0] in temp)) {
-              temp[name[0]] = {
-                x: [], y: [],
-                type: 'bar',
-                mode: 'markers',
-                name: name[0],
-                visible: visible,
-                showlegend: false
-              }
-            }
-            temp[name[0]].x.push(c)
-
-            //this.graphLayout.xaxis.categoryarray.push(c)
-            temp[name[0]].y.push(r[c])
-          }
-        }
-      }
-    }
-    const conditions: string[] = []
-    for (const t in temp) {
-      conditions.push(t)
-      this.graphData.push(temp[t])
-
-      this.graphLayout.xaxis.tickvals.push(temp[t].x[Math.round(temp[t].x.length/2)-1])
-      if (!(t in this.relabelSample)) {
-        this.graphLayout.xaxis.ticktext.push(t)
-        this.dataService.updateBarChartKeyChannel(t)
-      } else {
-        if (this.relabelSample[t] !== ""){
-          this.graphLayout.xaxis.ticktext.push(this.relabelSample[t])
-          this.reverseLinkLabel[this.relabelSample[t]] = t
-        } else {
-          this.graphLayout.xaxis.ticktext.push(t)
-          this.dataService.updateBarChartKeyChannel(t)
-        }
-      }
-    }
-    console.log(this.graphData)
-    const combos = this.pairwise(conditions)
-    const comparisons: any = {}
-    const comparisonGroups: any[] = []
-    for (const c of combos) {
-      const a = temp[c[0]]
-      const b = temp[c[1]]
-      //const classAB = a.y.concat(b.y)
-      //const dataAB = a.x.concat(b.x)
-      //comparisons[c[0]+ "-" +c[1]] = oneWay(dataAB, classAB)
-
-      comparisons[c[0]+ "-" +c[1]] = {f: jstat.anovaftest(a.y, b.y), ss: anova.SS([a.y, b.y]), df: anova.DF([a.y, b.y]), ms: anova.MS([a.y, b.y])}
-      comparisonGroups.push({name: c[0]+ "-" +c[1], group: c})
-    }
-    this.comparisons = comparisons
-    this.comparisonGroups = comparisonGroups
-    this.groups = conditions
-
+  graphDataAverage: any[] = []
+  graphLayoutAverage: any = {
+    xaxis: {
+      tickfont: {
+        size: 17,
+        color: "black",
+      },
+      tickvals: [],
+      ticktext: []
+    },
+    yaxis: {
+      tickfont: {
+        size: 17,
+        color: "black",
+      },
+    },
+    margin: {r: 40, l: 40, b: 120, t: 100}
   }
-  title: string = ""
-  constructor(private plotly: PlotlyService, private uniprot: UniprotService, private dataService: DataService) {
-    if (!this.dataService.settings.conditionParsePattern) {
-      this.dataService.settings.conditionParsePattern = /^(.+)\.(\d+)$/
-    }
-    this.dataService.titleGraph.asObservable().subscribe(data => {
-      this.graphLayout.title.text = "<b>" + data + "<br>" + this.title + "</b>"
-    })
-    this.dataService.barChartSampleLabels.asObservable().subscribe(data => {
+
+  graphDataViolin: any[] = []
+  graphLayoutViolin: any = {
+    xaxis: {
+      tickfont: {
+        size: 17,
+        color: "black",
+      },
+      tickvals: [],
+      ticktext: []
+    },
+    yaxis: {
+      tickfont: {
+        size: 17,
+        color: "black",
+      },
+    },
+    margin: {r: 40, l: 40, b: 120, t: 100}
+  }
+  constructor(private stats: StatsService, private web: WebService, public dataService: DataService, private uniprot: UniprotService, private settings: SettingsService) {
+    this.dataService.finishedProcessingData.subscribe(data => {
       if (data) {
-        this.relabelSample = this.dataService.relabelSamples
-        this.drawBarChart(this._data)
-        /*for (let i = 0; i < this.graphLayout.xaxis.ticktext.length; i++) {
-          if ((this.graphLayout.xaxis.ticktext[i] in this.reverseLinkLabel)) {
-            if (this.reverseLinkLabel[this.graphLayout.xaxis.ticktext[i]] in this.relabelSample) {
-              if (this.relabelSample[this.reverseLinkLabel[this.graphLayout.xaxis.ticktext[i]]]!== "") {
-                this.graphLayout.xaxis.ticktext[i] = this.relabelSample[this.reverseLinkLabel[this.graphLayout.xaxis.ticktext[i]]]
-              }
-            }
-          } else {
-            if (this.relabelSample[this.graphLayout.xaxis.ticktext[i]] !== "") {
-              const temp = this.graphLayout.xaxis.ticktext[i]
-              this.reverseLinkLabel[this.relabelSample[this.graphLayout.xaxis.ticktext[i]]] = temp
-              this.graphLayout.xaxis.ticktext[i] = this.relabelSample[this.graphLayout.xaxis.ticktext[i]]
-            }
-          }
-        }
 
-        this.graphLayout.xaxis.ticktext = [...this.graphLayout.xaxis.ticktext]
-        this.graphLayout.xaxis = Object.create(this.graphLayout.xaxis)
-        this.graphLayout = Object.create(this.graphLayout)
-        console.log(this.graphLayout.xaxis.ticktext)*/
       }
     })
+    this.dataService.redrawTrigger.subscribe(data => {
+      if (data) {
+        this.drawBarChart()
+        this.drawAverageBarChart()
+      }
+    })
+  }
 
+  download(type: string) {
+    this.web.downloadPlotlyImage('svg', type+'.svg', this._data[this.dataService.rawForm.primaryIDs]+type).then()
   }
 
   ngOnInit(): void {
-
   }
+  drawBarChart() {
+    const tickvals: string[] = []
+    const ticktext: string[] = []
+    const graph: any = {}
 
-  async downloadPlotlyExtra(format: string) {
-    const graph = this.plotly.getInstanceByDivId(this.title.replace(';', ''));
-    const p = await this.plotly.getPlotly();
-    await p.downloadImage(graph, {format: format, filename: "image"})
+    this.graphData = []
+    const annotations: any[] = []
+    const shapes: any[] = []
+    let sampleNumber: number = 0
+    for (const s in this.dataService.sampleMap) {
 
-  }
-
-  highlighted: string[] = []
-  hideHighlighted: boolean = false
-  highlightBar(e: any) {
-    if (this.highlighted.includes(e.points[0].x)) {
-      const ind = this.highlighted.indexOf(e.points[0].x)
-      this.highlighted.splice(ind, 1)
-    } else {
-      this.highlighted.push(e.points[0].x)
-    }
-    this.drawBarChart(this._data)
-  }
-
-  getHighlighted(name: string) {
-    if (this.highlighted.includes(name)) {
-      if (this.hideHighlighted) {
-        return ""
-      } else {
-        return "Highlighted"
+      if (this.settings.settings.sampleVisible[s]) {
+        sampleNumber ++
+        const condition = this.dataService.sampleMap[s].condition
+        if (!graph[condition]) {
+          graph[condition] = {
+            x: [],
+            y: [],
+            marker: {
+              "color": this.dataService.colorMap[condition]
+            },
+            line: {
+              color: "black"
+            },
+            type: "bar",
+            name: condition,
+            showlegend: false
+          }
+        }
+        graph[condition].x.push(s)
+        graph[condition].y.push(this._data[s])
       }
-
-    } else {
-      // const pattern = new RegExp(this.dataService.settings.conditionParsePattern)
-      // const match = name.match(pattern)
-      // if (match) {
-      //   return [match[0], match[1]]
-      // } else {
-      //   return ["", ""]
-      // }
-
-      const group = name.split(".")
-      if (group.length >= 3) {
-        return [group.slice(0, group.length-1).join("_"), group[group.length-1]]
-      } else {
-        return [group[0], group[1]]
+    }
+    let currentSampleNumber: number = 0
+    for (const g in graph) {
+      const annotationsPosition = currentSampleNumber +  graph[g].x.length/2
+      currentSampleNumber = currentSampleNumber + graph[g].x.length
+      this.graphData.push(graph[g])
+      tickvals.push(graph[g].x[Math.round(graph[g].x.length/2)-1])
+      ticktext.push(g)
+      if (sampleNumber !== currentSampleNumber) {
+        shapes.push({
+          type: "line",
+          xref: "paper",
+          yref: "paper",
+          x0: currentSampleNumber/sampleNumber,
+          x1: currentSampleNumber/sampleNumber,
+          y0: 0,
+          y1: 1,
+          line: {
+            dash: "dash",
+          }
+        })
       }
-
     }
+    //const combos = this.dataService.pairwise(this.dataService.conditions)
+    //const comparisons = []
+    // for (const c of combos) {
+    //   const a = graph[c[0]]
+    //   const b = graph[c[1]]
+    //   comparisons.push({
+    //     a: c[0], b: c[1], comparison: this.anova.calculateAnova(a.y, b.y)
+    //   })
+    // }
+    this.graph = graph
+    // this.comparisons = comparisons
+    this.graphLayout.shapes = shapes
+
+    this.graphLayout.xaxis.tickvals = tickvals
+    this.graphLayout.xaxis.ticktext = ticktext
   }
 
-  legendHideList: string[] = []
-
-  clickLegend(e: any) {
-    const ind = e.curveNumber
-    if (this.legendHideList.includes(e.data[ind].name)) {
-      const indL = this.legendHideList.indexOf(e.data[ind].name)
-      this.legendHideList.splice(indL, 1)
-    } else {
-      this.legendHideList.push(e.data[ind].name)
+  drawAverageBarChart() {
+    const tickVals: string[] = []
+    const tickText: string[] = []
+    const graphData: any[] = []
+    const graphViolin: any[] = []
+    const graph: any = {}
+    let sampleNumber: number = 0
+    for (const s in this.dataService.sampleMap) {
+      if (this.settings.settings.sampleVisible[s]) {
+        sampleNumber ++
+        const condition = this.dataService.sampleMap[s].condition
+        if (!graph[condition]) {
+          graph[condition] = []
+        }
+        graph[condition].push(this._data[s])
+      }
     }
-    //this.drawBarChart(this._data)
+    for (const g in graph) {
+      const box = {
+        x: g, y: graph[g],
+        type: 'box',
+        boxpoints: 'all',
+        pointpos: 0,
+        jitter: 0.3,
+        fillcolor: 'rgba(255,255,255,0)',
+        line: {
+          color: 'rgba(255,255,255,0)',
+        },
+        hoveron: 'points',
+        marker: {
+          color: "#654949",
+          opacity: 0.8,
+        },
+        name: g,
+        //visible: visible,
+        showlegend: false
+      }
+      const violinX: any[] = graph[g].map(() => g)
+      const violin = {
+        type: 'violin',
+        x: violinX, y: graph[g], points: "all",
+        box: {
+          visible: true
+        },
+        meanline: {
+          visible: true
+        },
+        line: {
+          color: "black"
+        },
+        fillcolor: this.dataService.colorMap[g]
+        ,
+        name: g,
+        showlegend: false,
+        spanmode: 'soft'
+      }
+      graphViolin.push(violin)
+      const s = new Series(graph[g])
+      const std =  s.std()
+      const standardError = std/Math.sqrt(s.count())
+      const mean = s.mean()
+      let error = std
+      switch (this.barChartErrorType) {
+        case "Standard Error":
+          error = standardError
+          break
+        default:
+          break
+      }
+      graphData.push({
+        x: [g], y: [mean],
+        type: 'bar',
+        mode: 'markers',
+        error_y: {
+          type: 'data',
+          array: [error],
+          visible: true
+        },
+        marker: {
+          "color": this.dataService.colorMap[g]
+        },
+        line: {
+          color: "black"
+        },
+        //visible: temp[t].visible,
+        showlegend: false
+      })
+      graphData.push(box)
+      tickVals.push(g)
+      tickText.push(g)
+    }
+    this.graphDataAverage = graphData
+    this.graphLayoutAverage.xaxis.tickvals = tickVals
+    this.graphLayoutAverage.xaxis.ticktext = tickText
+    this.graphLayoutViolin.xaxis.tickvals = tickVals
+    this.graphLayoutViolin.xaxis.ticktext = tickText
+    this.graphDataViolin = graphViolin
   }
 
-  hideHighlightedHandler() {
-    this.drawBarChart(this._data)
+  performTest() {
+    const a = this.graph[this.conditionA]
+    const b = this.graph[this.conditionB]
+    switch (this.testType) {
+      case "ANOVA":
+        this.comparisons = [{a: this.conditionA, b: this.conditionB, comparison: this.stats.calculateAnova(a.y, b.y)}]
+        break
+      case "TTest":
+        console.log(this.stats.calculateTTest(a.y, b.y))
+        this.comparisons = [{a: this.conditionA, b: this.conditionB, comparison: this.stats.calculateTTest(a.y, b.y)}]
+        break
+    }
   }
 }

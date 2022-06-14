@@ -1,50 +1,102 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-  <a class="navbar-brand" href="#">Curtain</a>
-  <button class="btn" *ngIf="dataService.unique_id !== ''" (click)="copyLink()">Session ID {{dataService.unique_id}}</button>
-  <div class="ml-auto" *ngIf="dataService.currentPositionIndex !== -1">
-    <button class="btn" (click)="browseToInd(false)">
-      <
-    </button>
-    <button class="btn">
-      <span>{{dataService.allSelected[dataService.currentPositionIndex]}}</span><span *ngIf="dataService.allSelectedGenes.length > 0"> - {{dataService.allSelectedGenes[dataService.currentPositionIndex]}}</span>
-    </button>
-    <button class="btn" (click)="browseToInd(true)">
-      >
-    </button>
-  </div>
-  <div class="form-inline my-2 my-lg-0 ml-auto">
-    <input class="form-control mr-sm-2" type="text" placeholder="Quick Navigation" aria-label="quickNav" [disabled]="!enableQuickNav" [(ngModel)]="selectedProteinModel" [ngbTypeahead]="selectedProtein">
-    <select class="form-control mr-sm-2" [(ngModel)]="searchType" [disabled]="!enableQuickNav">
-      <option value="Primary IDs">Primary IDs</option>
-      <option value="Gene names">Gene names</option>
-    </select>
-    <button class="btn btn-outline-success my-2 my-sm-0" (click)="browseTo()" [disabled]="!enableQuickNav">Scroll To Selected Protein</button>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top d-lex flex-wrap">
+  <div class="container-fluid">
+    <b style="padding-left: 4px" class="text-dark"><a class="navbar-brand" href="#">Curtain 2.0</a></b>
+    <ng-container *ngIf="finished">
+      <a *ngIf="uniqueLink !== ''" href="{{uniqueLink}}" class="ml-2 text-success">{{uniqueLink}}</a>
+      <div class="d-flex">
+        <div class="p-2">
+          <div ngbDropdown class="d-inline-block">
+            <button class="btn btn-outline-primary ml-2" id="dropdownSession" ngbDropdownToggle>Session</button>
+            <div ngbDropdownMenu aria-labelledby="dropdownSession">
+              <button ngbDropdownItem (click)="saveSession()">Save Session</button>
+              <button ngbDropdownItem (click)="clearSelections()">Clear Selections</button>
+              <button ngbDropdownItem (click)="web.downloadFile('different.txt', data.differential.originalFile)">Download Differential Analysis File</button>
+              <button ngbDropdownItem (click)="web.downloadFile('raw.txt', data.raw.originalFile)">Download Raw File</button>
+              <button ngbDropdownItem (click)="openAnnotation()">Project Annotation</button>
+              <button ngbDropdownItem (click)="openCorrelationMatrix()">
+                Correlation Matrix
+              </button>
+              <button ngbDropdownItem (click)="getSelectedList()">
+                Get Selected Protein List
+              </button>
+              <button ngbDropdownItem (click)="openSampleSettings()">
+                Sample Settings
+              </button>
+            </div>
+          </div>
+        </div>
+        <button *ngIf="data.selectedComparison.length > 1" class="btn btn-secondary p-2" (click)="openProfileCompare()">
+          Profile Compare ({{data.selectedComparison.length}})
+        </button>
+        <div class="p-2">
+          <input class="form-control" type="text" placeholder="Quick Navigation of Selected Data" width="300" [ngbTypeahead]="data.searchLimited" [(ngModel)]="filterModel">
+        </div>
+        <div class="p-2">
+          <select class="form-control" [(ngModel)]="data.searchType">
+            <option value="Gene names">
+              Gene names
+            </option>
+            <option value="Primary IDs">
+              Primary IDs
+            </option>
+          </select>
+        </div>
+        <div class="p-2">
+          <button class="btn btn-primary" (click)="scrollTo()">Go to</button>
+        </div>
+      </div>
+    </ng-container>
   </div>
 </nav>
-<div class="container">
-  <app-file-uploader (data)="handleData($event)"></app-file-uploader>
+
+<app-pride></app-pride>
+
+<app-file-form (finished)="handleFinish($event)"></app-file-form>
+
+<div class="container mt-4" *ngIf="data.raw.df.count() > 0 && finished">
+  <ngb-accordion>
+    <ngb-panel title="Profile Plot">
+      <ng-template ngbPanelContent>
+        <app-profile-plot [data]="data.raw.df"></app-profile-plot>
+      </ng-template>
+    </ngb-panel>
+  </ngb-accordion>
 </div>
-<div class="mx-2" *ngIf="selectedComparison.length>0">
-  <div class="form-group">
-    <div class="form-row">
-      <div class="col-2">
-        <label for="compSelect">Select comparison</label>
-        <select class="form-control" id="compSelect" [(ngModel)]="selectedComparison" (change)="selectComparison($event)">
-          <option *ngFor="let o of comparison">
-            {{o}}
-          </option>
-        </select>
-      </div>
+
+
+
+<app-protein-selections (searchResult)="handleSearch($event)"></app-protein-selections>
+
+<ng-container *ngIf="finished">
+  <app-volcano-and-cyto (selected)="handleSearch($event)"></app-volcano-and-cyto>
+</ng-container>
+
+<ng-container *ngIf="rawFiltered.count() > 0">
+  <div class="container-fluid mt-4">
+    <app-raw-data-viewer [data]="rawFiltered"></app-raw-data-viewer>
+  </div>
+</ng-container>
+<div class="container-fluid mt-4">
+  <div class="bg-light">
+    <div class="container">
+      <footer class="py-5">
+        <div class="col-2">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link p-0 text-muted" href="#" (click)="openResourceCitation()">
+                Resource Citation
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-2"></div>
+        <div class="col-2"></div>
+        <div class="col-4">
+
+        </div>
+      </footer>
     </div>
   </div>
+
 </div>
 
-<div class="container-fluid mt-2" *ngIf="selectedDF.count() > 0">
-
-  <app-comparison-viewer [data]="selectedDF" [intensityData]="g.raw"></app-comparison-viewer>
-</div>
-
-<div class="container-fluid mt-2">
-  <app-distribution-viewer [data]="g.raw" [dataComp]="selectedDF"></app-distribution-viewer>
-</div>
-<app-notification-container aria-live="polite" aria-atomic="true"></app-notification-container>
