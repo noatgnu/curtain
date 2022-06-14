@@ -9,8 +9,8 @@ services:
       - '81:81' # Admin Web Port
 
     volumes:
-      - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
+      - ./npm/data:/data
+      - ./npm/letsencrypt:/etc/letsencrypt
   curtain:
     tty: true
     stdin_open: true
