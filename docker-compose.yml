@@ -9,8 +9,8 @@ services:
       dockerfile: Dockerfile-curtain
     container_name: production_curtain
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+      - "4433:443"
     networks:
       - curtain-net
   cactus:
