@@ -11,6 +11,8 @@ services:
     volumes:
       - ./npm/data:/data
       - ./npm/letsencrypt:/etc/letsencrypt
+    networks:
+      - curtain-net
   curtain:
     tty: true
     stdin_open: true
