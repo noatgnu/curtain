@@ -3,6 +3,7 @@ services:
   curtain:
     tty: true
     stdin_open: true
+    restart: unless-stopped
     build:
       context: ./dockerfiles
       dockerfile: Dockerfile-curtain
@@ -13,6 +14,7 @@ services:
     networks:
       - curtain-net
   cactus:
+    restart: unless-stopped
     build:
       context: ./dockerfiles
       dockerfile: Dockerfile-cactus
