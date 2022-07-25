@@ -125,6 +125,7 @@ export class BarChartComponent implements OnInit {
     const annotations: any[] = []
     const shapes: any[] = []
     let sampleNumber: number = 0
+
     for (const s in this.dataService.sampleMap) {
 
       if (this.settings.settings.sampleVisible[s]) {

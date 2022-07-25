@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {fromCSV, IDataFrame} from 'data-forge';
 import {InputFile} from "../../classes/input-file";
+import {HttpEventType} from "@angular/common/http";
 
 @Component({
   selector: 'app-file-input-widget',
