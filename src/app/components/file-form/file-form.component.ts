@@ -223,6 +223,9 @@ export class FileFormComponent implements OnInit {
             this.updateProgressBar(100, "Finished")
           }
         })
+      } else {
+        this.finished.emit(true)
+        this.updateProgressBar(100, "Finished")
       }
     } else {
       if (this.data.differentialForm.geneNames !== "") {
