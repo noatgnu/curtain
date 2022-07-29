@@ -24,7 +24,7 @@ export class InteractomeAtlasComponent implements OnInit {
     this._data = value
     const uni = this.uniprot.getUniprotFromPrimary(value)
     if (uni !== null) {
-      this.geneName = uni["Gene names"]
+      this.geneName = uni["Gene Names"]
     } else {
       this.geneName = ""
     }
@@ -66,19 +66,19 @@ export class InteractomeAtlasComponent implements OnInit {
       const uni: any = this.uniprot.getUniprotFromPrimary(r[this.dataService.differentialForm.foldChange])
       if (uni) {
         if (r[this.dataService.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
-          for (const u of uni["Gene names"].split(";")) {
+          for (const u of uni["Gene Names"].split(";")) {
             if (u !== "") {
               increased.push(u)
             }
           }
         } else if (r[this.dataService.differentialForm.foldChange] <= -this.settings.settings.log2FCCutoff) {
-          for (const u of uni["Gene names"].split(";")) {
+          for (const u of uni["Gene Names"].split(";")) {
             if (u !== "") {
               decreased.push(u)
             }
           }
         }
-        for (const u of uni["Gene names"].split(";")) {
+        for (const u of uni["Gene Names"].split(";")) {
           if (u !== "") {
             allGenes.push(u)
           }

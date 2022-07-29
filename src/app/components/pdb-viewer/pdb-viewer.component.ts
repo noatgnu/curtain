@@ -22,7 +22,7 @@ export class PdbViewerComponent implements OnInit {
     this._data = value;
     const uni = this.uniprot.getUniprotFromPrimary(value)
     if (uni !== uni) {
-      this.geneName = uni["Gene names"]
+      this.geneName = uni["Gene Names"]
       this.uni = uni
     }
   }

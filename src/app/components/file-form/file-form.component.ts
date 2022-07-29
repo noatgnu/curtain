@@ -192,36 +192,38 @@ export class FileFormComponent implements OnInit {
         }
       }
       if (accList.length > 0) {
-        this.uniprot.UniProtParseGet(accList, false).then(r=> {
-          if (r) {
-            const allGenes: string[] = []
-            for (const p of this.data.primaryIDsList) {
-              const uni = this.uniprot.getUniprotFromPrimary(p)
-              if (uni) {
-                if (uni["Gene names"]) {
-                  if (uni["Gene names"] !== "") {
-                    if (!allGenes.includes(uni["Gene names"])) {
-                      allGenes.push(uni["Gene names"])
-                      if (!this.data.genesMap[uni["Gene names"]])  {
-                        this.data.genesMap[uni["Gene names"]] = {}
-                        this.data.genesMap[uni["Gene names"]][uni["Gene names"]] = true
-                      }
-                      for (const n of uni["Gene names"].split(";")) {
-                        if (!this.data.genesMap[n]) {
-                          this.data.genesMap[n] = {}
+        this.uniprot.PrimeAPIUniProtParser(accList).then(r=> {
+          this.uniprot.uniprotParseStatus.subscribe(d => {
+            if (d) {
+              const allGenes: string[] = []
+              for (const p of this.data.primaryIDsList) {
+                const uni = this.uniprot.getUniprotFromPrimary(p)
+                if (uni) {
+                  if (uni["Gene Names"]) {
+                    if (uni["Gene Names"] !== "") {
+                      if (!allGenes.includes(uni["Gene Names"])) {
+                        allGenes.push(uni["Gene Names"])
+                        if (!this.data.genesMap[uni["Gene Names"]])  {
+                          this.data.genesMap[uni["Gene Names"]] = {}
+                          this.data.genesMap[uni["Gene Names"]][uni["Gene Names"]] = true
                         }
-                        this.data.genesMap[n][uni["Gene names"]] = true
+                        for (const n of uni["Gene Names"].split(";")) {
+                          if (!this.data.genesMap[n]) {
+                            this.data.genesMap[n] = {}
+                          }
+                          this.data.genesMap[n][uni["Gene Names"]] = true
+                        }
                       }
                     }
                   }
                 }
               }
-            }
-            this.data.allGenes = allGenes
+              this.data.allGenes = allGenes
 
-            this.finished.emit(true)
-            this.updateProgressBar(100, "Finished")
-          }
+              this.finished.emit(true)
+              this.updateProgressBar(100, "Finished")
+            }
+          })
         })
       } else {
         this.finished.emit(true)

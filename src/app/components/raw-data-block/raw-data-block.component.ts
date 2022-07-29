@@ -26,8 +26,8 @@ export class RawDataBlockComponent implements OnInit {
     if (this.dataService.fetchUniprot) {
       this.uni = this.uniprot.getUniprotFromPrimary(this.primaryID)
       if (this.uni) {
-        if (this.uni["Gene names"] !== "") {
-          this.title = this.uni["Gene names"]
+        if (this.uni["Gene Names"] !== "") {
+          this.title = this.uni["Gene Names"]
         }
       }
     }

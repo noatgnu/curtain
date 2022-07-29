@@ -232,6 +232,7 @@ function getSTRING(root_url, params, selected, increaseGenes, decreaseGenes, gen
     console.log(selectedGenes)
     console.log('stringEmbedded'+selectedGenes[0])
     console.log(stringDiv)
+    console.log(params)
     var form = new FormData(form);
     for (let key in params) {
         let value = params[key]

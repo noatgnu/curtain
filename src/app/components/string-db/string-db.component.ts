@@ -29,8 +29,8 @@ export class StringDbComponent implements OnInit {
     const uni = this.uniprot.getUniprotFromPrimary(value)
     if (uni) {
       this._uniProtData = uni
-      this.selected = uni["Gene names"].split(";")[0]
-      this._data = {organism: this.uniprot.organism, identifiers: this._uniProtData['Cross-reference (STRING)'].split(';'), selectedGenes: []}
+      this.selected = uni["Gene Names"].split(";")[0]
+      this._data = {organism: this.uniprot.organism, identifiers: this._uniProtData['STRING'].split(';'), selectedGenes: []}
       const ids: string[] = []
       for (const i of this._data.identifiers) {
         if (i !== "") {
@@ -66,19 +66,19 @@ export class StringDbComponent implements OnInit {
       const uni: any = this.uniprot.getUniprotFromPrimary(r[this.data.differentialForm.foldChange])
       if (uni) {
         if (r[this.data.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
-          for (const u of uni["Gene names"].split(";")) {
+          for (const u of uni["Gene Names"].split(";")) {
             if (u !== "") {
               increased.push(u)
             }
           }
         } else if (r[this.data.differentialForm.foldChange] <= -this.settings.settings.log2FCCutoff) {
-          for (const u of uni["Gene names"].split(";")) {
+          for (const u of uni["Gene Names"].split(";")) {
             if (u !== "") {
               decreased.push(u)
             }
           }
         }
-        for (const u of uni["Gene names"].split(";")) {
+        for (const u of uni["Gene Names"].split(";")) {
           if (u !== "") {
             allGenes.push(u)
           }
@@ -95,7 +95,7 @@ export class StringDbComponent implements OnInit {
           'caller_identity': 'dundee.ac.uk',
           'network_type': this.networkType,
           'required_score': this.requiredScore},
-        this.uniProtData["Gene names"].split(";"),
+        this.uniProtData["Gene Names"].split(";"),
         increased,
         decreased,
         allGenes

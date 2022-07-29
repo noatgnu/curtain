@@ -119,8 +119,8 @@ export class ProfilePlotComponent implements OnInit {
       let name = r[this.dataService.rawForm.primaryIDs]
       const uni = this.uniprot.getUniprotFromPrimary(name)
       if (uni) {
-        if (uni["Gene names"] !== "") {
-          name = uni["Gene names"] + "(" + name + ")"
+        if (uni["Gene Names"] !== "") {
+          name = uni["Gene Names"] + "(" + name + ")"
         }
       }
       const temp: any = {

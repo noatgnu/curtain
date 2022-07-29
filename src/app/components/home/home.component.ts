@@ -76,9 +76,9 @@ export class HomeComponent implements OnInit {
   private addGeneToSelected(s: any) {
     const uni = this.uniprot.getUniprotFromPrimary(s[this.data.rawForm.primaryIDs])
     if (uni) {
-      if (uni["Gene names"] !== "") {
-        if (!this.data.selectedGenes.includes(uni["Gene names"])) {
-          this.data.selectedGenes.push(uni["Gene names"])
+      if (uni["Gene Names"] !== "") {
+        if (!this.data.selectedGenes.includes(uni["Gene Names"])) {
+          this.data.selectedGenes.push(uni["Gene Names"])
         }
       }
     }
@@ -105,7 +105,7 @@ export class HomeComponent implements OnInit {
   scrollTo() {
     let primaryIDs = ""
     switch (this.data.searchType) {
-      case "Gene names":
+      case "Gene Names":
         const res = this.data.getPrimaryIDsFromGeneNames(this.filterModel)
         if (res.length > 0) {
           primaryIDs = res[0]

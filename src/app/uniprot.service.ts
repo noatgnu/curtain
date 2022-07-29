@@ -4,6 +4,7 @@ import {WebService} from "./web.service";
 import {fromCSV} from "data-forge";
 import {BehaviorSubject, Subject} from "rxjs";
 import {formatCurrency} from "@angular/common";
+import {UniprotParser} from "./classes/uniprot-parser";
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,116 @@ export class UniprotService {
   accMap: Map<string, string> = new Map<string, string>()
   geneNameToAcc: any = {}
   constructor(private http: HttpClient, private web: WebService) { }
+
+  async PrimeAPIUniProtParser(accList: string[]) {
+    const parser = new UniprotParser(this.http)
+    await parser.processData(accList)
+    this.run = parser.jobCollections.length
+    let currentRun = 0
+    parser.result.asObservable().subscribe(res => {
+      this.PrimeProcessReceivedData(<string>res)
+      currentRun ++
+      if (currentRun <= this.run) {
+        this.uniprotProgressBar.next({value: currentRun * 100/this.run, text: "Processed UniProt Job " + currentRun + "/"+ this.run})
+      }
+      if (currentRun === this.run) {
+        this.uniprotParseStatus.next(true)
+      }
+    })
+    await parser.get_uniprot()
+  }
+
+  PrimeProcessReceivedData(data: string) {
+    // @ts-ignore
+    const df = fromCSV(data, {delimiter: '\t'});
+    this.organism = df.first()["Organism (ID)"]
+    for (const r of df) {
+      if (r["Gene Names"]) {
+        r["Gene Names"] = r["Gene Names"].replaceAll(" ", ";").toUpperCase()
+      }
+      if (r["Subcellular location [CC]"]) {
+        const ind = r["Subcellular location [CC]"].indexOf("Note=")
+        if (ind > -1) {
+          r["Subcellular location [CC]"] = r["Subcellular location [CC]"].slice(0, ind)
+        }
+        const subLoc = []
+        for (const s of r["Subcellular location [CC]"].split(/[.;]/g)) {
+          if (s !== "") {
+            let su = s.replace(/\s*\{.*?\}\s*/g, "")
+            su = su.split(": ")
+            const a = su[su.length-1].trim()
+            if (a !== "") {
+              subLoc.push(a.slice())
+            }
+          }
+        }
+        r["Subcellular location [CC]"] = subLoc
+      }
+      if (r["Modified residue"]) {
+        const mods = r["Modified residue"].split("; ")
+        let modRes: any[] = []
+        let modPosition = -1
+        let modType = ""
+        for (const m of mods) {
+
+          if (m.startsWith("MOD_RES")) {
+            modPosition = parseInt(m.split(" ")[1]) -1
+          } else if (m.indexOf("note=") > -1) {
+            const modre = /".+"/.exec(m)
+            if (modre !== null) {
+              modType = modre[0]
+              modRes.push({position: modPosition+1, residue: r["Sequence"][modPosition], modType: modType.replace(/"/g, "")})
+            }
+          }
+        }
+
+        r["Modified residue"] = modRes
+      }
+      if (r["Domain [FT]"]) {
+        let domains: any[] = []
+        let l: number = 0;
+        for (const s of r["Domain [FT]"].split(/;/g)) {
+          if (s !== "") {
+            if (s.indexOf("DOMAIN") > -1) {
+              domains.push({})
+              l = domains.length
+              for (const match of s.matchAll(/(\d+)/g)) {
+                if (!("start" in domains[l-1])) {
+                  domains[l-1].start = parseInt(match[0])
+                } else {
+                  domains[l-1].end = parseInt(match[0])
+                }
+              }
+            } else if (s.indexOf("/note=") > -1) {
+              const match = /"(.+)"/.exec(s)
+              if (match !== null) {
+                domains[l-1].name = match[1]
+              }
+            }
+          }
+        }
+        r["Domain [FT]"] = domains
+      }
+      this.results.set(r["From"], r)
+      this.results.set(r["Entry"], r)
+
+      if (this.accMap.has(r["Entry"])) {
+        const a = this.accMap.get(r["Entry"])
+        // @ts-ignore
+        const query = a.replace(",", ";")
+        for (const q of query.split(";")) {
+          this.results.set(q, r)
+          if (r["Gene Names"] !== "") {
+            if (!this.geneNameToAcc[r["Gene Names"]]) {
+              this.geneNameToAcc[r["Gene Names"]] = {}
+            }
+            this.geneNameToAcc[r["Gene Names"]][q] = true
+          }
+        }
+      }
+    }
+  }
+
   async UniProtParseGet(accList: string[], goStats: boolean) {
     this.results = new Map<string, any>()
     this.run = 0
@@ -114,10 +225,10 @@ export class UniprotService {
 
         r["Modified residue"] = modRes
       }
-      if (r["Domain [FT]"]) {
+      if (r["Domain[FT]"]) {
         let domains: any[] = []
         let l: number = 0;
-        for (const s of r["Domain [FT]"].split(/;/g)) {
+        for (const s of r["Domain[FT]"].split(/;/g)) {
           if (s !== "") {
             if (s.indexOf("DOMAIN") > -1) {
               domains.push({})
@@ -137,7 +248,7 @@ export class UniprotService {
             }
           }
         }
-        r["Domain [FT]"] = domains
+        r["Domain[FT]"] = domains
       }
       if (r["query"]) {
         const query = r["query"].replace(",", ";")

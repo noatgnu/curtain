@@ -71,7 +71,7 @@ export class DataService {
   set raw(value: InputFile) {
     this._raw = value;
   }
-  searchType: "Gene names"|"Primary IDs" = "Gene names"
+  searchType: "Gene Names"|"Primary IDs" = "Gene Names"
   private _raw: InputFile = new InputFile();
   private _differential: InputFile = new InputFile();
   selectedMap: any = {}
@@ -146,7 +146,7 @@ export class DataService {
 
   searchFilter(term: string, searchType: string) {
     switch (searchType) {
-      case "Gene names":
+      case "Gene Names":
         return this.allGenes.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
       case "Primary IDs":
         return this.primaryIDsList.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
@@ -165,7 +165,7 @@ export class DataService {
 
   searchFilterLimited(term: string, searchType: string) {
     switch (searchType) {
-      case "Gene names":
+      case "Gene Names":
         return this.selectedGenes.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
       case "Primary IDs":
         return this.selected.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)

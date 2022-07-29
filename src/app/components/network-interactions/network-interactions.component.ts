@@ -121,8 +121,8 @@ export class NetworkInteractionsComponent implements OnInit {
     for (const v of value) {
       const uni = this.uniprot.getUniprotFromPrimary(v)
       if (uni) {
-        if (uni["Gene names"] !== "") {
-          genes.push(uni["Gene names"])
+        if (uni["Gene Names"] !== "") {
+          genes.push(uni["Gene Names"])
         }
       }
     }

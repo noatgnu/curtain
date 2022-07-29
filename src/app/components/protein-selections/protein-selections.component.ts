@@ -91,7 +91,7 @@ export class ProteinSelectionsComponent implements OnInit {
 
   private parseData(data: any, d: string, exact: boolean) {
     switch (data.searchType) {
-      case "Gene names":
+      case "Gene Names":
         if (exact) {
           return this.data.getPrimaryIDsFromGeneNames(d)
         } else {
