@@ -186,6 +186,7 @@ export class FileFormComponent implements OnInit {
         const accession = this.uniprot.Re.exec(d[0])
         if (accession) {
           this.uniprot.accMap.set(a, accession[1])
+          this.uniprot.accMap.set(accession[1], a)
           if (!this.uniprot.results.has(accession[1])) {
             accList.push(accession[1])
           }
@@ -219,7 +220,8 @@ export class FileFormComponent implements OnInit {
                 }
               }
               this.data.allGenes = allGenes
-
+              console.log(this.data.genesMap)
+              console.log(this.uniprot.geneNameToAcc["MAPT;MTAPT;TAU"])
               this.finished.emit(true)
               this.updateProgressBar(100, "Finished")
             }
