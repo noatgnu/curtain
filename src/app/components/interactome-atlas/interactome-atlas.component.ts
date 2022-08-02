@@ -63,7 +63,7 @@ export class InteractomeAtlasComponent implements OnInit {
     const decreased: string[] = []
     const allGenes: string[] = []
     for (const r of this.dataService.differential.df) {
-      const uni: any = this.uniprot.getUniprotFromPrimary(r[this.dataService.differentialForm.foldChange])
+      const uni: any = this.uniprot.getUniprotFromPrimary(r[this.dataService.differentialForm.primaryIDs])
       if (uni) {
         if (r[this.dataService.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
           for (const u of uni["Gene Names"].split(";")) {

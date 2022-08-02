@@ -63,7 +63,7 @@ export class StringDbComponent implements OnInit {
     const decreased: string[] = []
     const allGenes: string[] = []
     for (const r of this.data.differential.df) {
-      const uni: any = this.uniprot.getUniprotFromPrimary(r[this.data.differentialForm.foldChange])
+      const uni: any = this.uniprot.getUniprotFromPrimary(r[this.data.differentialForm.primaryIDs])
       if (uni) {
         if (r[this.data.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
           for (const u of uni["Gene Names"].split(";")) {
@@ -86,7 +86,8 @@ export class StringDbComponent implements OnInit {
       }
     }
 
-
+    console.log(increased)
+    console.log(decreased)
     setTimeout(()=> {
       getSTRING('https://string-db.org',
         {'species': this.organism,
