@@ -749,7 +749,6 @@ function init_network_interactive_functionalities (event) {
             var texts = elm.getElementsByTagName("text")
             for (const t of texts) {
               var nodeName = t.innerHTML.toUpperCase()
-              console.log(nodeName)
               if (selectedGenes.includes(nodeName)) {
                 t.setAttribute("font-weight", "bold")
               }
@@ -762,7 +761,6 @@ function init_network_interactive_functionalities (event) {
               } else {
                 t.setAttribute("fill", "#676666")
               }
-              console.log(t)
             }
             svg_metainfo_nodes[this_id] = {};
             svg_metainfo_nodes[this_id].elm = elm;

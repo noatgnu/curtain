@@ -86,8 +86,6 @@ export class StringDbComponent implements OnInit {
       }
     }
 
-    console.log(increased)
-    console.log(decreased)
     setTimeout(()=> {
       getSTRING('https://string-db.org',
         {'species': this.organism,

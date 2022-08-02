@@ -269,11 +269,15 @@ export class NetworkInteractionsComponent implements OnInit {
     if (e.startsWith("gene-")) {
       const gene = e.split("-")
       const primaryIDs = this.data.getPrimaryIDsFromGeneNames(this.geneMap[gene[gene.length-1]])
+
       if (primaryIDs.length > 0) {
-        const ind = this.data.selected.indexOf(primaryIDs[0])
-        const newPage = ind + 1
+        const ind = this.data.selected.sort().indexOf(primaryIDs[0])
+        const newPage = Math.floor((ind + 1)/ this.data.pageSize) + 1
+        console.log(this.data.page)
+        console.log(newPage)
+
         if (this.data.page !== newPage) {
-          this.data.page = ind + 1
+          this.data.page = newPage
         }
         this.scroll.scrollToID(primaryIDs[0]+"scrollID")
       }
