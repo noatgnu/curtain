@@ -51,7 +51,7 @@ export class UniprotParser {
                 if (a) {
                   j.completed = true
                   const options: Map<string, string> = new Map<string, string>(
-                    [["format", this.format], ["size", "500"], ["fields", this.columns], ["includeIsoform", "true"]]
+                    [["format", this.format], ["size", "500"], ["fields", this.columns], ["includeIsoform", "false"]]
                   )
                   this.http.get(data.url + "/?" + this.toParamString(options), {
                     responseType: "text",
