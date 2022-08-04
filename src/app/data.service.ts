@@ -166,6 +166,8 @@ export class DataService {
     )
 
   searchFilterLimited(term: string, searchType: string) {
+    console.log(term)
+    console.log(this.selectedGenes)
     switch (searchType) {
       case "Gene Names":
         return this.selectedGenes.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0,10)
