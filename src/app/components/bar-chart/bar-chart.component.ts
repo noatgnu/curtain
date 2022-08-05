@@ -248,7 +248,15 @@ export class BarChartComponent implements OnInit {
       const s = new Series(graph[g])
       const std =  s.std()
       const standardError = std/Math.sqrt(s.count())
-      const mean = s.mean()
+      let total = 0
+      let countNotNull = 0
+      for (const i of s) {
+        if (i) {
+          total = total + i
+          countNotNull = countNotNull + 1
+        }
+      }
+      const mean = total/countNotNull
       let error = std
       switch (this.barChartErrorType) {
         case "Standard Error":
