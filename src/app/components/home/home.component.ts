@@ -88,16 +88,20 @@ export class HomeComponent implements OnInit {
     console.log(e)
     const rawFiltered = this.data.raw.df.where(r => e.data.includes(r[this.data.rawForm.primaryIDs])).bake()
     this.data.selected = this.data.selected.concat(e.data)
-    if (!this.data.selectOperationNames.includes(e.title)) {
-      this.data.selectOperationNames.push(e.title)
-    }
-    for (const s of e.data) {
-      if (!this.data.selectedMap[s]) {
-        this.data.selectedMap[s] = {}
+    for (const c of this.data.differentialForm.comparisonSelect) {
+      const title = e.title + " (" + c + ")"
+      if (!this.data.selectOperationNames.includes(title)) {
+        this.data.selectOperationNames.push(title)
       }
-      this.addGeneToSelected(s);
-      this.data.selectedMap[s][e.title] = true
+      for (const s of e.data) {
+        if (!this.data.selectedMap[s]) {
+          this.data.selectedMap[s] = {}
+        }
+        this.addGeneToSelected(s);
+        this.data.selectedMap[s][title] = true
+      }
     }
+
     this.rawFiltered = DataFrame.concat([rawFiltered, this.rawFiltered])
     this.data.selectionUpdateTrigger.next(true)
   }
@@ -173,6 +177,9 @@ export class HomeComponent implements OnInit {
         this.data.selectedMap = object.selectionsMap
         this.data.selectOperationNames = object.selectionsName
         this.data.differentialForm = new Differential()
+        if (typeof object.differentialForm._comparisonSelect === "string") {
+          object.differentialForm._comparisonSelect = [object.differentialForm._comparisonSelect]
+        }
         this.data.differentialForm.restore(object.differentialForm)
         this.data.rawForm = new Raw()
         this.data.rawForm.restore(object.rawForm)
@@ -201,6 +208,9 @@ export class HomeComponent implements OnInit {
         this.data.differentialForm.significant = object.settings.dataColumns["processedPValue"]
         this.data.differentialForm.foldChange = object.settings.dataColumns["processedLog2FC"]
         this.data.differentialForm.comparison = object.settings.dataColumns["processedCompLabel"]
+        if (typeof object.settings.dataColumns["comparison"] === "string") {
+          object.settings.dataColumns["comparison"] = [object.settings.dataColumns["comparison"]]
+        }
         this.data.differentialForm.comparisonSelect = object.settings.dataColumns["comparison"]
         if (object.settings.antilogP) {
           this.data.differentialForm.transformSignificant = false

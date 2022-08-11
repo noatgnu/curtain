@@ -1,9 +1,9 @@
 export class Differential {
-  get comparisonSelect(): string {
+  get comparisonSelect(): string[] {
     return this._comparisonSelect;
   }
 
-  set comparisonSelect(value: string) {
+  set comparisonSelect(value: string[]) {
     this._comparisonSelect = value;
   }
   get primaryIDs(): string {
@@ -68,7 +68,7 @@ export class Differential {
   private _significant: string = ""
   private _transformSignificant: boolean = false
   private _comparison: string = ""
-  private _comparisonSelect: string = ""
+  private _comparisonSelect: string[] = []
 
   restore(value: any) {
     for (const i in value) {

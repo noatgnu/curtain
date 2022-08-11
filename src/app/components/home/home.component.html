@@ -53,29 +53,30 @@
 
 <app-file-form (finished)="handleFinish($event)"></app-file-form>
 
-<div class="container mt-4" *ngIf="data.raw.df.count() > 0 && finished">
-  <ngb-accordion>
-    <ngb-panel title="Profile Plot">
-      <ng-template ngbPanelContent>
-        <app-profile-plot [data]="data.raw.df"></app-profile-plot>
-      </ng-template>
-    </ngb-panel>
-  </ngb-accordion>
-</div>
-
-
-
-<app-protein-selections (searchResult)="handleSearch($event)"></app-protein-selections>
-
 <ng-container *ngIf="finished">
-  <app-volcano-and-cyto (selected)="handleSearch($event)"></app-volcano-and-cyto>
+  <div class="container mt-4" *ngIf="data.raw.df.count() > 0">
+    <ngb-accordion>
+      <ngb-panel title="Profile Plot">
+        <ng-template ngbPanelContent>
+          <app-profile-plot [data]="data.raw.df"></app-profile-plot>
+        </ng-template>
+      </ngb-panel>
+    </ngb-accordion>
+  </div>
+
+  <app-protein-selections (searchResult)="handleSearch($event)"></app-protein-selections>
+
+  <ng-container *ngIf="finished">
+    <app-volcano-and-cyto (selected)="handleSearch($event)"></app-volcano-and-cyto>
+  </ng-container>
+
+  <ng-container *ngIf="rawFiltered.count() > 0">
+    <div class="container-fluid mt-4">
+      <app-raw-data-viewer [data]="rawFiltered"></app-raw-data-viewer>
+    </div>
+  </ng-container>
 </ng-container>
 
-<ng-container *ngIf="rawFiltered.count() > 0">
-  <div class="container-fluid mt-4">
-    <app-raw-data-viewer [data]="rawFiltered"></app-raw-data-viewer>
-  </div>
-</ng-container>
 <div class="container-fluid mt-4">
   <div class="bg-light">
     <div class="container">

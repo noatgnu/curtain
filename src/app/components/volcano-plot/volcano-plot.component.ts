@@ -121,11 +121,19 @@ export class VolcanoPlotComponent implements OnInit {
         opacity: 0.3,
       }
     }
+
+    console.log(this._data.length)
+    console.log(this.dataService.differentialForm.comparisonSelect)
+
     for (const r of this._data) {
       let geneNames = ""
       const x = r[this.dataService.differentialForm.foldChange]
       const y = r[this.dataService.differentialForm.significant]
-      const primaryID = r[this.dataService.differentialForm.primaryIDs]
+      let primaryID = r[this.dataService.differentialForm.primaryIDs]
+      let uniquePrimaryID = ""
+      if (this.dataService.differentialForm.comparisonSelect.length > 1) {
+        uniquePrimaryID = r["UniquePrimaryIDs"]
+      }
       let text = primaryID
       if (this.dataService.fetchUniprot) {
         const r = this.uniprot.getUniprotFromPrimary(primaryID)
@@ -138,7 +146,7 @@ export class VolcanoPlotComponent implements OnInit {
         }
       }
       if (geneNames !== "") {
-        text = geneNames + "(" + primaryID + ")"
+        text = geneNames + "(" + primaryID + ")" + " (" + r[this.dataService.differentialForm.comparison] + ")"
       }
       this.nameToID[text] = primaryID
       if (this.dataService.selectedMap[primaryID]) {
@@ -152,7 +160,7 @@ export class VolcanoPlotComponent implements OnInit {
         temp["Background"].y.push(y)
         temp["Background"].text.push(text)
       } else {
-        const group = this.dataService.significantGroup(x, y)
+        let group = this.dataService.significantGroup(x, y) + " (" + r[this.dataService.differentialForm.comparison] + ")"
         if (!temp[group]) {
           if (!this.settings.settings.colorMap[group]) {
             this.settings.settings.colorMap[group] = this.dataService.defaultColorList[currentPosition]
