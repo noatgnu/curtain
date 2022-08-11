@@ -151,7 +151,7 @@ export class HomeComponent implements OnInit {
   }
 
   async restoreSettings(object: any) {
-
+    console.log(object)
     if (typeof object.settings === "string") {
       object.settings = JSON.parse(object.settings)
     }
@@ -181,6 +181,7 @@ export class HomeComponent implements OnInit {
           object.differentialForm._comparisonSelect = [object.differentialForm._comparisonSelect]
         }
         this.data.differentialForm.restore(object.differentialForm)
+
         this.data.rawForm = new Raw()
         this.data.rawForm.restore(object.rawForm)
         this.data.fetchUniprot = object.fetchUniprot
@@ -212,6 +213,7 @@ export class HomeComponent implements OnInit {
           object.settings.dataColumns["comparison"] = [object.settings.dataColumns["comparison"]]
         }
         this.data.differentialForm.comparisonSelect = object.settings.dataColumns["comparison"]
+
         if (object.settings.antilogP) {
           this.data.differentialForm.transformSignificant = false
         } else {
@@ -219,6 +221,7 @@ export class HomeComponent implements OnInit {
         }
       }
       if (object.selections) {
+        console.log(object.selections)
         for (const s in object.selections) {
           if (!this.data.selectOperationNames.includes(s)) {
             this.data.selectOperationNames.push(s)
@@ -246,6 +249,7 @@ export class HomeComponent implements OnInit {
     } else {
       this.data.differential = new InputFile(fromCSV(object.processed), "processedFile.txt", object.processed)
     }
+    object.settings.version = 2
     this.settings.settings = object.settings;
     this.data.restoreTrigger.next(true)
   }

@@ -151,9 +151,19 @@ export class VolcanoPlotComponent implements OnInit {
       this.nameToID[text] = primaryID
       if (this.dataService.selectedMap[primaryID]) {
         for (const o in this.dataService.selectedMap[primaryID]) {
-          temp[o].x.push(x)
-          temp[o].y.push(y)
-          temp[o].text.push(text)
+          const match = /\((.+)\)?/.exec(o)
+          if (match) {
+            if (match[1].slice(0, match[1].length-1) === r[this.dataService.differentialForm.comparison]) {
+              console.log(x, y)
+              temp[o].x.push(x)
+              temp[o].y.push(y)
+              temp[o].text.push(text)
+            }
+          } else {
+            temp[o].x.push(x)
+            temp[o].y.push(y)
+            temp[o].text.push(text)
+          }
         }
       } else if (this.settings.settings.backGroundColorGrey) {
         temp["Background"].x.push(x)

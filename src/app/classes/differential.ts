@@ -74,6 +74,7 @@ export class Differential {
     for (const i in value) {
       // @ts-ignore
       this[i] = value[i]
+      console.log(i, value[i])
     }
   }
 }

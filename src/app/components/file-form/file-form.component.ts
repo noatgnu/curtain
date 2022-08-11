@@ -50,7 +50,7 @@ export class FileFormComponent implements OnInit {
     if (!this.clicked) {
       this.clicked = true
       this.finished.emit(false)
-
+      console.log(this.data.differentialForm)
       if (this.data.differentialForm.comparisonSelect.length === 0) {
         this.data.differentialForm.comparisonSelect = [this.data.differential.df.first()[this.data.differentialForm.comparison]]
       }
