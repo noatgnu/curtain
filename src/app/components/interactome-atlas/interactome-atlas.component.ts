@@ -4,6 +4,7 @@ import {UniprotService} from "../../uniprot.service";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {ToastService} from "../../toast.service";
+import {IDataFrame} from "data-forge";
 
 @Component({
   selector: 'app-interactome-atlas',
@@ -34,6 +35,9 @@ export class InteractomeAtlasComponent implements OnInit {
   interactions: any = {}
   drawData: any = {data: [], stylesheet: []}
   evidences: any = {}
+
+  selection: string = ""
+
   constructor(private toast: ToastService, private uniprot: UniprotService, private interac: InteractomeAtlasService, private dataService: DataService, private settings: SettingsService) { }
 
   ngOnInit(): void {
@@ -62,29 +66,13 @@ export class InteractomeAtlasComponent implements OnInit {
     const increased: string[] = []
     const decreased: string[] = []
     const allGenes: string[] = []
-    for (const r of this.dataService.differential.df) {
-      const uni: any = this.uniprot.getUniprotFromPrimary(r[this.dataService.differentialForm.primaryIDs])
-      if (uni) {
-        if (r[this.dataService.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
-          for (const u of uni["Gene Names"].split(";")) {
-            if (u !== "") {
-              increased.push(u)
-            }
-          }
-        } else if (r[this.dataService.differentialForm.foldChange] <= -this.settings.settings.log2FCCutoff) {
-          for (const u of uni["Gene Names"].split(";")) {
-            if (u !== "") {
-              decreased.push(u)
-            }
-          }
-        }
-        for (const u of uni["Gene Names"].split(";")) {
-          if (u !== "") {
-            allGenes.push(u)
-          }
-        }
-      }
+    if (this.selection !== "") {
+      const df = this.dataService.currentDF.where(r => r[this.dataService.differentialForm.comparison] === this.selection).bake()
+      this.updateIncreasedDecreased(increased, decreased, allGenes, df);
+    } else {
+      this.updateIncreasedDecreased(increased, decreased, allGenes, this.dataService.currentDF);
     }
+
     const styles: any[] = []
     const nodes: any[] = []
     const interacted: string[] = []
@@ -227,9 +215,40 @@ export class InteractomeAtlasComponent implements OnInit {
     this.drawData = {data: nodes, stylesheet: styles, id: "interactome"+this._data}
   }
 
+  private updateIncreasedDecreased(increased: string[], decreased: string[], allGenes: string[], df: IDataFrame) {
+    for (const r of df) {
+      const uni: any = this.uniprot.getUniprotFromPrimary(r[this.dataService.differentialForm.primaryIDs])
+      if (uni) {
+        if (r[this.dataService.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
+          for (const u of uni["Gene Names"].split(";")) {
+            if (u !== "") {
+              increased.push(u)
+            }
+          }
+        } else if (r[this.dataService.differentialForm.foldChange] <= -this.settings.settings.log2FCCutoff) {
+          for (const u of uni["Gene Names"].split(";")) {
+            if (u !== "") {
+              decreased.push(u)
+            }
+          }
+        }
+        for (const u of uni["Gene Names"].split(";")) {
+          if (u !== "") {
+            allGenes.push(u)
+          }
+        }
+      }
+    }
+  }
+
   viewEvidences(event: any) {
     // @ts-ignore
     this.selected = this.interactedMap.get(event)
     console.log(this.interactedMap.get(event))
+  }
+
+  handleSelection(e: string) {
+    this.selection = e
+    this.getInteractions().then()
   }
 }

@@ -4,6 +4,7 @@ import {WebService} from "../../web.service";
 import {DataService} from "../../data.service";
 import {Settings} from "../../classes/settings";
 import {SettingsService} from "../../settings.service";
+import {IDataFrame} from "data-forge";
 declare const getSTRING: any;
 @Component({
   selector: 'app-string-db',
@@ -24,7 +25,7 @@ export class StringDbComponent implements OnInit {
   requiredScore: number = 0
   networkFlavor: string = "evidence"
   _data: any = {}
-
+  selection: string = ""
   @Input() set uniProtData(value: string) {
     const uni = this.uniprot.getUniprotFromPrimary(value)
     if (uni) {
@@ -62,7 +63,34 @@ export class StringDbComponent implements OnInit {
     const increased: string[] = []
     const decreased: string[] = []
     const allGenes: string[] = []
-    for (const r of this.data.differential.df) {
+
+    if (this.selection !== "") {
+      const df = this.data.currentDF.where(r => r[this.data.differentialForm.comparison] === this.selection).bake()
+      this.updateIncreaseDecrease(increased, decreased, allGenes, df);
+    } else {
+      this.updateIncreaseDecrease(increased, decreased, allGenes, this.data.currentDF);
+    }
+
+
+    setTimeout(()=> {
+      getSTRING('https://string-db.org',
+        {'species': this.organism,
+          'identifiers': this.ids,
+          'network_flavor': this.networkFlavor,
+          'caller_identity': 'dundee.ac.uk',
+          'network_type': this.networkType,
+          'required_score': this.requiredScore},
+        this.uniProtData["Gene Names"].split(";"),
+        increased,
+        decreased,
+        allGenes
+      )
+      console.log("String request submitted")
+    }, 3000)
+  }
+
+  private updateIncreaseDecrease(increased: string[], decreased: string[], allGenes: string[], df: IDataFrame) {
+    for (const r of df) {
       const uni: any = this.uniprot.getUniprotFromPrimary(r[this.data.differentialForm.primaryIDs])
       if (uni) {
         if (r[this.data.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
@@ -85,21 +113,10 @@ export class StringDbComponent implements OnInit {
         }
       }
     }
+  }
 
-    setTimeout(()=> {
-      getSTRING('https://string-db.org',
-        {'species': this.organism,
-          'identifiers': this.ids,
-          'network_flavor': this.networkFlavor,
-          'caller_identity': 'dundee.ac.uk',
-          'network_type': this.networkType,
-          'required_score': this.requiredScore},
-        this.uniProtData["Gene Names"].split(";"),
-        increased,
-        decreased,
-        allGenes
-      )
-      console.log("String request submitted")
-    }, 3000)
+  handleSelection(e: string) {
+    this.selection = e
+    this.getString()
   }
 }

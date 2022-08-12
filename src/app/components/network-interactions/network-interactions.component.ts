@@ -22,7 +22,7 @@ export class NetworkInteractionsComponent implements OnInit {
     }
     this._requiredScore = value;
   }
-
+  selection: string = ""
   otherScore: any = {
     ascore: 0,
     dscore: 0,
@@ -252,7 +252,10 @@ export class NetworkInteractionsComponent implements OnInit {
 
     for (const n in this.currentGenes) {
       const primaryIDs = this.data.getPrimaryIDsFromGeneNames(this.geneMap[n])
-      const df = this.data.currentDF.where(r => primaryIDs.includes(r[this.data.differentialForm.primaryIDs])).bake()
+      let df = this.data.currentDF.where(r => primaryIDs.includes(r[this.data.differentialForm.primaryIDs])).bake()
+      if (this.selection !== "") {
+        df = df.where(r => r[this.data.differentialForm.comparison] === this.selection).bake()
+      }
       const fc = df.getSeries(this.data.differentialForm.foldChange).bake().sum()
       let classes = "genes"
       if (fc > 0) {
@@ -287,5 +290,10 @@ export class NetworkInteractionsComponent implements OnInit {
       this.edgeDataSource = edge[1]
 
     }
+  }
+
+  handleSelection(e: string) {
+    this.selection = e
+    this.getInteractions().then()
   }
 }

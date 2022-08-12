@@ -66,6 +66,9 @@
     <button type="button" class="btn btn-primary" (click)="getInteractions()">Redraw</button>
   </div>
 </div>
+<div class="d-grid gap-2 d-md-flex justify-content-md-end mt-2">
+  <app-comparison-selections (selection)="handleSelection($event)"></app-comparison-selections>
+</div>
 <div class="row">
   <div class="col-4">
     <table class="table table-bordered mt-2">

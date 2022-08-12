@@ -40,6 +40,7 @@ import { PrideComponent } from './components/pride/pride.component';
 import {QuillModule} from "ngx-quill";
 import {NgxPrintModule} from "ngx-print";
 import { SampleOrderAndHideComponent } from './components/sample-order-and-hide/sample-order-and-hide.component';
+import { ComparisonSelectionsComponent } from './components/comparison-selections/comparison-selections.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     CitationComponent,
     SampleAnnotationComponent,
     PrideComponent,
-    SampleOrderAndHideComponent
+    SampleOrderAndHideComponent,
+    ComparisonSelectionsComponent
   ],
     imports: [
         BrowserModule,
