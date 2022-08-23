@@ -41,6 +41,7 @@ import {QuillModule} from "ngx-quill";
 import {NgxPrintModule} from "ngx-print";
 import { SampleOrderAndHideComponent } from './components/sample-order-and-hide/sample-order-and-hide.component';
 import { ComparisonSelectionsComponent } from './components/comparison-selections/comparison-selections.component';
+import { RankPlotComponent } from './components/rank-plot/rank-plot.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -75,7 +76,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     SampleAnnotationComponent,
     PrideComponent,
     SampleOrderAndHideComponent,
-    ComparisonSelectionsComponent
+    ComparisonSelectionsComponent,
+    RankPlotComponent
   ],
     imports: [
         BrowserModule,

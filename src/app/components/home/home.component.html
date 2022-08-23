@@ -64,6 +64,16 @@
     </ngb-accordion>
   </div>
 
+  <div class="container mt-4" *ngIf="data.raw.df.count() > 0">
+    <ngb-accordion>
+      <ngb-panel title="Rank Abundance Plot">
+        <ng-template ngbPanelContent>
+          <app-rank-plot [data]="data.raw.df"></app-rank-plot>
+        </ng-template>
+      </ngb-panel>
+    </ngb-accordion>
+  </div>
+
   <app-protein-selections (searchResult)="handleSearch($event)"></app-protein-selections>
 
   <ng-container *ngIf="finished">

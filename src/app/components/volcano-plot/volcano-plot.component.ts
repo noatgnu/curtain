@@ -121,9 +121,6 @@ export class VolcanoPlotComponent implements OnInit {
       }
     }
 
-    console.log(this._data)
-    console.log(this.dataService.differentialForm.comparisonSelect)
-    console.log(this.dataService.selectedMap)
     for (const r of this._data) {
       let geneNames = ""
       const x = r[this.dataService.differentialForm.foldChange]
@@ -148,14 +145,10 @@ export class VolcanoPlotComponent implements OnInit {
         text = geneNames + "[" + primaryID + "]" + " (" + r[this.dataService.differentialForm.comparison] + ")"
       }
       this.nameToID[text] = primaryID
-      if (temp[text]) {
-        console.log(primaryID)
-      }
+
       if (this.dataService.selectedMap[primaryID]) {
-        console.log(primaryID)
         for (const o in this.dataService.selectedMap[primaryID]) {
           const match = /\((.+)\)$/.exec(o)
-          console.log(match)
           if (match) {
             if (match[1] === r[this.dataService.differentialForm.comparison]) {
               console.log(x, y)
