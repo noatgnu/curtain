@@ -25,6 +25,8 @@ export class RankPlotComponent implements OnInit {
     }
   }
 
+  legendStatus: any = {}
+
   @Input() set data(value: IDataFrame) {
     const processed: any[] = []
     for (const r of value) {
@@ -80,7 +82,13 @@ export class RankPlotComponent implements OnInit {
       const selected = this.sortedDataMap[i].where(r => this.dataService.selected.includes(r[this.dataService.rawForm.primaryIDs]))
       // @ts-ignore
       const notSelected = this.sortedDataMap[i].where(r => !this.dataService.selected.includes(r[this.dataService.rawForm.primaryIDs]))
+      if (!(i in this.legendStatus)) {
+        this.legendStatus[i] = true
+      }
       if (selected.count() > 0) {
+        if (!(("Selected "+ i) in this.legendStatus)) {
+          this.legendStatus["Selected "+ i] = true
+        }
         temp["Selected "+ i] = {
           x: selected.getIndex().toArray(),
           y: selected.getSeries(i).toArray(),
@@ -98,6 +106,9 @@ export class RankPlotComponent implements OnInit {
           marker: {
             size: 10,
           }
+        }
+        if (!this.legendStatus["Selected "+i]) {
+          temp["Selected "+i]["visible"] = "legendonly"
         }
       }
       temp[i] = {
@@ -119,12 +130,36 @@ export class RankPlotComponent implements OnInit {
           size: 5,
         }
       }
-
+      if (!this.legendStatus[i]) {
+        temp[i]["visible"] = "legendonly"
+      }
     }
     const graphData: any[] = []
     for (const i in temp) {
       graphData.push(temp[i])
     }
     this.graphData = graphData
+  }
+
+  handleClick(e: any) {
+    this.legendStatus[e.event.srcElement.__data__[0].trace.name] = !this.legendStatus[e.event.srcElement.__data__[0].trace.name]
+  }
+
+  hideAllSelected() {
+    for (const l in this.legendStatus) {
+      if (l.startsWith("Selected")) {
+        this.legendStatus[l] = false
+      }
+    }
+    this.draw()
+  }
+
+  hideAllNonSelected() {
+    for (const l in this.legendStatus) {
+      if (!l.startsWith("Selected")) {
+        this.legendStatus[l] = false
+      }
+    }
+    this.draw()
   }
 }

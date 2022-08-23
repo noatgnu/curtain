@@ -1,1 +1,5 @@
-<plotly-plot [data]="graphData" [layout]="graphLayout" [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+  <button class="btn btn-primary" (click)="hideAllSelected()">Hide All Selected Data</button>
+  <button class="btn btn-primary" (click)="hideAllNonSelected()">Hide All Non-Selected Data</button>
+</div>
+<plotly-plot [data]="graphData" [layout]="graphLayout" [updateOnDataChange]="true" [updateOnLayoutChange]="true" (legendClick)="handleClick($event)"></plotly-plot>
