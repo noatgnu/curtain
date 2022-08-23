@@ -46,7 +46,7 @@ export class RankPlotComponent implements OnInit {
       for (const c in total) {
         if (total[c] !== 0) {
           average[c] = total[c]/countNotNull[c]
-          average[c] = Math.log2(average[c])
+          average[c] = Math.log10(average[c])
         } else {
           average[c] = 0
         }
