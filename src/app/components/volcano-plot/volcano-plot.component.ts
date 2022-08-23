@@ -37,6 +37,7 @@ export class VolcanoPlotComponent implements OnInit {
 
   @Input() set data(value: IDataFrame) {
     this._data = value
+    console.log(value)
     if (this._data.count()) {
       this.drawVolcano();
     }
@@ -83,7 +84,6 @@ export class VolcanoPlotComponent implements OnInit {
           currentPosition = 0
         }
       }
-
       temp[s] = {
         x: [],
         y: [],
@@ -95,12 +95,11 @@ export class VolcanoPlotComponent implements OnInit {
           color: this.settings.settings.colorMap[s]
         }
       }
-
     }
     this.layoutMaxMin = {
       xMin: 0, xMax: 0, yMin: 0, yMax: 0
     }
-
+    console.log(temp)
     this.layoutMaxMin.xMin = this.dataService.minMax.fcMin
     this.layoutMaxMin.xMax = this.dataService.minMax.fcMax
     this.layoutMaxMin.yMin = this.dataService.minMax.pMin
@@ -122,9 +121,9 @@ export class VolcanoPlotComponent implements OnInit {
       }
     }
 
-    console.log(this._data.length)
+    console.log(this._data)
     console.log(this.dataService.differentialForm.comparisonSelect)
-
+    console.log(this.dataService.selectedMap)
     for (const r of this._data) {
       let geneNames = ""
       const x = r[this.dataService.differentialForm.foldChange]
@@ -146,14 +145,19 @@ export class VolcanoPlotComponent implements OnInit {
         }
       }
       if (geneNames !== "") {
-        text = geneNames + "(" + primaryID + ")" + " (" + r[this.dataService.differentialForm.comparison] + ")"
+        text = geneNames + "[" + primaryID + "]" + " (" + r[this.dataService.differentialForm.comparison] + ")"
       }
       this.nameToID[text] = primaryID
+      if (temp[text]) {
+        console.log(primaryID)
+      }
       if (this.dataService.selectedMap[primaryID]) {
+        console.log(primaryID)
         for (const o in this.dataService.selectedMap[primaryID]) {
-          const match = /\((.+)\)?/.exec(o)
+          const match = /\((.+)\)$/.exec(o)
+          console.log(match)
           if (match) {
-            if (match[1].slice(0, match[1].length-1) === r[this.dataService.differentialForm.comparison]) {
+            if (match[1] === r[this.dataService.differentialForm.comparison]) {
               console.log(x, y)
               temp[o].x.push(x)
               temp[o].y.push(y)

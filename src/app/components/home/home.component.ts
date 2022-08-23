@@ -89,7 +89,11 @@ export class HomeComponent implements OnInit {
     const rawFiltered = this.data.raw.df.where(r => e.data.includes(r[this.data.rawForm.primaryIDs])).bake()
     this.data.selected = this.data.selected.concat(e.data)
     for (const c of this.data.differentialForm.comparisonSelect) {
-      const title = e.title + " (" + c + ")"
+      let title = e.title + " (" + c + ")"
+      if (e.title.endsWith(" (" + c + ")")) {
+        title = e.title
+      }
+
       if (!this.data.selectOperationNames.includes(title)) {
         this.data.selectOperationNames.push(title)
       }
