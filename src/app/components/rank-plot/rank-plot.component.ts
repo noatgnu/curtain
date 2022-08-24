@@ -136,7 +136,14 @@ export class RankPlotComponent implements OnInit {
     }
     const graphData: any[] = []
     for (const i in temp) {
-      graphData.push(temp[i])
+      if (!i.startsWith("Selected")) {
+        graphData.push(temp[i])
+      }
+    }
+    for (const i in temp) {
+      if (i.startsWith("Selected")) {
+        graphData.push(temp[i])
+      }
     }
     this.graphData = graphData
   }
