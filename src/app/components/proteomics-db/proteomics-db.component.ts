@@ -108,5 +108,7 @@ export class ProteomicsDbComponent implements OnInit {
       }
     }
   }
-
+  downloadSVG() {
+    this.web.downloadPlotlyImage("svg", "proteomicsDB", this._uniprotID+"bar").then()
+  }
 }

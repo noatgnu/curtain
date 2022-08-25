@@ -1,1 +1,5 @@
-<plotly-plot [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+  <button class="btn btn-primary" (click)="hideBoxPlot()">Toggle Box Plot</button>
+  <button class="btn btn-primary" (click)="downloadSVG()">Download SVG</button>
+</div>
+<plotly-plot [divId]="divId" [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>

@@ -3,6 +3,7 @@ import {DataFrame, IDataFrame} from "data-forge";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {UniprotService} from "../../uniprot.service";
+import {WebService} from "../../web.service";
 
 @Component({
   selector: 'app-rank-plot',
@@ -63,7 +64,7 @@ export class RankPlotComponent implements OnInit {
     this.draw()
   }
 
-  constructor(public dataService: DataService, public settings: SettingsService, public uniprot: UniprotService) {
+  constructor(private web: WebService, public dataService: DataService, public settings: SettingsService, public uniprot: UniprotService) {
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       if (data) {
         this.draw()
@@ -168,5 +169,9 @@ export class RankPlotComponent implements OnInit {
       }
     }
     this.draw()
+  }
+
+  downloadSVG() {
+    this.web.downloadPlotlyImage("svg", "rankplot", "rankplot").then()
   }
 }

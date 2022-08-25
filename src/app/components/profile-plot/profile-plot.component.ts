@@ -4,6 +4,7 @@ import {DataService} from "../../data.service";
 import {UniprotService} from "../../uniprot.service";
 import {ToastService} from "../../toast.service";
 import {SettingsService} from "../../settings.service";
+import {WebService} from "../../web.service";
 
 @Component({
   selector: 'app-profile-plot',
@@ -11,6 +12,8 @@ import {SettingsService} from "../../settings.service";
   styleUrls: ['./profile-plot.component.scss']
 })
 export class ProfilePlotComponent implements OnInit {
+  @Input() divId = "profile"
+  boxplot: boolean = true
   _data: IDataFrame = new DataFrame()
   @Input() set data(value: IDataFrame) {
     this._data = value
@@ -30,7 +33,7 @@ export class ProfilePlotComponent implements OnInit {
   graphData: any[] = []
   graphBox: any[] = []
   graphLayout: any = {
-    margin: {t:50, b:100, l:50, r:25},
+    margin: {t:50, b:200, l:50, r:25},
     title: "Profile Plot",
     xaxis: {
       title: "Samples",
@@ -40,10 +43,13 @@ export class ProfilePlotComponent implements OnInit {
     yaxis: {title: "log2 Intensity Value"},
     annotations: [],
     shapes: [],
-    showlegend: true
+    showlegend: true,
+    legend: {
+      orientation: 'h'
+    }
   }
   graphSelected: any[] = []
-  constructor(private toast: ToastService, private dataService: DataService, private uniprot: UniprotService, private settings: SettingsService) {
+  constructor(private toast: ToastService, private dataService: DataService, private uniprot: UniprotService, private settings: SettingsService, private web: WebService) {
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       this.drawSelected().then()
     })
@@ -140,5 +146,26 @@ export class ProfilePlotComponent implements OnInit {
     }
     this.graphSelected = graphData
     this.graphData = this.graphData.concat(this.graphSelected)
+  }
+
+  downloadSVG() {
+    this.web.downloadPlotlyImage("svg", "profilePlot", this.divId).then()
+  }
+
+  hideBoxPlot() {
+    this.boxplot = !this.boxplot
+    if (this.boxplot) {
+      if (this._data.count() > 0) {
+        this.drawBoxPlot().then(r => {
+          this.graphData = this.graphBox
+          this.drawSelected().then()
+        })
+      }
+    } else {
+      this.graphData = []
+      this.drawSelected().then()
+    }
+
+
   }
 }
