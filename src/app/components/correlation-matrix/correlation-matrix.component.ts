@@ -25,6 +25,7 @@ export class CorrelationMatrixComponent implements OnInit {
     height: 1100, width: 1100
   }
   cols: string[] = []
+  zmin = 0
   constructor(private web: WebService, private toast: ToastService, public modal: NgbActiveModal, private data: DataService, private jz: JeezyService) {
     this.cols = Object.keys(this.data.sampleMap)
 
@@ -32,6 +33,8 @@ export class CorrelationMatrixComponent implements OnInit {
       z: this.calculateCorrelation(),
       x: this.cols,
       y: this.cols,
+      zmax: 1,
+      zmin: this.zmin,
       type: 'heatmap',
       colorscale: [
         [0, "rgb(255,138,174)"],
@@ -40,7 +43,7 @@ export class CorrelationMatrixComponent implements OnInit {
         [1, "rgb(154,220,255)"]
       ]
     })
-
+    console.log(this.zmin)
 
     this.graphLayout.xaxis.tickvals = this.cols
     this.graphLayout.xaxis.ticktext = this.cols
@@ -55,6 +58,7 @@ export class CorrelationMatrixComponent implements OnInit {
     this.toast.show("Correlation Matrix", "Calculating Pearson Correlation").then()
     const da: any[] = []
     let currentRow = 0
+    let currentMin = 0
     for (const r of this.data.raw.df) {
       const row: any = {index:currentRow}
       for (const col of this.cols) {
@@ -62,11 +66,14 @@ export class CorrelationMatrixComponent implements OnInit {
           row[col] = 0
         } else {
           row[col] = r[col]
+
         }
       }
+
       currentRow ++
       da.push(row)
     }
+
     const res = this.jz.calculateCorrMaxtrix(da, this.cols)
     const result: any = {}
     for (const r of res) {
@@ -83,9 +90,21 @@ export class CorrelationMatrixComponent implements OnInit {
       if (result[c]) {
         for (const c2 of this.cols) {
           d.push(result[c][c2])
+          if (currentMin === 0) {
+            currentMin = result[c][c2]
+          } else {
+            if (currentMin > result[c][c2]) {
+              currentMin = result[c][c2]
+            }
+          }
         }
       }
       data.push(d)
+    }
+    if (currentMin - 0.1 > 0) {
+      this.zmin = currentMin - 0.1
+    } else {
+      this.zmin = 0
     }
     return data
   }
