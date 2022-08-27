@@ -32,6 +32,8 @@ services:
       context: ./dockerfiles
       dockerfile: Dockerfile-cactus
     container_name: production_cactus
+    ports:
+      - "8081:80"
     networks:
       - curtain-net
     volumes:
