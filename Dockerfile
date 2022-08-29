@@ -2,6 +2,7 @@ FROM node:16-bullseye-slim
 LABEL maintainer="tphung001@dundee.ac.uk"
 
 ARG BUILD_DATE
+ARG API_HOST=http://curtain.omics.quest/
 LABEL build-date=$BUILD_DATE
 
 EXPOSE 80
