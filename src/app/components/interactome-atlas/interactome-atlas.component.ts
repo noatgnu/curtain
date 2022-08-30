@@ -1,10 +1,11 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {InteractomeAtlasService} from "../../interactome-atlas.service";
 import {UniprotService} from "../../uniprot.service";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {ToastService} from "../../toast.service";
 import {IDataFrame} from "data-forge";
+import {CytoplotComponent} from "../cytoplot/cytoplot.component";
 
 @Component({
   selector: 'app-interactome-atlas',
@@ -12,7 +13,7 @@ import {IDataFrame} from "data-forge";
   styleUrls: ['./interactome-atlas.component.scss']
 })
 export class InteractomeAtlasComponent implements OnInit {
-
+  @ViewChild("cytoplot") cytoplot: CytoplotComponent | undefined
   get data(): any {
     return this._data;
   }
@@ -250,5 +251,11 @@ export class InteractomeAtlasComponent implements OnInit {
   handleSelection(e: string) {
     this.selection = e
     this.getInteractions().then()
+  }
+
+  download() {
+    if (this.cytoplot) {
+      this.cytoplot.download()
+    }
   }
 }

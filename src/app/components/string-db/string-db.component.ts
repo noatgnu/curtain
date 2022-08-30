@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {UniprotService} from "../../uniprot.service";
 import {WebService} from "../../web.service";
 import {DataService} from "../../data.service";
@@ -15,7 +15,7 @@ export class StringDbComponent implements OnInit {
   get uniProtData(): any {
     return this._uniProtData;
   }
-
+  @ViewChild("stringElement") stringElement: ElementRef|undefined
   _uniProtData: any = {}
   networkType = "physical"
   organism = ""
@@ -118,5 +118,21 @@ export class StringDbComponent implements OnInit {
   handleSelection(e: string) {
     this.selection = e
     this.getString()
+  }
+
+  downloadSVG() {
+    if (this.stringElement) {
+      console.log(this.stringElement.nativeElement.innerHTML)
+      const svg = this.stringElement.nativeElement.getElementsByTagName("svg")
+      const blob = new Blob([svg[0].outerHTML], {type:"image/svg+xml;charset=utf-8"});
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a")
+      a.href = url
+      a.download = "stringdb.svg"
+      document.body.appendChild(a)
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url)
+    }
   }
 }

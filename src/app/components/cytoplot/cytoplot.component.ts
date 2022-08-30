@@ -1,5 +1,11 @@
 import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as cytoscape from "cytoscape";
+
+// @ts-ignore
+import * as cytoscapeSVG from "cytoscape-svg";
+
+cytoscape.use(cytoscapeSVG);
+
 @Component({
   selector: 'app-cytoplot',
   templateUrl: './cytoplot.component.html',
@@ -61,5 +67,19 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
       })
     }
     console.log(this.cy)
+  }
+
+  download() {
+    const svgContent = this.cy.svg({full:true})
+    console.log(svgContent)
+    const blob = new Blob([svgContent], {type:"image/svg+xml;charset=utf-8"});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "cytoplot.svg"
+    document.body.appendChild(a)
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url)
   }
 }
