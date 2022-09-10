@@ -26,7 +26,9 @@ export class WebService {
     Cathepsins: {filename: "cathepsins.txt", name: "Cathepsins"},
     MacrophageLRRK2Inhibition: {filename: "macrophages.lrrk2.inhibition.txt", name: "LRRK2 inhibition in iPSC-derived macrophages"},
     CiliaCore: {filename: "cilia.core.txt", name: "Core Cilia Proteins"},
-    CiliaExpanded: {filename: "cilia.expanded.txt", name: "Expanded Cilia Proteins"}
+    CiliaExpanded: {filename: "cilia.expanded.2.txt", name: "Expanded Cilia Proteins"},
+    Hedgehog: {filename: "hedgehog.txt", name: "Hedgehog Genes"},
+    Ciliopathy: {filename: "ciliopathy.txt", name: "Ciliopathy Genes"}
   }
   constructor(private http: HttpClient, private plotly: PlotlyService) { }
 

@@ -45,6 +45,8 @@ services:
       context: ./dockerfiles
       dockerfile: Dockerfile-cactus
     container_name: production_cactus
+    environment:
+      - HandlersRoute=(curtain\.omics\.quest|curtain\.muttsu\.com|production_cactus|production_curtain|localhost|127\.0\.0\.1|62\.75\.251\.157|curtainptm\.proteo\.info|curtain\.proteo\.info)
     ports:
       - "8081:80"
     networks:
