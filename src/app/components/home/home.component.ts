@@ -74,7 +74,13 @@ export class HomeComponent implements OnInit {
   }
 
   private addGeneToSelected(s: any) {
-    const uni = this.uniprot.getUniprotFromPrimary(s[this.data.rawForm.primaryIDs])
+    let uni: any = {}
+    if (typeof s === "string") {
+      uni = this.uniprot.getUniprotFromPrimary(s)
+    } else {
+      uni = this.uniprot.getUniprotFromPrimary(s[this.data.rawForm.primaryIDs])
+    }
+
     if (uni) {
       if (uni["Gene Names"] !== "") {
         if (!this.data.selectedGenes.includes(uni["Gene Names"])) {
@@ -85,7 +91,6 @@ export class HomeComponent implements OnInit {
   }
 
   handleSearch(e: selectionData) {
-    console.log(e)
     const rawFiltered = this.data.raw.df.where(r => e.data.includes(r[this.data.rawForm.primaryIDs])).bake()
     this.data.selected = this.data.selected.concat(e.data)
     for (const c of this.data.differentialForm.comparisonSelect) {
