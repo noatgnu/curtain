@@ -28,6 +28,10 @@
     </div>
   </div>
   <textarea [disabled]="params.enableAdvanced" class="form-control mb-2" [(ngModel)]="data" rows="10"></textarea>
+  <div class="form-check">
+    <input type="checkbox" [disabled]="params.enableAdvanced" id="significantOnly" class="form-check-input" [(ngModel)]="params.significantOnly">
+    <label for="significantOnly" class="form-check-label">Select only significant data according to current volcano plot settings</label>
+  </div>
   <hr>
   <div class="row">
     <div class="form-check">

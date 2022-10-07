@@ -5,6 +5,8 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {BatchSearchComponent} from "../batch-search/batch-search.component";
 import {UniprotService} from "../../uniprot.service";
 import {DataFrame, IDataFrame} from "data-forge";
+import {Settings} from "../../classes/settings";
+import {SettingsService} from "../../settings.service";
 
 export interface selectionData {
   data: string[];
@@ -84,6 +86,15 @@ export class ProteinSelectionsComponent implements OnInit {
             result = df.getSeries(this.data.differentialForm.primaryIDs).bake().toArray()
           }
 
+        } else {
+          if (data.params.significantOnly) {
+            const pCutoff = -(Math.log10(this.settings.settings.pCutoff))
+            const df = this.data.currentDF.where(
+              r => result.includes(r[this.data.differentialForm.primaryIDs]) &&
+                (r[this.data.differentialForm.significant] >= pCutoff) &&
+                (Math.abs(r[this.data.differentialForm.foldChange])> this.settings.settings.log2FCCutoff)).bake()
+            result = df.getSeries(this.data.differentialForm.primaryIDs).bake().toArray()
+          }
         }
       }
       this.searchResult.emit({data: result, title: data.title})
@@ -130,7 +141,7 @@ export class ProteinSelectionsComponent implements OnInit {
 
 
 
-  constructor(public data: DataService, private modal: NgbModal, private uniprot: UniprotService) { }
+  constructor(public data: DataService, private modal: NgbModal, private uniprot: UniprotService, private settings: SettingsService) { }
 
   ngOnInit(): void {
   }

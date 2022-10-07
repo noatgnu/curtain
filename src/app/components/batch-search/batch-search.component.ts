@@ -13,6 +13,7 @@ export class BatchSearchComponent implements OnInit {
   searchType: "Gene Names"| "Primary IDs" = "Gene Names"
   title: string = ""
   builtInList: string[] = []
+
   params = {
     enableAdvanced: false,
     searchLeft: false,
@@ -22,7 +23,8 @@ export class BatchSearchComponent implements OnInit {
     minFCRight: 0,
     minFCLeft: 0,
     maxP: 0,
-    minP: 0
+    minP: 0,
+    significantOnly: false
   }
 
   constructor(private modal: NgbActiveModal, public web: WebService, private dataService: DataService) {
