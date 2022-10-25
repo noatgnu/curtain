@@ -25,7 +25,7 @@
             </div>
           </div>
         </div>
-        <button *ngIf="data.selectedComparison.length > 1" class="btn btn-secondary p-2" (click)="openProfileCompare()">
+        <button *ngIf="data.selectedComparison.length > 0" class="btn btn-secondary p-2" (click)="openProfileCompare()">
           Profile Compare ({{data.selectedComparison.length}})
         </button>
         <div class="p-2">

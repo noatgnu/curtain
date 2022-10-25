@@ -172,6 +172,10 @@ export class HomeComponent implements OnInit {
     if (!object.settings.prideAccession) {
       object.settings.prideAccession = ""
     }
+
+    if (!object.settings.barchartColorMap) {
+      object.settings.textAnnotation = {}
+    }
     if (!object.settings.barchartColorMap) {
       object.settings.barchartColorMap = {}
     }
@@ -276,6 +280,7 @@ export class HomeComponent implements OnInit {
     this.data.selectedMap = {}
     this.data.selectOperationNames = []
     this.settings.settings.colorMap = {}
+    this.settings.settings.textAnnotation = {}
     this.rawFiltered = new DataFrame()
     this.data.annotatedData = {}
     this.data.selectionUpdateTrigger.next(true)

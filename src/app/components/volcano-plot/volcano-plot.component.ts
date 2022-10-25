@@ -8,6 +8,9 @@ import {FdrCurveComponent} from "../fdr-curve/fdr-curve.component";
 import {VolcanoColorsComponent} from "../volcano-colors/volcano-colors.component";
 import {selectionData} from "../protein-selections/protein-selections.component";
 import {WebService} from "../../web.service";
+import {
+  VolcanoPlotTextAnnotationComponent
+} from "../volcano-plot-text-annotation/volcano-plot-text-annotation.component";
 
 @Component({
   selector: 'app-volcano-plot',
@@ -323,7 +326,13 @@ export class VolcanoPlotComponent implements OnInit {
       this.graphLayout.shapes = cutOff
     }
     this.graphData = graphData.reverse()
-    this.removeAnnotatedDataPoints([])
+    this.graphLayout.annotations = []
+    console.log(this.settings.settings.textAnnotation)
+    for (const i in this.settings.settings.textAnnotation) {
+      this.annotated[this.settings.settings.textAnnotation[i].title] = this.settings.settings.textAnnotation[i].data
+      this.graphLayout.annotations.push(this.settings.settings.textAnnotation[i].data)
+    }
+    //this.removeAnnotatedDataPoints([])
   }
 
   constructor(private web: WebService, private dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal) {
@@ -412,6 +421,17 @@ export class VolcanoPlotComponent implements OnInit {
             size: 15
           }
         }
+        if (title in this.settings.settings.textAnnotation) {
+
+        } else {
+          this.settings.settings.textAnnotation[title] = {
+            primary_id: a[this.dataService.differentialForm.primaryIDs],
+            data: ann,
+            title: title
+          }
+        }
+        console.log(this.settings.settings.textAnnotation)
+
         annotations.push(ann)
         this.annotated[title] = ann
       }
@@ -426,6 +446,7 @@ export class VolcanoPlotComponent implements OnInit {
     for (const d of data) {
       let title = d
       const uni = this.uniprot.getUniprotFromPrimary(title)
+
       if (uni) {
         if (uni["Gene Names"] !== "") {
           title = uni["Gene Names"] + "(" + title + ")"
@@ -440,5 +461,18 @@ export class VolcanoPlotComponent implements OnInit {
 
   download() {
     this.web.downloadPlotlyImage("svg", "volcano","volcanoPlot")
+  }
+
+  openTextEditor() {
+    const ref = this.modal.open(VolcanoPlotTextAnnotationComponent, {size: "lg"})
+    ref.closed.subscribe(data => {
+      this.graphLayout.annotations = []
+      this.annotated = {}
+      for (const a of data) {
+        this.settings.settings.textAnnotation[a.title] = a
+        this.annotated[a.title] = a.data
+        this.graphLayout.annotations.push(this.annotated[a.title])
+      }
+    })
   }
 }

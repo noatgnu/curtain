@@ -42,6 +42,7 @@ import {NgxPrintModule} from "ngx-print";
 import { SampleOrderAndHideComponent } from './components/sample-order-and-hide/sample-order-and-hide.component';
 import { ComparisonSelectionsComponent } from './components/comparison-selections/comparison-selections.component';
 import { RankPlotComponent } from './components/rank-plot/rank-plot.component';
+import { VolcanoPlotTextAnnotationComponent } from './components/volcano-plot-text-annotation/volcano-plot-text-annotation.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -77,7 +78,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     PrideComponent,
     SampleOrderAndHideComponent,
     ComparisonSelectionsComponent,
-    RankPlotComponent
+    RankPlotComponent,
+    VolcanoPlotTextAnnotationComponent
   ],
     imports: [
         BrowserModule,
