@@ -330,6 +330,9 @@ export class VolcanoPlotComponent implements OnInit {
     this.annotated = this.dataService.annotatedData
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       if (data) {
+        if (this.dataService.annotatedData === {}) {
+          this.annotated = {}
+        }
         this.drawVolcano()
       }
     })

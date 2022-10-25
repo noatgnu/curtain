@@ -277,6 +277,8 @@ export class HomeComponent implements OnInit {
     this.data.selectOperationNames = []
     this.settings.settings.colorMap = {}
     this.rawFiltered = new DataFrame()
+    this.data.annotatedData = {}
+    this.data.selectionUpdateTrigger.next(true)
   }
 
   openProfileCompare() {
