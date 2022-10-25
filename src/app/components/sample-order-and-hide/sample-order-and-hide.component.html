@@ -17,6 +17,7 @@
   <ng-container *ngFor="let c of condition">
     <div>
       <div class="row mt-2">
+
         <div class="col-4">
           <b>{{c}}</b>
         </div>
@@ -29,6 +30,9 @@
           <button class="btn btn-sm btn-outline-primary" (click)="moveDownCondition(c)">
             ↓
           </button>
+        </div>
+        <div class="col">
+          <input class="col-3" [(colorPicker)]="colorMap[c]" [style.background]="colorMap[c]">
         </div>
       </div>
       <table class="table">

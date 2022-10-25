@@ -168,8 +168,15 @@ export class HomeComponent implements OnInit {
     if (!object.settings.project) {
       object.settings.project = new Project()
     }
+
     if (!object.settings.prideAccession) {
       object.settings.prideAccession = ""
+    }
+    if (!object.settings.barchartColorMap) {
+      object.settings.barchartColorMap = {}
+    }
+    if (!object.settings.volcanoAxis) {
+      object.settings.volcanoAxis = {minX: null, maxX: null, minY: null, maxY: null}
     }
     if (!object.settings.sampleOrder) {
       object.settings.sampleOrder = {}

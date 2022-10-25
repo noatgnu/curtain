@@ -130,12 +130,16 @@ export class BarChartComponent implements OnInit {
       if (this.settings.settings.sampleVisible[s]) {
         sampleNumber ++
         const condition = this.dataService.sampleMap[s].condition
+        let color = this.dataService.colorMap[condition]
+        if (this.settings.settings.barchartColorMap[condition]) {
+          color = this.settings.settings.barchartColorMap[condition]
+        }
         if (!graph[condition]) {
           graph[condition] = {
             x: [],
             y: [],
             marker: {
-              "color": this.dataService.colorMap[condition]
+              "color": color
             },
             line: {
               color: "black"
@@ -206,6 +210,10 @@ export class BarChartComponent implements OnInit {
       }
     }
     for (const g in graph) {
+      let color = this.dataService.colorMap[g]
+      if (this.settings.settings.barchartColorMap[g]) {
+        color = this.settings.settings.barchartColorMap[g]
+      }
       const box = {
         x: g, y: graph[g],
         type: 'box',
@@ -226,6 +234,7 @@ export class BarChartComponent implements OnInit {
         showlegend: false
       }
       const violinX: any[] = graph[g].map(() => g)
+
       const violin = {
         type: 'violin',
         x: violinX, y: graph[g], points: "all",
@@ -238,7 +247,7 @@ export class BarChartComponent implements OnInit {
         line: {
           color: "black"
         },
-        fillcolor: this.dataService.colorMap[g]
+        fillcolor: color
         ,
         name: g,
         showlegend: false,
@@ -275,7 +284,7 @@ export class BarChartComponent implements OnInit {
           visible: true
         },
         marker: {
-          "color": this.dataService.colorMap[g]
+          "color": color
         },
         line: {
           color: "black"

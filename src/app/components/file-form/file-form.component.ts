@@ -100,6 +100,7 @@ export class FileFormComponent implements OnInit {
           colorPosition = 0
         }
         colorMap[c] = this.data.defaultColorList[colorPosition]
+        this.settings.settings.barchartColorMap[c] = null
         colorPosition++
       }
       this.data.colorMap = colorMap
