@@ -20,6 +20,7 @@ export class BarChartComponent implements OnInit {
   conditionB: string = ""
   conditions: string[] = []
   testType: string = "ANOVA"
+  selectedConditions: string[] = []
   barChartErrorType: string = "Standard Error"
   @Input() set data(value: any) {
     this._data = value
@@ -305,15 +306,18 @@ export class BarChartComponent implements OnInit {
   }
 
   performTest() {
-    const a = this.graph[this.conditionA]
-    const b = this.graph[this.conditionB]
+    //const a = this.graph[this.conditionA]
+    //const b = this.graph[this.conditionB]
+
+    const conditions = this.selectedConditions.map(a => this.graph[a].y)
+    console.log(conditions)
     switch (this.testType) {
       case "ANOVA":
-        this.comparisons = [{a: this.conditionA, b: this.conditionB, comparison: this.stats.calculateAnova(a.y, b.y)}]
+        this.comparisons = [{conditions: this.selectedConditions.slice(), comparison: this.stats.calculateAnova2(conditions)}]
         break
       case "TTest":
-        console.log(this.stats.calculateTTest(a.y, b.y))
-        this.comparisons = [{a: this.conditionA, b: this.conditionB, comparison: this.stats.calculateTTest(a.y, b.y)}]
+        //console.log(this.stats.calculateTTest(a.y, b.y))
+        //this.comparisons = [{a: this.conditionA, b: this.conditionB, comparison: this.stats.calculateTTest(a.y, b.y)}]
         break
     }
   }

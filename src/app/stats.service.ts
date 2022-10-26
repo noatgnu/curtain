@@ -14,6 +14,9 @@ export class StatsService {
     return {f: jstat.anovaftest(conditionA, conditionB)}
   }
 
+  calculateAnova2(conditions: any[]) {
+    return {f: jstat.anovaftest(...conditions)}
+  }
   calculateTTest(conditionA: any[], conditionB: any[]) {
     return {f: jstat.ttest([conditionA, conditionB])}
   }
