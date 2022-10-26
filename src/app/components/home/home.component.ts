@@ -173,6 +173,10 @@ export class HomeComponent implements OnInit {
       object.settings.prideAccession = ""
     }
 
+    if (!object.settings.volcanoPlotTitle) {
+      object.settings.volcanoPlotTitle = {}
+    }
+
     if (!object.settings.textAnnotation) {
       object.settings.textAnnotation = {}
     }

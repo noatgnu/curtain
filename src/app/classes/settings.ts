@@ -24,4 +24,5 @@ export class Settings {
   conditionOrder: string[] = []
   volcanoAxis: any = {minX: null, maxX: null, minY: null, maxY: null}
   textAnnotation: any = {}
+  volcanoPlotTitle: string = ""
 }
