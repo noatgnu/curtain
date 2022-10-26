@@ -416,9 +416,14 @@ export class VolcanoPlotComponent implements OnInit {
           y: a[this.dataService.differentialForm.significant],
           text: "<b>"+title+"</b>",
           showarrow: true,
-          arrowhead: 0.5,
+          arrowhead: 1,
+          arrowsize: 1,
+          arrowwidth: 1,
+          ax: -20,
+          ay: -20,
           font: {
-            size: 15
+            size: 15,
+            color: "#000000"
           }
         }
         if (title in this.settings.settings.textAnnotation) {
@@ -464,7 +469,7 @@ export class VolcanoPlotComponent implements OnInit {
   }
 
   openTextEditor() {
-    const ref = this.modal.open(VolcanoPlotTextAnnotationComponent, {size: "lg"})
+    const ref = this.modal.open(VolcanoPlotTextAnnotationComponent, {size: "xl"})
     ref.closed.subscribe(data => {
       this.graphLayout.annotations = []
       this.annotated = {}

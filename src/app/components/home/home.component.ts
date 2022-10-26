@@ -173,7 +173,7 @@ export class HomeComponent implements OnInit {
       object.settings.prideAccession = ""
     }
 
-    if (!object.settings.barchartColorMap) {
+    if (!object.settings.textAnnotation) {
       object.settings.textAnnotation = {}
     }
     if (!object.settings.barchartColorMap) {
