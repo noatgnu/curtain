@@ -174,7 +174,7 @@ export class HomeComponent implements OnInit {
     }
 
     if (!object.settings.volcanoPlotTitle) {
-      object.settings.volcanoPlotTitle = {}
+      object.settings.volcanoPlotTitle = ""
     }
 
     if (!object.settings.textAnnotation) {
