@@ -46,10 +46,10 @@
       <ng-template ngbPanelContent>
         <div class="row">
           <div class="col-3">
-            <label for="testType{{_data[dataService.rawForm.primaryIDs]}}">Test Type</label>
-            <select [(ngModel)]="testType" class="form-control" id="testType{{_data[dataService.rawForm.primaryIDs]}}">
-              <option [value]="d" *ngFor="let d of dataService.dataTestTypes">
-                {{d}}
+            <label for="condition{{_data[dataService.rawForm.primaryIDs]}}">Select conditions</label>
+            <select multiple [(ngModel)]="selectedConditions" class="form-control" id="condition{{_data[dataService.rawForm.primaryIDs]}}">
+              <option [value]="c" *ngFor="let c of dataService.conditions">
+                {{c}}
               </option>
             </select>
           </div>
