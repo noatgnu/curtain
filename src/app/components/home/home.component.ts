@@ -128,8 +128,10 @@ export class HomeComponent implements OnInit {
         primaryIDs = this.filterModel
         break
     }
-    const ind = this.data.selected.sort().indexOf(primaryIDs)
-    const newPage = Math.floor((ind + 1)/ this.data.pageSize) + 1
+    //const ind = this.data.selected.sort().indexOf(primaryIDs)
+    const f = this.rawFiltered.toArray().findIndex(r=> r[this.data.rawForm.primaryIDs] === primaryIDs)
+
+    const newPage = Math.floor((f + 1)/ this.data.pageSize) + 1
     if (this.data.page !== newPage) {
       this.data.page = newPage
     }
