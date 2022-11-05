@@ -198,17 +198,39 @@ export class FileFormComponent implements OnInit {
       const accList: string[] = []
       this.data.dataMap = new Map<string, string>()
       this.data.genesMap = {}
-      this.uniprot.accMap = new Map<string, string>()
+      this.uniprot.accMap = new Map<string, string[]>()
       this.uniprot.results = new Map<string, any>()
       for (const r of this.data.raw.df) {
         const a = r[this.data.rawForm.primaryIDs]
+
         this.data.dataMap.set(a, r[this.data.rawForm.primaryIDs])
         this.data.dataMap.set(r[this.data.rawForm.primaryIDs], a)
         const d = a.split(";")
         const accession = this.uniprot.Re.exec(d[0])
         if (accession) {
-          this.uniprot.accMap.set(a, accession[1])
-          this.uniprot.accMap.set(accession[1], a)
+          if (this.uniprot.accMap.has(a)) {
+            const al = this.uniprot.accMap.get(a)
+            if (al) {
+              if (!al.includes(accession[1])) {
+                al.push(accession[1])
+                this.uniprot.accMap.set(a, al)
+              }
+            }
+          } else {
+            this.uniprot.accMap.set(a, [accession[1]])
+          }
+          if (this.uniprot.accMap.has(accession[1])) {
+            const al = this.uniprot.accMap.get(accession[1])
+            if (al) {
+              if (!al.includes(a)) {
+                al.push(a)
+                this.uniprot.accMap.set(accession[1], al)
+              }
+            }
+          } else {
+            this.uniprot.accMap.set(accession[1], [a])
+          }
+
           if (!this.uniprot.results.has(accession[1])) {
             accList.push(accession[1])
           }

@@ -16,7 +16,7 @@ export class UniprotService {
   organism = ""
   uniprotParseStatus = new BehaviorSubject<boolean>(false)
   uniprotProgressBar = new Subject<any>()
-  accMap: Map<string, string> = new Map<string, string>()
+  accMap: Map<string, string[]> = new Map<string, string[]>()
   geneNameToAcc: any = {}
   constructor(private http: HttpClient, private web: WebService) { }
 
@@ -43,6 +43,9 @@ export class UniprotService {
     const df = fromCSV(data, {delimiter: '\t'});
     this.organism = df.first()["Organism (ID)"]
     for (const r of df) {
+      if (r["From"] === "P52850") {
+        console.log(r)
+      }
       if (r["Gene Names"]) {
         r["Gene Names"] = r["Gene Names"].replaceAll(" ", ";").toUpperCase()
       }
@@ -113,18 +116,24 @@ export class UniprotService {
       this.results.set(r["Entry"], r)
 
       if (this.accMap.has(r["Entry"])) {
-        const a = this.accMap.get(r["Entry"])
+        const d = this.accMap.get(r["Entry"])
         // @ts-ignore
-        const query = a.replace(",", ";")
-        for (const q of query.split(";")) {
-          this.results.set(q, r)
-          if (r["Gene Names"] !== "") {
-            if (!this.geneNameToAcc[r["Gene Names"]]) {
-              this.geneNameToAcc[r["Gene Names"]] = {}
+        for (const a of d) {
+          const query = a.replace(",", ";")
+          for (const q of query.split(";")) {
+            this.results.set(q, r)
+            if (r["Gene Names"] !== "") {
+              if (!this.geneNameToAcc[r["Gene Names"]]) {
+                this.geneNameToAcc[r["Gene Names"]] = {}
+              }
+              this.geneNameToAcc[r["Gene Names"]][q] = true
             }
-            this.geneNameToAcc[r["Gene Names"]][q] = true
           }
         }
+      }
+      if (r["From"] === "P52850") {
+        console.log(this.accMap.get("P52850"))
+        console.log(this.getUniprotFromPrimary("P52850"))
       }
     }
   }
@@ -267,12 +276,14 @@ export class UniprotService {
 
   getUniprotFromPrimary(accession_id: string) {
     if (this.accMap.has(accession_id)) {
-      const a = this.accMap.get(accession_id)
-      if (a) {
-        if (this.results.has(a)) {
-          const ac = this.results.get(a)
-          if (ac) {
-            return ac
+      const d = this.accMap.get(accession_id)
+      if (d) {
+        for (const a of d) {
+          if (this.results.has(a)) {
+            const ac = this.results.get(a)
+            if (ac) {
+              return ac
+            }
           }
         }
       }

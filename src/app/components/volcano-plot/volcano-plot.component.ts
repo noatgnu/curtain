@@ -150,15 +150,18 @@ export class VolcanoPlotComponent implements OnInit {
       const x = r[this.dataService.differentialForm.foldChange]
       const y = r[this.dataService.differentialForm.significant]
       let primaryID = r[this.dataService.differentialForm.primaryIDs]
+      if (primaryID === "P52850") {
+        console.log(this.uniprot.getUniprotFromPrimary(primaryID))
+      }
       let uniquePrimaryID = ""
       if (this.dataService.differentialForm.comparisonSelect.length > 1) {
         uniquePrimaryID = r["UniquePrimaryIDs"]
       }
       let text = primaryID
       if (this.dataService.fetchUniprot) {
-        const r = this.uniprot.getUniprotFromPrimary(primaryID)
-        if (r) {
-          geneNames = r["Gene Names"]
+        const rd = this.uniprot.getUniprotFromPrimary(primaryID)
+        if (rd) {
+          geneNames = rd["Gene Names"]
         }
       } else {
         if (this.dataService.differentialForm.geneNames !== "") {
