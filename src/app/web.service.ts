@@ -28,7 +28,8 @@ export class WebService {
     CiliaCore: {filename: "cilia.core.txt", name: "Core Cilia Proteins"},
     CiliaExpanded: {filename: "cilia.expanded.2.txt", name: "Expanded Cilia Proteins"},
     Hedgehog: {filename: "hedgehog.txt", name: "Hedgehog Genes"},
-    Ciliopathy: {filename: "ciliopathy.txt", name: "Ciliopathy Genes"}
+    Ciliopathy: {filename: "ciliopathy.txt", name: "Ciliopathy Genes"},
+    mTOR: {filename: "mtor.txt", name: "mTOR Pathway"}
   }
   constructor(private http: HttpClient, private plotly: PlotlyService) { }
 
