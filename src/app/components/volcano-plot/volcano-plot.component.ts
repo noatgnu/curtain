@@ -346,6 +346,7 @@ export class VolcanoPlotComponent implements OnInit {
   }
 
   constructor(private web: WebService, private dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal) {
+    console.log(this.dataService.annotatedData)
     this.annotated = this.dataService.annotatedData
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       if (data) {
@@ -451,7 +452,7 @@ export class VolcanoPlotComponent implements OnInit {
         this.annotated[title] = ann
       }
     }
-
+    console.log(annotations)
     if (annotations.length > 0) {
       this.graphLayout.annotations = this.graphLayout.annotations.concat(annotations)
     }

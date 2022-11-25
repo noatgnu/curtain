@@ -212,6 +212,7 @@ export class HomeComponent implements OnInit {
         this.data.rawForm.restore(object.rawForm)
         this.data.fetchUniprot = object.fetchUniprot
         if (object.annotatedData) {
+          console.log(object.annotatedData)
           this.data.annotatedData = object.annotatedData
         }
       }
