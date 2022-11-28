@@ -166,7 +166,7 @@ export class HomeComponent implements OnInit {
     if (typeof object.settings === "string") {
       object.settings = JSON.parse(object.settings)
     }
-    console.log(object.settings)
+    console.log(object.settings.barchartColorMap)
     if (!object.settings.project) {
       object.settings.project = new Project()
     }
@@ -212,7 +212,6 @@ export class HomeComponent implements OnInit {
         this.data.rawForm.restore(object.rawForm)
         this.data.fetchUniprot = object.fetchUniprot
         if (object.annotatedData) {
-          console.log(object.annotatedData)
           this.data.annotatedData = object.annotatedData
         }
       }
@@ -248,7 +247,7 @@ export class HomeComponent implements OnInit {
         }
       }
       if (object.selections) {
-        console.log(object.selections)
+
         for (const s in object.selections) {
           if (!this.data.selectOperationNames.includes(s)) {
             this.data.selectOperationNames.push(s)
@@ -277,8 +276,13 @@ export class HomeComponent implements OnInit {
       this.data.differential = new InputFile(fromCSV(object.processed), "processedFile.txt", object.processed)
     }
     object.settings.version = 2
-    this.settings.settings = object.settings;
+    console.log(object.settings.barchartColorMap)
+    for (const i in object.settings) {
+      // @ts-ignore
+      this.settings.settings[i] = object.settings[i]
+    }
     this.data.restoreTrigger.next(true)
+    console.log(this.settings.settings.barchartColorMap)
   }
 
   clearSelections() {
