@@ -166,7 +166,7 @@ export class HomeComponent implements OnInit {
     if (typeof object.settings === "string") {
       object.settings = JSON.parse(object.settings)
     }
-    console.log(object.settings.barchartColorMap)
+    console.log(object.settings)
     if (!object.settings.project) {
       object.settings.project = new Project()
     }

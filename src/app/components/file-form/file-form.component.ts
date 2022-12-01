@@ -51,7 +51,9 @@ export class FileFormComponent implements OnInit {
       this.clicked = true
       this.finished.emit(false)
       console.log(this.data.differentialForm)
-      if (this.data.differentialForm.comparisonSelect.length === 0) {
+      if (!this.data.differentialForm.comparisonSelect) {
+        this.data.differentialForm.comparisonSelect = [this.data.differential.df.first()[this.data.differentialForm.comparison]]
+      } else if (this.data.differentialForm.comparisonSelect.length === 0) {
         this.data.differentialForm.comparisonSelect = [this.data.differential.df.first()[this.data.differentialForm.comparison]]
       }
       const totalSampleNumber = this.data.rawForm.samples.length
