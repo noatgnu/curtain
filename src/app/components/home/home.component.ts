@@ -39,15 +39,22 @@ export class HomeComponent implements OnInit {
     this.route.params.subscribe(params => {
       if (params) {
         if (params["settings"]) {
-          this.toast.show("Initialization", "Fetching data from session " + params["settings"])
-          if (this.currentID !== params["settings"]) {
-            this.currentID = params["settings"]
-            this.web.postSettings(params["settings"], "").subscribe(data => {
-              if (data.body) {
+          const settings = params["settings"].split("&")
+          let token: string = ""
+          if (settings.length > 1) {
+            token = settings[1]
+          }
+          this.toast.show("Initialization", "Fetching data from session " + settings[0])
+          if (this.currentID !== settings[0]) {
+            this.currentID = settings[0]
 
+            this.web.postSettings(settings[0], token).subscribe(data => {
+              if (data.body) {
                 const a = JSON.parse(<string>data.body, this.web.reviver)
                 this.restoreSettings(a).then()
               }
+            }, error => {
+
             })
           }
         }
@@ -153,9 +160,10 @@ export class HomeComponent implements OnInit {
       annotatedData: this.data.annotatedData
     }
     console.log(data.settings)
-    this.web.putSettings(data).subscribe(data => {
+    this.web.putSettings(data).subscribe((data:any) => {
       if (data.body) {
-        this.settings.settings.currentID = data.body
+        console.log(data.body)
+        this.settings.settings.currentID = data.body.link_id
         this.uniqueLink = location.origin +"/#/" + this.settings.settings.currentID
       }
     })
