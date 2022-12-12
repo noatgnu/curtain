@@ -35,6 +35,7 @@ export class UniprotParser {
         subset = data.slice(i)
       }
       const jobId = await this.postJob(subset)
+      await new Promise(resolve => setTimeout(resolve, 2000))
       this.jobCollections.push({jobId: jobId, completed: false, started: false})
     }
   }
@@ -81,7 +82,6 @@ export class UniprotParser {
     let body = new URLSearchParams([
       ["ids", data.join(",")], ["from", "UniProtKB_AC-ID"], ["to", "UniProtKB"]
     ])
-
     const res = await this.http.post(
       this.baseURL,
       body.toString(),
