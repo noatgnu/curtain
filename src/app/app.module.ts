@@ -44,6 +44,8 @@ import { ComparisonSelectionsComponent } from './components/comparison-selection
 import { RankPlotComponent } from './components/rank-plot/rank-plot.component';
 import { VolcanoPlotTextAnnotationComponent } from './components/volcano-plot-text-annotation/volcano-plot-text-annotation.component';
 import {TokenInterceptor} from "./token.interceptor";
+import { LoginModalComponent } from './components/login-modal/login-modal.component';
+import { SessionSettingsComponent } from './components/session-settings/session-settings.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -80,7 +82,9 @@ PlotlyModule.plotlyjs = PlotlyJS;
     SampleOrderAndHideComponent,
     ComparisonSelectionsComponent,
     RankPlotComponent,
-    VolcanoPlotTextAnnotationComponent
+    VolcanoPlotTextAnnotationComponent,
+    LoginModalComponent,
+    SessionSettingsComponent
   ],
     imports: [
         BrowserModule,

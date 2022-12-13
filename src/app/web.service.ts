@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {CurtainLink} from "./classes/curtain-link";
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {PlotlyService} from "angular-plotly.js";
 
 @Injectable({
@@ -117,5 +117,25 @@ export class WebService {
       }})
   }
 
+  getUserData() {
+    return this.http.post(this.links.proxyURL + "user/", {})
+  }
 
+  generateTemporarySession(link_id: string) {
+    return this.http.post(this.links.proxyURL + `curtain/${link_id}/generate_token/`, {}, {responseType: "json", observe: "body"})
+  }
+
+  updateSession(sessionData: any, link_id: string) {
+    let headers = new HttpHeaders()
+    headers = headers.set("Content-Type", "application/json")
+    let payload: any = {}
+    for (const i in sessionData) {
+      payload[i] = sessionData[i]
+    }
+    return this.http.patch(this.links.proxyURL + `curtain/${link_id}/`, payload, {responseType: "json", observe: "body", headers})
+  }
+
+  getSessionSettings(link_id: string) {
+    return this.http.get(this.links.proxyURL + `curtain/${link_id}/`,{responseType: "json", observe: "body"})
+  }
 }

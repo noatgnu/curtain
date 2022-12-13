@@ -19,6 +19,9 @@ import {CitationComponent} from "../citation/citation.component";
 import {SampleAnnotationComponent} from "../sample-annotation/sample-annotation.component";
 import {Project} from "../../classes/project";
 import {SampleOrderAndHideComponent} from "../sample-order-and-hide/sample-order-and-hide.component";
+import {LoginModalComponent} from "../login-modal/login-modal.component";
+import {AccountsService} from "../../accounts.service";
+import {SessionSettingsComponent} from "../session-settings/session-settings.component";
 
 @Component({
   selector: 'app-home',
@@ -31,11 +34,11 @@ export class HomeComponent implements OnInit {
   uniqueLink: string = ""
   filterModel: string = ""
   currentID: string = ""
-  constructor(private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, private settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
+  constructor(public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, private settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
-
+    this.accounts.reload()
     this.route.params.subscribe(params => {
       if (params) {
         if (params["settings"]) {
@@ -334,6 +337,15 @@ export class HomeComponent implements OnInit {
   openSampleSettings() {
     const ref = this.modal.open(SampleOrderAndHideComponent)
 
+  }
+
+  openLoginModal() {
+    const ref = this.modal.open(LoginModalComponent)
+  }
+
+  openSessionSettings() {
+    const ref = this.modal.open(SessionSettingsComponent)
+    ref.componentInstance.currentID = this.currentID
   }
 }
 
