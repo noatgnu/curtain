@@ -54,7 +54,6 @@ export class HomeComponent implements OnInit {
             this.currentID = settings[0]
 
             this.web.postSettings(settings[0], token).subscribe(data => {
-              console.log(data)
               if (data.body) {
                 const a = JSON.parse(<string>data.body, this.web.reviver)
                 this.restoreSettings(a).then()
@@ -172,10 +171,9 @@ export class HomeComponent implements OnInit {
       fetchUniprot: this.data.fetchUniprot,
       annotatedData: this.data.annotatedData
     }
-    console.log(data.settings)
+
     this.web.putSettings(data).subscribe((data:any) => {
       if (data.body) {
-        console.log(data.body)
         this.settings.settings.currentID = data.body.link_id
         this.uniqueLink = location.origin +"/#/" + this.settings.settings.currentID
       }
