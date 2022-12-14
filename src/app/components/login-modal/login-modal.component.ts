@@ -3,6 +3,7 @@ import {FormBuilder, Validators} from "@angular/forms";
 import {AccountsService} from "../../accounts.service";
 import {WebService} from "../../web.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {Subject} from "rxjs";
 
 @Component({
   selector: 'app-login-modal',
@@ -14,6 +15,8 @@ export class LoginModalComponent implements OnInit {
     username: [null, Validators.required],
     password: [null, Validators.required]
   })
+
+  loginStatus: Subject<boolean> = new Subject<boolean>()
   constructor(private modal: NgbActiveModal, private fb: FormBuilder, private accounts: AccountsService, private web: WebService) { }
 
   ngOnInit(): void {
@@ -32,6 +35,7 @@ export class LoginModalComponent implements OnInit {
           this.accounts.user_name = data.username
           this.accounts.user_staff = data.is_staff
           this.form.reset()
+          this.loginStatus.next(true)
           this.modal.dismiss()
         })
       })

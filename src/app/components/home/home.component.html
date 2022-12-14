@@ -24,12 +24,13 @@
               <button ngbDropdownItem (click)="openSampleSettings()">
                 Sample Order & Visibility Settings
               </button>
-              <button ngbDropdownItem (click)="openSessionSettings()" *ngIf="accounts.loggedIn">
-                Session Settings
-              </button>
+
             </ng-container>
             <button ngbDropdownItem (click)="openLoginModal()" *ngIf="accounts.loggedIn===false">
               Account Login
+            </button>
+            <button ngbDropdownItem (click)="openSessionSettings()" [disabled]="accounts.loggedIn===false">
+              Session Settings
             </button>
           </div>
         </div>

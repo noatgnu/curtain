@@ -40,8 +40,10 @@ export class HomeComponent implements OnInit {
     // }
     this.accounts.reload()
     this.route.params.subscribe(params => {
+      console.log(params)
       if (params) {
-        if (params["settings"]) {
+        if (params["settings"] && params["settings"].length > 0) {
+          console.log(params["settings"])
           const settings = params["settings"].split("&")
           let token: string = ""
           if (settings.length > 1) {
@@ -52,12 +54,20 @@ export class HomeComponent implements OnInit {
             this.currentID = settings[0]
 
             this.web.postSettings(settings[0], token).subscribe(data => {
+              console.log(data)
               if (data.body) {
                 const a = JSON.parse(<string>data.body, this.web.reviver)
                 this.restoreSettings(a).then()
               }
             }, error => {
-
+              if (error.status === 400) {
+                const login = this.openLoginModal()
+                login.componentInstance.loginStatus.asObservable().subscribe((data:boolean) => {
+                  if (data) {
+                    location.reload()
+                  }
+                })
+              }
             })
           }
         }
@@ -341,6 +351,7 @@ export class HomeComponent implements OnInit {
 
   openLoginModal() {
     const ref = this.modal.open(LoginModalComponent)
+    return ref
   }
 
   openSessionSettings() {
