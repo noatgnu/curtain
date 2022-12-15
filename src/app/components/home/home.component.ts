@@ -34,7 +34,7 @@ export class HomeComponent implements OnInit {
   uniqueLink: string = ""
   filterModel: string = ""
   currentID: string = ""
-  tempLink: boolean = false
+
   constructor(public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, private settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
@@ -49,9 +49,9 @@ export class HomeComponent implements OnInit {
           let token: string = ""
           if (settings.length > 1) {
             token = settings[1]
-            this.tempLink = true
+            this.data.tempLink = true
           } else {
-            this.tempLink = false
+            this.data.tempLink = false
           }
           this.toast.show("Initialization", "Fetching data from session " + settings[0])
           if (this.currentID !== settings[0]) {

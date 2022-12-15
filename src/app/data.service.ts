@@ -11,6 +11,7 @@ import {BehaviorSubject, debounceTime, distinctUntilChanged, map, Observable, Op
   providedIn: 'root'
 })
 export class DataService {
+  tempLink: boolean = false
   get colorMap(): any {
     return this._colorMap;
   }
