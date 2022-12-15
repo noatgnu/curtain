@@ -63,6 +63,7 @@ export class SessionSettingsComponent implements OnInit {
         annotatedData: this.data.annotatedData
       }
     }
+    console.log(payload)
     this.web.updateSession(payload, this.currentID).subscribe(data => {
       this.modal.dismiss()
     })
