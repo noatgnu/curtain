@@ -22,6 +22,7 @@ import {SampleOrderAndHideComponent} from "../sample-order-and-hide/sample-order
 import {LoginModalComponent} from "../login-modal/login-modal.component";
 import {AccountsService} from "../../accounts.service";
 import {SessionSettingsComponent} from "../session-settings/session-settings.component";
+import {AccountsComponent} from "../accounts/accounts.component";
 
 @Component({
   selector: 'app-home',
@@ -370,6 +371,10 @@ export class HomeComponent implements OnInit {
   openSessionSettings() {
     const ref = this.modal.open(SessionSettingsComponent)
     ref.componentInstance.currentID = this.currentID
+  }
+
+  openAccountModal() {
+    const ref = this.modal.open(AccountsComponent)
   }
 }
 
