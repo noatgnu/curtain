@@ -62,6 +62,9 @@ export class HomeComponent implements OnInit {
               if (data.body) {
                 const a = JSON.parse(<string>data.body, this.web.reviver)
                 this.restoreSettings(a).then()
+                this.web.getSessionSettings(settings[0]).subscribe((d:any)=> {
+                  this.data.session = d
+                })
               }
             }, error => {
               if (error.status === 400) {
@@ -188,8 +191,9 @@ export class HomeComponent implements OnInit {
       annotatedData: this.data.annotatedData
     }
 
-    this.web.putSettings(data).subscribe((data:any) => {
+    this.web.putSettings(data, !this.accounts.loggedIn).subscribe((data:any) => {
       if (data.body) {
+        this.data.session = data.body
         this.settings.settings.currentID = data.body.link_id
         this.uniqueLink = location.origin +"/#/" + this.settings.settings.currentID
       }
@@ -374,7 +378,7 @@ export class HomeComponent implements OnInit {
   }
 
   openAccountModal() {
-    const ref = this.modal.open(AccountsComponent)
+    const ref = this.modal.open(AccountsComponent, {size:"xl"})
   }
 }
 

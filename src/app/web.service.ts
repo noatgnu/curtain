@@ -80,10 +80,15 @@ export class WebService {
     )
   }
 
-  putSettings(settings: any) {
+  putSettings(settings: any, enable: boolean = true) {
     let form = new FormData()
     form.append("file", new Blob([JSON.stringify(settings, this.replacer)], {type: 'text/json'}), "curtain-settings.json")
-    form.append("enable", "True")
+    if (enable) {
+      form.append("enable", "True")
+    } else {
+      form.append("enable", "False")
+    }
+
     return this.http.post(this.links.proxyURL + "curtain/", form, {responseType: "json", observe: "response"})
   }
 
