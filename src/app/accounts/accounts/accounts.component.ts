@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {WebService} from "../../web.service";
-import {AccountsService} from "../../accounts.service";
+import {AccountsService} from "../accounts.service";
 
 @Component({
   selector: 'app-accounts',

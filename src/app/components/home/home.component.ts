@@ -20,9 +20,9 @@ import {SampleAnnotationComponent} from "../sample-annotation/sample-annotation.
 import {Project} from "../../classes/project";
 import {SampleOrderAndHideComponent} from "../sample-order-and-hide/sample-order-and-hide.component";
 import {LoginModalComponent} from "../login-modal/login-modal.component";
-import {AccountsService} from "../../accounts.service";
+import {AccountsService} from "../../accounts/accounts.service";
 import {SessionSettingsComponent} from "../session-settings/session-settings.component";
-import {AccountsComponent} from "../accounts/accounts.component";
+import {AccountsComponent} from "../../accounts/accounts/accounts.component";
 
 @Component({
   selector: 'app-home',

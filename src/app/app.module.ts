@@ -46,7 +46,8 @@ import { VolcanoPlotTextAnnotationComponent } from './components/volcano-plot-te
 import {TokenInterceptor} from "./token.interceptor";
 import { LoginModalComponent } from './components/login-modal/login-modal.component';
 import { SessionSettingsComponent } from './components/session-settings/session-settings.component';
-import { AccountsComponent } from './components/accounts/accounts.component';
+import { AccountsComponent } from './accounts/accounts/accounts.component';
+import {AccountsModule} from "./accounts/accounts.module";
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -86,18 +87,18 @@ PlotlyModule.plotlyjs = PlotlyJS;
     VolcanoPlotTextAnnotationComponent,
     LoginModalComponent,
     SessionSettingsComponent,
-    AccountsComponent
   ],
     imports: [
-        BrowserModule,
-        AppRoutingModule,
-        NgbModule,
-        FormsModule,
-        HttpClientModule,
-        PlotlyModule,
-        ReactiveFormsModule,
-        ColorPickerModule,
-        QuillModule.forRoot(),
+      BrowserModule,
+      AppRoutingModule,
+      NgbModule,
+      FormsModule,
+      HttpClientModule,
+      PlotlyModule,
+      ReactiveFormsModule,
+      ColorPickerModule,
+      QuillModule.forRoot(),
+      AccountsModule,
       NgxPrintModule
     ],
   providers: [HttpClient,

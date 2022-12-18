@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, Validators} from "@angular/forms";
-import {AccountsService} from "../../accounts.service";
+import {AccountsService} from "../../accounts/accounts.service";
 import {WebService} from "../../web.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {Subject} from "rxjs";
