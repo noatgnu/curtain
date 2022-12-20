@@ -9,6 +9,10 @@ export class AppComponent {
   title = 'Curtain';
 
   constructor() {
-    console.log(document.URL)
+    if (document.URL.includes("#access_token" )) {
+      const data = new URLSearchParams(window.location.search)
+      console.log(data)
+    }
+
   }
 }
