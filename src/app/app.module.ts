@@ -44,7 +44,7 @@ import { ComparisonSelectionsComponent } from './components/comparison-selection
 import { RankPlotComponent } from './components/rank-plot/rank-plot.component';
 import { VolcanoPlotTextAnnotationComponent } from './components/volcano-plot-text-annotation/volcano-plot-text-annotation.component';
 import {TokenInterceptor} from "./token.interceptor";
-import { LoginModalComponent } from './components/login-modal/login-modal.component';
+import { LoginModalComponent } from './accounts/login-modal/login-modal.component';
 import { SessionSettingsComponent } from './components/session-settings/session-settings.component';
 import { AccountsComponent } from './accounts/accounts/accounts.component';
 import {AccountsModule} from "./accounts/accounts.module";
@@ -85,7 +85,6 @@ PlotlyModule.plotlyjs = PlotlyJS;
     ComparisonSelectionsComponent,
     RankPlotComponent,
     VolcanoPlotTextAnnotationComponent,
-    LoginModalComponent,
     SessionSettingsComponent,
   ],
     imports: [

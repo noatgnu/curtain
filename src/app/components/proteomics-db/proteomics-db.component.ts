@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {WebService} from "../../web.service";
 import {UniprotService} from "../../uniprot.service";
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {UntypedFormBuilder, UntypedFormGroup} from "@angular/forms";
 
 @Component({
   selector: 'app-proteomics-db',
@@ -24,13 +24,13 @@ export class ProteomicsDbComponent implements OnInit {
     }
   }
 
-  form: FormGroup = this.fb.group({
+  form: UntypedFormGroup = this.fb.group({
     selected: "tissue"
   })
 
   graphData: any[] = []
   graphLayout: any = {}
-  constructor(public web: WebService, private uniprot: UniprotService, private fb: FormBuilder) {
+  constructor(public web: WebService, private uniprot: UniprotService, private fb: UntypedFormBuilder) {
     this.form.valueChanges.subscribe(value => {
       this.web.getProteomicsData(this._uniprotID, value.selected).then(r => {
         r.subscribe(data => {

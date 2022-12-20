@@ -192,4 +192,10 @@ export class AccountsService {
     }
     return false
   }
+
+  postGoogleData(data: any) {
+    let headers = new HttpHeaders()
+    headers = headers.set("content-type", "application/json")
+    return this.http.post(this.host + "rest-auth/google/", JSON.stringify({"auth_token": data.idToken}), {responseType: "json", observe: "body", headers})
+  }
 }

@@ -170,4 +170,6 @@ export class WebService {
     params = params.set("username", username)
     return this.http.get(this.links.proxyURL + "curtain/", {responseType: "json", observe: "body", params})
   }
+
+
 }

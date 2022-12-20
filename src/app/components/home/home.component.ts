@@ -19,7 +19,7 @@ import {CitationComponent} from "../citation/citation.component";
 import {SampleAnnotationComponent} from "../sample-annotation/sample-annotation.component";
 import {Project} from "../../classes/project";
 import {SampleOrderAndHideComponent} from "../sample-order-and-hide/sample-order-and-hide.component";
-import {LoginModalComponent} from "../login-modal/login-modal.component";
+import {LoginModalComponent} from "../../accounts/login-modal/login-modal.component";
 import {AccountsService} from "../../accounts/accounts.service";
 import {SessionSettingsComponent} from "../session-settings/session-settings.component";
 import {AccountsComponent} from "../../accounts/accounts/accounts.component";
@@ -44,7 +44,9 @@ export class HomeComponent implements OnInit {
     this.route.params.subscribe(params => {
       console.log(params)
       if (params) {
-        if (params["settings"] && params["settings"].length > 0) {
+        if (params["settings"] && params["settings"].startsWith("access_token")){
+          console.log(params["settings"])
+        } else if (params["settings"] && params["settings"].length > 0) {
           console.log(params["settings"])
           const settings = params["settings"].split("&")
           let token: string = ""

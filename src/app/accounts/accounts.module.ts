@@ -6,14 +6,20 @@ import {
   FacebookLoginProvider
 } from '@abacritt/angularx-social-login';
 import {AccountsComponent} from "./accounts/accounts.component";
+import {LoginModalComponent} from "./login-modal/login-modal.component";
+import {ReactiveFormsModule} from "@angular/forms";
+import {environment} from "../../environments/environment";
 
 
 @NgModule({
   declarations: [
-    AccountsComponent
+    AccountsComponent,
+    LoginModalComponent
   ],
   imports: [
     CommonModule,
+    ReactiveFormsModule,
+    SocialLoginModule,
 
   ],
   providers: [
@@ -22,16 +28,16 @@ import {AccountsComponent} from "./accounts/accounts.component";
       useValue: {
         autoLogin: false,
         providers: [
-          {
+          /*{
             id: GoogleLoginProvider.PROVIDER_ID,
             provider: new GoogleLoginProvider(
-              'clientId'
+              environment.google
             )
           },
           {
             id: FacebookLoginProvider.PROVIDER_ID,
             provider: new FacebookLoginProvider('clientId')
-          }
+          }*/
         ],
         onError: (err) => {
           console.error(err);

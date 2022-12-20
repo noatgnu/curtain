@@ -16,6 +16,7 @@ export class TokenInterceptor implements HttpInterceptor {
   constructor(private accounts: AccountsService) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    console.log(request)
     if (!request.url.endsWith("/token/refresh/")) {
       if (request.url.endsWith("/logout/")) {
         return next.handle(request)
