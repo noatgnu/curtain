@@ -10,8 +10,8 @@ export class AppComponent {
 
   constructor() {
     if (document.URL.includes("#access_token" )) {
-      const data = new URLSearchParams(window.location.search)
-      console.log(data)
+      const l = document.URL.replace(window.location.origin+"/#", "")
+      console.log(l)
     }
 
   }
