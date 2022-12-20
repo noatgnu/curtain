@@ -17,6 +17,7 @@ export class AppComponent {
           data.push(d)
         }
       }
+      console.log(data)
     }
 
   }
