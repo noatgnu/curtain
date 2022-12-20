@@ -198,4 +198,10 @@ export class AccountsService {
     headers = headers.set("content-type", "application/json")
     return this.http.post(this.host + "rest-auth/google/", JSON.stringify({"auth_token": data.idToken}), {responseType: "json", observe: "body", headers})
   }
+
+  postORCIDCode(data: string) {
+    let headers = new HttpHeaders()
+    headers = headers.set("content-type", "application/json")
+    return this.http.post(this.host + "rest-auth/orcid/", JSON.stringify({"auth_token": data}), {responseType: "json", observe: "body", headers})
+  }
 }

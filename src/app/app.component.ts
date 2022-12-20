@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import {AccountsService} from "./accounts/accounts.service";
 
 @Component({
   selector: 'app-root',
@@ -8,18 +9,13 @@ import { Component } from '@angular/core';
 export class AppComponent {
   title = 'Curtain';
 
-  constructor() {
-    console.log(document.URL)
-    if (document.URL.includes("#access_token" )) {
-      const l = document.URL.replace(window.location.origin+"/#", "")
-      const data: any[] = []
-      for (const i of l.split("&")) {
-        for (const d of i.split("=")) {
-          data.push(d)
-        }
-      }
-      console.log(data)
+  constructor(private accounts: AccountsService) {
+    const path = document.URL.replace(window.location.origin+"/", "")
+    if (path.startsWith("?code=")) {
+      const code = path.split("=")
+      this.accounts.postORCIDCode(code[1]).subscribe(data => {
+        console.log(data)
+      })
     }
-
   }
 }
