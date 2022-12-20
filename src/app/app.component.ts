@@ -9,6 +9,7 @@ export class AppComponent {
   title = 'Curtain';
 
   constructor() {
+    console.log(document.URL)
     if (document.URL.includes("#access_token" )) {
       const l = document.URL.replace(window.location.origin+"/#", "")
       const data: any[] = []
