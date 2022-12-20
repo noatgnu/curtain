@@ -202,6 +202,6 @@ export class AccountsService {
   postORCIDCode(data: string) {
     let headers = new HttpHeaders()
     headers = headers.set("content-type", "application/json")
-    return this.http.post(this.host + "rest-auth/orcid/", JSON.stringify({"auth_token": data}), {responseType: "json", observe: "body", headers})
+    return this.http.post(this.host + "rest-auth/orcid/", JSON.stringify({"auth_token": data, "redirect_uri": window.location.origin+"/"}), {responseType: "json", observe: "body", headers})
   }
 }
