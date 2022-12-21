@@ -13,9 +13,7 @@ export class AppComponent {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
       const code = path.split("=")
-      this.accounts.postORCIDCode(code[1]).subscribe(data => {
-        console.log(data)
-      })
+      this.accounts.ORCIDLogin(code[1])
     }
   }
 }
