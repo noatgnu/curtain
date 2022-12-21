@@ -48,6 +48,7 @@ export class TokenInterceptor implements HttpInterceptor {
       if (request.url.startsWith("https://rest.uniprot.org") && err.status === 500) {
         return this.uniprotErrorRetry(request, next)
       }
+
       if (request.url.endsWith("/token/refresh/")) {
         this.accounts.removeLocalStorage()
         this.accounts.loggedIn = false
@@ -56,6 +57,9 @@ export class TokenInterceptor implements HttpInterceptor {
         console.log("logged out")
       } else if (err instanceof HttpErrorResponse && !request.url.endsWith("/token/")) {
         if (err.status === 401) {
+          if (request.url.endsWith("get_ownership/")) {
+            return throwError(err)
+          }
           return this.handle401Error(request, next)
         }
       }
@@ -97,6 +101,7 @@ export class TokenInterceptor implements HttpInterceptor {
   }
 
   handle401Error(request: HttpRequest<unknown>, next: HttpHandler) {
+
     if (!this.isRefreshing) {
       this.isRefreshing = true
       this.accounts.accessToken = ""
