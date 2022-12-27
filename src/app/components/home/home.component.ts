@@ -193,7 +193,7 @@ export class HomeComponent implements OnInit {
       annotatedData: this.data.annotatedData
     }
 
-    this.web.putSettings(data, !this.accounts.loggedIn).subscribe((data:any) => {
+    this.web.putSettings(data, !this.accounts.loggedIn, data.settings.description).subscribe((data:any) => {
       if (data.body) {
         this.data.session = data.body
         this.settings.settings.currentID = data.body.link_id
