@@ -15,7 +15,7 @@
       <thead>
       <tr>
         <th scope="col">
-          Unique ID
+          Link
         </th>
         <th scope="col">
           Description
@@ -29,7 +29,8 @@
       <tbody>
       <tr *ngFor="let d of data.results">
         <td>
-          {{d.link_id}}
+          <a href="{{base}}/#/{{d.link_id}}" target="_blank">{{d.id}}</a>
+
         </td>
         <td>
           {{d.description}}
