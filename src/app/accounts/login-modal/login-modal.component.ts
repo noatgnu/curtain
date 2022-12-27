@@ -14,6 +14,7 @@ import {environment} from "../../../environments/environment";
   styleUrls: ['./login-modal.component.scss']
 })
 export class LoginModalComponent implements OnInit {
+  allowOrcid = true
   @ViewChild('orcidWidget') orcidWidget: ElementRef|undefined
   orcid: string = environment.orcid
   form = this.fb.group({
