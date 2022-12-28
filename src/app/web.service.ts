@@ -89,7 +89,7 @@ export class WebService {
       form.append("enable", "False")
     }
     form.append("description", description)
-
+    form.append("curtain_type", "TP")
     return this.http.post(this.links.proxyURL + "curtain/", form, {responseType: "json", observe: "response"})
   }
 
@@ -172,6 +172,7 @@ export class WebService {
     params = params.set("description", sessionDescription)
     params = params.set("ordering", "-created")
     params = params.set("offset", `${offset}`)
+    params = params.set("curtain_type", "TP")
     return this.http.get(this.links.proxyURL + "curtain/", {responseType: "json", observe: "body", params})
   }
 

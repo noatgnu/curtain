@@ -2,6 +2,9 @@
   <h5>Account Information</h5>
 </div>
 <div class="modal-body">
+  <p>
+    <b>Username: {{accounts.user_name}}</b><br>
+  </p>
   <form [formGroup]="form" (submit)="submit()">
     <div class="form-group">
       <label for="session-search">Search Session Description</label>

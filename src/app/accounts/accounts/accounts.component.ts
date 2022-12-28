@@ -17,7 +17,7 @@ export class AccountsComponent implements OnInit {
   totalItems: number = 0
   pageNumber: number = 0
   base = window.location.origin
-  constructor(private web: WebService, private accounts: AccountsService, private fb: FormBuilder) {
+  constructor(private web: WebService, public accounts: AccountsService, private fb: FormBuilder) {
     // @ts-ignore
     this.web.getCurtainLinks(this.accounts.user_name, this.form.value["sessionDescription"]).subscribe((data: any) => {
       data.results = data.results.map((a:any) => {
