@@ -135,15 +135,15 @@ export class WebService {
     let payload = new FormData()
     if ("file" in sessionData) {
       payload.append("file", new Blob([JSON.stringify(sessionData["file"], this.replacer)], {type: 'text/json'}), "curtain-settings.json")
+      payload.append("description", sessionData["file"]["settings"]["description"])
     }
     if ("enable" in sessionData) {
       if (sessionData["enable"]) {
         payload.append("enable", "True")
-      } else {
+        } else {
         payload.append("enable", "False")
       }
     }
-
 
     return this.http.patch(this.links.proxyURL + `curtain/${link_id}/`, payload, {responseType: "json", observe: "body"})
   }
