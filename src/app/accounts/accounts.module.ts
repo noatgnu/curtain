@@ -9,7 +9,7 @@ import {AccountsComponent} from "./accounts/accounts.component";
 import {LoginModalComponent} from "./login-modal/login-modal.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {environment} from "../../environments/environment";
-import {NgbPaginationModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbNavModule, NgbPaginationModule} from "@ng-bootstrap/ng-bootstrap";
 
 
 @NgModule({
@@ -22,6 +22,7 @@ import {NgbPaginationModule} from "@ng-bootstrap/ng-bootstrap";
         ReactiveFormsModule,
         SocialLoginModule,
         NgbPaginationModule,
+        NgbNavModule,
 
     ],
   providers: [

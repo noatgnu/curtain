@@ -7,6 +7,13 @@ import {ToastService} from "../toast.service";
   providedIn: 'root'
 })
 export class AccountsService {
+  get can_delete(): boolean {
+    return this._can_delete;
+  }
+
+  set can_delete(value: boolean) {
+    this._can_delete = value;
+  }
   get is_owner(): boolean {
     return this._is_owner;
   }
@@ -47,6 +54,7 @@ export class AccountsService {
     return this._loggedIn;
   }
 
+  private _can_delete: boolean = false
   private _user_id: number = 0
   private _user_name: string = ""
   private _user_staff: boolean = false
@@ -130,7 +138,19 @@ export class AccountsService {
           }
         }
         this.loggedIn = true
-        console.log("Logged in")
+        this.getUserData().subscribe((data: any) => {
+          this.user_id = data.id
+          this.user_name = data.username
+          this.user_staff = data.is_staff
+          this.can_delete = data.can_delete
+          this.toast.show("Login Information","Login Successful.")
+          const url = localStorage.getItem("urlAfterLogin")
+          if (url) {
+            window.location.assign(url)
+          }
+        }, error =>{
+          this.toast.show("Login Error", "Incorrect Login Credential.")
+        })
       }
     }
   }
@@ -219,6 +239,7 @@ export class AccountsService {
         this.user_id = data.id
         this.user_name = data.username
         this.user_staff = data.is_staff
+        this.can_delete = data.can_delete
         this.toast.show("Login Information","Login Successful.")
         const url = localStorage.getItem("urlAfterLogin")
         if (url) {
@@ -232,5 +253,9 @@ export class AccountsService {
 
   getUserData() {
     return this.http.post(this.host + "user/", {})
+  }
+
+  deleteCurtainLink(link_id: string) {
+    return this.http.delete(this.host + `curtain/${link_id}/`, {observe: "response"})
   }
 }
