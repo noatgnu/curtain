@@ -179,27 +179,34 @@ export class HomeComponent implements OnInit {
   }
 
   saveSession() {
-    const data: any = {
-      raw: this.data.raw.originalFile,
-      rawForm: this.data.rawForm,
-      differentialForm: this.data.differentialForm,
-      processed: this.data.differential.originalFile,
-      password: "",
-      selections: this.data.selected,
-      selectionsMap: this.data.selectedMap,
-      selectionsName: this.data.selectOperationNames,
-      settings: this.settings.settings,
-      fetchUniprot: this.data.fetchUniprot,
-      annotatedData: this.data.annotatedData
+    if (!this.accounts.limit_exceed) {
+      const data: any = {
+        raw: this.data.raw.originalFile,
+        rawForm: this.data.rawForm,
+        differentialForm: this.data.differentialForm,
+        processed: this.data.differential.originalFile,
+        password: "",
+        selections: this.data.selected,
+        selectionsMap: this.data.selectedMap,
+        selectionsName: this.data.selectOperationNames,
+        settings: this.settings.settings,
+        fetchUniprot: this.data.fetchUniprot,
+        annotatedData: this.data.annotatedData
+      }
+
+      this.web.putSettings(data, !this.accounts.loggedIn, data.settings.description).subscribe((data:any) => {
+        if (data.body) {
+          this.data.session = data.body
+          this.settings.settings.currentID = data.body.link_id
+          this.uniqueLink = location.origin +"/#/" + this.settings.settings.currentID
+        }
+      }, err => {
+        this.toast.show("User information", "Curtain link cannot be saved")
+      })
+    } else {
+      this.toast.show("User information", "Curtain link limit exceed")
     }
 
-    this.web.putSettings(data, !this.accounts.loggedIn, data.settings.description).subscribe((data:any) => {
-      if (data.body) {
-        this.data.session = data.body
-        this.settings.settings.currentID = data.body.link_id
-        this.uniqueLink = location.origin +"/#/" + this.settings.settings.currentID
-      }
-    })
   }
 
   async restoreSettings(object: any) {
