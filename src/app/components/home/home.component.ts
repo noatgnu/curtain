@@ -40,6 +40,7 @@ export class HomeComponent implements OnInit {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
+    this.web.getSiteProperties()
     this.accounts.reload()
     this.route.params.subscribe(params => {
       console.log(params)
@@ -179,34 +180,45 @@ export class HomeComponent implements OnInit {
   }
 
   saveSession() {
-    if (!this.accounts.limit_exceed) {
-      const data: any = {
-        raw: this.data.raw.originalFile,
-        rawForm: this.data.rawForm,
-        differentialForm: this.data.differentialForm,
-        processed: this.data.differential.originalFile,
-        password: "",
-        selections: this.data.selected,
-        selectionsMap: this.data.selectedMap,
-        selectionsName: this.data.selectOperationNames,
-        settings: this.settings.settings,
-        fetchUniprot: this.data.fetchUniprot,
-        annotatedData: this.data.annotatedData
+    if (!this.accounts.loggedIn) {
+      if (this.web.siteProperties.non_user_post) {
+        this.saving();
+      } else {
+        this.toast.show("User information", "Please login before saving data session")
       }
-
-      this.web.putSettings(data, !this.accounts.loggedIn, data.settings.description).subscribe((data:any) => {
-        if (data.body) {
-          this.data.session = data.body
-          this.settings.settings.currentID = data.body.link_id
-          this.uniqueLink = location.origin +"/#/" + this.settings.settings.currentID
-        }
-      }, err => {
-        this.toast.show("User information", "Curtain link cannot be saved")
-      })
     } else {
-      this.toast.show("User information", "Curtain link limit exceed")
+      if (!this.accounts.limit_exceed ) {
+        this.saving();
+      } else {
+        this.toast.show("User information", "Curtain link limit exceed")
+      }
+    }
+  }
+
+  private saving() {
+    const data: any = {
+      raw: this.data.raw.originalFile,
+      rawForm: this.data.rawForm,
+      differentialForm: this.data.differentialForm,
+      processed: this.data.differential.originalFile,
+      password: "",
+      selections: this.data.selected,
+      selectionsMap: this.data.selectedMap,
+      selectionsName: this.data.selectOperationNames,
+      settings: this.settings.settings,
+      fetchUniprot: this.data.fetchUniprot,
+      annotatedData: this.data.annotatedData
     }
 
+    this.web.putSettings(data, !this.accounts.loggedIn, data.settings.description).subscribe((data: any) => {
+      if (data.body) {
+        this.data.session = data.body
+        this.settings.settings.currentID = data.body.link_id
+        this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
+      }
+    }, err => {
+      this.toast.show("User information", "Curtain link cannot be saved")
+    })
   }
 
   async restoreSettings(object: any) {

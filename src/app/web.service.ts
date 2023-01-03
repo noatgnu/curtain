@@ -7,6 +7,9 @@ import {PlotlyService} from "angular-plotly.js";
   providedIn: 'root'
 })
 export class WebService {
+  siteProperties: any = {
+    non_user_post: true
+  }
   links = new CurtainLink()
   filters: any = {
     Kinases: {filename: "kinases.txt", name: "Kinases"},
@@ -176,5 +179,9 @@ export class WebService {
     return this.http.get(this.links.proxyURL + "curtain/", {responseType: "json", observe: "body", params})
   }
 
-
+  getSiteProperties() {
+    this.http.get(this.links.proxyURL + "site-properties/", {responseType: "json", observe: "body"}).subscribe((data:any)=> {
+      this.siteProperties = data
+    })
+  }
 }
