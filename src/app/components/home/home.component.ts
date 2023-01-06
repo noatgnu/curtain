@@ -215,6 +215,7 @@ export class HomeComponent implements OnInit {
         this.data.session = data.body
         this.settings.settings.currentID = data.body.link_id
         this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
+        console.log(this.data.session)
       }
     }, err => {
       this.toast.show("User information", "Curtain link cannot be saved")
@@ -395,7 +396,7 @@ export class HomeComponent implements OnInit {
 
   openSessionSettings() {
     const ref = this.modal.open(SessionSettingsComponent)
-    ref.componentInstance.currentID = this.currentID
+    ref.componentInstance.currentID = this.settings.settings.currentID
   }
 
   openAccountModal() {
