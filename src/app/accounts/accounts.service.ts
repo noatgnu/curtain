@@ -266,6 +266,7 @@ export class AccountsService {
       this.lastTokenUpdateTime = new Date()
       this.lastRefreshTokenUpdateTime = new Date()
       this.getUser(true)
+      console.log(localStorage)
     })
   }
 
