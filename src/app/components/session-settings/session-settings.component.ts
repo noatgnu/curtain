@@ -4,6 +4,7 @@ import {WebService} from "../../web.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
+import {ToastService} from "../../toast.service";
 
 @Component({
   selector: 'app-session-settings',
@@ -37,7 +38,7 @@ export class SessionSettingsComponent implements OnInit {
     additionalOwner: ["",]
   })
   temporaryLink: string = ""
-  constructor(private fb: UntypedFormBuilder, private web:WebService, private modal: NgbActiveModal, private data: DataService, private settings: SettingsService ) {
+  constructor(private fb: UntypedFormBuilder, private web:WebService, private modal: NgbActiveModal, private data: DataService, private settings: SettingsService, private toast: ToastService ) {
 
   }
 
@@ -84,8 +85,10 @@ export class SessionSettingsComponent implements OnInit {
             this.owners = data["owners"]
           })
         } else {
-
+          this.toast.show("Adding owner error", "This owner cannot be found.")
         }
+      }, (error) => {
+        this.toast.show("Adding owner error", "This owner cannot be found.")
       })
     }
   }
