@@ -65,7 +65,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
   clickOrcid() {
     localStorage.setItem("urlAfterLogin", document.URL)
     this.loginWatcher = setInterval(()=> {
-      console.log(localStorage.getItem("accessToken"))
+      console.log(localStorage)
       if (localStorage.getItem("accessToken")) {
         this.accounts.reload()
         clearInterval(this.loginWatcher)
