@@ -11,6 +11,7 @@ import {BehaviorSubject, debounceTime, distinctUntilChanged, map, Observable, Op
   providedIn: 'root'
 })
 export class DataService {
+  externalBarChartDownloadTrigger: Subject<boolean> = new Subject<boolean>()
   session: any = {}
   tempLink: boolean = false
   get colorMap(): any {

@@ -402,5 +402,14 @@ export class HomeComponent implements OnInit {
   openAccountModal() {
     const ref = this.modal.open(AccountsComponent, {size:"xl"})
   }
+
+  downloadAll() {
+    const pageNumber = Math.ceil(this.rawFiltered.count()/this.data.pageSize)
+    for (let i = 1; i <= pageNumber; i++) {
+      this.data.page = i
+      this.data.externalBarChartDownloadTrigger.next(true)
+    }
+
+  }
 }
 

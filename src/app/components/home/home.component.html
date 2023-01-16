@@ -30,6 +30,9 @@
               <button ngbDropdownItem (click)="openSampleSettings()">
                 Sample Order & Visibility Settings
               </button>
+              <button ngbDropdownItem (click)="downloadAll()">
+                Download all Bar Charts and Violin Plots
+              </button>
 
             </ng-container>
             <button ngbDropdownItem (click)="openLoginModal()" *ngIf="accounts.loggedIn===false">

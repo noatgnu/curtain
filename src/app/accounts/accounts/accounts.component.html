@@ -16,9 +16,13 @@
   </form>
   <ng-container *ngIf="totalItems > 0">
     <ngb-pagination [collectionSize]="totalItems" [(page)]="currentPage" [maxSize]="5" [boundaryLinks]="true" class="mt-2" (pageChange)="submit($event)"></ngb-pagination>
+    {{selectedCount}} Selected
     <table class="table table-striped">
       <thead>
       <tr>
+        <th scope="col">
+
+        </th>
         <th scope="col">
           Link
         </th>
@@ -26,7 +30,21 @@
           Created
         </th>
         <th scope="col">
-          Actions
+          <div ngbDropdown class="d-inline-block">
+            <button class="btn btn-outline-primary ml-2" id="accountSelectedLinksAction" ngbDropdownToggle>Actions</button>
+            <div ngbDropdownMenu>
+              <div class="px-4 py-3">
+                <div class="mb-3">
+                  <label for="addMultipleOwner">Add Owner</label>
+                  <input type="text" placeholder="to add" id="addMultipleOwner" class="form-control" #allowner>
+                  <button class="btn btn-sm btn-primary mt-2" (click)="addOwnerToSelectedLinks(allowner.value)">Submit</button>
+                </div>
+              </div>
+              <button ngbDropdownItem (click)="removeSelectedLinks()">Remove Selected</button>
+
+            </div>
+          </div>
+
         </th>
       </tr>
 
@@ -35,18 +53,26 @@
       <ng-container *ngFor="let d of data.results">
         <tr>
           <td>
+            <input type="checkbox" class="form-check-input" [(ngModel)]="selectedLinks[d.link_id]" (click)="addOrRemoveFromSelected(d.link_id)">
+          </td>
+          <td>
             <a href="{{base}}/#/{{d.link_id}}" target="_blank">{{d.link_id}}</a>
           </td>
           <td>
             {{d.created}}
           </td>
           <td>
-            <button class="btn btn-sm btn-outline-primary" style="margin-right: 2px" (click)="viewDescription(d.link_id)">Description</button>
+            <button class="btn btn-sm btn-outline-primary" style="margin-right: 2px" (click)="viewDescription(d.link_id)">Details</button>
             <button class="btn btn-sm btn-outline-danger" *ngIf="accounts.can_delete" (click)="deleteLink(d.link_id)">Rm</button>
           </td>
         </tr>
         <tr *ngIf="descriptionTrigger[d.link_id]" class="table-light">
           <td [colSpan]="3">
+            <ul>
+              <b>Owners:</b>
+              <li *ngFor="let o of d.owners">{{o.username}}</li>
+            </ul>
+
             <b>Description</b>
             <div [innerHTML]="d.description"></div>
           </td>

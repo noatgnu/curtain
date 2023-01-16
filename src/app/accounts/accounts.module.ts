@@ -7,9 +7,9 @@ import {
 } from '@abacritt/angularx-social-login';
 import {AccountsComponent} from "./accounts/accounts.component";
 import {LoginModalComponent} from "./login-modal/login-modal.component";
-import {ReactiveFormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {environment} from "../../environments/environment";
-import {NgbNavModule, NgbPaginationModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbDropdownModule, NgbNavModule, NgbPaginationModule} from "@ng-bootstrap/ng-bootstrap";
 
 
 @NgModule({
@@ -17,14 +17,16 @@ import {NgbNavModule, NgbPaginationModule} from "@ng-bootstrap/ng-bootstrap";
     AccountsComponent,
     LoginModalComponent
   ],
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        SocialLoginModule,
-        NgbPaginationModule,
-        NgbNavModule,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    SocialLoginModule,
+    NgbPaginationModule,
+    NgbNavModule,
+    FormsModule,
+    NgbDropdownModule,
 
-    ],
+  ],
   providers: [
     {
       provide: 'SocialAuthServiceConfig',
