@@ -15,7 +15,12 @@ export class SessionSettingsComponent implements OnInit {
   private _currretID: string = ""
   owners: any[] = []
   @Input() set currentID(value: string) {
-    this._currretID = value
+    if (!value || value === "") {
+      this._currretID = this.settings.settings.currentID
+    } else {
+      this._currretID = value
+    }
+
     this.web.getSessionSettings(this.currentID).subscribe((data: any) => {
       this.data.session = data
       this.web.getOwners(this.currentID).subscribe((data:any) => {
@@ -32,7 +37,7 @@ export class SessionSettingsComponent implements OnInit {
     return this._currretID
   }
   form = this.fb.group({
-    enable: [true,],
+    enable: [false,],
     update_content: [false,],
     temporary_link_lifetime: [1,],
     additionalOwner: ["",]

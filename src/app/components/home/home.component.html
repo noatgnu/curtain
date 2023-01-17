@@ -11,8 +11,8 @@
 
         <div ngbDropdown class="d-inline-block">
           <button class="btn btn-outline-primary ml-2" id="dropdownSession" ngbDropdownToggle>Session
-            <span *ngIf="!data.session.enable" class="badge bg-danger">private</span>
-            <span *ngIf="data.session.enable" class="badge bg-primary">public</span>
+            <span *ngIf="data.session.enable === false" class="badge bg-danger">private</span>
+            <span *ngIf="data.session.enable === true" class="badge bg-primary">public</span>
           </button>
           <div ngbDropdownMenu aria-labelledby="dropdownSession">
             <ng-container *ngIf="finished">

@@ -396,6 +396,7 @@ export class HomeComponent implements OnInit {
 
   openSessionSettings() {
     const ref = this.modal.open(SessionSettingsComponent)
+    console.log(this.settings.settings.currentID)
     ref.componentInstance.currentID = this.settings.settings.currentID
   }
 
