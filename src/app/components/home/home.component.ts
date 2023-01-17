@@ -64,9 +64,12 @@ export class HomeComponent implements OnInit {
             this.web.postSettings(settings[0], token).subscribe(data => {
               if (data.body) {
                 const a = JSON.parse(<string>data.body, this.web.reviver)
-                this.restoreSettings(a).then()
-                this.web.getSessionSettings(settings[0]).subscribe((d:any)=> {
-                  this.data.session = d
+                this.restoreSettings(a).then(result => {
+
+                  this.web.getSessionSettings(settings[0]).subscribe((d:any)=> {
+                    this.data.session = d
+                    this.settings.settings.currentID = d.link_id
+                  })
                 })
               }
             }, error => {
