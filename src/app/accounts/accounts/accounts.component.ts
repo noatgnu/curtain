@@ -95,8 +95,38 @@ export class AccountsComponent implements OnInit {
     actions[0].subscribe((data) => {
       if (actions.length > 1) {
         forkJoin(actions.slice(1)).subscribe(data => {
-
+          // @ts-ignore
+          this.web.getCurtainLinks(this.accounts.user_name, this.form.value["sessionDescription"]).subscribe((data: any) => {
+            data.results = data.results.map((a:any) => {
+              if (!(a.link_id in this.descriptionTrigger)) {
+                this.descriptionTrigger[a.link_id] = false
+                this.selectedLinks[a.link_id] = false
+              }
+              a.created = new Date(a.created)
+              return a
+            })
+            this.totalItems = data.count
+            this.pageNumber = this.totalItems/20
+            this.data = data
+          })
+          this.accounts.getUser()
         })
+      } else {
+        // @ts-ignore
+        this.web.getCurtainLinks(this.accounts.user_name, this.form.value["sessionDescription"]).subscribe((data: any) => {
+          data.results = data.results.map((a:any) => {
+            if (!(a.link_id in this.descriptionTrigger)) {
+              this.descriptionTrigger[a.link_id] = false
+              this.selectedLinks[a.link_id] = false
+            }
+            a.created = new Date(a.created)
+            return a
+          })
+          this.totalItems = data.count
+          this.pageNumber = this.totalItems/20
+          this.data = data
+        })
+        this.accounts.getUser()
       }
     })
   }
@@ -109,6 +139,47 @@ export class AccountsComponent implements OnInit {
       }
     }
     forkJoin(actions).subscribe(data => {
+      // @ts-ignore
+      this.web.getCurtainLinks(this.accounts.user_name, this.form.value["sessionDescription"]).subscribe((data: any) => {
+        data.results = data.results.map((a:any) => {
+          if (!(a.link_id in this.descriptionTrigger)) {
+            this.descriptionTrigger[a.link_id] = false
+            this.selectedLinks[a.link_id] = false
+          }
+          a.created = new Date(a.created)
+          return a
+        })
+        this.totalItems = data.count
+        this.pageNumber = this.totalItems/20
+        this.data = data
+      })
+      this.accounts.getUser()
+    })
+  }
+
+  changePublicitySelectedLinks(status: boolean) {
+    const actions: Observable<any>[] = []
+    for (const i in this.selectedLinks) {
+      if (this.selectedLinks[i] === true) {
+        actions.push(this.web.updateSession({enable: status}, i))
+      }
+    }
+
+    forkJoin(actions).subscribe(data => {
+      // @ts-ignore
+      this.web.getCurtainLinks(this.accounts.user_name, this.form.value["sessionDescription"]).subscribe((data: any) => {
+        data.results = data.results.map((a:any) => {
+          if (!(a.link_id in this.descriptionTrigger)) {
+            this.descriptionTrigger[a.link_id] = false
+            this.selectedLinks[a.link_id] = false
+          }
+          a.created = new Date(a.created)
+          return a
+        })
+        this.totalItems = data.count
+        this.pageNumber = this.totalItems/20
+        this.data = data
+      })
       this.accounts.getUser()
     })
   }

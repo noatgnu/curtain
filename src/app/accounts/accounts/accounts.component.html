@@ -30,6 +30,9 @@
           Created
         </th>
         <th scope="col">
+          Public
+        </th>
+        <th scope="col">
           <div ngbDropdown class="d-inline-block">
             <button class="btn btn-outline-primary ml-2" id="accountSelectedLinksAction" ngbDropdownToggle>Actions</button>
             <div ngbDropdownMenu>
@@ -41,7 +44,8 @@
                 </div>
               </div>
               <button ngbDropdownItem (click)="removeSelectedLinks()">Remove Selected</button>
-
+              <button ngbDropdownItem (click)="changePublicitySelectedLinks(true)">Set Selected Public</button>
+              <button ngbDropdownItem (click)="changePublicitySelectedLinks(false)">Set Selected Private</button>
             </div>
           </div>
 
@@ -60,6 +64,9 @@
           </td>
           <td>
             {{d.created}}
+          </td>
+          <td>
+            <p *ngIf="d.enable">{{d.enable}}</p>
           </td>
           <td>
             <button class="btn btn-sm btn-outline-primary" style="margin-right: 2px" (click)="viewDescription(d.link_id)">Details</button>
