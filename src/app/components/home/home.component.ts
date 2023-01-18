@@ -60,7 +60,9 @@ export class HomeComponent implements OnInit {
           this.toast.show("Initialization", "Fetching data from session " + settings[0])
           if (this.currentID !== settings[0]) {
             this.currentID = settings[0]
-
+            this.web.getSessionSettings(settings[0]).subscribe((d:any)=> {
+              this.data.session = d
+            })
             this.web.postSettings(settings[0], token).subscribe(data => {
               if (data.body) {
                 const a = JSON.parse(<string>data.body, this.web.reviver)
