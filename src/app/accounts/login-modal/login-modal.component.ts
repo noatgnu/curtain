@@ -5,7 +5,6 @@ import {WebService} from "../../web.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {Subject, Subscription} from "rxjs";
 import {ToastService} from "../../toast.service";
-import {SocialAuthService} from "@abacritt/angularx-social-login";
 import {environment} from "../../../environments/environment";
 
 @Component({
@@ -24,12 +23,8 @@ export class LoginModalComponent implements OnInit, OnDestroy {
 
   loginStatus: Subject<boolean> = new Subject<boolean>()
   loginWatcher: number|undefined
-  constructor(private authService: SocialAuthService, private modal: NgbActiveModal, private fb: UntypedFormBuilder, private accounts: AccountsService, private web: WebService, private toast: ToastService) {
-    this.authService.authState.subscribe((user)=> {
-      this.accounts.postGoogleData(user).subscribe(data=> {
-        this.processLogin(data)
-      })
-    })
+  constructor(private modal: NgbActiveModal, private fb: UntypedFormBuilder, private accounts: AccountsService, private web: WebService, private toast: ToastService) {
+
   }
 
   ngOnInit(): void {
