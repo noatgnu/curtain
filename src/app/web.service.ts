@@ -207,5 +207,4 @@ export class WebService {
   deleteDataFilterListByID(id: number) {
     return this.http.delete(this.links.proxyURL + "data_filter_list/"+id+"/", {responseType:"json", observe:"body"})
   }
-
 }

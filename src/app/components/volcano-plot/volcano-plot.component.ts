@@ -144,15 +144,15 @@ export class VolcanoPlotComponent implements OnInit {
         opacity: 0.3,
       }
     }
-
+    console.log(this.dataService.selectedMap)
     for (const r of this._data) {
       let geneNames = ""
       const x = r[this.dataService.differentialForm.foldChange]
       const y = r[this.dataService.differentialForm.significant]
       let primaryID = r[this.dataService.differentialForm.primaryIDs]
-      if (primaryID === "P52850") {
-        console.log(this.uniprot.getUniprotFromPrimary(primaryID))
-      }
+      //if (primaryID === "P52850") {
+        //console.log(this.uniprot.getUniprotFromPrimary(primaryID))
+      //}
       let uniquePrimaryID = ""
       if (this.dataService.differentialForm.comparisonSelect.length > 1) {
         uniquePrimaryID = r["UniquePrimaryIDs"]
@@ -175,7 +175,7 @@ export class VolcanoPlotComponent implements OnInit {
 
       if (this.dataService.selectedMap[primaryID]) {
         for (const o in this.dataService.selectedMap[primaryID]) {
-          const match = /\((.+)\)$/.exec(o)
+          const match = /\(([^)]*)\)[^(]*$/.exec(o)
           if (match) {
             if (match[1] === r[this.dataService.differentialForm.comparison]) {
               console.log(x, y)

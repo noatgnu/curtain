@@ -137,6 +137,7 @@ export class HomeComponent implements OnInit {
   }
 
   handleSearch(e: selectionData) {
+    console.log(e)
     const rawFiltered = this.data.raw.df.where(r => e.data.includes(r[this.data.rawForm.primaryIDs])).bake()
     this.data.selected = this.data.selected.concat(e.data)
     for (const c of this.data.differentialForm.comparisonSelect) {

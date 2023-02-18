@@ -63,7 +63,7 @@ export class BatchSearchComponent implements OnInit {
 
   handleSubmit() {
     const result: any = {}
-    for (const r of this.data.split("\n")) {
+    for (const r of this.data.replace("\r", "").split("\n")) {
       const a = r.trim()
       if (a !== "") {
         const e = a.split(";")

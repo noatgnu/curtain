@@ -29,7 +29,6 @@ export class ProteinSelectionsComponent implements OnInit {
     const ref = this.modal.open(BatchSearchComponent)
 
     ref.closed.subscribe(data => {
-
       let result: string[] = []
       for (const d in data.data) {
         let res = this.parseData(data, d, true);
@@ -103,14 +102,14 @@ export class ProteinSelectionsComponent implements OnInit {
   }
 
   private parseData(data: any, d: string, exact: boolean) {
-    console.log(data)
+    //console.log(data)
     switch (data.searchType) {
       case "Gene Names":
         if (exact) {
           return this.data.getPrimaryIDsFromGeneNames(d)
         } else {
-          console.log(d)
-          console.log(this.data.genesMap[d])
+          //console.log(d)
+          //console.log(this.data.genesMap[d])
           if (this.data.genesMap[d]) {
             for (const m in this.data.genesMap[d]) {
               const res = this.data.getPrimaryIDsFromGeneNames(m)
