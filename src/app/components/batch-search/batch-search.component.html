@@ -10,8 +10,8 @@
       <div ngbDropdown class="d-inline-block">
         <button type="button" class="btn btn-outline-primary" id="dropDownProteinList" ngbDropdownToggle>Built-in Protein Lists</button>
         <div ngbDropdownMenu aria-labelledby="dropDownProteinList">
-          <button ngbDropdownItem *ngFor="let b of builtInList" (click)="updateTextArea(b)">
-            {{web.filters[b].name}}
+          <button ngbDropdownItem *ngFor="let b of filterList" (click)="updateTextArea(b.id)">
+            {{b.name}}
           </button>
         </div>
       </div>
@@ -28,9 +28,25 @@
     </div>
   </div>
   <textarea [disabled]="params.enableAdvanced" class="form-control mb-2" [(ngModel)]="data" rows="10"></textarea>
-  <div class="form-check">
-    <input type="checkbox" [disabled]="params.enableAdvanced" id="significantOnly" class="form-check-input" [(ngModel)]="params.significantOnly">
-    <label for="significantOnly" class="form-check-label">Select only significant data according to current volcano plot settings</label>
+  <div class="row">
+    <div class="col-8">
+      <div class="form-check">
+        <input type="checkbox" [disabled]="params.enableAdvanced" id="significantOnly" class="form-check-input" [(ngModel)]="params.significantOnly">
+        <label for="significantOnly" class="form-check-label">Select only significant data according to current volcano plot settings</label>
+      </div>
+    </div>
+    <div class="col-2">
+      <button class="btn btn-sm btn-primary" (click)="saveDataFilterList()">Save</button>
+    </div>
+    <div class="col-2">
+      <button class="btn btn-sm btn-danger" (click)="deleteDataFilterList()" [disabled]="!canDelete">Delete</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-3">
+
+    </div>
   </div>
   <hr>
   <div class="row">

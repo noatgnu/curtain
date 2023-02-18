@@ -50,6 +50,7 @@ export class TokenInterceptor implements HttpInterceptor {
       }
 
       if (request.url.endsWith("/token/refresh/")) {
+        console.log(err)
         this.accounts.removeLocalStorage()
         this.accounts.loggedIn = false
         this.accounts.accessToken = ""

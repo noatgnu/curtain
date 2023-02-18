@@ -37,6 +37,8 @@ export class WebService {
   constructor(private http: HttpClient, private plotly: PlotlyService) { }
 
   async getFilter(categoryName: string) {
+
+
     if (this.filters[categoryName]) {
       const res = await this.http.get("assets/proteinLists/" + this.filters[categoryName].filename, {observe: "body", responseType: "text"}).toPromise()
       if (res) {
@@ -184,4 +186,26 @@ export class WebService {
       this.siteProperties = data
     })
   }
+
+  saveDataFilterList(name: string, data: string) {
+    return this.http.post(this.links.proxyURL + "data_filter_list/",{name, data}, {responseType: "json", observe: "body"})
+  }
+
+  getDataFilterList(categoryName: string = "") {
+    let params = new HttpParams()
+    if (categoryName != "") {
+      params = params.set("name", categoryName)
+    }
+    params = params.set("limit", `${99999999}`)
+    return this.http.get(this.links.proxyURL + "data_filter_list/", {responseType:"json", observe:"body", params})
+  }
+
+  getDataFilterListByID(id: number) {
+    return this.http.get(this.links.proxyURL + "data_filter_list/"+id+"/", {responseType:"json", observe:"body"})
+  }
+
+  deleteDataFilterListByID(id: number) {
+    return this.http.delete(this.links.proxyURL + "data_filter_list/"+id+"/", {responseType:"json", observe:"body"})
+  }
+
 }
