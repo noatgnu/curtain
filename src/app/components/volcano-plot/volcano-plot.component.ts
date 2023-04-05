@@ -342,6 +342,7 @@ export class VolcanoPlotComponent implements OnInit {
       this.annotated[this.settings.settings.textAnnotation[i].title] = this.settings.settings.textAnnotation[i].data
       this.graphLayout.annotations.push(this.settings.settings.textAnnotation[i].data)
     }
+    console.log(this.graphLayout.annotations)
     //this.removeAnnotatedDataPoints([])
   }
 
@@ -350,7 +351,8 @@ export class VolcanoPlotComponent implements OnInit {
     this.annotated = this.dataService.annotatedData
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       if (data) {
-        if (this.dataService.annotatedData === {}) {
+
+        if (Object.keys(this.dataService.annotatedData).length === 0) {
           this.annotated = {}
         }
         this.drawVolcano()
@@ -363,7 +365,9 @@ export class VolcanoPlotComponent implements OnInit {
         } else {
           this.annotateDataPoints([data.id])
         }
+        console.log(this.dataService.annotatedData)
         this.dataService.annotatedData = this.annotated
+        console.log(this.dataService.annotatedData)
       }
     })
   }
@@ -453,6 +457,7 @@ export class VolcanoPlotComponent implements OnInit {
       }
     }
     console.log(annotations)
+    console.log(this.graphLayout.annotations)
     if (annotations.length > 0) {
       this.graphLayout.annotations = this.graphLayout.annotations.concat(annotations)
     }
