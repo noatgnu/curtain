@@ -3,7 +3,7 @@ import {HttpClient} from "@angular/common/http";
 import {WebService} from "./web.service";
 import {fromCSV} from "data-forge";
 import {BehaviorSubject, Subject} from "rxjs";
-import {formatCurrency} from "@angular/common";
+import {Parser} from "uniprotparserjs"
 import {UniprotParser} from "./classes/uniprot-parser";
 
 @Injectable({
@@ -36,6 +36,25 @@ export class UniprotService {
       }
     })
     await parser.get_uniprot()
+  }
+
+  async UniprotParserJS(accList: string[]) {
+    const parser = new Parser(5, "accession,id,gene_names,protein_name,organism_name,organism_id,length,xref_refseq,go_id,go_p,go_c,go_f,cc_subcellular_location,ft_topo_dom,ft_carbohyd,mass,cc_mass_spectrometry,sequence,ft_var_seq,cc_alternative_products,cc_function,ft_domain,xref_string,ft_mod_res")
+    const res = await parser.parse(accList)
+    let currentRun = 1
+    let totalRun = Math.ceil(accList.length/500)
+    for await (const r of res) {
+      totalRun = Math.ceil(r.total/500)
+      this.uniprotProgressBar.next({value: currentRun * 100/totalRun, text: "Processed UniProt Job " + currentRun + "/"+ totalRun})
+      this.PrimeProcessReceivedData(r.data)
+      console.log(currentRun)
+      if (currentRun === totalRun) {
+        this.uniprotParseStatus.next(true)
+      } else {
+        currentRun ++
+      }
+    }
+
   }
 
   PrimeProcessReceivedData(data: string) {
