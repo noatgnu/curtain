@@ -32,12 +32,14 @@ export class RawDataBlockComponent implements OnInit {
     this.title = this._data[this.dataService.rawForm.primaryIDs]
     this.foundIn = Object.keys(this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]])
     if (this.dataService.fetchUniprot) {
-      this.uni = this.uniprot.getUniprotFromPrimary(this.primaryID)
-      if (this.uni) {
-        if (this.uni["Gene Names"] !== "") {
-          this.title = this.uni["Gene Names"]
+      this.uniprot.getUniprotFromPrimary(this.primaryID)?.then((uni:any) => {
+        this.uni = uni
+        if (this.uni) {
+          if (this.uni["Gene Names"] !== "") {
+            this.title = this.uni["Gene Names"]
+          }
         }
-      }
+      })
     }
   }
   profileComparisonToggle:boolean = false

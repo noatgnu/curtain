@@ -175,13 +175,13 @@ export class AccountsService {
       this.curtain_link_limit = data.curtain_link_limit
       this.total_curtain = data.total_curtain
       this.limit_exceed = data.curtain_link_limit_exceed
-      this.toast.show("Login Information", "User information updated.")
+      this.toast.show("Login Information", "User information updated.").then()
       const url = localStorage.getItem("urlAfterLogin")
       if (url && reNavigate) {
         window.location.assign(url)
       }
     }, error => {
-      this.toast.show("Login Error", "Incorrect Login Credential.")
+      this.toast.show("Login Error", "Incorrect Login Credential.").then()
     })
   }
 
@@ -209,7 +209,7 @@ export class AccountsService {
     this._loggedIn = false
     this._is_owner = false
     this._user_staff = false
-    this.toast.show("Login Information", "Logout Successful.")
+    this.toast.show("Login Information", "Logout Successful.").then()
     return this.http.post(this.host + "logout/", {refresh_token}, {responseType: "json", observe: "body", headers})
   }
 
@@ -230,7 +230,7 @@ export class AccountsService {
     const diffTime = Math.floor(currentTime.getTime() - this._lastRefreshTokenUpdateTime.getTime())/1000/60/60
     console.log(diffTime)
     if (diffTime > 24) {
-      this.toast.show("Credential Error", "Login Expired")
+      this.toast.show("Credential Error", "Login Expired").then()
       return true
     } else {
       return false

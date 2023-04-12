@@ -90,10 +90,10 @@ export class SessionSettingsComponent implements OnInit {
             this.owners = data["owners"]
           })
         } else {
-          this.toast.show("Adding owner error", "This owner cannot be found.")
+          this.toast.show("Adding owner error", "This owner cannot be found.").then()
         }
       }, (error) => {
-        this.toast.show("Adding owner error", "This owner cannot be found.")
+        this.toast.show("Adding owner error", "This owner cannot be found.").then()
       })
     }
   }

@@ -61,13 +61,13 @@ export class RankPlotComponent implements OnInit {
         this.sortedDataMap[c] = this._data.orderByDescending(a => a[c]).bake().resetIndex().bake()
       }
     }
-    this.draw()
+    this.draw().then()
   }
 
   constructor(private web: WebService, public dataService: DataService, public settings: SettingsService, public uniprot: UniprotService) {
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       if (data) {
-        this.draw()
+        this.draw().then()
       }
     })
   }
@@ -75,7 +75,7 @@ export class RankPlotComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  draw() {
+  async draw() {
     const temp: any = {}
 
     for (const i in this.sortedDataMap) {
@@ -90,17 +90,19 @@ export class RankPlotComponent implements OnInit {
         if (!(("Selected "+ i) in this.legendStatus)) {
           this.legendStatus["Selected "+ i] = true
         }
+
+        const text = selected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map(async (a: string) => {
+          const r: any = await this.uniprot.getUniprotFromPrimary(a)
+          if (r) {
+            return r["Gene Names"] + " [" + a + "] " + i
+          } else {
+            return a + " " + i
+          }
+        })
         temp["Selected "+ i] = {
           x: selected.getIndex().toArray(),
           y: selected.getSeries(i).toArray(),
-          text: selected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map((a: string) => {
-            const r = this.uniprot.getUniprotFromPrimary(a)
-            if (r) {
-              return this.uniprot.getUniprotFromPrimary(a)["Gene Names"] + " [" + a +"] " + i
-            } else {
-              return a + " " + i
-            }
-          }),
+          text: text,
           type: "scattergl",
           mode: "markers",
           name: "Selected "+ i,
@@ -112,17 +114,18 @@ export class RankPlotComponent implements OnInit {
           temp["Selected "+i]["visible"] = "legendonly"
         }
       }
+      const text = notSelected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map(async (a: string) => {
+        const r: any = await this.uniprot.getUniprotFromPrimary(a)
+        if (r) {
+          return r["Gene Names"] + " [" + a +"]"
+        } else {
+          return a
+        }
+      })
       temp[i] = {
         x: notSelected.getIndex().toArray(),
         y: notSelected.getSeries(i).toArray(),
-        text: notSelected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map((a: string) => {
-          const r = this.uniprot.getUniprotFromPrimary(a)
-          if (r) {
-            return this.uniprot.getUniprotFromPrimary(a)["Gene Names"] + " [" + a +"]"
-          } else {
-            return a
-          }
-        }),
+        text: text,
         type: "scattergl",
         mode: "markers",
         name: i,
@@ -159,7 +162,7 @@ export class RankPlotComponent implements OnInit {
         this.legendStatus[l] = false
       }
     }
-    this.draw()
+    this.draw().then()
   }
 
   hideAllNonSelected() {
@@ -168,7 +171,7 @@ export class RankPlotComponent implements OnInit {
         this.legendStatus[l] = false
       }
     }
-    this.draw()
+    this.draw().then()
   }
 
   downloadSVG() {

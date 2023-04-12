@@ -24,13 +24,15 @@ export class InteractomeAtlasComponent implements OnInit {
   selected: any[] = []
   @Input() set data(value: any) {
     this._data = value
-    const uni = this.uniprot.getUniprotFromPrimary(value)
-    if (uni !== null) {
-      this.geneName = uni["Gene Names"]
-    } else {
-      this.geneName = ""
-    }
-    this.getInteractions().then()
+    this.uniprot.getUniprotFromPrimary(value)?.then((uni: any)=> {
+      if (uni !== null) {
+        this.geneName = uni["Gene Names"]
+      } else {
+        this.geneName = ""
+      }
+      this.getInteractions().then()
+    })
+
   }
   geneName: string = ""
   interactions: any = {}
@@ -64,14 +66,18 @@ export class InteractomeAtlasComponent implements OnInit {
   }
 
   reformatInteraction() {
+    this.processInteractionData().then();
+  }
+
+  private async processInteractionData() {
     const increased: string[] = []
     const decreased: string[] = []
     const allGenes: string[] = []
     if (this.selection !== "") {
       const df = this.dataService.currentDF.where(r => r[this.dataService.differentialForm.comparison] === this.selection).bake()
-      this.updateIncreasedDecreased(increased, decreased, allGenes, df);
+      await this.updateIncreasedDecreased(increased, decreased, allGenes, df);
     } else {
-      this.updateIncreasedDecreased(increased, decreased, allGenes, this.dataService.currentDF);
+      await this.updateIncreasedDecreased(increased, decreased, allGenes, this.dataService.currentDF);
     }
 
     const styles: any[] = []
@@ -85,7 +91,7 @@ export class InteractomeAtlasComponent implements OnInit {
         for (const d of i["dataset_array"]) {
           this.evidences[i["interaction_id"]].push(d)
         }
-        interactedMap.set("edge"+i["interaction_id"], this.evidences[i["interaction_id"]].slice())
+        interactedMap.set("edge" + i["interaction_id"], this.evidences[i["interaction_id"]].slice())
         let classes: string[] = []
         const interactions: string[] = []
         for (const interaction of i["interaction_category_array"]["interaction_category_array"]) {
@@ -98,22 +104,22 @@ export class InteractomeAtlasComponent implements OnInit {
           score = 2
           classes.push("noscore")
         } else {
-          score = 2 + 3*oScore
+          score = 2 + 3 * oScore
         }
-        if (!interactedMap.has("node"+i["interactor_A"]["protein_id"])) {
-          interactedMap.set("node"+i["interactor_A"]["protein_id"], this.evidences[i["interaction_id"]].slice())
+        if (!interactedMap.has("node" + i["interactor_A"]["protein_id"])) {
+          interactedMap.set("node" + i["interactor_A"]["protein_id"], this.evidences[i["interaction_id"]].slice())
         } else {
           for (const i2 of this.evidences[i["interaction_id"]]) {
             // @ts-ignore
-            interactedMap.get("node"+i["interactor_A"]["protein_id"]).push(i2)
+            interactedMap.get("node" + i["interactor_A"]["protein_id"]).push(i2)
           }
         }
-        if (!interactedMap.has("node"+i["interactor_B"]["protein_id"])) {
-          interactedMap.set("node"+i["interactor_B"]["protein_id"], this.evidences[i["interaction_id"]].slice())
+        if (!interactedMap.has("node" + i["interactor_B"]["protein_id"])) {
+          interactedMap.set("node" + i["interactor_B"]["protein_id"], this.evidences[i["interaction_id"]].slice())
         } else {
           for (const i2 of this.evidences[i["interaction_id"]]) {
             // @ts-ignore
-            interactedMap.get("node"+i["interactor_B"]["protein_id"]).push(i2)
+            interactedMap.get("node" + i["interactor_B"]["protein_id"]).push(i2)
           }
         }
         if (this.enableFilter) {
@@ -122,7 +128,12 @@ export class InteractomeAtlasComponent implements OnInit {
               interacted.push(i["interactor_A"]["protein_id"])
               interacted.push(i["interactor_B"]["protein_id"])
               nodes.push({
-                data: {id: "edge"+i["interaction_id"], source: "node"+i["interactor_A"]["protein_id"], target: "node"+i["interactor_B"]["protein_id"], score: score},
+                data: {
+                  id: "edge" + i["interaction_id"],
+                  source: "node" + i["interactor_A"]["protein_id"],
+                  target: "node" + i["interactor_B"]["protein_id"],
+                  score: score
+                },
                 classes: classes.join(" ")
               })
 
@@ -130,13 +141,19 @@ export class InteractomeAtlasComponent implements OnInit {
           }
         } else {
           nodes.push({
-            data: {id: "edge"+i["interaction_id"], source: "node"+i["interactor_A"]["protein_id"], target: "node"+i["interactor_B"]["protein_id"], score: score},
+            data: {
+              id: "edge" + i["interaction_id"],
+              source: "node" + i["interactor_A"]["protein_id"],
+              target: "node" + i["interactor_B"]["protein_id"],
+              score: score
+            },
             classes: classes.join(" ")
           })
         }
       }
     } else {
-      this.toast.show('Interactome Atlas', "No interactions data could be found for " + this.geneName).then(r => {})
+      this.toast.show('Interactome Atlas', "No interactions data could be found for " + this.geneName).then(r => {
+      })
     }
 
     this.interactedMap = interactedMap
@@ -155,7 +172,8 @@ export class InteractomeAtlasComponent implements OnInit {
       }
       if (this.enableFilter) {
         if (interacted.includes(i["protein_id"])) {
-          nodes.push({data:
+          nodes.push({
+            data:
               {
                 id: "node" + i["protein_id"],
                 label: i["protein_gene_name"],
@@ -164,7 +182,8 @@ export class InteractomeAtlasComponent implements OnInit {
           })
         }
       } else {
-        nodes.push({data:
+        nodes.push({
+          data:
             {
               id: "node" + i["protein_id"],
               label: i["protein_gene_name"],
@@ -176,15 +195,18 @@ export class InteractomeAtlasComponent implements OnInit {
     }
 
     styles.push(
-      {selector: "node", style:
-          {label: "data(label)",
+      {
+        selector: "node", style:
+          {
+            label: "data(label)",
             "background-color": "rgba(25,128,128,0.96)",
             "color": "#fffffe",
             "text-valign": "center",
             "text-halign": "center",
             "text-outline-width": "1px",
             "text-outline-color": "rgb(16,10,10)"
-          }}
+          }
+      }
     )
     styles.push(
       {selector: "edge", style: {"line-color": "rgba(25,128,128,0.96)", width: "data(score)"}}
@@ -211,14 +233,17 @@ export class InteractomeAtlasComponent implements OnInit {
       {selector: ".decrease", style: {label: "data(label)", "background-color": "#16458c", "color": "#6f94bb",}}
     )
     styles.push(
-      {selector: ".noChange", style: {label: "data(label)", "background-color": "rgba(25,128,128,0.96)", "color": "rgba(47,39,40,0.96)",}}
+      {
+        selector: ".noChange",
+        style: {label: "data(label)", "background-color": "rgba(25,128,128,0.96)", "color": "rgba(47,39,40,0.96)",}
+      }
     )
-    this.drawData = {data: nodes, stylesheet: styles, id: "interactome"+this._data}
+    this.drawData = {data: nodes, stylesheet: styles, id: "interactome" + this._data}
   }
 
-  private updateIncreasedDecreased(increased: string[], decreased: string[], allGenes: string[], df: IDataFrame) {
+  private async updateIncreasedDecreased(increased: string[], decreased: string[], allGenes: string[], df: IDataFrame) {
     for (const r of df) {
-      const uni: any = this.uniprot.getUniprotFromPrimary(r[this.dataService.differentialForm.primaryIDs])
+      const uni: any = await this.uniprot.getUniprotFromPrimary(r[this.dataService.differentialForm.primaryIDs])
       if (uni) {
         if (r[this.dataService.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
           for (const u of uni["Gene Names"].split(";")) {

@@ -123,7 +123,7 @@ export class ProfilePlotComponent implements OnInit {
     const selected = this._data.where(r => this._selected.includes(r[this.dataService.rawForm.primaryIDs])).bake()
     for (const r of selected) {
       let name = r[this.dataService.rawForm.primaryIDs]
-      const uni = this.uniprot.getUniprotFromPrimary(name)
+      const uni: any = await this.uniprot.getUniprotFromPrimary(name)
       if (uni) {
         if (uni["Gene Names"] !== "") {
           name = uni["Gene Names"] + "(" + name + ")"

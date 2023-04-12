@@ -57,7 +57,7 @@ export class HomeComponent implements OnInit {
           } else {
             this.data.tempLink = false
           }
-          this.toast.show("Initialization", "Fetching data from session " + settings[0])
+          this.toast.show("Initialization", "Fetching data from session " + settings[0]).then()
           if (this.currentID !== settings[0]) {
             this.currentID = settings[0]
             this.web.getSessionSettings(settings[0]).subscribe((d:any)=> {
@@ -76,7 +76,7 @@ export class HomeComponent implements OnInit {
               }
             }, error => {
               if (error.status === 400) {
-                this.toast.show("Credential Error", "Login Information Required")
+                this.toast.show("Credential Error", "Login Information Required").then()
                 const login = this.openLoginModal()
                 login.componentInstance.loginStatus.asObservable().subscribe((data:boolean) => {
                   if (data) {
@@ -113,18 +113,18 @@ export class HomeComponent implements OnInit {
         this.data.finishedProcessingData.next(e)
         this.rawFiltered = this.data.raw.df.where(r => this.data.selected.includes(r[this.data.rawForm.primaryIDs])).bake()
         for (const s of this.rawFiltered) {
-          this.addGeneToSelected(s);
+          this.addGeneToSelected(s).then();
         }
       }
     }
   }
 
-  private addGeneToSelected(s: any) {
+  private async addGeneToSelected(s: any) {
     let uni: any = {}
     if (typeof s === "string") {
-      uni = this.uniprot.getUniprotFromPrimary(s)
+      uni = await this.uniprot.getUniprotFromPrimary(s)
     } else {
-      uni = this.uniprot.getUniprotFromPrimary(s[this.data.rawForm.primaryIDs])
+      uni = await this.uniprot.getUniprotFromPrimary(s[this.data.rawForm.primaryIDs])
     }
 
     if (uni) {
@@ -190,13 +190,13 @@ export class HomeComponent implements OnInit {
       if (this.web.siteProperties.non_user_post) {
         this.saving();
       } else {
-        this.toast.show("User information", "Please login before saving data session")
+        this.toast.show("User information", "Please login before saving data session").then()
       }
     } else {
       if (!this.accounts.limit_exceed ) {
         this.saving();
       } else {
-        this.toast.show("User information", "Curtain link limit exceed")
+        this.toast.show("User information", "Curtain link limit exceed").then()
       }
     }
   }
@@ -224,7 +224,7 @@ export class HomeComponent implements OnInit {
         console.log(this.data.session)
       }
     }, err => {
-      this.toast.show("User information", "Curtain link cannot be saved")
+      this.toast.show("User information", "Curtain link cannot be saved").then()
     })
   }
 

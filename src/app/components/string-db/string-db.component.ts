@@ -27,23 +27,23 @@ export class StringDbComponent implements OnInit {
   _data: any = {}
   selection: string = ""
   @Input() set uniProtData(value: string) {
-    const uni = this.uniprot.getUniprotFromPrimary(value)
-    if (uni) {
-      this._uniProtData = uni
-      this.selected = uni["Gene Names"].split(";")[0]
-      this._data = {organism: this.uniprot.organism, identifiers: this._uniProtData['STRING'].split(';'), selectedGenes: []}
-      const ids: string[] = []
-      for (const i of this._data.identifiers) {
-        if (i !== "") {
-          ids.push(i)
+    this.uniprot.getUniprotFromPrimary(value)?.then((uni: any) => {
+      if (uni) {
+        this._uniProtData = uni
+        this.selected = uni["Gene Names"].split(";")[0]
+        this._data = {organism: this.uniprot.organism, identifiers: this._uniProtData['STRING'].split(';'), selectedGenes: []}
+        const ids: string[] = []
+        for (const i of this._data.identifiers) {
+          if (i !== "") {
+            ids.push(i)
+          }
         }
+        this.organism = this._data.organism
+        this.ids = ids
+        this.selectedGenes = this._data.selectedGenes
+        this.getString().then()
       }
-      this.organism = this._data.organism
-      this.ids = ids
-      this.selectedGenes = this._data.selectedGenes
-      this.getString()
-    }
-
+    })
   }
   constructor(private uniprot: UniprotService, private data: DataService, private settings: SettingsService) { }
 
@@ -56,7 +56,7 @@ export class StringDbComponent implements OnInit {
     })
   }
 
-  getString() {
+  async getString() {
     if (this.requiredScore > 1000) {
       this.requiredScore = 1000
     }
@@ -66,9 +66,9 @@ export class StringDbComponent implements OnInit {
 
     if (this.selection !== "") {
       const df = this.data.currentDF.where(r => r[this.data.differentialForm.comparison] === this.selection).bake()
-      this.updateIncreaseDecrease(increased, decreased, allGenes, df);
+      await this.updateIncreaseDecrease(increased, decreased, allGenes, df);
     } else {
-      this.updateIncreaseDecrease(increased, decreased, allGenes, this.data.currentDF);
+      await this.updateIncreaseDecrease(increased, decreased, allGenes, this.data.currentDF);
     }
 
 
@@ -89,9 +89,9 @@ export class StringDbComponent implements OnInit {
     }, 3000)
   }
 
-  private updateIncreaseDecrease(increased: string[], decreased: string[], allGenes: string[], df: IDataFrame) {
+  private async updateIncreaseDecrease(increased: string[], decreased: string[], allGenes: string[], df: IDataFrame) {
     for (const r of df) {
-      const uni: any = this.uniprot.getUniprotFromPrimary(r[this.data.differentialForm.primaryIDs])
+      const uni: any = await this.uniprot.getUniprotFromPrimary(r[this.data.differentialForm.primaryIDs])
       if (uni) {
         if (r[this.data.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
           for (const u of uni["Gene Names"].split(";")) {
@@ -117,7 +117,7 @@ export class StringDbComponent implements OnInit {
 
   handleSelection(e: string) {
     this.selection = e
-    this.getString()
+    this.getString().then()
   }
 
   downloadSVG() {

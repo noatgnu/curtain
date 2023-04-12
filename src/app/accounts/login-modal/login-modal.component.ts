@@ -51,9 +51,9 @@ export class LoginModalComponent implements OnInit, OnDestroy {
       this.form.reset()
       this.loginStatus.next(true)
       this.modal.dismiss()
-      this.toast.show("Login Information","Login Successful.")
+      this.toast.show("Login Information","Login Successful.").then()
     }, error =>{
-      this.toast.show("Login Error", "Incorrect Login Credential.")
+      this.toast.show("Login Error", "Incorrect Login Credential.").then()
     })
   }
 
