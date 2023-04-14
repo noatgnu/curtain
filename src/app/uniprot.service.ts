@@ -18,7 +18,7 @@ export class UniprotService {
 
   results: Map<string, any> = new Map<string, any>()
   dataMap: Map<string, any> = new Map<string, any>()
-  db = new UniprotDb()
+  db: Map<string, any> = new Map<string, any>()
   organism = ""
   uniprotParseStatus = new BehaviorSubject<boolean>(false)
   uniprotProgressBar = new Subject<any>()
@@ -135,7 +135,7 @@ export class UniprotService {
       }
       r["_id"] = r["From"]
       try {
-        await this.db.set(r["Entry"], r)
+        this.db.set(r["Entry"], r)
       } catch (e) {
 
       }
@@ -318,7 +318,7 @@ export class UniprotService {
     }
   }*/
 
-  getUniprotFromPrimary(accession_id: string) {
+  async getUniprotFromPrimary(accession_id: string) {
     if (this.accMap.has(accession_id)) {
       const d = this.accMap.get(accession_id)
       if (d) {

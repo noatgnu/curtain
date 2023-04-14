@@ -241,16 +241,15 @@ export class FileFormComponent implements OnInit {
       }
       if (accList.length > 0) {
         this.toast.show("UniProt", "Building local UniProt database. This may take a few minutes.").then(() => {
-          this.uniprot.db.init().then(() => {
-            this.createUniprotDatabase(accList).then((allGenes) => {
-              this.toast.show("UniProt", "Finished building local UniProt database. " + allGenes.length + " genes found.")
-              this.data.allGenes = allGenes
-              this.finished.emit(true)
-              this.clicked = false
-              this.uniprot.uniprotParseStatus.next(false)
-              this.updateProgressBar(100, "Finished")
-            });
-          })
+          this.uniprot.db = new Map<string, any>()
+          this.createUniprotDatabase(accList).then((allGenes) => {
+            this.toast.show("UniProt", "Finished building local UniProt database. " + allGenes.length + " genes found.")
+            this.data.allGenes = allGenes
+            this.finished.emit(true)
+            this.clicked = false
+            this.uniprot.uniprotParseStatus.next(false)
+            this.updateProgressBar(100, "Finished")
+          });
         })
       } else {
         this.finished.emit(true)
