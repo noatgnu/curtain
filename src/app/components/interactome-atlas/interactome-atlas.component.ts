@@ -24,14 +24,14 @@ export class InteractomeAtlasComponent implements OnInit {
   selected: any[] = []
   @Input() set data(value: any) {
     this._data = value
-    this.uniprot.getUniprotFromPrimary(value)?.then((uni: any)=> {
-      if (uni !== null) {
-        this.geneName = uni["Gene Names"]
-      } else {
-        this.geneName = ""
-      }
-      this.getInteractions().then()
-    })
+    const uni = this.uniprot.getUniprotFromPrimary(value)
+    if (uni !== null) {
+      this.geneName = uni["Gene Names"]
+    } else {
+      this.geneName = ""
+    }
+    this.getInteractions().then()
+
 
   }
   geneName: string = ""
@@ -243,7 +243,7 @@ export class InteractomeAtlasComponent implements OnInit {
 
   private async updateIncreasedDecreased(increased: string[], decreased: string[], allGenes: string[], df: IDataFrame) {
     for (const r of df) {
-      const uni: any = await this.uniprot.getUniprotFromPrimary(r[this.dataService.differentialForm.primaryIDs])
+      const uni: any = this.uniprot.getUniprotFromPrimary(r[this.dataService.differentialForm.primaryIDs])
       if (uni) {
         if (r[this.dataService.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
           for (const u of uni["Gene Names"].split(";")) {

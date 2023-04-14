@@ -122,7 +122,7 @@ export class NetworkInteractionsComponent implements OnInit {
 
   private async getGenes(value: string[], genes: string[]) {
     for (const v of value) {
-      const uni: any = await this.uniprot.getUniprotFromPrimary(v)
+      const uni: any = this.uniprot.getUniprotFromPrimary(v)
       if (uni) {
         if (uni["Gene Names"] !== "") {
           genes.push(uni["Gene Names"])

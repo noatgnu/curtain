@@ -47,11 +47,10 @@ export class VolcanoPlotComponent implements OnInit {
 
   @Input() set data(value: IDataFrame) {
     this._data = value
-    console.log(value)
     if (this._data.count()) {
       this.messageService.show("Volcano plot", "Drawing volcano plot. This may take a while.").then(
         () => {
-          this.drawVolcano().then()
+          this.drawVolcano()
         }
       )
     }
@@ -59,7 +58,7 @@ export class VolcanoPlotComponent implements OnInit {
 
   breakColor: boolean = false
 
-  async drawVolcano() {
+  drawVolcano() {
 
     this.graphLayout.title.text = this.settings.settings.volcanoPlotTitle
     let currentColors: string[] = []
@@ -150,7 +149,7 @@ export class VolcanoPlotComponent implements OnInit {
         opacity: 0.3,
       }
     }
-    await this.messageService.show("Volcano plot", "Assigning data point on volcano plot...")
+
 
     for (const r of this._data) {
       let geneNames = ""
@@ -166,7 +165,7 @@ export class VolcanoPlotComponent implements OnInit {
       }
       let text = primaryID
       if (this.dataService.fetchUniprot) {
-        const rd: any = await this.uniprot.getUniprotFromPrimary(primaryID)
+        const rd: any = this.uniprot.getUniprotFromPrimary(primaryID)
         if (rd) {
           geneNames = rd["Gene Names"]
         }
@@ -234,7 +233,6 @@ export class VolcanoPlotComponent implements OnInit {
         graphData.push(temp[t])
       }
     }
-    await this.messageService.show("Volcano plot", "Drawing cutoff...")
 
     if (fdrCurve.count() > 0) {
       if (this.graphLayout.xaxis.range === undefined) {
@@ -346,13 +344,12 @@ export class VolcanoPlotComponent implements OnInit {
     }
     this.graphData = graphData.reverse()
     this.graphLayout.annotations = []
-    await this.messageService.show("Volcano plot", "Drawing label annotations...")
 
     for (const i in this.settings.settings.textAnnotation) {
       this.annotated[this.settings.settings.textAnnotation[i].title] = this.settings.settings.textAnnotation[i].data
       this.graphLayout.annotations.push(this.settings.settings.textAnnotation[i].data)
     }
-    await this.messageService.show("Volcano Plot", "Finished drawing volcano plot")
+    this.messageService.show("Volcano Plot", "Finished drawing volcano plot")
     //this.removeAnnotatedDataPoints([])
   }
 
@@ -427,7 +424,7 @@ export class VolcanoPlotComponent implements OnInit {
     const annotatedData = this.dataService.currentDF.where(r => data.includes(r[this.dataService.differentialForm.primaryIDs])).bake()
     for (const a of annotatedData) {
       let title = a[this.dataService.differentialForm.primaryIDs]
-      const uni: any = await this.uniprot.getUniprotFromPrimary(title)
+      const uni: any = this.uniprot.getUniprotFromPrimary(title)
       if (uni) {
         if (uni["Gene Names"] !== "") {
           title = uni["Gene Names"] + "(" + title + ")"
@@ -477,7 +474,7 @@ export class VolcanoPlotComponent implements OnInit {
   async removeAnnotatedDataPoints(data: string[]) {
     for (const d of data) {
       let title = d
-      const uni: any = await this.uniprot.getUniprotFromPrimary(title)
+      const uni: any = this.uniprot.getUniprotFromPrimary(title)
 
       if (uni) {
         if (uni["Gene Names"] !== "") {

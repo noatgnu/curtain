@@ -20,12 +20,12 @@ export class PdbViewerComponent implements OnInit {
   uni: any = {}
   @Input() set data(value: any) {
     this._data = value;
-    this.uniprot.getUniprotFromPrimary(value)?.then((uni: any) => {
-      if (uni !== uni) {
-        this.geneName = uni["Gene Names"]
-        this.uni = uni
-      }
-    })
+    const uni = this.uniprot.getUniprotFromPrimary(value)
+    if (this.uni !== uni) {
+      this.geneName = uni["Gene Names"]
+      this.uni = uni
+    }
+
 
   }
   link = ""

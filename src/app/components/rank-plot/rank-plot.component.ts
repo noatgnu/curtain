@@ -92,7 +92,7 @@ export class RankPlotComponent implements OnInit {
         }
 
         const text = selected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map(async (a: string) => {
-          const r: any = await this.uniprot.getUniprotFromPrimary(a)
+          const r: any = this.uniprot.getUniprotFromPrimary(a)
           if (r) {
             return r["Gene Names"] + " [" + a + "] " + i
           } else {
@@ -115,7 +115,7 @@ export class RankPlotComponent implements OnInit {
         }
       }
       const text = notSelected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map(async (a: string) => {
-        const r: any = await this.uniprot.getUniprotFromPrimary(a)
+        const r: any = this.uniprot.getUniprotFromPrimary(a)
         if (r) {
           return r["Gene Names"] + " [" + a +"]"
         } else {

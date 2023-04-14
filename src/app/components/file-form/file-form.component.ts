@@ -294,7 +294,7 @@ export class FileFormComponent implements OnInit {
     const allGenes: string[] = []
     for (const p of this.data.primaryIDsList) {
       try {
-        const uni: any = await this.uniprot.getUniprotFromPrimary(p)
+        const uni: any = this.uniprot.getUniprotFromPrimary(p)
         if (uni) {
           if (uni["Gene Names"]) {
             if (uni["Gene Names"] !== "") {

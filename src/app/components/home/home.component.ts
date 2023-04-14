@@ -122,9 +122,9 @@ export class HomeComponent implements OnInit {
   private async addGeneToSelected(s: any) {
     let uni: any = {}
     if (typeof s === "string") {
-      uni = await this.uniprot.getUniprotFromPrimary(s)
+      uni = this.uniprot.getUniprotFromPrimary(s)
     } else {
-      uni = await this.uniprot.getUniprotFromPrimary(s[this.data.rawForm.primaryIDs])
+      uni = this.uniprot.getUniprotFromPrimary(s[this.data.rawForm.primaryIDs])
     }
 
     if (uni) {

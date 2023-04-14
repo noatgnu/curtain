@@ -318,7 +318,7 @@ export class UniprotService {
     }
   }*/
 
-  async getUniprotFromPrimary(accession_id: string) {
+  getUniprotFromPrimary(accession_id: string) {
     if (this.accMap.has(accession_id)) {
       const d = this.accMap.get(accession_id)
       if (d) {

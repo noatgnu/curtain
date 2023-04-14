@@ -27,23 +27,23 @@ export class StringDbComponent implements OnInit {
   _data: any = {}
   selection: string = ""
   @Input() set uniProtData(value: string) {
-    this.uniprot.getUniprotFromPrimary(value)?.then((uni: any) => {
-      if (uni) {
-        this._uniProtData = uni
-        this.selected = uni["Gene Names"].split(";")[0]
-        this._data = {organism: this.uniprot.organism, identifiers: this._uniProtData['STRING'].split(';'), selectedGenes: []}
-        const ids: string[] = []
-        for (const i of this._data.identifiers) {
-          if (i !== "") {
-            ids.push(i)
-          }
+    const uni = this.uniprot.getUniprotFromPrimary(value)
+    if (uni) {
+      this._uniProtData = uni
+      this.selected = uni["Gene Names"].split(";")[0]
+      this._data = {organism: this.uniprot.organism, identifiers: this._uniProtData['STRING'].split(';'), selectedGenes: []}
+      const ids: string[] = []
+      for (const i of this._data.identifiers) {
+        if (i !== "") {
+          ids.push(i)
         }
-        this.organism = this._data.organism
-        this.ids = ids
-        this.selectedGenes = this._data.selectedGenes
-        this.getString().then()
       }
-    })
+      this.organism = this._data.organism
+      this.ids = ids
+      this.selectedGenes = this._data.selectedGenes
+      this.getString().then()
+    }
+
   }
   constructor(private uniprot: UniprotService, private data: DataService, private settings: SettingsService) { }
 
@@ -91,7 +91,7 @@ export class StringDbComponent implements OnInit {
 
   private async updateIncreaseDecrease(increased: string[], decreased: string[], allGenes: string[], df: IDataFrame) {
     for (const r of df) {
-      const uni: any = await this.uniprot.getUniprotFromPrimary(r[this.data.differentialForm.primaryIDs])
+      const uni: any = this.uniprot.getUniprotFromPrimary(r[this.data.differentialForm.primaryIDs])
       if (uni) {
         if (r[this.data.differentialForm.foldChange] >= this.settings.settings.log2FCCutoff) {
           for (const u of uni["Gene Names"].split(";")) {

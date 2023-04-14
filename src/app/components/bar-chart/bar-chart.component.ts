@@ -28,19 +28,19 @@ export class BarChartComponent implements OnInit {
     this._data = value
     this.title = "<b>" + this._data[this.dataService.rawForm.primaryIDs] + "</b>"
 
-    this.uniprot.getUniprotFromPrimary(this._data[this.dataService.rawForm.primaryIDs])?.then(r =>{
-      this.uni = r
-      if (this.uni) {
-        if (this.uni["Gene Names"] !== "") {
-          this.title = "<b>" + this.uni["Gene Names"] + "(" + this._data[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
-        }
+    this.uni = this.uniprot.getUniprotFromPrimary(this._data[this.dataService.rawForm.primaryIDs])
+
+    if (this.uni) {
+      if (this.uni["Gene Names"] !== "") {
+        this.title = "<b>" + this.uni["Gene Names"] + "(" + this._data[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
       }
-      this.drawBarChart()
-      this.graphLayout["title"] = this.title
-      this.graphLayoutAverage["title"] = this.title
-      this.graphLayoutViolin["title"] = this.title
-      this.drawAverageBarChart()
-    })
+    }
+    this.drawBarChart()
+    this.graphLayout["title"] = this.title
+    this.graphLayoutAverage["title"] = this.title
+    this.graphLayoutViolin["title"] = this.title
+    this.drawAverageBarChart()
+
   }
 
   title = ""
