@@ -23,6 +23,7 @@ import {LoginModalComponent} from "../../accounts/login-modal/login-modal.compon
 import {AccountsService} from "../../accounts/accounts.service";
 import {SessionSettingsComponent} from "../session-settings/session-settings.component";
 import {AccountsComponent} from "../../accounts/accounts/accounts.component";
+import {reviver, User} from "curtain-web-api";
 
 @Component({
   selector: 'app-home',
@@ -40,67 +41,79 @@ export class HomeComponent implements OnInit {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
-    this.web.getSiteProperties()
-    this.accounts.reload()
-    this.route.params.subscribe(params => {
-      console.log(params)
-      if (params) {
-        if (params["settings"] && params["settings"].startsWith("access_token")){
-          console.log(params["settings"])
-        } else if (params["settings"] && params["settings"].length > 0) {
-          console.log(params["settings"])
-          const settings = params["settings"].split("&")
-          let token: string = ""
-          if (settings.length > 1) {
-            token = settings[1]
-            this.data.tempLink = true
-          } else {
-            this.data.tempLink = false
-          }
-          this.toast.show("Initialization", "Fetching data from session " + settings[0]).then()
-          if (this.currentID !== settings[0]) {
-            this.currentID = settings[0]
-            this.web.getSessionSettings(settings[0]).subscribe((d:any)=> {
-              this.data.session = d
-            })
-            this.web.postSettings(settings[0], token).subscribe(data => {
-              if (data.body) {
-                const a = JSON.parse(<string>data.body, this.web.reviver)
-                this.restoreSettings(a).then(result => {
-
-                  this.web.getSessionSettings(settings[0]).subscribe((d:any)=> {
-                    this.data.session = d
-                    this.settings.settings.currentID = d.link_id
+    this.initialize().then(
+      () => {
+        this.route.params.subscribe(params => {
+          console.log(params)
+          if (params) {
+            if (params["settings"] && params["settings"].startsWith("access_token")){
+              console.log(params["settings"])
+            } else if (params["settings"] && params["settings"].length > 0) {
+              console.log(params["settings"])
+              const settings = params["settings"].split("&")
+              let token: string = ""
+              if (settings.length > 1) {
+                token = settings[1]
+                this.data.tempLink = true
+              } else {
+                this.data.tempLink = false
+              }
+              this.toast.show("Initialization", "Fetching data from session " + settings[0]).then()
+              if (this.currentID !== settings[0]) {
+                this.currentID = settings[0]
+                this.accounts.curtainAPI.getSessionSettings(settings[0]).then((d:any)=> {
+                  this.data.session = d.data
+                  this.accounts.curtainAPI.postSettings(settings[0], token).then((data:any) => {
+                    if (data.data) {
+                      this.restoreSettings(data.data).then(result => {
+                        this.accounts.curtainAPI.getSessionSettings(settings[0]).then((d:any)=> {
+                          this.data.session = d.data
+                          this.settings.settings.currentID = d.data.link_id
+                        })
+                      })
+                      this.accounts.curtainAPI.getOwnership(settings[0]).then((data:any) => {
+                        if (data.ownership) {
+                          this.accounts.isOwner = true
+                        } else {
+                          this.accounts.isOwner = false
+                        }
+                      }).catch(error => {
+                        this.accounts.isOwner = false
+                      })
+                    }
+                  }).catch(error => {
+                    if (error.status === 400) {
+                      this.toast.show("Credential Error", "Login Information Required").then()
+                      const login = this.openLoginModal()
+                      login.componentInstance.loginStatus.asObservable().subscribe((data:boolean) => {
+                        if (data) {
+                          location.reload()
+                        }
+                      })
+                    }
                   })
                 })
-              }
-            }, error => {
-              if (error.status === 400) {
-                this.toast.show("Credential Error", "Login Information Required").then()
-                const login = this.openLoginModal()
-                login.componentInstance.loginStatus.asObservable().subscribe((data:boolean) => {
-                  if (data) {
-                    location.reload()
-                  }
-                })
-              }
-            })
 
-            this.web.getOwnership(settings[0]).subscribe((data:any) => {
-              if (data.ownership) {
-                this.accounts.is_owner = true
-              } else {
-                this.accounts.is_owner = false
+
+
+
               }
-            }, error => {
-              this.accounts.is_owner = false
-            })
+
+            }
           }
-        }
+        })
       }
-    })
+    )
+
 
   }
+
+  async initialize() {
+    await this.accounts.curtainAPI.getSiteProperties()
+    await this.accounts.curtainAPI.user.loadFromDB()
+
+  }
+
 
   ngOnInit(): void {
 
@@ -186,14 +199,14 @@ export class HomeComponent implements OnInit {
   }
 
   saveSession() {
-    if (!this.accounts.loggedIn) {
+    if (!this.accounts.curtainAPI.user.loginStatus) {
       if (this.web.siteProperties.non_user_post) {
         this.saving();
       } else {
         this.toast.show("User information", "Please login before saving data session").then()
       }
     } else {
-      if (!this.accounts.limit_exceed ) {
+      if (!this.accounts.curtainAPI.user.curtainLinkLimitExceeded ) {
         this.saving();
       } else {
         this.toast.show("User information", "Curtain link limit exceed").then()
@@ -215,15 +228,13 @@ export class HomeComponent implements OnInit {
       fetchUniprot: this.data.fetchUniprot,
       annotatedData: this.data.annotatedData
     }
-
-    this.web.putSettings(data, !this.accounts.loggedIn, data.settings.description).subscribe((data: any) => {
-      if (data.body) {
-        this.data.session = data.body
-        this.settings.settings.currentID = data.body.link_id
+    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description).then((data: any) => {
+      if (data.data) {
+        this.data.session = data.data
+        this.settings.settings.currentID = data.data.link_id
         this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
-        console.log(this.data.session)
       }
-    }, err => {
+    }).catch(err => {
       this.toast.show("User information", "Curtain link cannot be saved").then()
     })
   }

@@ -13,7 +13,7 @@ export class AppComponent {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
       const code = path.split("=")
-      this.accounts.ORCIDLogin(code[1])
+      this.accounts.ORCIDLogin(code[1]).then((data: any) => {})
     }
   }
 }

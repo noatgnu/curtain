@@ -5,6 +5,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {ToastService} from "../../toast.service";
+import {AccountsService} from "../../accounts/accounts.service";
 
 @Component({
   selector: 'app-session-settings',
@@ -21,12 +22,12 @@ export class SessionSettingsComponent implements OnInit {
       this._currretID = value
     }
 
-    this.web.getSessionSettings(this.currentID).subscribe((data: any) => {
-      this.data.session = data
-      this.web.getOwners(this.currentID).subscribe((data:any) => {
-        this.owners = data["owners"]
+    this.accounts.curtainAPI.getSessionSettings(this.currentID).then((data: any) => {
+      this.data.session = data.data
+      this.accounts.curtainAPI.getOwners(this.currentID).then((data:any) => {
+        this.owners = data.data["owners"]
       })
-      for (const i in data) {
+      for (const i in data.data) {
         if (i in this.form.value) {
           this.form.controls[i].setValue(data[i])
         }
@@ -43,7 +44,7 @@ export class SessionSettingsComponent implements OnInit {
     additionalOwner: ["",]
   })
   temporaryLink: string = ""
-  constructor(private fb: UntypedFormBuilder, private web:WebService, private modal: NgbActiveModal, private data: DataService, private settings: SettingsService, private toast: ToastService ) {
+  constructor(private fb: UntypedFormBuilder, private web:WebService, private modal: NgbActiveModal, private data: DataService, private settings: SettingsService, private toast: ToastService, private accounts: AccountsService) {
 
   }
 
@@ -52,8 +53,8 @@ export class SessionSettingsComponent implements OnInit {
 
   generateTemporarySession() {
     if (this.form.value["temporary_link_lifetime"] > 0) {
-      this.web.generateTemporarySession(this.currentID, this.form.value["temporary_link_lifetime"]).subscribe((data:any) => {
-        this.temporaryLink = location.origin + `/#/${data["link_id"]}&${data["token"]}`
+      this.accounts.curtainAPI.generateTemporarySession(this.currentID, this.form.value["temporary_link_lifetime"]).then((data:any) => {
+        this.temporaryLink = location.origin + `/#/${data.data["link_id"]}&${data.data["token"]}`
       })
     }
   }
@@ -76,18 +77,18 @@ export class SessionSettingsComponent implements OnInit {
       }
     }
 
-    this.web.updateSession(payload, this.currentID).subscribe(data => {
-      this.data.session = data
+    this.accounts.curtainAPI.updateSession(payload, this.currentID).then(data => {
+      this.data.session = data.data
       this.modal.dismiss()
     })
   }
 
   addOwner() {
     if (this.form.value["additionalOwer"] !== "") {
-      this.web.addOwner(this.currentID, this.form.value["additionalOwner"]).subscribe((resp)=> {
+      this.accounts.curtainAPI.addOwner(this.currentID, this.form.value["additionalOwner"]).then((resp)=> {
         if (resp.status === 204) {
-          this.web.getOwners(this.currentID).subscribe((data:any) => {
-            this.owners = data["owners"]
+          this.accounts.curtainAPI.getOwners(this.currentID).then((data:any) => {
+            this.owners = data.data["owners"]
           })
         } else {
           this.toast.show("Adding owner error", "This owner cannot be found.").then()

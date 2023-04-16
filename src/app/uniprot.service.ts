@@ -5,8 +5,6 @@ import {fromCSV} from "data-forge";
 import {BehaviorSubject, Subject} from "rxjs";
 import {Parser} from "uniprotparserjs"
 import {UniprotParser} from "./classes/uniprot-parser";
-import PouchDB from "pouchdb";
-import {UniprotDb} from "./classes/uniprot-db";
 
 
 @Injectable({

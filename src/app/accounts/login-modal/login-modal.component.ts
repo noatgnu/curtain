@@ -7,6 +7,9 @@ import {Subject, Subscription} from "rxjs";
 import {ToastService} from "../../toast.service";
 import {environment} from "../../../environments/environment";
 
+
+
+
 @Component({
   selector: 'app-login-modal',
   templateUrl: './login-modal.component.html',
@@ -32,22 +35,14 @@ export class LoginModalComponent implements OnInit, OnDestroy {
 
   login() {
     if (this.form.valid) {
-      this.accounts.login(this.form.value["username"], this.form.value["password"]).subscribe((data: any) => {
+      this.accounts.login(this.form.value["username"], this.form.value["password"]).then((data: any) => {
         this.processLogin(data)
       })
     }
   }
 
   processLogin(data: any) {
-    this.accounts.accessToken = data.access
-    this.accounts.refreshToken = data.refresh
-    this.accounts.loggedIn = true
-    this.accounts.lastTokenUpdateTime = new Date()
-    this.accounts.lastRefreshTokenUpdateTime = new Date()
-    this.web.getUserData().subscribe((data: any) => {
-      this.accounts.user_id = data.id
-      this.accounts.user_name = data.username
-      this.accounts.user_staff = data.is_staff
+    this.accounts.curtainAPI.getUserInfo().then((data: any) => {
       this.form.reset()
       this.loginStatus.next(true)
       this.modal.dismiss()

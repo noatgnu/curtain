@@ -1,7 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {EbiService} from "../../ebi.service";
 import {UniprotService} from "../../uniprot.service";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap"
+import {getEBIAlpha} from "curtain-web-api"
 
 
 declare const PDBeMolstarPlugin: any;
@@ -43,21 +44,13 @@ export class PdbViewerComponent implements OnInit {
 
   ngAfterContentInit() {
     setTimeout(()=> {
-      this.ebi.getEBIAlpha(this._data.split(";")[0]).subscribe(data => {
-        console.log(data.body)
-        // @ts-ignore
-        this.link = data.body[0]["pdbUrl"]
-        // @ts-ignore
-        this.modelCreatedDate = data.body[0]["modelCreatedDate"]
-        // @ts-ignore
-        this.version = data.body[0]["latestVersion"]
-        // @ts-ignore
-        this.entryID = data.body[0]["entryId"]
-        // @ts-ignore
-        this.alignmentError = data.body[0]["paeImageUrl"]
-        // @ts-ignore
-        this.cifLink = data.body[0]["cifUrl"]
-
+      getEBIAlpha(this._data.split(";")[0]).then((data: any) => {
+        this.link = data.data[0]["pdbUrl"]
+        this.modelCreatedDate = data.data[0]["modelCreatedDate"]
+        this.version = data.data[0]["latestVersion"]
+        this.entryID = data.data[0]["entryId"]
+        this.alignmentError = data.data[0]["paeImageUrl"]
+        this.cifLink = data.data[0]["cifUrl"]
         const molstar = new PDBeMolstarPlugin()
         const options = {
           customData: {

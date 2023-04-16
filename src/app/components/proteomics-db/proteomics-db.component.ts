@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {WebService} from "../../web.service";
 import {UniprotService} from "../../uniprot.service";
 import {UntypedFormBuilder, UntypedFormGroup} from "@angular/forms";
+import {getProteomicsData} from "curtain-web-api";
 
 @Component({
   selector: 'app-proteomics-db',
@@ -13,13 +14,10 @@ export class ProteomicsDbComponent implements OnInit {
   @Input() set uniprotID(value: string) {
     this._uniprotID = value
     if (this._uniprotID !== "") {
-      this.web.getProteomicsData(this._uniprotID, this.form.value["selected"]).then(r => {
-        r.subscribe(data => {
-          console.log(data)
-          if (data) {
-            this.drawBarChart(data)
-          }
-        })
+      getProteomicsData(this._uniprotID, this.form.value["selected"]).then(r => {
+        if (r.data) {
+          this.drawBarChart(r.data)
+        }
       })
     }
   }
@@ -32,12 +30,10 @@ export class ProteomicsDbComponent implements OnInit {
   graphLayout: any = {}
   constructor(public web: WebService, private uniprot: UniprotService, private fb: UntypedFormBuilder) {
     this.form.valueChanges.subscribe(value => {
-      this.web.getProteomicsData(this._uniprotID, value.selected).then(r => {
-        r.subscribe(data => {
-          if (data) {
-            this.drawBarChart(data)
-          }
-        })
+      getProteomicsData(this._uniprotID, value.selected).then(r => {
+        if (r.data) {
+          this.drawBarChart(r.data)
+        }
       })
     })
   }

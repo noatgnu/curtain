@@ -23,7 +23,7 @@
       <input type="text" id="addOwner" formControlName="additionalOwner" class="form-control">
     </div>
     <button class="btn btn-sm btn-primary mt-1" (click)="addOwner()">Add</button>
-    <ng-container *ngIf="form.value['enable']===false">
+    <ng-container *ngIf="form.value['enable']===false||form.value['enable']===undefined">
       <hr>
       <button class="btn btn-sm btn-primary" (click)="generateTemporarySession()">
         Generate Temporary Session

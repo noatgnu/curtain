@@ -9,7 +9,7 @@ import { HomeComponent } from './components/home/home.component';
 import { FileInputWidgetComponent } from './components/file-input-widget/file-input-widget.component';
 import { FileFormComponent } from './components/file-form/file-form.component';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from "@angular/common/http";
+import {HttpClient, HttpClientModule} from "@angular/common/http";
 import { VolcanoPlotComponent } from './components/volcano-plot/volcano-plot.component';
 import { VolcanoAndCytoComponent } from './components/volcano-and-cyto/volcano-and-cyto.component';
 import { CytoplotComponent } from './components/cytoplot/cytoplot.component';
@@ -43,7 +43,7 @@ import { SampleOrderAndHideComponent } from './components/sample-order-and-hide/
 import { ComparisonSelectionsComponent } from './components/comparison-selections/comparison-selections.component';
 import { RankPlotComponent } from './components/rank-plot/rank-plot.component';
 import { VolcanoPlotTextAnnotationComponent } from './components/volcano-plot-text-annotation/volcano-plot-text-annotation.component';
-import {TokenInterceptor} from "./token.interceptor";
+
 import { LoginModalComponent } from './accounts/login-modal/login-modal.component';
 import { SessionSettingsComponent } from './components/session-settings/session-settings.component';
 import { AccountsComponent } from './accounts/accounts/accounts.component';
@@ -101,7 +101,6 @@ PlotlyModule.plotlyjs = PlotlyJS;
       NgxPrintModule
     ],
   providers: [HttpClient,
-    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })
