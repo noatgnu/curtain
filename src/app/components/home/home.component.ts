@@ -93,12 +93,7 @@ export class HomeComponent implements OnInit {
                     }
                   })
                 })
-
-
-
-
               }
-
             }
           }
         })
@@ -111,7 +106,6 @@ export class HomeComponent implements OnInit {
   async initialize() {
     await this.accounts.curtainAPI.getSiteProperties()
     await this.accounts.curtainAPI.user.loadFromDB()
-
   }
 
 

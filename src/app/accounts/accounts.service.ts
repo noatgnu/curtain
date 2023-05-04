@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {environment} from "../../environments/environment";
 import {ToastService} from "../toast.service";
 import {CurtainWebAPI} from "curtain-web-api";
@@ -13,10 +12,8 @@ export class AccountsService {
 
   isOwner: boolean = false
 
-  host = environment.apiURL
 
-
-  constructor(private http: HttpClient, private toast: ToastService) {
+  constructor(private toast: ToastService) {
 
   }
 
@@ -72,11 +69,6 @@ export class AccountsService {
     return false
   }
 
-  postGoogleData(data: any) {
-    let headers = new HttpHeaders()
-    headers = headers.set("content-type", "application/json")
-    return this.http.post(this.host + "rest-auth/google/", JSON.stringify({"auth_token": data.idToken}), {responseType: "json", observe: "body", headers})
-  }
 
   postORCIDCode(data: string) {
     return this.curtainAPI.ORCIDLogin(data, window.location.origin+"/").then((data: any) => {return data}).catch((error: any) => {
@@ -92,9 +84,6 @@ export class AccountsService {
     })
   }
 
-  getUserData() {
-    return this.http.post(this.host + "user/", {})
-  }
 
   deleteCurtainLink(link_id: string) {
     return this.curtainAPI.deleteCurtainLink(link_id).then((data: any) => {

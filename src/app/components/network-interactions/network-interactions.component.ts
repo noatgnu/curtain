@@ -5,6 +5,7 @@ import {InteractomeAtlasService} from "../../interactome-atlas.service";
 import {fromCSV} from "data-forge";
 import {UniprotService} from "../../uniprot.service";
 import {ScrollService} from "../../scroll.service";
+import {getInteractomeAtlas, getStringDBInteractions} from "curtain-web-api";
 
 @Component({
   selector: 'app-network-interactions',
@@ -161,8 +162,8 @@ export class NetworkInteractionsComponent implements OnInit {
     let result: any = {}
     let resultInteractome: any = {}
     try {
-      result = await this.dbString.getStringDBInteractions(this._genes, this.uniprot.organism, this._requiredScore*1000, this.networkType).toPromise()
-      const tempDF = fromCSV(<string>result)
+      result = await getStringDBInteractions(this._genes, this.uniprot.organism, this._requiredScore*1000, this.networkType)
+      const tempDF = fromCSV(<string>result.data)
       if (tempDF.count() > 0) {
         for (const r of tempDF) {
           let checked = true
@@ -206,10 +207,10 @@ export class NetworkInteractionsComponent implements OnInit {
       console.log("Can't get StringDB data")
     }
     try {
-      resultInteractome = await this.interac.getInteractome(this._genes, "query_query")
-      if (resultInteractome["all_interactions"]) {
-        if (resultInteractome["all_interactions"].length > 0) {
-          for (const r of resultInteractome["all_interactions"]) {
+      const resultInteractome = await getInteractomeAtlas(this._genes, "query_query")
+      if (resultInteractome.data["all_interactions"]) {
+        if (resultInteractome.data["all_interactions"].length > 0) {
+          for (const r of resultInteractome.data["all_interactions"]) {
             const score = parseFloat(r["score"])
             let checked = false
             if (score !== 0) {

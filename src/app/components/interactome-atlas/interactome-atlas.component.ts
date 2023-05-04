@@ -6,6 +6,7 @@ import {SettingsService} from "../../settings.service";
 import {ToastService} from "../../toast.service";
 import {IDataFrame} from "data-forge";
 import {CytoplotComponent} from "../cytoplot/cytoplot.component";
+import {getInteractomeAtlas} from "curtain-web-api";
 
 @Component({
   selector: 'app-interactome-atlas',
@@ -41,16 +42,16 @@ export class InteractomeAtlasComponent implements OnInit {
 
   selection: string = ""
 
-  constructor(private toast: ToastService, private uniprot: UniprotService, private interac: InteractomeAtlasService, private dataService: DataService, private settings: SettingsService) { }
+  constructor(private toast: ToastService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService) { }
 
   ngOnInit(): void {
   }
 
   async getInteractions() {
     if (this.geneName !== "") {
-      this.interactions = await this.interac.getInteractome([this.geneName.split(";")[0]])
-      if (this.interactions) {
-
+      const interactions = await getInteractomeAtlas([this.geneName.split(";")[0]])
+      if (interactions) {
+        this.interactions = interactions.data
         this.reformatInteraction()
       }
 

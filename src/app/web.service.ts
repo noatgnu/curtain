@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 import {CurtainLink} from "./classes/curtain-link";
-import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
 import {PlotlyService} from "angular-plotly.js";
-import {getProteomicsData} from "curtain-web-api";
-import {AccountsService} from "./accounts/accounts.service";
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +33,8 @@ export class WebService {
     Ciliopathy: {filename: "ciliopathy.txt", name: "Ciliopathy Genes"},
     mTOR: {filename: "mtor.txt", name: "mTOR Pathway"}
   }
-  constructor(private http: HttpClient, private plotly: PlotlyService) { }
+  constructor(private plotly: PlotlyService) { }
+
 
   toParamString(options: Map<string, string>): string {
     const pArray: string[] = [];
