@@ -103,6 +103,36 @@ export class BarChartComponent implements OnInit {
     },
     margin: {r: 40, l: 40, b: 120, t: 100}
   }
+  config: any = {
+    //modeBarButtonsToRemove: ["toImage"]
+    toImageButtonOptions: {
+      format: 'svg',
+      filename: this.title+'_bar',
+      height: this.graphLayout.height,
+      width: this.graphLayout.width,
+      scale: 1
+    }
+  }
+  configAverage: any = {
+    //modeBarButtonsToRemove: ["toImage"]
+    toImageButtonOptions: {
+      format: 'svg',
+      filename: this.title + '_average',
+      height: this.graphLayoutAverage.height,
+      width: this.graphLayoutAverage.width,
+      scale: 1
+    }
+  }
+  configViolin: any = {
+    //modeBarButtonsToRemove: ["toImage"]
+    toImageButtonOptions: {
+      format: 'svg',
+      filename: this.title + '_violin',
+      height: this.graphLayoutViolin.height,
+      width: this.graphLayoutViolin.width,
+      scale: 1
+    }
+  }
 
   constructor(private stats: StatsService, private web: WebService, public dataService: DataService, private uniprot: UniprotService, private settings: SettingsService) {
     this.dataService.externalBarChartDownloadTrigger.asObservable().subscribe(trigger => {
