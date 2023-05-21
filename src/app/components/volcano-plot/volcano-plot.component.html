@@ -5,6 +5,7 @@
       [divId]="'volcanoPlot'"
       [data]="graphData"
       [layout]="graphLayout"
+      [config]="config"
       [updateOnDataChange]="true"
       [updateOnLayoutChange]="true"
       (plotlyClick)="selectData($event)"
@@ -86,7 +87,8 @@
                 <button ngbDropdownItem (click)="FDRCurveSettings()">Custom FDR Curve</button>
                 <button ngbDropdownItem (click)="openCustomColor()">Custom Legend Color</button>
                 <button ngbDropdownItem (click)="openTextEditor()">Annotation Text Editor</button>
-                <button ngbDropdownItem (click)="download()">Download SVG</button>
+                <!--<button ngbDropdownItem (click)="download()">Download SVG</button>
+              -->
               </div>
             </div>
           </div>

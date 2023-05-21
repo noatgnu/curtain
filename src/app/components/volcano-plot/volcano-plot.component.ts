@@ -37,7 +37,16 @@ export class VolcanoPlotComponent implements OnInit {
       },
     }
   }
-
+  config: any = {
+    //modeBarButtonsToRemove: ["toImage"]
+    toImageButtonOptions: {
+      format: 'svg',
+      filename: this.graphLayout.title.text,
+      height: this.graphLayout.height,
+      width: this.graphLayout.width,
+      scale: 1
+    }
+  }
   layoutMaxMin: any = {
     xMin: 0, xMax: 0, yMin: 0, yMax: 0
   }
