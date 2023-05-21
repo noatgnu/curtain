@@ -25,4 +25,5 @@ export class Settings {
   volcanoAxis: any = {minX: null, maxX: null, minY: null, maxY: null}
   textAnnotation: any = {}
   volcanoPlotTitle: string = ""
+  visible: any = {}
 }

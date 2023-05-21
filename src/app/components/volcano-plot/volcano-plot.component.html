@@ -9,6 +9,7 @@
       [updateOnLayoutChange]="true"
       (plotlyClick)="selectData($event)"
       (selected)="selectData($event)"
+      (legendClick)="legendClickHandler($event)"
     ></plotly-plot>
   </div>
   <div class="col-5">

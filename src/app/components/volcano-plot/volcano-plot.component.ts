@@ -59,7 +59,9 @@ export class VolcanoPlotComponent implements OnInit {
   breakColor: boolean = false
 
   drawVolcano() {
-
+    if (!this.settings.settings.visible) {
+      this.settings.settings.visible = {}
+    }
     this.graphLayout.title.text = this.settings.settings.volcanoPlotTitle
     let currentColors: string[] = []
     if (this.settings.settings.colorMap) {
@@ -230,6 +232,11 @@ export class VolcanoPlotComponent implements OnInit {
     const graphData: any[] = []
     for (const t in temp) {
       if (temp[t].x.length > 0) {
+        if (this.settings.settings.visible[t]) {
+          temp[t].visible = this.settings.settings.visible[t]
+        } else {
+          temp[t].visible = true
+        }
         graphData.push(temp[t])
       }
     }
@@ -503,5 +510,13 @@ export class VolcanoPlotComponent implements OnInit {
         this.graphLayout.annotations.push(this.annotated[a.title])
       }
     })
+  }
+
+  legendClickHandler(event: any) {
+    if (event.event.srcElement.__data__[0].trace.visible === "legendonly") {
+      this.settings.settings.visible[event.event.srcElement.__data__[0].trace.name] = true
+    } else {
+      this.settings.settings.visible[event.event.srcElement.__data__[0].trace.name] = "legendonly"
+    }
   }
 }
