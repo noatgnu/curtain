@@ -118,7 +118,8 @@ export class VolcanoPlotComponent implements OnInit {
         mode: "markers",
         name: s,
         marker: {
-          color: this.settings.settings.colorMap[s]
+          color: this.settings.settings.colorMap[s],
+          size: 10
         }
       }
     }
@@ -158,6 +159,7 @@ export class VolcanoPlotComponent implements OnInit {
       temp["Background"]["marker"] = {
         color: "#a4a2a2",
         opacity: 0.3,
+        size: 10
       }
     }
 
@@ -229,6 +231,7 @@ export class VolcanoPlotComponent implements OnInit {
             mode: "markers",
             marker: {
               color: this.settings.settings.colorMap[group],
+              size: 10
             },
             name: group
           }

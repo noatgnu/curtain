@@ -1,23 +1,15 @@
 <form [formGroup]="form" xmlns="http://www.w3.org/1999/html">
-  <div class="row">
-    <div class="col-2">
-      <label for="tissueType">Select Tissue or Cell Line</label>
-    </div>
-    <div class="col-2">
-      <select style="max-width: 200px" id="tissueType" class="form-control" formControlName="selected">
-        <option value="tissue">
-          Tissue
-        </option>
-        <option value="cell line">
-          Cell line
-        </option>
-      </select>
-    </div>
-    <div class="col-2">
-      <button (click)="downloadSVG()" class="btn btn-primary">Download as SVG</button>
-    </div>
+  <div class="form-group">
+    <label for="tissueType">Select Tissue or Cell Line</label>
+    <select style="max-width: 200px" id="tissueType" class="form-control" formControlName="selected">
+      <option value="tissue">
+        Tissue
+      </option>
+      <option value="cell line">
+        Cell line
+      </option>
+    </select>
   </div>
-
 </form>
 
 <plotly-plot [divId]="_uniprotID+'bar'" [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
