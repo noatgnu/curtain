@@ -66,8 +66,9 @@ export class VolcanoPlotComponent implements OnInit {
   }
 
   breakColor: boolean = false
-
+  currentPosition = 0
   drawVolcano() {
+    this.currentPosition = 0
     if (!this.settings.settings.visible) {
       this.settings.settings.visible = {}
     }
@@ -78,7 +79,7 @@ export class VolcanoPlotComponent implements OnInit {
     } else {
       this.settings.settings.colorMap = {}
     }
-    let currentPosition = 0
+
     let fdrCurve: IDataFrame = new DataFrame()
     if (this.settings.settings.fdrCurveTextEnable) {
       if (this.settings.settings.fdrCurveText !== "") {
@@ -91,23 +92,23 @@ export class VolcanoPlotComponent implements OnInit {
       if (!this.settings.settings.colorMap[s]) {
         while (true) {
           if (this.breakColor) {
-            this.settings.settings.colorMap[s] = this.dataService.defaultColorList[currentPosition]
+            this.settings.settings.colorMap[s] = this.dataService.defaultColorList[this.currentPosition]
             break
           }
-          if (currentColors.indexOf(this.dataService.defaultColorList[currentPosition]) !== -1) {
-            currentPosition ++
-          } else if (currentPosition !== this.dataService.defaultColorList.length) {
-            this.settings.settings.colorMap[s] = this.dataService.defaultColorList[currentPosition]
+          if (currentColors.indexOf(this.dataService.defaultColorList[this.currentPosition]) !== -1) {
+            this.currentPosition ++
+          } else if (this.currentPosition !== this.dataService.defaultColorList.length) {
+            this.settings.settings.colorMap[s] = this.dataService.defaultColorList[this.currentPosition]
             break
           } else {
             this.breakColor = true
-            currentPosition = 0
+            this.currentPosition = 0
           }
         }
 
-        currentPosition ++
-        if (currentPosition === this.dataService.defaultColorList.length) {
-          currentPosition = 0
+        this.currentPosition ++
+        if (this.currentPosition === this.dataService.defaultColorList.length) {
+          this.currentPosition = 0
         }
       }
       temp[s] = {
@@ -216,10 +217,10 @@ export class VolcanoPlotComponent implements OnInit {
         let group = this.dataService.significantGroup(x, y) + " (" + r[this.dataService.differentialForm.comparison] + ")"
         if (!temp[group]) {
           if (!this.settings.settings.colorMap[group]) {
-            this.settings.settings.colorMap[group] = this.dataService.defaultColorList[currentPosition]
-            currentPosition ++
-            if (currentPosition === this.dataService.defaultColorList.length) {
-              currentPosition = 0
+            this.settings.settings.colorMap[group] = this.dataService.defaultColorList[this.currentPosition]
+            this.currentPosition ++
+            if (this.currentPosition === this.dataService.defaultColorList.length) {
+              this.currentPosition = 0
             }
           }
 
