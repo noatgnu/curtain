@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {SettingsService} from "../../settings.service";
 
@@ -9,12 +9,24 @@ import {SettingsService} from "../../settings.service";
 })
 export class VolcanoColorsComponent implements OnInit {
   colorGroups: any[] = []
+  private _data: string[] = []
 
-  constructor(private modal: NgbActiveModal, private settings: SettingsService) {
+  @Input() set data(value: string[]) {
+    this._data = value
     this.colorGroups = []
     for (const g in this.settings.settings.colorMap) {
-      this.colorGroups.push({color: this.settings.settings.colorMap[g], group: g, remove: false})
+      if (this._data.includes(g)) {
+        this.colorGroups.push({color: this.settings.settings.colorMap[g], group: g, remove: false})
+      }
     }
+  }
+
+  get data(): string[] {
+    return this._data
+  }
+
+  constructor(private modal: NgbActiveModal, private settings: SettingsService) {
+
   }
 
   ngOnInit(): void {

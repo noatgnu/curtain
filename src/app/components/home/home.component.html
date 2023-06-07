@@ -14,7 +14,7 @@
             <button class="btn btn-outline-primary ml-2" id="dropdownSession" ngbDropdownToggle>Session
               <ng-container *ngIf="data.session">
                 <span *ngIf="data.session.enable === false" class="badge bg-danger">private</span>
-                <span *ngIf="data.session.enable === true" class="badge bg-primary">public</span>
+                <span *ngIf="data.session.enable === true" class="badge bg-primary">shareable</span>
               </ng-container>
             </button>
           <div ngbDropdownMenu aria-labelledby="dropdownSession">

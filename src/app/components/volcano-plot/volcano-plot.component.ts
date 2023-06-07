@@ -24,8 +24,8 @@ export class VolcanoPlotComponent implements OnInit {
   nameToID: any = {}
   graphData: any[] = []
   graphLayout: any = {
-    height: 700, width: 700, xaxis: {title: "Log2FC"},
-    yaxis: {title: "-log10(p-value)"},
+    height: 700, width: 700, xaxis: {title: "<b>Log2FC</b>"},
+    yaxis: {title: "<b>-log10(p-value)</b>"},
     annotations: [],
     showlegend: true, legend: {
       orientation: 'h'
@@ -67,6 +67,7 @@ export class VolcanoPlotComponent implements OnInit {
 
   breakColor: boolean = false
   currentPosition = 0
+  currentLegend: string[] = []
   drawVolcano() {
     this.currentPosition = 0
     if (!this.settings.settings.visible) {
@@ -243,6 +244,7 @@ export class VolcanoPlotComponent implements OnInit {
       }
     }
     const graphData: any[] = []
+    this.currentLegend = []
     for (const t in temp) {
       if (temp[t].x.length > 0) {
         if (this.settings.settings.visible[t]) {
@@ -251,6 +253,7 @@ export class VolcanoPlotComponent implements OnInit {
           temp[t].visible = true
         }
         graphData.push(temp[t])
+        this.currentLegend.push(t)
       }
     }
 
@@ -436,7 +439,8 @@ export class VolcanoPlotComponent implements OnInit {
   }
 
   openCustomColor() {
-    this.modal.open(VolcanoColorsComponent)
+    const ref = this.modal.open(VolcanoColorsComponent)
+    ref.componentInstance.data = this.currentLegend
   }
 
   async annotateDataPoints(data: string[]) {
