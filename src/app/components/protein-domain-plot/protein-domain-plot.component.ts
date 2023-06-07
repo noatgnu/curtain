@@ -9,6 +9,18 @@ import {WebService} from "../../web.service";
 export class ProteinDomainPlotComponent implements OnInit {
   _data: any[] = []
   geneName = ""
+
+  config: any = {
+    //modeBarButtonsToRemove: ["toImage"]
+    toImageButtonOptions: {
+      format: 'svg',
+      filename: "protein-domain-plot",
+      height: 400,
+      width: 1000,
+      scale: 1
+    }
+  }
+
   @Input() set data(value: any) {
     let last = 1
     const waterfallPlot: any = {
@@ -68,7 +80,7 @@ export class ProteinDomainPlotComponent implements OnInit {
     },
     yaxis: {
       type: "category"
-    }, width: 1000,
+    }, width: 1000, height: 400,
     xaxis: {
       type: "linear",
       showgrid: false,
