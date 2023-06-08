@@ -8,20 +8,21 @@ import {NgbDropdownModule, NgbNavModule, NgbPaginationModule} from "@ng-bootstra
 
 
 @NgModule({
-  declarations: [
-    AccountsComponent,
-    LoginModalComponent
-  ],
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    NgbPaginationModule,
-    NgbNavModule,
-    FormsModule,
-    NgbDropdownModule,
-  ],
-  providers: [
-
-  ]
+    declarations: [
+        AccountsComponent,
+        LoginModalComponent
+    ],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        NgbPaginationModule,
+        NgbNavModule,
+        FormsModule,
+        NgbDropdownModule,
+    ],
+    exports: [
+        LoginModalComponent
+    ],
+    providers: []
 })
 export class AccountsModule { }

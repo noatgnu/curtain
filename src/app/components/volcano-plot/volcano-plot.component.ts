@@ -93,13 +93,13 @@ export class VolcanoPlotComponent implements OnInit {
       if (!this.settings.settings.colorMap[s]) {
         while (true) {
           if (this.breakColor) {
-            this.settings.settings.colorMap[s] = this.dataService.defaultColorList[this.currentPosition]
+            this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
             break
           }
-          if (currentColors.indexOf(this.dataService.defaultColorList[this.currentPosition]) !== -1) {
+          if (currentColors.indexOf(this.settings.settings.defaultColorList[this.currentPosition]) !== -1) {
             this.currentPosition ++
-          } else if (this.currentPosition !== this.dataService.defaultColorList.length) {
-            this.settings.settings.colorMap[s] = this.dataService.defaultColorList[this.currentPosition]
+          } else if (this.currentPosition !== this.settings.settings.defaultColorList.length) {
+            this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
             break
           } else {
             this.breakColor = true
@@ -108,7 +108,7 @@ export class VolcanoPlotComponent implements OnInit {
         }
 
         this.currentPosition ++
-        if (this.currentPosition === this.dataService.defaultColorList.length) {
+        if (this.currentPosition === this.settings.settings.defaultColorList.length) {
           this.currentPosition = 0
         }
       }
@@ -218,9 +218,9 @@ export class VolcanoPlotComponent implements OnInit {
         let group = this.dataService.significantGroup(x, y) + " (" + r[this.dataService.differentialForm.comparison] + ")"
         if (!temp[group]) {
           if (!this.settings.settings.colorMap[group]) {
-            this.settings.settings.colorMap[group] = this.dataService.defaultColorList[this.currentPosition]
+            this.settings.settings.colorMap[group] = this.settings.settings.defaultColorList[this.currentPosition]
             this.currentPosition ++
-            if (this.currentPosition === this.dataService.defaultColorList.length) {
+            if (this.currentPosition === this.settings.settings.defaultColorList.length) {
               this.currentPosition = 0
             }
           }

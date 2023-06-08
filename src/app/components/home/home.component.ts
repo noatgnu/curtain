@@ -24,6 +24,7 @@ import {AccountsService} from "../../accounts/accounts.service";
 import {SessionSettingsComponent} from "../session-settings/session-settings.component";
 import {AccountsComponent} from "../../accounts/accounts/accounts.component";
 import {reviver, User} from "curtain-web-api";
+import {DefaultColorPaletteComponent} from "../default-color-palette/default-color-palette.component";
 
 @Component({
   selector: 'app-home',
@@ -242,7 +243,9 @@ export class HomeComponent implements OnInit {
     if (!object.settings.project) {
       object.settings.project = new Project()
     }
-
+    if (!object.settings.defaultColorList) {
+      object.settings.defaultColorList = this.data.palette["pastel"]
+    }
     if (!object.settings.prideAccession) {
       object.settings.prideAccession = ""
     }
@@ -421,6 +424,11 @@ export class HomeComponent implements OnInit {
       this.data.page = i
       this.data.externalBarChartDownloadTrigger.next(true)
     }
+
+  }
+
+  openColorPaletteModal() {
+    const ref = this.modal.open(DefaultColorPaletteComponent, {size: "xl", scrollable: true})
 
   }
 }
