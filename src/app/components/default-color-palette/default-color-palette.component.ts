@@ -15,6 +15,7 @@ export class DefaultColorPaletteComponent implements OnInit {
   form = this.fb.group(
     {
       colorPalette: [""],
+      resetBarChartColor: [false],
     }
   )
   selectedColor: string[] = []
@@ -38,6 +39,7 @@ export class DefaultColorPaletteComponent implements OnInit {
   }
 
   updateColor() {
+
     if (this.customPalette.length > 0) {
       this.settings.settings.defaultColorList = this.customPalette.slice()
     } else {
@@ -47,8 +49,20 @@ export class DefaultColorPaletteComponent implements OnInit {
         }
       }
     }
-
-
+    let currentPosition = 0
+    if (this.form.value["resetBarChartColor"]) {
+      for (const s of this.settings.settings.conditionOrder) {
+        if (this.settings.settings.defaultColorList[currentPosition] !== this.data.colorMap[s]) {
+          this.settings.settings.barchartColorMap[s] = this.settings.settings.defaultColorList[currentPosition].slice()
+          this.data.colorMap[s] = this.settings.settings.defaultColorList[currentPosition].slice()
+        }
+        currentPosition += 1
+        if (currentPosition >= this.settings.settings.defaultColorList.length) {
+          currentPosition = 0
+        }
+      }
+    }
+    this.data.redrawTrigger.next(true)
     this.modal.close()
   }
 
@@ -77,5 +91,26 @@ export class DefaultColorPaletteComponent implements OnInit {
 
   removeCustomColor(index: number) {
     this.customPalette.splice(index, 1)
+  }
+
+  copyColorListToClipboard() {
+    let copyText = ""
+    if (this.customPalette.length > 0) {
+      copyText = JSON.stringify(this.customPalette)
+    } else {
+      if (this.form.value["colorPalette"] !=="" && this.form.value["colorPalette"]!== null && this.form.value["colorPalette"]!== undefined) {
+        if (this.data.palette[this.form.value["colorPalette"]]) {
+          copyText = JSON.stringify(this.data.palette[this.form.value["colorPalette"]])
+        }
+      }
+    }
+
+    navigator.clipboard.writeText(copyText).then(() => {
+
+    })
+  }
+
+  parseConfig(value: string) {
+    this.customPalette = JSON.parse(value)
   }
 }

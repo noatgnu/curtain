@@ -90,8 +90,28 @@
       </div>
     </div>
   </div>
+  <div class="mt-2">
+    <textarea class="form-control" #config></textarea>
+    <div class="d-flex">
+      <div class="p-2">
+        <button class="btn btn-sm btn-primary" (click)="parseConfig(config.value)">Parse Custom Palette Config</button>
+      </div>
+      <div class="p-2">
+        <button class="btn btn-sm btn-primary" (click)="copyColorListToClipboard()">Copy Current Palette</button>
+      </div>
+    </div>
+
+  </div>
 </div>
 <div class="modal-footer">
+  <form [formGroup]="form">
+    <div class="form-check">
+      <input type="checkbox" id="resetBarChartColor" class="form-check-input" formControlName="resetBarChartColor">
+      <label class="form-check-label" for="resetBarChartColor">
+        Reset Bar Chart Color
+      </label>
+    </div>
+  </form>
   <button class="btn btn-primary" (click)="updateColor()">Update Color Palette</button>
   <button class="btn btn-danger" (click)="close()" type="button">
     Close

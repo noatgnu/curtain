@@ -49,6 +49,7 @@ import { SessionSettingsComponent } from './components/session-settings/session-
 import { AccountsComponent } from './accounts/accounts/accounts.component';
 import {AccountsModule} from "./accounts/accounts.module";
 import { DefaultColorPaletteComponent } from './components/default-color-palette/default-color-palette.component';
+import { DataSelectionManagementComponent } from './components/data-selection-management/data-selection-management.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -88,6 +89,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     VolcanoPlotTextAnnotationComponent,
     SessionSettingsComponent,
     DefaultColorPaletteComponent,
+    DataSelectionManagementComponent,
   ],
     imports: [
       BrowserModule,
