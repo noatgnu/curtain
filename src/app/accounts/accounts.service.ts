@@ -55,6 +55,9 @@ export class AccountsService {
     return this.curtainAPI.logout().then((data: any) => {
       this.toast.show("Login Information", "Logout Successful.").then()
     }).catch((error: any) => {
+      this.curtainAPI.user.clearDB().then(() => {
+          this.curtainAPI.user.loginStatus = false
+      })
       return error
     })
   }
