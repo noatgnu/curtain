@@ -50,8 +50,9 @@ export class InteractomeAtlasComponent implements OnInit {
   async getInteractions() {
     if (this.geneName !== "") {
       const interactions = await getInteractomeAtlas([this.geneName.split(";")[0]])
+      console.log(interactions)
       if (interactions) {
-        this.interactions = interactions.data
+        this.interactions = interactions
         this.reformatInteraction()
       }
 
