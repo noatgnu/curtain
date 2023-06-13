@@ -4,13 +4,13 @@
   </h5>
 </div>
 <div class="modal-body">
-  <form *ngFor="let s of data.selectOperationNames" [formGroup]="selectionForms[s]">
+  <form *ngFor="let s of selectOperationNames" [formGroup]="selectionForms[s]">
     <div class="form-group">
-      <label for="{{s}}title"></label>
-      <input type="text" class="form-control" id="{{s}}title">
+      <label>Selection title</label>
+      <input type="text" class="form-control" formControlName="title">
     </div>
     <div class="form-check">
-      <input type="checkbox" class="form-check-input" id="{{s}}remove" formControlName="markForDeletion">
+      <input type="checkbox" class="form-check-input" formControlName="markForDeletion">
       <label class="form-check-label">Remove</label>
     </div>
     <hr>

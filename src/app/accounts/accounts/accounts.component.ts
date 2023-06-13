@@ -25,6 +25,11 @@ export class AccountsComponent implements OnInit {
     // @ts-ignore
     this.accounts.curtainAPI.getCurtainLinks(this.accounts.curtainAPI.user.username, this.form.value["sessionDescription"]).then((data: any) => {
       this.updateShowingLink(data)
+    }).catch((err) => {
+      if (err.code === "token_not_valid") {
+        return this.accounts.logout().then()
+      }
+      return err
     })
     this.accounts.getUser().then()
   }
@@ -36,6 +41,11 @@ export class AccountsComponent implements OnInit {
     // @ts-ignore
     this.accounts.curtainAPI.getCurtainLinks(this.accounts.curtainAPI.user.username, this.form.value["sessionDescription"], page*20).then((data: any) => {
       this.updateShowingLink(data);
+    }).catch((err) => {
+      if (err.code === "token_not_valid") {
+        return this.accounts.logout().then()
+      }
+      return err
     })
   }
 
@@ -81,6 +91,7 @@ export class AccountsComponent implements OnInit {
     for (const i in this.selectedLinks) {
       if (this.selectedLinks[i] === true) {
         console.log(`Adding ${owner} to ${i}`)
+
         await this.accounts.curtainAPI.addOwner(i, owner)
       }
     }

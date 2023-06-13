@@ -116,7 +116,8 @@ export class VolcanoPlotComponent implements OnInit {
         x: [],
         y: [],
         text: [],
-        type: "scattergl",
+        //type: "scattergl",
+        type: "scatter",
         mode: "markers",
         name: s,
         marker: {
@@ -153,7 +154,8 @@ export class VolcanoPlotComponent implements OnInit {
       x:[],
       y:[],
       text: [],
-      type: "scattergl",
+      //type: "scattergl",
+      type: "scatter",
       mode: "markers",
       name: "Background"
     }
@@ -229,7 +231,8 @@ export class VolcanoPlotComponent implements OnInit {
             x: [],
             y: [],
             text: [],
-            type: "scattergl",
+            //type: "scattergl",
+            type: "scatter",
             mode: "markers",
             marker: {
               color: this.settings.settings.colorMap[group],

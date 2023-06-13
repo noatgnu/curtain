@@ -42,7 +42,11 @@ export class RawDataBlockComponent implements OnInit {
   }
   profileComparisonToggle:boolean = false
   constructor(private scroll: ScrollService, public dataService: DataService, private uniprot: UniprotService, private modal: NgbModal, private settings: SettingsService) {
-
+    this.dataService.finishedProcessingData.asObservable().subscribe((value) => {
+      if (value) {
+        this.foundIn = Object.keys(this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]])
+      }
+    })
   }
 
   ngOnInit(): void {

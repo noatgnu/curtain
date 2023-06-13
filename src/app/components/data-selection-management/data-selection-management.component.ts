@@ -12,9 +12,9 @@ import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 export class DataSelectionManagementComponent implements OnInit {
   selectionForms: {[key: string]: FormGroup} = {}
   selectionMap: {[key: string]: string[]} = {}
-
+  selectOperationNames: string[] = []
   constructor(private modal: NgbActiveModal, private settings: SettingsService, public data: DataService, private fb: FormBuilder) {
-    this.settings.settings
+    this.selectOperationNames = this.data.selectOperationNames.slice()
     for (const s of this.data.selectOperationNames) {
       this.selectionForms[s] = this.fb.group({
         enabled: [true],
@@ -24,7 +24,7 @@ export class DataSelectionManagementComponent implements OnInit {
       this.selectionMap[s] = []
     }
     for (const s in this.data.selectedMap) {
-      for (const selection of this.data.selectedMap[s]) {
+      for (const selection in this.data.selectedMap[s]) {
         this.selectionMap[selection].push(s)
       }
     }
@@ -42,17 +42,34 @@ export class DataSelectionManagementComponent implements OnInit {
       }
     }
     for (const sel in this.data.selectedMap) {
-      this.data.selectedMap[sel] = this.data.selectedMap[sel].filter((s:string) => newList.includes(s))
-      if (this.data.selectedMap[sel].length === 0) {
+      listRemoved.forEach((s:string) => {
+        if (this.data.selectedMap[sel][s]) {
+          delete this.data.selectedMap[sel][s]
+        }
+      })
+
+      if (Object.keys(this.data.selectedMap[sel]).length === 0) {
         delete this.data.selectedMap[sel]
+      } else {
+        for (const s in this.data.selectedMap[sel]) {
+          if (this.selectionForms[s].value["title"] !== s && this.selectionForms[s].value["title"] !== "" && this.selectionForms[s].value["title"]) {
+            this.data.selectedMap[sel][this.selectionForms[s].value["title"]] = this.data.selectedMap[sel][s]
+            delete this.data.selectedMap[sel][s]
+          }
+        }
       }
     }
-
-    if (newList.length !== this.data.selectOperationNames.length) {
-      this.data.selectOperationNames = newList
+    const renamedList: string[] = []
+    for (const s of newList) {
+      if (this.selectionForms[s].value["title"] !== s && this.selectionForms[s].value["title"] !== "" && this.selectionForms[s].value["title"]) {
+        renamedList.push(this.selectionForms[s].value["title"])
+      } else {
+        renamedList.push(s)
+      }
     }
-
-    this.modal.close()
+    this.data.selectOperationNames = renamedList
+    this.data.selected = Object.keys(this.data.selectedMap)
+    this.modal.close(true)
   }
 
   close() {

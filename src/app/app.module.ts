@@ -50,6 +50,7 @@ import { AccountsComponent } from './accounts/accounts/accounts.component';
 import {AccountsModule} from "./accounts/accounts.module";
 import { DefaultColorPaletteComponent } from './components/default-color-palette/default-color-palette.component';
 import { DataSelectionManagementComponent } from './components/data-selection-management/data-selection-management.component';
+import { SessionExpiredModalComponent } from './components/session-expired-modal/session-expired-modal.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -90,6 +91,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     SessionSettingsComponent,
     DefaultColorPaletteComponent,
     DataSelectionManagementComponent,
+    SessionExpiredModalComponent,
   ],
     imports: [
       BrowserModule,

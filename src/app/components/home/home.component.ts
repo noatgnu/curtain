@@ -25,6 +25,7 @@ import {SessionSettingsComponent} from "../session-settings/session-settings.com
 import {AccountsComponent} from "../../accounts/accounts/accounts.component";
 import {reviver, User} from "curtain-web-api";
 import {DefaultColorPaletteComponent} from "../default-color-palette/default-color-palette.component";
+import {DataSelectionManagementComponent} from "../data-selection-management/data-selection-management.component";
 
 @Component({
   selector: 'app-home',
@@ -120,6 +121,7 @@ export class HomeComponent implements OnInit {
       if (this.data.selected.length > 0) {
         this.data.finishedProcessingData.next(e)
         this.rawFiltered = this.data.raw.df.where(r => this.data.selected.includes(r[this.data.rawForm.primaryIDs])).bake()
+        console.log(this.rawFiltered)
         for (const s of this.rawFiltered) {
           this.addGeneToSelected(s).then();
         }
@@ -430,6 +432,21 @@ export class HomeComponent implements OnInit {
   openColorPaletteModal() {
     const ref = this.modal.open(DefaultColorPaletteComponent, {size: "xl", scrollable: true})
 
+  }
+
+  selectionManagementModal() {
+    const ref = this.modal.open(DataSelectionManagementComponent, {scrollable: true})
+    ref.closed.subscribe(data => {
+      if (data) {
+        this.data.selectedGenes = []
+        if (this.data.selected.length > 0) {
+          this.handleFinish(true)
+        } else {
+          this.clearSelections()
+        }
+
+      }
+    })
   }
 }
 
