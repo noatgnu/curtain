@@ -37,5 +37,6 @@ export class Settings {
     "#fdcce5",
     "#8bd3c7",
   ]
+  scatterPlotMarkerSize: number = 5
 
 }

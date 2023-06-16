@@ -245,6 +245,9 @@ export class HomeComponent implements OnInit {
     if (!object.settings.project) {
       object.settings.project = new Project()
     }
+    if (!object.settings.scatterPlotMarkerSize) {
+      object.settings.scatterPlotMarkerSize = 10
+    }
     if (!object.settings.defaultColorList) {
       object.settings.defaultColorList = this.data.palette["pastel"]
     }

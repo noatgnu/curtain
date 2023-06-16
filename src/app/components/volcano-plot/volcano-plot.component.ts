@@ -68,8 +68,11 @@ export class VolcanoPlotComponent implements OnInit {
   breakColor: boolean = false
   currentPosition = 0
   currentLegend: string[] = []
+
+  markerSize: number = 10
   drawVolcano() {
     this.currentPosition = 0
+    this.settings.settings.scatterPlotMarkerSize = this.markerSize
     if (!this.settings.settings.visible) {
       this.settings.settings.visible = {}
     }
@@ -122,7 +125,7 @@ export class VolcanoPlotComponent implements OnInit {
         name: s,
         marker: {
           color: this.settings.settings.colorMap[s],
-          size: 10
+          size: this.settings.settings.scatterPlotMarkerSize
         }
       }
     }
@@ -163,7 +166,7 @@ export class VolcanoPlotComponent implements OnInit {
       temp["Background"]["marker"] = {
         color: "#a4a2a2",
         opacity: 0.3,
-        size: 10
+        size: this.settings.settings.scatterPlotMarkerSize
       }
     }
 
@@ -236,7 +239,7 @@ export class VolcanoPlotComponent implements OnInit {
             mode: "markers",
             marker: {
               color: this.settings.settings.colorMap[group],
-              size: 10
+              size: this.settings.settings.scatterPlotMarkerSize
             },
             name: group
           }
@@ -382,6 +385,7 @@ export class VolcanoPlotComponent implements OnInit {
   constructor(private web: WebService, private dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService) {
     console.log(this.dataService.annotatedData)
     this.annotated = this.dataService.annotatedData
+    this.markerSize = this.settings.settings.scatterPlotMarkerSize
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       if (data) {
 
