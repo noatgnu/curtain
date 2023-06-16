@@ -3,6 +3,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {FormBuilder} from "@angular/forms";
+import {ToastService} from "../../toast.service";
 
 @Component({
   selector: 'app-default-color-palette',
@@ -20,7 +21,7 @@ export class DefaultColorPaletteComponent implements OnInit {
   )
   selectedColor: string[] = []
   customPalette: string[] = []
-  constructor(private modal: NgbActiveModal, public data: DataService, private settings: SettingsService, private fb: FormBuilder) {
+  constructor(private modal: NgbActiveModal, public data: DataService, private settings: SettingsService, private fb: FormBuilder, private toast: ToastService) {
     this.currentColor = this.settings.settings.defaultColorList.slice()
     this.colorPaletteList = Object.keys(this.data.palette)
     this.form.controls["colorPalette"].valueChanges.subscribe(value => {
@@ -102,12 +103,16 @@ export class DefaultColorPaletteComponent implements OnInit {
         if (this.data.palette[this.form.value["colorPalette"]]) {
           copyText = JSON.stringify(this.data.palette[this.form.value["colorPalette"]])
         }
+      } else {
+        copyText = JSON.stringify(this.currentColor)
       }
     }
+    if (copyText !== "") {
+      navigator.clipboard.writeText(copyText).then(() => {
+        this.toast.show("Clipboard", "Color list copied to clipboard").then()
+      })
+    }
 
-    navigator.clipboard.writeText(copyText).then(() => {
-
-    })
   }
 
   parseConfig(value: string) {

@@ -30,15 +30,24 @@
     </tr>
     </tbody>
   </table>
+
+  <div class="mt-2">
+    <form [formGroup]="form">
+      <textarea placeholder="Enter color array string" formControlName="colors" class="form-control"></textarea>
+    </form>
+    <button class="btn btn-sm btn-primary">Parse color array</button>
+  </div>
 </div>
 
 <div class="modal-footer">
+  <button type="button" class="btn btn-primary" (click)="updateColorGroup()">Update Color</button>
+  <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
   <div class="row">
     <div class="col">
-      <button type="button" class="btn btn-primary" (click)="updateColorGroup()">Update Color</button>
+
     </div>
     <div class="col">
-      <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+
     </div>
   </div>
 

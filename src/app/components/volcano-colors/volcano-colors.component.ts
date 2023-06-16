@@ -1,6 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {SettingsService} from "../../settings.service";
+import {FormBuilder} from "@angular/forms";
+import {ToastService} from "../../toast.service";
 
 @Component({
   selector: 'app-volcano-colors',
@@ -25,7 +27,11 @@ export class VolcanoColorsComponent implements OnInit {
     return this._data
   }
 
-  constructor(private modal: NgbActiveModal, private settings: SettingsService) {
+  form = this.fb.group({
+    colors: [""],
+  })
+
+  constructor(private modal: NgbActiveModal, private settings: SettingsService, private fb: FormBuilder, private toast: ToastService) {
 
   }
 
@@ -46,5 +52,23 @@ export class VolcanoColorsComponent implements OnInit {
 
   closeModal() {
     this.modal.dismiss()
+  }
+
+  copyColorArray() {
+    const colorArray: any[] = this.colorGroups.map(x => {
+      return {group: x.group, color: x.color}
+    })
+    navigator.clipboard.writeText(JSON.stringify(colorArray)).then(
+      () => {
+        this.toast.show("Clipboard", "Color array copied to clipboard").then()
+      }
+    )
+  }
+
+  pasteColorArray() {
+    if (this.form.value["colors"] !== "" && this.form.value["colors"] !== null && this.form.value["colors"] !== undefined) {
+      const colorArray = JSON.parse(this.form.value["colors"])
+    }
+
   }
 }
