@@ -21,7 +21,7 @@ import {ToastService} from "../../toast.service";
 export class VolcanoPlotComponent implements OnInit {
   @Output() selected: EventEmitter<selectionData> = new EventEmitter<selectionData>()
   _data: any;
-  nameToID: any = {}
+  //nameToID: any = {}
   graphData: any[] = []
   graphLayout: any = {
     height: 700, width: 700, xaxis: {title: "<b>Log2FC</b>"},
@@ -119,6 +119,7 @@ export class VolcanoPlotComponent implements OnInit {
         x: [],
         y: [],
         text: [],
+        primaryIDs: [],
         //type: "scattergl",
         type: "scatter",
         mode: "markers",
@@ -157,6 +158,7 @@ export class VolcanoPlotComponent implements OnInit {
       x:[],
       y:[],
       text: [],
+      primaryIDs: [],
       //type: "scattergl",
       type: "scatter",
       mode: "markers",
@@ -197,28 +199,30 @@ export class VolcanoPlotComponent implements OnInit {
       if (geneNames !== "") {
         text = geneNames + "[" + primaryID + "]" + " (" + r[this.dataService.differentialForm.comparison] + ")"
       }
-      this.nameToID[text] = primaryID
+      //this.nameToID[text] = primaryID
 
       if (this.dataService.selectedMap[primaryID]) {
         for (const o in this.dataService.selectedMap[primaryID]) {
           const match = /\(([^)]*)\)[^(]*$/.exec(o)
           if (match) {
             if (match[1] === r[this.dataService.differentialForm.comparison]) {
-              console.log(x, y)
               temp[o].x.push(x)
               temp[o].y.push(y)
               temp[o].text.push(text)
+              temp[o].primaryIDs.push(primaryID)
             }
           } else {
             temp[o].x.push(x)
             temp[o].y.push(y)
             temp[o].text.push(text)
+            temp[o].primaryIDs.push(primaryID)
           }
         }
       } else if (this.settings.settings.backGroundColorGrey) {
         temp["Background"].x.push(x)
         temp["Background"].y.push(y)
         temp["Background"].text.push(text)
+        temp["Background"].primaryIDs.push(primaryID)
       } else {
         let group = this.dataService.significantGroup(x, y) + " (" + r[this.dataService.differentialForm.comparison] + ")"
         if (!temp[group]) {
@@ -234,6 +238,7 @@ export class VolcanoPlotComponent implements OnInit {
             x: [],
             y: [],
             text: [],
+            primaryIDs: [],
             //type: "scattergl",
             type: "scatter",
             mode: "markers",
@@ -247,6 +252,7 @@ export class VolcanoPlotComponent implements OnInit {
         temp[group].x.push(x)
         temp[group].y.push(y)
         temp[group].text.push(text)
+        temp[group].primaryIDs.push(primaryID)
       }
     }
     const graphData: any[] = []
@@ -375,16 +381,25 @@ export class VolcanoPlotComponent implements OnInit {
     this.graphLayout.annotations = []
 
     for (const i in this.settings.settings.textAnnotation) {
-      this.annotated[this.settings.settings.textAnnotation[i].title] = this.settings.settings.textAnnotation[i].data
-      this.graphLayout.annotations.push(this.settings.settings.textAnnotation[i].data)
+      if (this.settings.settings.textAnnotation[i].showannotation === true) {
+        this.annotated[this.settings.settings.textAnnotation[i].title] = this.settings.settings.textAnnotation[i].data
+        this.graphLayout.annotations.push(this.settings.settings.textAnnotation[i].data)
+      }
+
     }
     this.messageService.show("Volcano Plot", "Finished drawing volcano plot")
     //this.removeAnnotatedDataPoints([])
   }
 
   constructor(private web: WebService, private dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService) {
-    console.log(this.dataService.annotatedData)
-    this.annotated = this.dataService.annotatedData
+    this.annotated = {}
+    for (const i in this.settings.settings.textAnnotation) {
+      if (this.settings.settings.textAnnotation[i].showannotation === undefined || this.settings.settings.textAnnotation[i].showannotation === null) {
+        this.settings.settings.textAnnotation[i].showannotation = true
+      }
+      this.annotated[i] = this.settings.settings.textAnnotation[i]
+    }
+
     this.markerSize = this.settings.settings.scatterPlotMarkerSize
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       if (data) {
@@ -418,9 +433,7 @@ export class VolcanoPlotComponent implements OnInit {
     if ("points" in e) {
       const selected: string[] = []
       for (const p of e["points"]) {
-        if (this.nameToID[p.text] !== "") {
-          selected.push(this.nameToID[p.text])
-        }
+        selected.push(p.primaryIDs)
       }
       if (selected.length === 1) {
         this.selected.emit(
@@ -489,14 +502,10 @@ export class VolcanoPlotComponent implements OnInit {
             title: title
           }
         }
-        console.log(this.settings.settings.textAnnotation)
-
         annotations.push(ann)
         this.annotated[title] = ann
       }
     }
-    console.log(annotations)
-    console.log(this.graphLayout.annotations)
     if (annotations.length > 0) {
       this.graphLayout.annotations = this.graphLayout.annotations.concat(annotations)
     }
@@ -528,10 +537,20 @@ export class VolcanoPlotComponent implements OnInit {
     ref.closed.subscribe(data => {
       this.graphLayout.annotations = []
       this.annotated = {}
-      for (const a of data) {
-        this.settings.settings.textAnnotation[a.title] = a
-        this.annotated[a.title] = a.data
-        this.graphLayout.annotations.push(this.annotated[a.title])
+      for (const f of data) {
+        this.settings.settings.textAnnotation[f.value.annotationID].data.showarrow = f.value.showarrow
+        this.settings.settings.textAnnotation[f.value.annotationID].data.arrowhead = f.value.arrowhead
+        this.settings.settings.textAnnotation[f.value.annotationID].data.arrowsize = f.value.arrowsize
+        this.settings.settings.textAnnotation[f.value.annotationID].data.arrowwidth = f.value.arrowwidth
+        this.settings.settings.textAnnotation[f.value.annotationID].data.ax = f.value.ax
+        this.settings.settings.textAnnotation[f.value.annotationID].data.ay = f.value.ay
+        this.settings.settings.textAnnotation[f.value.annotationID].data.font.size = f.value.fontsize
+        this.settings.settings.textAnnotation[f.value.annotationID].data.font.color = f.value.fontcolor
+        this.settings.settings.textAnnotation[f.value.annotationID].data.font.text = f.value.text
+        this.settings.settings.textAnnotation[f.value.annotationID].showannotation = f.value.showannotation
+        this.annotated[f.value.annotationID] = this.settings.settings.textAnnotation[f.value.annotationID].data
+        this.graphLayout.annotations.push(this.annotated[f.value.annotationID])
+
       }
     })
   }
