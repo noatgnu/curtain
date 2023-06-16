@@ -68,6 +68,13 @@ export class VolcanoColorsComponent implements OnInit {
   pasteColorArray() {
     if (this.form.value["colors"] !== "" && this.form.value["colors"] !== null && this.form.value["colors"] !== undefined) {
       const colorArray = JSON.parse(this.form.value["colors"])
+      for (const c of colorArray) {
+        for (const g of this.colorGroups) {
+          if (g.group === c.group) {
+            g.color = c.color
+          }
+        }
+      }
     }
 
   }

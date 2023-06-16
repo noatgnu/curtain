@@ -18,10 +18,16 @@ export class AccountsService {
   constructor(private toast: ToastService, private modal: NgbModal) {
     this.curtainAPI.axiosInstance.interceptors.request.use((config) => {
       if (config.url) {
-        if (this.curtainAPI.checkIfRefreshTokenExpired() && this.curtainAPI.user.loginStatus) {
-          const ref = this.modal.open(SessionExpiredModalComponent, {backdrop: 'static'})
-          this.curtainAPI.user = new User()
+        if (this.curtainAPI.checkIfRefreshTokenExpired() && this.curtainAPI.user.loginStatus === true) {
           this.curtainAPI.user.loginStatus = false
+          this.curtainAPI.user.clearDB().then((data: any) => {
+            this.curtainAPI.user = new User()
+          })
+
+
+          console.log(this.curtainAPI.user)
+          const ref = this.modal.open(SessionExpiredModalComponent, {backdrop: 'static'})
+
         }
         if (
           //config.url === this.refereshURL ||
