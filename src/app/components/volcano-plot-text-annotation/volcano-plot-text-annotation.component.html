@@ -68,10 +68,7 @@
   </table>-->
   <ng-container *ngFor="let f of forms">
     <form [formGroup]="f">
-      <p>{{f.value["annotationID"]}}</p>
-      <div class="form-group p-2">
-        <label></label>
-      </div>
+      <h5>{{f.value["annotationID"]}}</h5>
       <div class="d-flex">
         <div class="p-2">
           <div class="form-check">

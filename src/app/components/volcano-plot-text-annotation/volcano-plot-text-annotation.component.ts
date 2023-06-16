@@ -30,6 +30,7 @@ export class VolcanoPlotTextAnnotationComponent implements OnInit {
         fontcolor: [this.settings.settings.textAnnotation[i].data.font.color],
         showannotation: [this.settings.settings.textAnnotation[i].showannotation],
       }))
+      this.colorMap[i] = this.settings.settings.textAnnotation[i].data.font.color.slice()
     }
   }
 
