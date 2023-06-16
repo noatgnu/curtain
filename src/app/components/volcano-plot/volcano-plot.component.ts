@@ -433,8 +433,10 @@ export class VolcanoPlotComponent implements OnInit {
     if ("points" in e) {
       const selected: string[] = []
       for (const p of e["points"]) {
-        selected.push(p.primaryIDs)
+        console.log(p)
+        selected.push(p.data.primaryIDs[p.pointNumber])
       }
+      console.log(selected)
       if (selected.length === 1) {
         this.selected.emit(
           {
