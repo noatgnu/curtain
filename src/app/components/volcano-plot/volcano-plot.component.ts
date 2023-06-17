@@ -379,7 +379,7 @@ export class VolcanoPlotComponent implements OnInit {
     }
     this.graphData = graphData.reverse()
     this.graphLayout.annotations = []
-
+    console.log(this.settings.settings.textAnnotation)
     for (const i in this.settings.settings.textAnnotation) {
       if (this.settings.settings.textAnnotation[i].showannotation === true) {
         this.annotated[this.settings.settings.textAnnotation[i].title] = this.settings.settings.textAnnotation[i].data
@@ -412,14 +412,29 @@ export class VolcanoPlotComponent implements OnInit {
     })
     this.dataService.annotationService.asObservable().subscribe(data => {
       if (data) {
+        console.log(data)
         if (data.remove) {
-          this.removeAnnotatedDataPoints([data.id]).then(() => {
-            this.dataService.annotatedData = this.annotated
-          })
+          if (typeof data.id === "string") {
+            this.removeAnnotatedDataPoints([data.id]).then(() => {
+              this.dataService.annotatedData = this.annotated
+            })
+          } else {
+            this.removeAnnotatedDataPoints(data.id).then(() => {
+              this.dataService.annotatedData = this.annotated
+            })
+          }
+
         } else {
-          this.annotateDataPoints([data.id]).then(() => {
-            this.dataService.annotatedData = this.annotated
-          })
+          if (typeof data.id === "string") {
+            this.annotateDataPoints([data.id]).then(() => {
+              this.dataService.annotatedData = this.annotated
+            })
+          } else {
+            this.annotateDataPoints(data.id).then(() => {
+              this.dataService.annotatedData = this.annotated
+            })
+          }
+
         }
       }
     })
@@ -429,11 +444,9 @@ export class VolcanoPlotComponent implements OnInit {
   }
 
   selectData(e: any) {
-    console.log(e)
     if ("points" in e) {
       const selected: string[] = []
       for (const p of e["points"]) {
-        console.log(p)
         selected.push(p.data.primaryIDs[p.pointNumber])
       }
       console.log(selected)
@@ -445,14 +458,15 @@ export class VolcanoPlotComponent implements OnInit {
           }
         )
       } else {
-        this.selected.emit(
-          {
-            data: selected,
-            title: "Selected " + selected.length + " genes." + "(Selection #" + (this.dataService.selectOperationNames.length+1) + ")"
-          }
-        )
+        if (selected.length !== 0) {
+          this.selected.emit(
+            {
+              data: selected,
+              title: "Selected " + selected.length + " genes." + "(Selection #" + (this.dataService.selectOperationNames.length+1) + ")"
+            }
+          )
+        }
       }
-
     }
   }
 

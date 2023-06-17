@@ -438,7 +438,7 @@ export class HomeComponent implements OnInit {
   }
 
   selectionManagementModal() {
-    const ref = this.modal.open(DataSelectionManagementComponent, {scrollable: true})
+    const ref = this.modal.open(DataSelectionManagementComponent, {scrollable: true, size: "xl"})
     ref.closed.subscribe(data => {
       if (data) {
         this.data.selectedGenes = []

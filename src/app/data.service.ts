@@ -28,6 +28,7 @@ export class DataService {
   currentDF: IDataFrame = new DataFrame()
   genesMap: any = {}
   primaryIDsMap: any = {}
+  batchAnnotateAnnoucement: Subject<any> = new Subject<any>()
   selectedComparison: string[] = []
   conditions: string[] = []
   dataTestTypes: string[] = [
