@@ -1,8 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {NgbActiveModal, NgbTypeahead, NgbTypeaheadSelectItemEvent} from "@ng-bootstrap/ng-bootstrap";
 import {WebService} from "../../web.service";
 import {DataService} from "../../data.service";
 import {AccountsService} from "../../accounts/accounts.service";
+import {FormBuilder} from "@angular/forms";
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  from, map,
+  Observable,
+  of,
+  OperatorFunction, Subject,
+  switchMap,
+  tap, filter, merge
+} from "rxjs";
 
 @Component({
   selector: 'app-batch-search',
@@ -10,6 +22,7 @@ import {AccountsService} from "../../accounts/accounts.service";
   styleUrls: ['./batch-search.component.scss']
 })
 export class BatchSearchComponent implements OnInit {
+  @ViewChild('instance', { static: true }) instance: NgbTypeahead | undefined;
   data: string = ""
   searchType: "Gene Names"| "Primary IDs" = "Gene Names"
   title: string = ""
@@ -29,13 +42,94 @@ export class BatchSearchComponent implements OnInit {
   }
   canDelete: boolean = false
   filterList: any[] = []
-  constructor(private modal: NgbActiveModal, public web: WebService, private accounts: AccountsService, private dataService: DataService) {
+
+  searchTerm: string = ""
+  searching: boolean = false
+  searchFailed: boolean = false
+  form = this.fb.group({
+    searchTerm: [""]
+  })
+  formatter = (x: {name:string, data: string}) => x.name
+  focusCapture = new Subject<string>()
+  clickCapture = new Subject<string>()
+  search: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) => {
+    let mainPipe = text$.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    )
+    let clicksWithClosedPopup
+    let inputFocus
+    if (this.instance !== undefined) {
+      clicksWithClosedPopup = this.clickCapture.pipe(
+        filter(() =>
+        {
+          if (this.instance) {
+            return !this.instance.isPopupOpen()
+          }
+          return false
+        })
+      );
+      inputFocus = this.focusCapture;
+    }
+    if (clicksWithClosedPopup && inputFocus) {
+      mainPipe = merge(mainPipe, clicksWithClosedPopup, inputFocus)
+    }
+    return mainPipe.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(() => this.searching = true),
+      tap(() => this.searchFailed = false),
+      switchMap(term => {
+        return from(this.accounts.curtainAPI.getDataFilterList(term, term, 20)).pipe(
+          tap(() => this.searchFailed = false),
+          map((data: any) => {
+            const res = data.data.results.map((a: any) => {
+              const pList: string[] = a.data.replace("\r", "").split("\n")
+              const pFound = pList.filter((p: string) => {
+                return p.toUpperCase().includes(term.toUpperCase());
+              })
+              return {name: a.name, id: a.id, data: pFound}
+            })
+            const searchOutput = res.map((a: any) => {
+              if (a.data.length > 0) {
+                return {id: a.id, name: a.name, data:`${a.name} ...${a.data[0]}...`}
+              } else {
+                return {id: a.id, name: a.name, data:`${a.name}`}
+              }
+            })
+            return searchOutput
+          }),
+          catchError(() => {
+            this.searchFailed = true;
+            return of([])
+          })
+        )
+      }),
+      tap(() => this.searching = false),
+    )
+  }
+  constructor(private modal: NgbActiveModal, public web: WebService, private accounts: AccountsService, private dataService: DataService, private fb: FormBuilder) {
     this.builtInList = Object.keys(this.web.filters)
     this.params.maxFCRight = Math.abs(this.dataService.minMax.fcMax)
     this.params.maxFCLeft = Math.abs(this.dataService.minMax.fcMin)
     this.params.maxP = this.dataService.minMax.pMax
     this.params.minP = this.dataService.minMax.pMin
-    this.getAllList();
+    //this.getAllList();
+    /*this.form.controls["searchTerm"].valueChanges.pipe(debounceTime(300), distinctUntilChanged()).subscribe((term: string|null) => {
+      if (term) {
+        this.searching = true
+        this.accounts.curtainAPI.getDataFilterList(term, term).then((data: any) => {
+          this.searching = false
+          this.searchFailed = false
+          this.filterList = data.data.results.map((a: any) => {
+            return {name: a.name, id: a.id}
+          })
+        }).catch((e: any) => {
+          this.searching = false
+          this.searchFailed = true
+        })
+      }
+    })*/
   }
 
   private getAllList() {
@@ -101,5 +195,8 @@ export class BatchSearchComponent implements OnInit {
       this.currentID = -1
       this.getAllList()
     })
+  }
+  selectDataList(event: NgbTypeaheadSelectItemEvent) {
+    this.updateTextArea(event.item.id)
   }
 }
