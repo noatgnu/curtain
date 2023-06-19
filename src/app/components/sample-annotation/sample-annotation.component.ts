@@ -36,7 +36,7 @@ export class SampleAnnotationComponent implements OnInit {
   }
 
   getPride() {
-    getPrideData(this.prideID).then(data => {
+    getPrideData(this.prideID).then((data: any) => {
       for (const i in data.data) {
         switch (i) {
           case "affiliations":

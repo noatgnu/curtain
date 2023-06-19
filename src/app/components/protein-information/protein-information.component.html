@@ -1,6 +1,6 @@
+<h5>Functional Description</h5>
 <p>
-  <b>Functional Description:</b> {{_data["Function [CC]"].replace("FUNCTION: ", "")}}
-  <br>
+  {{_data["Function [CC]"].replace("FUNCTION: ", "")}}
 </p>
 <app-protein-domain-plot [data]="_data"></app-protein-domain-plot>
 <div class="mt-2">
@@ -31,5 +31,13 @@
       </td>
     </tr>
   </table>
+</div>
+<div class="mt-2" *ngIf="diseases.length > 0">
+  <h5>Diseases</h5>
+  <ul>
+    <li *ngFor="let d of diseases">
+      {{d}}
+    </li>
+  </ul>
 </div>
 

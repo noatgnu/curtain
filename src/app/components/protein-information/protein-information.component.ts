@@ -7,8 +7,12 @@ import {Component, Input, OnInit} from '@angular/core';
 })
 export class ProteinInformationComponent implements OnInit {
   _data: any = {}
+  diseases: string[] = []
   @Input() set data(value: any) {
     this._data = value
+    if (this._data["Involvement in disease"] && this._data["Involvement in disease"].length > 0) {
+      this.diseases = this._data["Involvement in disease"].split(';').map((x: string) => x.replace(/DISEASE:/g, "").trim())
+    }
   }
   constructor() { }
 

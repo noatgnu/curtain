@@ -554,6 +554,7 @@ export class VolcanoPlotComponent implements OnInit {
       this.graphLayout.annotations = []
       this.annotated = {}
       for (const f of data) {
+        console.log(f)
         this.settings.settings.textAnnotation[f.value.annotationID].data.showarrow = f.value.showarrow
         this.settings.settings.textAnnotation[f.value.annotationID].data.arrowhead = f.value.arrowhead
         this.settings.settings.textAnnotation[f.value.annotationID].data.arrowsize = f.value.arrowsize
@@ -562,7 +563,7 @@ export class VolcanoPlotComponent implements OnInit {
         this.settings.settings.textAnnotation[f.value.annotationID].data.ay = f.value.ay
         this.settings.settings.textAnnotation[f.value.annotationID].data.font.size = f.value.fontsize
         this.settings.settings.textAnnotation[f.value.annotationID].data.font.color = f.value.fontcolor
-        this.settings.settings.textAnnotation[f.value.annotationID].data.font.text = f.value.text
+        this.settings.settings.textAnnotation[f.value.annotationID].data.text = f.value.text
         this.settings.settings.textAnnotation[f.value.annotationID].showannotation = f.value.showannotation
         this.annotated[f.value.annotationID] = this.settings.settings.textAnnotation[f.value.annotationID].data
         this.graphLayout.annotations.push(this.annotated[f.value.annotationID])

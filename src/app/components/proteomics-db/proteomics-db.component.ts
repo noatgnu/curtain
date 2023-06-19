@@ -14,7 +14,7 @@ export class ProteomicsDbComponent implements OnInit {
   @Input() set uniprotID(value: string) {
     this._uniprotID = value
     if (this._uniprotID !== "") {
-      getProteomicsData(this._uniprotID, this.form.value["selected"]).then(r => {
+      getProteomicsData(this._uniprotID, this.form.value["selected"]).then((r:any) => {
         if (r.data) {
           this.drawBarChart(r.data)
         }
@@ -30,7 +30,7 @@ export class ProteomicsDbComponent implements OnInit {
   graphLayout: any = {}
   constructor(public web: WebService, private uniprot: UniprotService, private fb: UntypedFormBuilder) {
     this.form.valueChanges.subscribe(value => {
-      getProteomicsData(this._uniprotID, value.selected).then(r => {
+      getProteomicsData(this._uniprotID, value.selected).then((r: any) => {
         if (r.data) {
           this.drawBarChart(r.data)
         }
