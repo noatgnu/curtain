@@ -1,0 +1,9 @@
+.text-gradient-pastel {
+  background: -webkit-linear-gradient(45deg, #ff9a9e, #fad0c4, #fad0c4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+  font-size: 30px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
