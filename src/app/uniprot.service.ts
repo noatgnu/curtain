@@ -25,7 +25,7 @@ export class UniprotService {
   }
 
   async UniprotParserJS(accList: string[]) {
-    const parser = new Parser(5, "accession,id,gene_names,protein_name,organism_name,organism_id,length,xref_refseq,cc_subcellular_location,sequence,ft_var_seq,cc_alternative_products,cc_function,ft_domain,xref_string,cc_disease")
+    const parser = new Parser(5, "accession,id,gene_names,protein_name,organism_name,organism_id,length,xref_refseq,cc_subcellular_location,sequence,ft_var_seq,cc_alternative_products,cc_function,ft_domain,xref_string,cc_disease,cc_pharmaceutical,ft_mutagen")
     const res = await parser.parse(accList)
     let currentRun = 1
     let totalRun = Math.ceil(accList.length/500)
@@ -112,6 +112,24 @@ export class UniprotService {
         }
         r["Domain [FT]"] = domains
       }
+      if (r["Mutagenesis"]) {
+        let mutagenesis: any[] = []
+        let position = ""
+        for (const s of r["Mutagenesis"].split(/; /g)) {
+          if (s!== "") {
+            if (s.indexOf("MUTAGEN") > -1) {
+              position = s.split(" ")[1]
+            } else if (s.indexOf("/note=") > -1) {
+              const match = /"(.+)"/.exec(s)
+              if (match !== null) {
+                mutagenesis.push({position: position, note: match[1]})
+              }
+            }
+          }
+        }
+        r["Mutagenesis"] = mutagenesis
+      }
+
       r["_id"] = r["From"]
       try {
         this.db.set(r["Entry"], r)

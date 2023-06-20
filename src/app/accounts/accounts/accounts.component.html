@@ -8,7 +8,7 @@
     <b>Total Curtain Sessions: </b> {{accounts.curtainAPI.user.totalCurtain}}
   </p>
   <form [formGroup]="form" (submit)="submit()">
-    <div class="form-group">
+    <div class="form-floating">
       <label for="session-search">Search Session Description</label>
       <input type="text" formControlName="sessionDescription" id="session-search" class="form-control">
     </div>
