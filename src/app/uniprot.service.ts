@@ -67,7 +67,7 @@ export class UniprotService {
         }
         r["Subcellular location [CC]"] = subLoc
       }
-      if (r["Modified residue"]) {
+      /*if (r["Modified residue"]) {
         const mods = r["Modified residue"].split("; ")
         let modRes: any[] = []
         let modPosition = -1
@@ -86,7 +86,7 @@ export class UniprotService {
         }
 
         r["Modified residue"] = modRes
-      }
+      }*/
       if (r["Domain [FT]"]) {
         let domains: any[] = []
         let l: number = 0;
