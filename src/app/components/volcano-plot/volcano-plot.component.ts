@@ -539,6 +539,7 @@ export class VolcanoPlotComponent implements OnInit {
       }
       if (this.annotated[title]) {
         delete this.annotated[title]
+        delete this.settings.settings.textAnnotation[title]
       }
     }
     this.graphLayout.annotations = Object.values(this.annotated)
