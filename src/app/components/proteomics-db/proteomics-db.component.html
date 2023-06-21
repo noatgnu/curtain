@@ -12,7 +12,7 @@
   </div>
 </form>
 
-<plotly-plot [divId]="_uniprotID+'bar'" [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
+<plotly-plot [config]="config" [divId]="_uniprotID+'bar'" [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
 <div class="row align-content-end">
   <div class="col">
 <!--    <button class="btn btn-sm btn-link" (click)="credit.openCredit('ProteomicsDB')">Resource Citations</button>-->

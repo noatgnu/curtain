@@ -28,6 +28,16 @@ export class ProteomicsDbComponent implements OnInit {
 
   graphData: any[] = []
   graphLayout: any = {}
+  config: any = {
+    //modeBarButtonsToRemove: ["toImage"]
+    toImageButtonOptions: {
+      format: 'svg',
+      filename: 'proteomicsdb',
+      height: this.graphLayout.height,
+      width: this.graphLayout.width,
+      scale: 1
+    }
+  }
   constructor(public web: WebService, private uniprot: UniprotService, private fb: UntypedFormBuilder) {
     this.form.valueChanges.subscribe(value => {
       getProteomicsData(this._uniprotID, value.selected).then((r: any) => {
@@ -100,6 +110,16 @@ export class ProteomicsDbComponent implements OnInit {
           graphLayout.height = 400 + 25*temp.y.length
           this.graphData = graphData
           this.graphLayout = graphLayout
+          this.config = {
+            //modeBarButtonsToRemove: ["toImage"]
+            toImageButtonOptions: {
+              format: 'svg',
+              filename: "proteomicsdb",
+              height: this.graphLayout.height,
+              width: this.graphLayout.width,
+              scale: 1
+            }
+          }
         }
       }
     }
