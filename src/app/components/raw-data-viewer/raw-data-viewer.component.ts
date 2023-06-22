@@ -23,7 +23,7 @@ export class RawDataViewerComponent implements OnInit {
     filterType: ["Gene Names"],
   })
   displayDF: IDataFrame = new DataFrame()
-  constructor(public dataService: DataService, private fb: FormBuilder) {
+  constructor(public dataService: DataService, private fb: FormBuilder, private uniprot: UniprotService) {
     this.form.controls["filterTerm"].valueChanges.pipe(debounceTime(200), distinctUntilChanged()).subscribe((value) => {
       let primaryIds: string[] = []
       if (value){
@@ -38,6 +38,15 @@ export class RawDataViewerComponent implements OnInit {
             case "Primary IDs":
               primaryIds = this.dataService.selected.filter((primaryID: string) => primaryID.toLowerCase().includes(value.toLowerCase()))
               break
+            case "Diseases":
+              this._data.forEach((row: any) => {
+                const uni = this.uniprot.getUniprotFromPrimary(row[this.dataService.rawForm.primaryIDs])
+                if (uni["Involvement in disease"]) {
+                  if (uni["Involvement in disease"].toLowerCase().includes(value.toLowerCase())) {
+                    primaryIds.push(row[this.dataService.rawForm.primaryIDs])
+                  }
+                }
+              })
           }
           if (value === "") {
             this.displayDF = this._data
@@ -48,8 +57,6 @@ export class RawDataViewerComponent implements OnInit {
           }
         }
 
-        console.log(this.displayDF)
-        console.log(primaryIds)
 
       } else {
         this.displayDF = this._data
