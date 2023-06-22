@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {AfterContentInit, Component, Input, OnInit} from '@angular/core';
 import {EbiService} from "../../ebi.service";
 import {UniprotService} from "../../uniprot.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap"
@@ -11,7 +11,7 @@ declare const PDBeMolstarPlugin: any;
   templateUrl: './pdb-viewer.component.html',
   styleUrls: ['./pdb-viewer.component.scss']
 })
-export class PdbViewerComponent implements OnInit {
+export class PdbViewerComponent implements OnInit, AfterContentInit {
 
   get data(): any {
     return this._data;
@@ -43,32 +43,37 @@ export class PdbViewerComponent implements OnInit {
   }
 
   ngAfterContentInit() {
-    setTimeout(()=> {
-      getEBIAlpha(this._data.split(";")[0]).then((data: any) => {
-        this.link = data.data[0]["pdbUrl"]
-        this.modelCreatedDate = data.data[0]["modelCreatedDate"]
-        this.version = data.data[0]["latestVersion"]
-        this.entryID = data.data[0]["entryId"]
-        this.alignmentError = data.data[0]["paeImageUrl"]
-        this.cifLink = data.data[0]["cifUrl"]
-        const molstar = new PDBeMolstarPlugin()
-        const options = {
-          customData: {
-            url: this.cifLink,
-            format: "cif",
-            binary: false
-          },
-          alphafoldView: true,
-          bgColor: {r:255, g:255, b:255}
-        }
+    const match = this.uniprot.Re.exec(this._data.split(";")[0])
+    if (match) {
+      setTimeout(()=> {
 
-        //Get element from HTML/Template to place the viewer
-        const viewerContainer = document.getElementById('molstar');
+        getEBIAlpha(match[1]).then((data: any) => {
+          this.link = data.data[0]["pdbUrl"]
+          this.modelCreatedDate = data.data[0]["modelCreatedDate"]
+          this.version = data.data[0]["latestVersion"]
+          this.entryID = data.data[0]["entryId"]
+          this.alignmentError = data.data[0]["paeImageUrl"]
+          this.cifLink = data.data[0]["cifUrl"]
+          const molstar = new PDBeMolstarPlugin()
+          const options = {
+            customData: {
+              url: this.cifLink,
+              format: "cif",
+              binary: false
+            },
+            alphafoldView: true,
+            bgColor: {r:255, g:255, b:255}
+          }
 
-        //Call render method to display the 3D view
-        molstar.render(viewerContainer, options);
-      }), 4000
-    })
+          //Get element from HTML/Template to place the viewer
+          const viewerContainer = document.getElementById('molstar');
+
+          //Call render method to display the 3D view
+          molstar.render(viewerContainer, options);
+        }), 4000
+      })
+    }
+
   }
 
 }
