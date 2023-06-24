@@ -244,6 +244,15 @@ export class HomeComponent implements OnInit {
     console.log(object.settings)
     if (!object.settings.project) {
       object.settings.project = new Project()
+    } else {
+      const p = new Project()
+      for (const key in object.settings.project) {
+        if (object.settings.project.hasOwnProperty(key)) {
+          // @ts-ignore
+          p[key] = object.settings.project[key]
+        }
+      }
+      object.settings.project = p
     }
     if (!object.settings.scatterPlotMarkerSize) {
       object.settings.scatterPlotMarkerSize = 10
@@ -394,7 +403,10 @@ export class HomeComponent implements OnInit {
   openAnnotation() {
     const ref = this.modal.open(SampleAnnotationComponent, {size: "lg"})
     ref.closed.subscribe(data => {
-      this.settings.settings.project = data
+      for (const i in data) {
+        // @ts-ignore
+        this.settings.settings.project[i] = data[i]
+      }
     })
   }
 

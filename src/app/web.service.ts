@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {CurtainLink} from "./classes/curtain-link";
 import {PlotlyService} from "angular-plotly.js";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +34,7 @@ export class WebService {
     Ciliopathy: {filename: "ciliopathy.txt", name: "Ciliopathy Genes"},
     mTOR: {filename: "mtor.txt", name: "mTOR Pathway"}
   }
-  constructor(private plotly: PlotlyService) { }
+  constructor(private plotly: PlotlyService, private http: HttpClient) { }
 
 
   toParamString(options: Map<string, string>): string {
@@ -62,6 +63,9 @@ export class WebService {
     const graph = this.plotly.getInstanceByDivId(id)
     const plot = await this.plotly.getPlotly()
     await plot.downloadImage(graph, {format: format, filename: filename})
+  }
+  getPRIDEConstants(constantType: string) {
+    return this.http.get("https://raw.githubusercontent.com/PRIDE-Archive/px-submission-tool/master/src/main/resources/cv/"+constantType+".cv", {responseType: "text", observe: "body"})
   }
 
 }
