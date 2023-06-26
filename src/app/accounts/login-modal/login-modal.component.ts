@@ -56,13 +56,15 @@ export class LoginModalComponent implements OnInit, OnDestroy {
     localStorage.setItem("urlAfterLogin", document.URL)
     this.loginWatcher = setInterval(()=> {
       console.log("ORCID LOGIN CHECK")
-      if (this.accounts.curtainAPI.user.access_token && this.accounts.curtainAPI.user.access_token.length > 0) {
-        console.log("ORCID LOGIN SUCCESSFUL")
-        this.accounts.reload().then(() => {
+      this.accounts.reload().then(() => {
+        if (this.accounts.curtainAPI.user.access_token && this.accounts.curtainAPI.user.access_token.length > 0) {
+          console.log("ORCID LOGIN SUCCESSFUL")
           this.modal.dismiss()
           clearInterval(this.loginWatcher)
-        })
-      }
+        }
+
+      })
+
     }, 1000)
   }
 
