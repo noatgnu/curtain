@@ -125,7 +125,9 @@ export class AccountsService {
 
 
   postORCIDCode(data: string) {
-    return this.curtainAPI.ORCIDLogin(data, window.location.origin+"/").then((data: any) => {return data}).catch((error: any) => {
+    return this.curtainAPI.ORCIDLogin(data, window.location.origin+"/").then((data: any) => {
+      return data
+    }).catch((error: any) => {
       return error
     })
   }
