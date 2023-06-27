@@ -26,6 +26,7 @@ import {AccountsComponent} from "../../accounts/accounts/accounts.component";
 import {reviver, User} from "curtain-web-api";
 import {DefaultColorPaletteComponent} from "../default-color-palette/default-color-palette.component";
 import {DataSelectionManagementComponent} from "../data-selection-management/data-selection-management.component";
+import {QrcodeModalComponent} from "../qrcode-modal/qrcode-modal.component";
 
 @Component({
   selector: 'app-home',
@@ -462,6 +463,12 @@ export class HomeComponent implements OnInit {
 
       }
     })
+  }
+
+  openQRCode() {
+    const ref = this.modal.open(QrcodeModalComponent, {size: "sm"})
+    ref.componentInstance.url =this.uniqueLink
+
   }
 }
 

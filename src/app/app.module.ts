@@ -51,6 +51,8 @@ import {AccountsModule} from "./accounts/accounts.module";
 import { DefaultColorPaletteComponent } from './components/default-color-palette/default-color-palette.component';
 import { DataSelectionManagementComponent } from './components/data-selection-management/data-selection-management.component';
 import { SessionExpiredModalComponent } from './components/session-expired-modal/session-expired-modal.component';
+import { QrcodeModalComponent } from './components/qrcode-modal/qrcode-modal.component';
+import {NgxQRCodeModule} from "@techiediaries/ngx-qrcode";
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -92,20 +94,22 @@ PlotlyModule.plotlyjs = PlotlyJS;
     DefaultColorPaletteComponent,
     DataSelectionManagementComponent,
     SessionExpiredModalComponent,
+    QrcodeModalComponent,
   ],
-    imports: [
-      BrowserModule,
-      AppRoutingModule,
-      NgbModule,
-      FormsModule,
-      HttpClientModule,
-      PlotlyModule,
-      ReactiveFormsModule,
-      ColorPickerModule,
-      QuillModule.forRoot(),
-      AccountsModule,
-      NgxPrintModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    NgbModule,
+    FormsModule,
+    HttpClientModule,
+    PlotlyModule,
+    ReactiveFormsModule,
+    ColorPickerModule,
+    QuillModule.forRoot(),
+    AccountsModule,
+    NgxPrintModule,
+    NgxQRCodeModule
+  ],
   providers: [HttpClient,
   ],
   bootstrap: [AppComponent]
