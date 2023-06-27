@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit {
   filterModel: string = ""
   currentID: string = ""
 
-  constructor(public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, private settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
+  constructor(public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, public settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
@@ -467,8 +467,12 @@ export class HomeComponent implements OnInit {
 
   openQRCode() {
     const ref = this.modal.open(QrcodeModalComponent, {size: "sm"})
-    ref.componentInstance.url =this.uniqueLink
+    if (this.settings.settings.currentID) {
+      ref.componentInstance.url = location.origin + "/#/" + this.settings.settings.currentID
+    }
+
 
   }
+
 }
 
