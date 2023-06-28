@@ -470,8 +470,6 @@ export class HomeComponent implements OnInit {
     if (this.settings.settings.currentID) {
       ref.componentInstance.url = location.origin + "/#/" + this.settings.settings.currentID
     }
-
-
   }
 
 }

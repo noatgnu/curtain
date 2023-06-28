@@ -33,7 +33,7 @@ export class DataService {
   conditions: string[] = []
   dataTestTypes: string[] = [
     "ANOVA",
-    //"TTest"
+    "TTest"
   ]
   redrawTrigger: Subject<boolean> = new Subject()
   annotatedData: any = {}

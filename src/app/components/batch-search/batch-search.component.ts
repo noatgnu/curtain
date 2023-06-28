@@ -80,7 +80,7 @@ export class BatchSearchComponent implements OnInit {
       tap(() => this.searching = true),
       tap(() => this.searchFailed = false),
       switchMap(term => {
-        return from(this.accounts.curtainAPI.getDataFilterList(term, term, 30)).pipe(
+        return from(this.accounts.curtainAPI.getDataFilterList(term, term, term,30)).pipe(
           tap(() => this.searchFailed = false),
           map((data: any) => {
             const res = data.data.results.map((a: any) => {
