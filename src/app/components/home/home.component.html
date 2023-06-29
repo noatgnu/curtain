@@ -3,7 +3,7 @@
     <b style="padding-left: 4px" class="text-dark"><a class="navbar-brand" href="#">Curtain</a></b>
     <ng-container *ngIf="finished && settings.settings.currentID !== ''">
       <p>
-        <a *ngIf="uniqueLink !== ''" href="{{uniqueLink}}" class="ml-2 text-success">{{uniqueLink}}</a> <span class="badge bg-info" (click)="copyToClipboard(uniqueLink)"><i class="bi bi-clipboard"></i></span> <span class="badge bg-info" (click)="openQRCode()">QR Code</span>
+        <a *ngIf="uniqueLink !== ''" href="{{uniqueLink}}" class="ml-2 text-success">{{uniqueLink}}</a> <span class="badge bg-info ml-1" (click)="copyToClipboard(uniqueLink)"><i class="bi bi-clipboard"></i></span> <span class="badge bg-info ml-1" (click)="openQRCode()">QR Code</span>
       </p>
 
     </ng-container>
