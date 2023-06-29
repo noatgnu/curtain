@@ -474,5 +474,10 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      this.toast.show("Clipboard", "Session link has been copied to clipboard").then()
+    })
+  }
 }
 
