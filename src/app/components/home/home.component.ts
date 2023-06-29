@@ -64,6 +64,7 @@ export class HomeComponent implements OnInit {
               this.toast.show("Initialization", "Fetching data from session " + settings[0]).then()
               if (this.currentID !== settings[0]) {
                 this.currentID = settings[0]
+                this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
                 this.accounts.curtainAPI.getSessionSettings(settings[0]).then((d:any)=> {
                   this.data.session = d.data
                   this.accounts.curtainAPI.postSettings(settings[0], token).then((data:any) => {
