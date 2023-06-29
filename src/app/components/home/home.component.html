@@ -2,8 +2,8 @@
   <div class="container-fluid">
     <b style="padding-left: 4px" class="text-dark"><a class="navbar-brand" href="#">Curtain</a></b>
     <ng-container *ngIf="finished">
-      <a *ngIf="uniqueLink !== ''" href="{{uniqueLink}}" class="ml-2 text-success">{{uniqueLink}}</a>
-
+      <a *ngIf="uniqueLink !== ''" href="{{uniqueLink}}" class="ml-2 text-success mr-2">{{uniqueLink}}</a>
+      <span class="badge bg-info" (click)="openQRCode()">QR Code</span>
     </ng-container>
 
     <div class="d-flex">
