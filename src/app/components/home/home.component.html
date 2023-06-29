@@ -2,9 +2,18 @@
   <div class="container-fluid">
     <b style="padding-left: 4px" class="text-dark"><a class="navbar-brand" href="#">Curtain</a></b>
     <ng-container *ngIf="finished && settings.settings.currentID !== ''">
-      <p>
-        <a *ngIf="uniqueLink !== ''" href="{{uniqueLink}}" class="ml-2 text-success">{{uniqueLink}}</a>&nbsp <span class="badge bg-info" (click)="copyToClipboard(uniqueLink)"><i class="bi bi-clipboard"></i></span>&nbsp <span class="badge bg-info" (click)="openQRCode()">QR Code</span>
-      </p>
+      <div class="d-flex">
+        <div class="p-2">
+          <a *ngIf="uniqueLink !== ''" href="{{uniqueLink}}" class="ml-2 text-success">{{uniqueLink}}</a>
+        </div>
+        <div class="p-2">
+          <span class="badge bg-info" (click)="copyToClipboard(uniqueLink)"><i class="bi bi-clipboard"></i></span>
+        </div>
+        <div class="p-2">
+          <span class="badge bg-warning" (click)="openQRCode()">QR Code</span>
+        </div>
+
+      </div>
 
     </ng-container>
 
