@@ -7,6 +7,7 @@ import {ToastService} from "../../toast.service";
 import {IDataFrame} from "data-forge";
 import {CytoplotComponent} from "../cytoplot/cytoplot.component";
 import {getInteractomeAtlas} from "curtain-web-api";
+import {AccountsService} from "../../accounts/accounts.service";
 
 @Component({
   selector: 'app-interactome-atlas',
@@ -42,7 +43,7 @@ export class InteractomeAtlasComponent implements OnInit {
 
   selection: string = ""
 
-  constructor(private toast: ToastService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService) { }
+  constructor(private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService) { }
 
   ngOnInit(): void {
   }

@@ -24,7 +24,8 @@ export class FileFormComponent implements OnInit {
     })
     this.data.restoreTrigger.asObservable().subscribe(data => {
       if (data) {
-        this.processFiles()
+        this.updateProgressBar(100, "Restoring session...")
+        this.processFiles().then()
       }
     })
   }
@@ -44,7 +45,7 @@ export class FileFormComponent implements OnInit {
     this.progressBar.value = value
     this.progressBar.text = text
   }
-  processFiles(e: any = null) {
+  async processFiles(e: any = null) {
     if (e) {
       e.preventDefault()
     }

@@ -67,7 +67,7 @@ export class HomeComponent implements OnInit {
 
                 this.accounts.curtainAPI.getSessionSettings(settings[0]).then((d:any)=> {
                   this.data.session = d.data
-                  this.accounts.curtainAPI.postSettings(settings[0], token).then((data:any) => {
+                  this.accounts.curtainAPI.postSettings(settings[0], token, this.onDownloadProgress).then((data:any) => {
                     if (data.data) {
                       this.restoreSettings(data.data).then(result => {
                         this.accounts.curtainAPI.getSessionSettings(settings[0]).then((d:any)=> {
@@ -228,15 +228,20 @@ export class HomeComponent implements OnInit {
       fetchUniprot: this.data.fetchUniprot,
       annotatedData: this.data.annotatedData
     }
-    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description).then((data: any) => {
+    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP",  this.onUploadProgress).then((data: any) => {
       if (data.data) {
         this.data.session = data.data
         this.settings.settings.currentID = data.data.link_id
         this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
+        this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
       }
     }).catch(err => {
       this.toast.show("User information", "Curtain link cannot be saved").then()
     })
+  }
+
+  onUploadProgress = (progressEvent: any) => {
+    this.uniprot.uniprotProgressBar.next({value: progressEvent.progress * 100, text: "Uploading session data at " + Math.round(progressEvent.progress *100) + "%"})
   }
 
   async restoreSettings(object: any) {
@@ -479,5 +484,11 @@ export class HomeComponent implements OnInit {
       this.toast.show("Clipboard", "Session link has been copied to clipboard").then()
     })
   }
+
+  onDownloadProgress = (progressEvent: any) => {
+    this.uniprot.uniprotProgressBar.next({value: progressEvent.progress *100, text: "Downloading session data at " + Math.round(progressEvent.progress * 100) + "%"})
+  }
+
+
 }
 
