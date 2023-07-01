@@ -39,7 +39,8 @@
             ],
             "scripts": [
               "src/assets/combined_embedded_network_v2.0.3.js"
-            ]
+            ],
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -133,7 +134,8 @@
             ],
             "scripts": [
               "src/assets/combined_embedded_network_v2.0.3.js"
-            ]
+            ],
+            "webWorkerTsConfig": "tsconfig.worker.json"
           }
         }
       }
