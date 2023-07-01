@@ -6,6 +6,7 @@ import {fromCSV} from "data-forge";
 import {UniprotService} from "../../uniprot.service";
 import {ScrollService} from "../../scroll.service";
 import {getInteractomeAtlas, getStringDBInteractions} from "curtain-web-api";
+import {AccountsService} from "../../accounts/accounts.service";
 
 @Component({
   selector: 'app-network-interactions',
@@ -150,7 +151,7 @@ export class NetworkInteractionsComponent implements OnInit {
     }
   }
 
-  constructor(private scroll: ScrollService, private data: DataService, private dbString: DbStringService, private interac: InteractomeAtlasService, private uniprot: UniprotService) { }
+  constructor(private accounts: AccountsService, private scroll: ScrollService, private data: DataService, private dbString: DbStringService, private interac: InteractomeAtlasService, private uniprot: UniprotService) { }
 
   ngOnInit(): void {
   }
@@ -207,7 +208,9 @@ export class NetworkInteractionsComponent implements OnInit {
       console.log("Can't get StringDB data")
     }
     try {
-      const resultInteractome = await getInteractomeAtlas(this._genes, "query_query")
+      //const resultInteractome = await getInteractomeAtlas(this._genes, "query_query")
+      let resultInteractome = await this.accounts.curtainAPI.postInteractomeAtlasProxy(this._genes, "query_query")
+      resultInteractome.data = JSON.parse(resultInteractome.data)
       if (resultInteractome.data["all_interactions"]) {
         if (resultInteractome.data["all_interactions"].length > 0) {
           for (const r of resultInteractome.data["all_interactions"]) {

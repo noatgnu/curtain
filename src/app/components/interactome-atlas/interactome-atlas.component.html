@@ -1,12 +1,18 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-2">
-  <button class="btn btn-primary" (click)="cytoplot.download()">Download</button>
+  <button class="btn btn-primary" *ngIf="cytoplot" (click)="cytoplot.download()">Download</button>
   <app-comparison-selections (selection)="handleSelection($event)"></app-comparison-selections>
 </div>
 <div class="row mt-2 ml-2 mr-2">
   <div class="col-8">
     <div class="card">
       <div class="card-body">
-        <app-cytoplot #cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
+
+        <app-cytoplot *ngIf="hasError === false" #cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
+        <div class="card bg-danger" *ngIf="hasError===true">
+          <div class="card-body">
+            <p class="text-danger">No data found</p>
+          </div>
+        </div>
       </div>
     </div>
     <div class="card mt-2 mb-2" *ngIf="selected">

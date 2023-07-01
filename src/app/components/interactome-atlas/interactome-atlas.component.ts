@@ -42,7 +42,7 @@ export class InteractomeAtlasComponent implements OnInit {
   evidences: any = {}
 
   selection: string = ""
-
+  hasError: boolean = false
   constructor(private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService) { }
 
   ngOnInit(): void {
@@ -50,12 +50,19 @@ export class InteractomeAtlasComponent implements OnInit {
 
   async getInteractions() {
     if (this.geneName !== "") {
-      const interactions = await getInteractomeAtlas([this.geneName.split(";")[0]])
-      console.log(interactions)
-      if (interactions) {
-        this.interactions = interactions
-        this.reformatInteraction()
+      this.hasError = false
+      try {
+        const interactions = await this.accounts.curtainAPI.postInteractomeAtlasProxy([this.geneName.split(";")[0]], "None")
+        //const interactions = await getInteractomeAtlas([this.geneName.split(";")[0]])
+        console.log(interactions)
+        if (interactions) {
+          this.interactions = JSON.parse(interactions.data)
+          this.reformatInteraction()
+        }
+      } catch (e) {
+        this.hasError = true
       }
+
 
       /*this.interac.getInteractions(this.geneName.split(";")[0]).subscribe(data => {
         if (data.body) {
