@@ -10,7 +10,7 @@ import {WebsocketService} from "./websocket.service";
 export class AppComponent {
   title = 'Curtain';
 
-  constructor(private accounts: AccountsService, private ws: WebsocketService) {
+  constructor(private accounts: AccountsService) {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
       const code = path.split("=")

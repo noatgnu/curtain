@@ -24,18 +24,21 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
   @ViewChild("chatbox") chatbox: ElementRef|undefined
   webSub: Subscription | undefined
   constructor(private ws: WebsocketService, private fb: FormBuilder) {
+    this.ws.connection = this.ws.connect()
     if (this.webSub) {
       this.webSub.unsubscribe()
-      this.setSubscription();
     }
+    this.setSubscription();
     this.ws.reSubscribeSubject.asObservable().subscribe((data: boolean) => {
-      this.webSub?.unsubscribe()
-      this.setSubscription();
+      if (data) {
+        this.webSub?.unsubscribe()
+        this.setSubscription();
+      }
     })
-    //this.ws.send({message:  "hello", senderName: this.ws.displayName})
   }
 
   private setSubscription() {
+    console.log("set subscription")
     this.webSub = this.ws.getMessages()?.subscribe((data: any) => {
       this.messagesList.push(data)
       this.chatbox?.nativeElement.scrollTo(0, this.chatbox.nativeElement.scrollHeight)
@@ -58,6 +61,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy() {
     this.webSub?.unsubscribe()
+    this.ws.close()
   }
 
   toggleChat() {

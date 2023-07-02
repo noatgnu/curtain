@@ -10,22 +10,28 @@ import * as readableIDs from "uuid-readable";
 })
 export class WebsocketService {
   baseUrl = ""
-  private connection: WebSocketSubject<any>|undefined
+  connection: WebSocketSubject<any>|undefined
   sessionID: string = readableIDs.short(crypto.randomUUID()).replace(/\s/g, "")
   personalID: string = readableIDs.short(crypto.randomUUID()).replace(/\s/g, "")
   displayName: string = "Anonymous"
   reSubscribeSubject: Subject<boolean> = new Subject<boolean>()
+  connecting: boolean = false
   constructor(private accounts: AccountsService) {
-    this.baseUrl = this.accounts.curtainAPI.baseURL.replace("http", "ws")
-    this.connection = this.connect()
+
   }
 
   connect(): WebSocketSubject<any> {
+    this.connecting = true
+    this.baseUrl = this.accounts.curtainAPI.baseURL.replace("http", "ws")
     const url = this.baseUrl + "ws/curtain/"+ this.sessionID + "/" +this.personalID+ "/"
     if (!this.connection) {
       this.connection = new WebSocketSubject(url)
+      console.log("connected to " + this.sessionID)
+      console.log(this.connection)
+      this.connecting = false
       return this.connection
     } else {
+      this.connecting = false
       return this.connection
     }
   }
@@ -45,7 +51,6 @@ export class WebsocketService {
     if (this.connection) {
       this.reSubscribeSubject.next(true)
     }
-
     console.log("reconnected to " + this.sessionID)
   }
 

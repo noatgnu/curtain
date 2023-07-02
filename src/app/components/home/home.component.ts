@@ -56,7 +56,6 @@ export class HomeComponent implements OnInit {
             } else if (params["settings"] && params["settings"].length > 0) {
               console.log(params["settings"])
               const settings = params["settings"].split("&")
-              console.log(settings)
               let token: string = ""
               if (settings.length > 1) {
                 if (settings[1] !== "") {
@@ -65,10 +64,9 @@ export class HomeComponent implements OnInit {
                 } else {
                   this.data.tempLink = false
                 }
-                console.log(settings[2])
+
                 if (settings.length > 2 && settings[2] !== "") {
                   this.ws.sessionID = settings[2]
-                  console.log(this.ws.sessionID)
                   this.ws.reconnect()
                 }
               }
