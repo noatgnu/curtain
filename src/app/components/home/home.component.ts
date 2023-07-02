@@ -27,6 +27,8 @@ import {reviver, User} from "curtain-web-api";
 import {DefaultColorPaletteComponent} from "../default-color-palette/default-color-palette.component";
 import {DataSelectionManagementComponent} from "../data-selection-management/data-selection-management.component";
 import {QrcodeModalComponent} from "../qrcode-modal/qrcode-modal.component";
+import {WebsocketService} from "../../websocket.service";
+import {CollaborateModalComponent} from "../collaborate-modal/collaborate-modal.component";
 
 @Component({
   selector: 'app-home',
@@ -40,7 +42,7 @@ export class HomeComponent implements OnInit {
   filterModel: string = ""
   currentID: string = ""
 
-  constructor(public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, public settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
+  constructor(private ws: WebsocketService, public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, public settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
@@ -54,13 +56,23 @@ export class HomeComponent implements OnInit {
             } else if (params["settings"] && params["settings"].length > 0) {
               console.log(params["settings"])
               const settings = params["settings"].split("&")
+              console.log(settings)
               let token: string = ""
               if (settings.length > 1) {
-                token = settings[1]
-                this.data.tempLink = true
-              } else {
-                this.data.tempLink = false
+                if (settings[1] !== "") {
+                  token = settings[1]
+                  this.data.tempLink = true
+                } else {
+                  this.data.tempLink = false
+                }
+                console.log(settings[2])
+                if (settings.length > 2 && settings[2] !== "") {
+                  this.ws.sessionID = settings[2]
+                  console.log(this.ws.sessionID)
+                  this.ws.reconnect()
+                }
               }
+
               this.toast.show("Initialization", "Fetching data from session " + settings[0]).then()
               if (this.currentID !== settings[0]) {
                 this.currentID = settings[0]
@@ -489,6 +501,8 @@ export class HomeComponent implements OnInit {
     this.uniprot.uniprotProgressBar.next({value: progressEvent.progress *100, text: "Downloading session data at " + Math.round(progressEvent.progress * 100) + "%"})
   }
 
-
+  openCollaborateModal() {
+    const ref = this.modal.open(CollaborateModalComponent)
+  }
 }
 
