@@ -42,7 +42,10 @@ export class WebsocketService {
   reconnect() {
     this.close()
     this.connection = this.connect()
-    this.reSubscribeSubject.next(true)
+    if (this.connection) {
+      this.reSubscribeSubject.next(true)
+    }
+
     console.log("reconnected to " + this.sessionID)
   }
 
