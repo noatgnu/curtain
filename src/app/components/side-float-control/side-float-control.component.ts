@@ -1,12 +1,14 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {WebsocketService} from "../../websocket.service";
 import {FormBuilder} from "@angular/forms";
 import {Subscription} from "rxjs";
+import {DataService} from "../../data.service";
 
 interface Message {
   senderID: string,
   senderName: string,
-  message: string,
+  message: any,
+  requestType: string
 }
 
 @Component({
@@ -22,8 +24,9 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     message: ['']
   })
   @ViewChild("chatbox") chatbox: ElementRef|undefined
+  @Output() searchChatSelection: EventEmitter<any> = new EventEmitter()
   webSub: Subscription | undefined
-  constructor(private ws: WebsocketService, private fb: FormBuilder) {
+  constructor(private ws: WebsocketService, private fb: FormBuilder, private data: DataService) {
     this.ws.connection = this.ws.connect()
     if (this.webSub) {
       this.webSub.unsubscribe()
@@ -69,5 +72,34 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     if (this.toggleChatPanel) {
       this.chatbox?.nativeElement.scrollTo(0, this.chatbox.nativeElement.scrollHeight)
     }
+  }
+
+  handleDrop(event: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    const selection = JSON.parse(event.dataTransfer.getData("text/plain"));
+    if (selection.type === "selection-group") {
+      const data: string[] = []
+      for (const primaryID in this.data.selectedMap) {
+        if (this.data.selectedMap[primaryID][selection.title] !== undefined) {
+          data.push(primaryID)
+        }
+      }
+      if (data.length > 0) {
+        this.ws.send({message: {title:selection.title, data: data}, senderName: this.ws.displayName, requestType: "chat-selection-group"})
+      }
+    }
+
+  }
+
+  handleDragOver(event: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'copy';
+  }
+
+  searchChatSelectionGroup(event: any) {
+    this.searchChatSelection.emit({title:event.title, data: event.data})
+    console.log(event)
   }
 }

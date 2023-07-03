@@ -5,9 +5,10 @@
         <h3 class="card-title">
           <p class="text-success">{{title}}</p>
         </h3>
-        <p>
-          <b>Found in searches:</b> {{foundIn.join(";")}}<br>
-        </p>
+        <ul>
+          <b>Found in searches:</b>
+          <li *ngFor="let s of foundIn"><app-draggable-element [label]="s"></app-draggable-element></li>
+        </ul>
         <p>
           <b>Primary ID:</b> {{primaryID}}<br>
         </p>
