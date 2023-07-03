@@ -121,4 +121,10 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
     this.annotateSubscription.unsubscribe()
     this.profilePlotSubscription.unsubscribe()
   }
+
+  handleDragProtein(event: any) {
+    const data =  JSON.stringify({title: this.title, selection:this._data[this.dataService.rawForm.primaryIDs], type: "selection-single"})
+    console.log(data)
+    event.dataTransfer?.setData("text/plain",data)
+  }
 }

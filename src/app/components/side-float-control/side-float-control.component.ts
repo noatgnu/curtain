@@ -23,6 +23,9 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
   form = this.fb.group({
     message: ['']
   })
+
+  senderMap: {[key: string]: string} = {}
+
   @ViewChild("chatbox") chatbox: ElementRef|undefined
   @Output() searchChatSelection: EventEmitter<any> = new EventEmitter()
   webSub: Subscription | undefined
@@ -43,7 +46,9 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
   private setSubscription() {
     console.log("set subscription")
     this.webSub = this.ws.getMessages()?.subscribe((data: any) => {
-      this.messagesList.push(data)
+      data.message.timestamp = new Date(data.message.timestamp)
+      this.messagesList = [data].concat(this.messagesList)
+      this.senderMap[data.senderID] = data.senderName
       this.chatbox?.nativeElement.scrollTo(0, this.chatbox.nativeElement.scrollHeight)
     }, (error: any) => {
       console.log(error)
@@ -57,7 +62,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
 
   sendMessage() {
     if (this.form.value.message !== "") {
-      this.ws.send({message: this.form.value.message, senderName: this.ws.displayName, requestType: "chat"})
+      this.ws.send({message: {message: this.form.value.message, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat"})
       this.form.reset()
     }
 
@@ -78,16 +83,21 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     const selection = JSON.parse(event.dataTransfer.getData("text/plain"));
-    if (selection.type === "selection-group") {
-      const data: string[] = []
-      for (const primaryID in this.data.selectedMap) {
-        if (this.data.selectedMap[primaryID][selection.title] !== undefined) {
-          data.push(primaryID)
+    switch (selection.type) {
+      case "selection-single":
+        this.ws.send({message: {title:selection.title, data: [selection.selection], timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat-selection-single"})
+        break;
+      case "selection-group":
+        const data: string[] = []
+        for (const primaryID in this.data.selectedMap) {
+          if (this.data.selectedMap[primaryID][selection.title] !== undefined) {
+            data.push(primaryID)
+          }
         }
-      }
-      if (data.length > 0) {
-        this.ws.send({message: {title:selection.title, data: data}, senderName: this.ws.displayName, requestType: "chat-selection-group"})
-      }
+        if (data.length > 0) {
+          this.ws.send({message: {title:selection.title, data: data, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat-selection-group"})
+        }
+        break;
     }
 
   }
@@ -100,6 +110,8 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
 
   searchChatSelectionGroup(event: any) {
     this.searchChatSelection.emit({title:event.title, data: event.data})
-    console.log(event)
+  }
+  searchChatSelectionSingle(event: any) {
+    this.searchChatSelection.emit({title:event.title, data: event.data})
   }
 }
