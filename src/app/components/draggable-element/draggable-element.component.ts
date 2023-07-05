@@ -8,7 +8,6 @@ import {DataService} from "../../data.service";
 })
 export class DraggableElementComponent implements OnInit, AfterContentInit {
   @Input() label = ""
-  @ViewChild("draggableBadge") draggableBadge: ElementRef|undefined
   constructor(private data: DataService) { }
 
   ngOnInit(): void {

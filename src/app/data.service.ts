@@ -187,6 +187,7 @@ export class DataService {
   primaryIDsList: string[] = []
   restoreTrigger: Subject<boolean> = new Subject<boolean>()
   annotationService: Subject<any> = new Subject<any>()
+  searchCommandService: Subject<any> = new Subject<any>()
   constructor(private uniprot: UniprotService, private settings: SettingsService) { }
   minMax: any = {
     fcMin: 0,

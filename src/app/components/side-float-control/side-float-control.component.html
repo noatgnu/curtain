@@ -12,12 +12,24 @@
         <ng-container *ngIf="m.requestType==='chat-selection-single'">
           <span class="badge bg-danger" (click)="searchChatSelectionSingle(m.message)">{{m.message.title}}</span> <br>
         </ng-container>
+        <ng-container *ngIf="m.requestType==='chat-system'">
+          {{m.message.message}}<br>
+        </ng-container>
         <small class="text-sm-end text-muted" style="font-size: 10px">{{senderMap[m.senderID]}} - {{m.message.timestamp|date:'short'}}</small>
       </p>
     </div>
     <div class="p-1">
       <form [formGroup]="form" (ngSubmit)="sendMessage()">
-        <input class="form-control" formControlName="message">
+        <div class="d-flex">
+          <div class="p-2">
+            <input type="text" [editable]="true" class="form-control" formControlName="message" [ngbTypeahead]="typeAheadCommandComplete" [inputFormatter]="formatTypeAheadCommandComplete">
+          </div>
+          <div class="p-2">
+            <button class="btn btn-outline-primary">
+              <span class="bi bi-send"></span>
+            </button>
+          </div>
+        </div>
       </form>
     </div>
   </div>

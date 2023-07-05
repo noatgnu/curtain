@@ -47,6 +47,14 @@ export class FileFormComponent implements OnInit {
           } else {
             if (data.data.type === "resultDifferential") {
               this.data.differential.df = fromJSON(data.data.differential)
+              for (const i in this.data.differentialForm) {
+                if (this.data.differentialForm.hasOwnProperty(i)) {
+                  if (i in data.data.differentialForm) {
+                    // @ts-ignore
+                    this.data.differentialForm[i] = data.data.differentialForm[i]
+                  }
+                }
+              }
               let currentDF = this.data.differential.df.where(r => this.data.differentialForm.comparisonSelect.includes(r[this.data.differentialForm.comparison])).bake()
 
               const d: string[] = []
