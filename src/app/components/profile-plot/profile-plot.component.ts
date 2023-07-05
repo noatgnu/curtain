@@ -133,7 +133,7 @@ export class ProfilePlotComponent implements OnInit {
         x: [],
         y: [],
         mode: "lines+markers",
-        type: "scattergl",
+        type: "scatter",
         name: name
       }
       for (const i in this.dataService.sampleMap) {

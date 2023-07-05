@@ -91,7 +91,7 @@ export class RankPlotComponent implements OnInit {
           this.legendStatus["Selected "+ i] = true
         }
 
-        const text = selected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map(async (a: string) => {
+        const text = selected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map((a: string) => {
           const r: any = this.uniprot.getUniprotFromPrimary(a)
           if (r) {
             return r["Gene Names"] + " [" + a + "] " + i
@@ -114,7 +114,7 @@ export class RankPlotComponent implements OnInit {
           temp["Selected "+i]["visible"] = "legendonly"
         }
       }
-      const text = notSelected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map(async (a: string) => {
+      const text = notSelected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map((a: string) => {
         const r: any = this.uniprot.getUniprotFromPrimary(a)
         if (r) {
           return r["Gene Names"] + " [" + a +"]"
