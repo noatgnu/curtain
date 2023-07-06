@@ -13,14 +13,9 @@ export class VolcanoColorsComponent implements OnInit {
   colorGroups: any[] = []
   private _data: string[] = []
 
-  @Input() set data(value: string[]) {
-    this._data = value
-    this.colorGroups = []
-    for (const g in this.settings.settings.colorMap) {
-      if (this._data.includes(g)) {
-        this.colorGroups.push({color: this.settings.settings.colorMap[g], group: g, remove: false})
-      }
-    }
+  @Input() set data(value: any) {
+    this._data = value.groups
+    this.colorGroups = value.colorGroups
   }
 
   get data(): string[] {
@@ -31,7 +26,7 @@ export class VolcanoColorsComponent implements OnInit {
     colors: [""],
   })
 
-  constructor(private modal: NgbActiveModal, private settings: SettingsService, private fb: FormBuilder, private toast: ToastService) {
+  constructor(private modal: NgbActiveModal, private fb: FormBuilder, private toast: ToastService) {
 
   }
 
@@ -39,15 +34,7 @@ export class VolcanoColorsComponent implements OnInit {
   }
 
   updateColorGroup() {
-    for (const g of this.colorGroups) {
-      if (this.settings.settings.colorMap[g.group] !== g.color) {
-        this.settings.settings.colorMap[g.group] = g.color
-      }
-      if (g.remove) {
-        delete this.settings.settings.colorMap[g.group]
-      }
-    }
-    this.modal.dismiss()
+    this.modal.close(this.colorGroups)
   }
 
   closeModal() {

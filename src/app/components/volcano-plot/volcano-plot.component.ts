@@ -381,7 +381,7 @@ export class VolcanoPlotComponent implements OnInit {
     this.graphLayout.annotations = []
     console.log(this.settings.settings.textAnnotation)
     for (const i in this.settings.settings.textAnnotation) {
-      if (this.settings.settings.textAnnotation[i].showannotation === true) {
+      if (this.settings.settings.textAnnotation[i].data.showannotation === true) {
         this.annotated[this.settings.settings.textAnnotation[i].title] = this.settings.settings.textAnnotation[i].data
         this.graphLayout.annotations.push(this.settings.settings.textAnnotation[i].data)
       }
@@ -394,8 +394,8 @@ export class VolcanoPlotComponent implements OnInit {
   constructor(private web: WebService, private dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService) {
     this.annotated = {}
     for (const i in this.settings.settings.textAnnotation) {
-      if (this.settings.settings.textAnnotation[i].showannotation === undefined || this.settings.settings.textAnnotation[i].showannotation === null) {
-        this.settings.settings.textAnnotation[i].showannotation = true
+      if (this.settings.settings.textAnnotation[i].data.showannotation === undefined || this.settings.settings.textAnnotation[i].data.showannotation === null) {
+        this.settings.settings.textAnnotation[i].data.showannotation = true
       }
       this.annotated[i] = this.settings.settings.textAnnotation[i]
     }
@@ -476,7 +476,24 @@ export class VolcanoPlotComponent implements OnInit {
 
   openCustomColor() {
     const ref = this.modal.open(VolcanoColorsComponent)
-    ref.componentInstance.data = this.currentLegend
+    const colorGroups: any[] = []
+    for (const g in this.settings.settings.colorMap) {
+      if (this.currentLegend.includes(g)) {
+        colorGroups.push({color: this.settings.settings.colorMap[g], group: g, remove: false})
+      }
+    }
+    ref.componentInstance.data = {colorGroups: colorGroups, groups: this.currentLegend}
+    ref.closed.subscribe(data => {
+      for (const g of data) {
+        if (this.settings.settings.colorMap[g.group] !== g.color) {
+          this.settings.settings.colorMap[g.group] = g.color
+        }
+        if (g.remove) {
+          delete this.settings.settings.colorMap[g.group]
+        }
+      }
+      this.drawVolcano()
+    })
   }
 
   async annotateDataPoints(data: string[]) {
@@ -507,7 +524,8 @@ export class VolcanoPlotComponent implements OnInit {
           font: {
             size: 15,
             color: "#000000"
-          }
+          },
+          showannotation: true,
         }
         if (title in this.settings.settings.textAnnotation) {
 
@@ -518,6 +536,7 @@ export class VolcanoPlotComponent implements OnInit {
             title: title
           }
         }
+
         annotations.push(ann)
         this.annotated[title] = ann
       }
@@ -551,6 +570,7 @@ export class VolcanoPlotComponent implements OnInit {
 
   openTextEditor() {
     const ref = this.modal.open(VolcanoPlotTextAnnotationComponent, {size: "xl", scrollable: true})
+    ref.componentInstance.data = {annotation: this.settings.settings.textAnnotation}
     ref.closed.subscribe(data => {
       this.graphLayout.annotations = []
       this.annotated = {}
@@ -565,11 +585,12 @@ export class VolcanoPlotComponent implements OnInit {
         this.settings.settings.textAnnotation[f.value.annotationID].data.font.size = f.value.fontsize
         this.settings.settings.textAnnotation[f.value.annotationID].data.font.color = f.value.fontcolor
         this.settings.settings.textAnnotation[f.value.annotationID].data.text = f.value.text
-        this.settings.settings.textAnnotation[f.value.annotationID].showannotation = f.value.showannotation
+        this.settings.settings.textAnnotation[f.value.annotationID].data.showannotation = f.value.showannotation
         this.annotated[f.value.annotationID] = this.settings.settings.textAnnotation[f.value.annotationID].data
         this.graphLayout.annotations.push(this.annotated[f.value.annotationID])
 
       }
+      this.drawVolcano()
     })
   }
 

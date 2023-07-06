@@ -1,6 +1,7 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-  <button class="btn btn-primary" (click)="downloadSVG()">Download as SVG</button>
   <button class="btn btn-primary" (click)="hideAllSelected()">Hide All Selected Data</button>
   <button class="btn btn-primary" (click)="hideAllNonSelected()">Hide All Non-Selected Data</button>
+  <button class="btn btn-primary" (click)="openTextEditor()">Annotation Text Editor</button>
+  <button class="btn btn-primary" (click)="openColorEditor()">Color Editor</button>
 </div>
-<plotly-plot [divId]="'rankplot'" [data]="graphData" [layout]="graphLayout" [updateOnDataChange]="true" [updateOnLayoutChange]="true" (legendClick)="handleClick($event)"></plotly-plot>
+<plotly-plot [config]="config" [divId]="'rankplot'" [data]="graphData" [layout]="graphLayout" [updateOnDataChange]="true" [updateOnLayoutChange]="true" (legendClick)="handleClick($event)"></plotly-plot>
