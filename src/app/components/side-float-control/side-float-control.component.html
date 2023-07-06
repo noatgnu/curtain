@@ -22,7 +22,7 @@
       <form [formGroup]="form" (ngSubmit)="sendMessage()">
         <div class="d-flex">
           <div class="p-2">
-            <input type="text" [editable]="true" class="form-control" formControlName="message" [ngbTypeahead]="typeAheadCommandComplete" [inputFormatter]="formatTypeAheadCommandComplete">
+            <input spellcheck="false" type="text" [editable]="true" class="form-control" formControlName="message" [ngbTypeahead]="typeAheadCommandComplete" [inputFormatter]="formatTypeAheadCommandComplete">
           </div>
           <div class="p-2">
             <button class="btn btn-outline-primary">

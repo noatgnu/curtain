@@ -40,5 +40,6 @@ export class Settings {
   scatterPlotMarkerSize: number = 5
   rankPlotColorMap: any = {}
   rankPlotAnnotation: any = {}
+  legendStatus: any = {}
 
 }

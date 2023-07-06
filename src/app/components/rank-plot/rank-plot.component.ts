@@ -45,6 +45,9 @@ export class RankPlotComponent implements OnInit {
   annotated: any = {}
   @Input() set data(value: IDataFrame) {
     const processed: any[] = []
+    if (!this.settings.settings.legendStatus) {
+      this.settings.settings.legendStatus = {}
+    }
     if (!this.settings.settings.rankPlotColorMap) {
       this.settings.settings.rankPlotColorMap = {}
     }
@@ -232,12 +235,12 @@ export class RankPlotComponent implements OnInit {
       const selected = this.sortedDataMap[i].where(r => this.dataService.selected.includes(r[this.dataService.rawForm.primaryIDs]))
       // @ts-ignore
       const notSelected = this.sortedDataMap[i].where(r => !this.dataService.selected.includes(r[this.dataService.rawForm.primaryIDs]))
-      if (!(i in this.legendStatus)) {
-        this.legendStatus[i] = true
+      if (!(i in this.settings.settings.legendStatus)) {
+        this.settings.settings.legendStatus[i] = true
       }
       if (selected.count() > 0) {
-        if (!(("Selected "+ i) in this.legendStatus)) {
-          this.legendStatus["Selected "+ i] = true
+        if (!(("Selected "+ i) in this.settings.settings.legendStatus)) {
+          this.settings.settings.legendStatus["Selected "+ i] = true
         }
 
         const text = selected.getSeries(this.dataService.rawForm.primaryIDs).toArray().map((a: string) => {
@@ -260,7 +263,7 @@ export class RankPlotComponent implements OnInit {
             color: this.settings.settings.rankPlotColorMap["Selected "+ i]
           }
         }
-        if (!this.legendStatus["Selected "+i]) {
+        if (!this.settings.settings.legendStatus["Selected "+i]) {
           temp["Selected "+i]["visible"] = "legendonly"
         }
       }
@@ -285,7 +288,7 @@ export class RankPlotComponent implements OnInit {
           color: this.settings.settings.rankPlotColorMap[i]
         }
       }
-      if (!this.legendStatus[i]) {
+      if (!this.settings.settings.legendStatus[i]) {
         temp[i]["visible"] = "legendonly"
       }
     }
@@ -317,22 +320,22 @@ export class RankPlotComponent implements OnInit {
   }
 
   handleClick(e: any) {
-    this.legendStatus[e.event.srcElement.__data__[0].trace.name] = !this.legendStatus[e.event.srcElement.__data__[0].trace.name]
+    this.settings.settings.legendStatus[e.event.srcElement.__data__[0].trace.name] = !this.settings.settings.legendStatus[e.event.srcElement.__data__[0].trace.name]
   }
 
   hideAllSelected() {
-    for (const l in this.legendStatus) {
+    for (const l in this.settings.settings.legendStatus) {
       if (l.startsWith("Selected")) {
-        this.legendStatus[l] = false
+        this.settings.settings.legendStatus[l] = false
       }
     }
     this.draw().then()
   }
 
   hideAllNonSelected() {
-    for (const l in this.legendStatus) {
+    for (const l in this.settings.settings.legendStatus) {
       if (!l.startsWith("Selected")) {
-        this.legendStatus[l] = false
+        this.settings.settings.legendStatus[l] = false
       }
     }
     this.draw().then()
@@ -364,8 +367,8 @@ export class RankPlotComponent implements OnInit {
 
   openColorEditor() {
     const ref = this.modal.open(VolcanoColorsComponent, {scrollable: true})
-    const groups = Object.keys(this.legendStatus).filter((a: string) => {
-      return this.legendStatus[a]
+    const groups = Object.keys(this.settings.settings.legendStatus).filter((a: string) => {
+      return this.settings.settings.legendStatus[a]
     })
     const colorGroups:any[] = []
     groups.forEach((a: string) => {
