@@ -109,6 +109,9 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
         case "!annpid":
           this.annotatePid(command)
           break
+        default:
+          const message = {message: {message: "Command not found", timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
+          this.messagesList = [message].concat(this.messagesList)
       }
 
     } else {
