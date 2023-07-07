@@ -29,6 +29,9 @@ import {DataSelectionManagementComponent} from "../data-selection-management/dat
 import {QrcodeModalComponent} from "../qrcode-modal/qrcode-modal.component";
 import {WebsocketService} from "../../websocket.service";
 import {CollaborateModalComponent} from "../collaborate-modal/collaborate-modal.component";
+import {
+  SelectedDataDistributionPlotComponent
+} from "../selected-data-distribution-plot/selected-data-distribution-plot.component";
 
 @Component({
   selector: 'app-home',
@@ -501,6 +504,10 @@ export class HomeComponent implements OnInit {
 
   openCollaborateModal() {
     const ref = this.modal.open(CollaborateModalComponent)
+  }
+
+  openSelectedDataDistributionModal() {
+    const ref = this.modal.open(SelectedDataDistributionPlotComponent, {size: "xl"})
   }
 }
 

@@ -228,6 +228,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
 
   annotateGene(command: string[]) {
     if (command[0] === "!anngene") {
+
       const com: {remove: boolean, id: string[]} = {remove: false, id: []}
       for (const c of command.splice(2)) {
         if (c.startsWith("@")) {
@@ -244,20 +245,22 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
           }
         }
       }
-      if (command[1] === "-a") {
-        com.remove = false
-      } else if (command[1] === "-r") {
-        com.remove = true
-      }
-      if (com.id.length > 0) {
-        this.data.annotationService.next(com)
-      }
       const message: Message = {
-        message: {message: `Annotate ${com.id.length} data points`, timestamp: Date.now()},
+        message: {message: `Add annotations to ${com.id.length} data points`, timestamp: Date.now()},
         senderID: "system",
         senderName: "System",
         requestType: "chat-system"
       }
+      if (command[1] === "-a") {
+        com.remove = false
+      } else if (command[1] === "-r") {
+        com.remove = true
+        message.message.message = `Remove annotations from ${com.id.length} data points`
+      }
+      if (com.id.length > 0) {
+        this.data.annotationService.next(com)
+      }
+
       this.messagesList = [message].concat(this.messagesList)
     }
   }
@@ -270,19 +273,20 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
           com.id.push(c.substring(1))
         }
       }
-      if (command[1] === "-a") {
-        com.remove = false
-      } else if (command[1] === "-r") {
-        com.remove = true
-      }
-      if (com.id.length > 0) {
-        this.data.annotationService.next(com)
-      }
       const message: Message = {
         message: {message: `Annotate ${com.id.length} data points`, timestamp: Date.now()},
         senderID: "system",
         senderName: "System",
         requestType: "chat-system"
+      }
+      if (command[1] === "-a") {
+        com.remove = false
+      } else if (command[1] === "-r") {
+        com.remove = true
+        message.message.message = `Remove annotations from ${com.id.length} data points`
+      }
+      if (com.id.length > 0) {
+        this.data.annotationService.next(com)
       }
       this.messagesList = [message].concat(this.messagesList)
     }

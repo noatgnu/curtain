@@ -57,6 +57,7 @@ import { CollaborateModalComponent } from './components/collaborate-modal/collab
 import { SideFloatControlComponent } from './components/side-float-control/side-float-control.component';
 import { DraggableElementComponent } from './components/draggable-element/draggable-element.component';
 import { RankPlotTextAnnotationComponent } from './components/rank-plot-text-annotation/rank-plot-text-annotation.component';
+import { SelectedDataDistributionPlotComponent } from './components/selected-data-distribution-plot/selected-data-distribution-plot.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -103,6 +104,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     SideFloatControlComponent,
     DraggableElementComponent,
     RankPlotTextAnnotationComponent,
+    SelectedDataDistributionPlotComponent,
   ],
   imports: [
     BrowserModule,

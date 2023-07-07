@@ -314,7 +314,10 @@ export class BarChartComponent implements OnInit {
 
       const violin = {
         type: 'violin',
-        x: violinX, y: graph[g].filter((d: number) => !isNaN(d)), points: "all",
+        x: violinX,
+        //y: graph[g].filter((d: number) => !isNaN(d)),
+        y: graph[g],
+        points: "all",
         box: {
           visible: true
         },
