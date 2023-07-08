@@ -19,7 +19,7 @@ export class SaveStateService {
       selectOperationNames : this.data.selectOperationNames,
     }
     const state: any = {
-      settings, data, selectedComparison: this.data.selectedComparison, date: Date.now()
+      settings, data, currentID: this.settings.settings.currentID, selectedComparison: this.data.selectedComparison, date: Date.now()
     }
     let stateNumber = localStorage.getItem("SaveStateNumber")
     if (!stateNumber) {
@@ -46,7 +46,7 @@ export class SaveStateService {
     this.data.selectedComparison = loadedState.selectedComparison
 
     for (const s in loadedState.settings) {
-      if (s in this.settings.settings){
+      if (s in this.settings.settings && s !== "currentID"){
         // @ts-ignore
         this.settings.settings[s] = state.settings[s]
       }
