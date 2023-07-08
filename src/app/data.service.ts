@@ -11,6 +11,7 @@ import {BehaviorSubject, debounceTime, distinctUntilChanged, map, Observable, Op
   providedIn: 'root'
 })
 export class DataService {
+  loadDataTrigger: Subject<boolean> = new Subject<boolean>()
   externalBarChartDownloadTrigger: Subject<boolean> = new Subject<boolean>()
   session: any = {}
   tempLink: boolean = false
@@ -197,6 +198,20 @@ export class DataService {
   }
   page: number = 1
   pageSize: number = 5
+
+
+  clear() {
+    this.selected = []
+    this.selectedGenes = []
+    this.selectedMap = {}
+    this.selectOperationNames = []
+    this.settings.settings.colorMap = {}
+    this.settings.settings.textAnnotation = {}
+    this.settings.settings.barchartColorMap = {}
+    this.settings.settings.rankPlotAnnotation = {}
+    this.settings.settings.rankPlotColorMap = {}
+    this.annotatedData = {}
+  }
 
   significantGroup(x: number, y: number) {
     const ylog = -Math.log10(this.settings.settings.pCutoff)

@@ -1,8 +1,9 @@
 import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {WebsocketService} from "../../websocket.service";
-import {FormBuilder} from "@angular/forms";
+import {FormBuilder, NgForm} from "@angular/forms";
 import {debounceTime, map, distinctUntilChanged, Observable, OperatorFunction, Subscription} from "rxjs";
 import {DataService} from "../../data.service";
+import {SaveStateService} from "../../save-state.service";
 
 interface Message {
   senderID: string,
@@ -26,7 +27,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
   commandCompleteModel: string = ""
 
   senderMap: {[key: string]: string} = {'system': 'System'}
-
+  @ViewChild("chatForm") chatForm: NgForm|undefined
   @ViewChild("chatbox") chatbox: ElementRef|undefined
   @ViewChild("hiddenAuto") hiddenAuto: ElementRef|undefined
   @Output() searchChatSelection: EventEmitter<any> = new EventEmitter()
@@ -44,7 +45,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     minP: 0,
     significantOnly: false
   }
-  constructor(private ws: WebsocketService, private fb: FormBuilder, private data: DataService) {
+  constructor(private ws: WebsocketService, private fb: FormBuilder, private data: DataService, private saveState: SaveStateService) {
     this.ws.connection = this.ws.connect()
     if (this.webSub) {
       this.webSub.unsubscribe()
@@ -63,7 +64,8 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     "!searchpid",
     "!rd",
     "!anngene",
-    "!annpid"
+    "!annpid",
+    "!savestate"
   ]
   private setSubscription() {
     console.log("set subscription")
@@ -79,18 +81,26 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     })
   }
 
+  triggerEnter() {
+    if (this.chatForm) {
+      if (this.form.valid) {
+        this.chatForm.ngSubmit.emit()
+      }
+    }
+  }
+
   ngOnInit(): void {
   }
 
   sendMessage() {
-    console.log(this.form.value.message)
+    let message = this.form.value.message?.slice()
     if (this.form.value.message !== this.commandCompleteModel) {
-      this.form.controls.message.setValue(this.commandCompleteModel)
+      message = this.commandCompleteModel
     }
-    if (this.form.value.message !== "" && !this.form.value.message?.startsWith("@") && !this.form.value.message?.startsWith("!")) {
-      this.ws.send({message: {message: this.form.value.message, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat"})
-    } else if (this.form.value.message?.startsWith("!")) {
-      const command = this.form.value.message.split(" ")
+    if (message !== "" && !message?.startsWith("@") && !message?.startsWith("!")) {
+      this.ws.send({message: {message: message, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat"})
+    } else if (message?.startsWith("!")) {
+      const command = message.split(" ")
       const firstParameter = command[0]
       switch (firstParameter) {
         case "!searchgene":
@@ -109,6 +119,9 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
         case "!annpid":
           this.annotatePid(command)
           break
+        case "!savestate":
+          this.saveStateCommand(command)
+          break
         default:
           const message = {message: {message: "Command not found", timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
           this.messagesList = [message].concat(this.messagesList)
@@ -116,11 +129,12 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
 
     } else {
       //const message: Message = {message: {message: this.form.value.message, timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
-      this.ws.send({message: {message: this.form.value.message, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat"})
+      this.ws.send({message: {message: message, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat"})
     }
 
     this.form.reset()
     this.commandCompleteModel = ""
+
 
   }
 
@@ -292,6 +306,57 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     }
   }
 
+  saveStateCommand(command: string[]) {
+    console.log(command)
+    if (command[0] === "!savestate") {
+      if (command.length === 1) {
+        const stateNumber = this.saveState.saveState()
+        const message: Message = {
+          message: {message: `Saved state ${stateNumber}`, timestamp: Date.now()},
+          senderID: "system",
+          senderName: "System",
+          requestType: "chat-system-save-state-save"
+        }
+        this.messagesList = [message].concat(this.messagesList)
+      } else if (command.length === 3) {
+        if (command[1] === "-l") {
+          this.saveState.loadState(parseInt(command[1]))
+          const message: Message = {
+            message: {message: `Load state ${command[1]}`, timestamp: Date.now()},
+            senderID: "system",
+            senderName: "System",
+            requestType: "chat-system-save-state-load"
+          }
+          this.messagesList = [message].concat(this.messagesList)
+        } else if (command[1] === "-r") {
+          this.saveState.removeState(parseInt(command[1]))
+        }
+      } else if (command.length === 2) {
+        if (command[1] === "-a") {
+          const message: Message = {
+            message: {message: {data: this.saveState.states}, timestamp: Date.now()},
+            senderID: "system",
+            senderName: "System",
+            requestType: "chat-system-save-state-all"
+          }
+          this.messagesList = [message].concat(this.messagesList)
+        } else if (command[1] === "-ra") {
+          this.saveState.removeAllStates()
+          const message: Message = {
+            message: {message: "All local save states have been removed", timestamp: Date.now()},
+            senderID: "system",
+            senderName: "System",
+            requestType: "chat-system-save-state"
+          }
+          this.messagesList = [message].concat(this.messagesList)
+        }
+      }
+    }
+  }
+
+  loadStateDirect(state: number) {
+    this.saveState.loadState(state)
+  }
 
   handleDragOver(event: any) {
     event.preventDefault();
@@ -308,13 +373,12 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
 
   typeAheadCommandComplete: OperatorFunction<string, string[]> = (text$: Observable<string>) =>
     text$.pipe(
-      debounceTime(200),
+      //debounceTime(200),
       distinctUntilChanged(),
       map((term) => {
         this.commandCompleteModel = term
         const command = term.split(" ")
         const lastParameter = command[command.length - 1]
-        console.log(lastParameter)
         if (lastParameter.startsWith("@")) {
           if (lastParameter.length < 3) {
             return []

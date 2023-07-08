@@ -128,11 +128,18 @@ export class HomeComponent implements OnInit {
 
 
   ngOnInit(): void {
-
+    this.data.loadDataTrigger.asObservable().subscribe((data: boolean) => {
+      if (data) {
+        this.handleFinish(data)
+        this.data.redrawTrigger.next(true)
+        this.data.selectionUpdateTrigger.next(true)
+      }
+    })
   }
 
   handleFinish(e: boolean) {
     this.finished = e
+    console.log(this.finished)
     if (this.finished) {
       if (this.data.selected.length > 0) {
         this.data.finishedProcessingData.next(e)
@@ -396,14 +403,9 @@ export class HomeComponent implements OnInit {
   }
 
   clearSelections() {
-    this.data.selected = []
-    this.data.selectedGenes = []
-    this.data.selectedMap = {}
-    this.data.selectOperationNames = []
-    this.settings.settings.colorMap = {}
-    this.settings.settings.textAnnotation = {}
+    this.data.clear()
     this.rawFiltered = new DataFrame()
-    this.data.annotatedData = {}
+
     this.data.selectionUpdateTrigger.next(true)
   }
 
