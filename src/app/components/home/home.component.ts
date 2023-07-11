@@ -520,7 +520,7 @@ export class HomeComponent implements OnInit {
   }
 
   openStateModal() {
-    const ref = this.modal.open(LocalSessionStateModalComponent)
+    const ref = this.modal.open(LocalSessionStateModalComponent, {scrollable: true})
   }
 }
 

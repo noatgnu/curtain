@@ -40,7 +40,6 @@ export class SaveStateService {
     localStorage.setItem("SaveState"+stateNumber, JSON.stringify(state))
     localStorage.setItem("SaveStateNumber", (parseInt(stateNumber)+1).toString())
     this.states = this.getAvailableStates()
-    console.log(this.states)
     return stateNumber
   }
 
