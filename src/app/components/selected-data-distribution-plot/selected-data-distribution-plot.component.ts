@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-selected-data-distribution-plot',
@@ -28,7 +29,7 @@ export class SelectedDataDistributionPlotComponent implements OnInit {
     },
     margin: {r: 40, l: 40, b: 120, t: 100}
   }
-  constructor(private data: DataService, private settings: SettingsService) {
+  constructor(private data: DataService, private settings: SettingsService, private modal: NgbActiveModal) {
     this.drawPlot()
   }
 
@@ -99,4 +100,7 @@ export class SelectedDataDistributionPlotComponent implements OnInit {
     }
   }
 
+  close() {
+    this.modal.dismiss()
+  }
 }

@@ -11,20 +11,31 @@ export class SaveStateService {
     this.states = this.getAvailableStates()
   }
 
+  getSaveState(stateNumber: number) {
+    const state: string|null = localStorage.getItem("SaveState"+stateNumber)
+    let loadedState: any = {}
+    if (state) {
+      loadedState = JSON.parse(state)
+    }
+    return loadedState
+  }
+
   saveState() {
-    const settings: any = {}
+    const settings: any = Object.assign({}, this.settings.settings)
     const data: any = {
       selectedMap : this.data.selectedMap,
       selected : this.data.selected,
       selectOperationNames : this.data.selectOperationNames,
     }
-    const state: any = {
-      settings, data, currentID: this.settings.settings.currentID, selectedComparison: this.data.selectedComparison, date: Date.now()
-    }
+
     let stateNumber = localStorage.getItem("SaveStateNumber")
     if (!stateNumber) {
       localStorage.setItem("SaveStateNumber", "0")
       stateNumber = "0"
+    }
+
+    const state: any = {
+      settings, data, currentID: this.settings.settings.currentID, selectedComparison: this.data.selectedComparison, date: Date.now(), id: stateNumber
     }
     localStorage.setItem("SaveState"+stateNumber, JSON.stringify(state))
     localStorage.setItem("SaveStateNumber", (parseInt(stateNumber)+1).toString())
@@ -48,7 +59,7 @@ export class SaveStateService {
     for (const s in loadedState.settings) {
       if (s in this.settings.settings && s !== "currentID"){
         // @ts-ignore
-        this.settings.settings[s] = state.settings[s]
+        this.settings.settings[s] = loadedState.settings[s]
       }
     }
 

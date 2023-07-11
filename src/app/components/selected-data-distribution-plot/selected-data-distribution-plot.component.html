@@ -5,5 +5,5 @@
   <plotly-plot [data]="graphData" [layout]="graphLayoutViolin" [config]="config" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+  <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
 </div>
