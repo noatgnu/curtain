@@ -94,4 +94,34 @@ export class SaveStateService {
     localStorage.removeItem("SaveStateNumber")
     this.states = []
   }
+
+  createNewState() {
+    const settings: any = {}
+    const data: any = {
+      selectedMap : this.data.selectedMap,
+      selected : this.data.selected,
+      selectOperationNames : this.data.selectOperationNames,
+    }
+
+    const state: any = {
+      settings, data, currentID: this.settings.settings.currentID, selectedComparison: this.data.differentialForm.comparisonSelect, date: Date.now(), id: "X"
+    }
+    return state
+  }
+
+  loadStateFromObject(state: any) {
+    this.data.clear()
+    this.data.selectedMap = state.data.selectedMap
+    this.data.selected = state.data.selected
+    this.data.selectOperationNames = state.data.selectOperationNames
+
+    for (const s in state.settings) {
+      if (s in this.settings.settings && s !== "currentID"){
+        // @ts-ignore
+        this.settings.settings[s] = state.settings[s]
+      }
+    }
+
+    this.data.loadDataTrigger.next(true)
+  }
 }
