@@ -102,7 +102,12 @@ export class SaveStateService {
       selected : this.data.selected,
       selectOperationNames : this.data.selectOperationNames,
     }
-
+    for (const i in this.settings.settings) {
+      if (i !== "currentID") {
+        // @ts-ignore
+        settings[i] = this.settings.settings[i]
+      }
+    }
     const state: any = {
       settings, data, currentID: this.settings.settings.currentID, selectedComparison: this.data.differentialForm.comparisonSelect, date: Date.now(), id: "X"
     }
