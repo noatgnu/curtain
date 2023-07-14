@@ -1,4 +1,11 @@
 export class Differential {
+  get reverseFoldChange(): boolean {
+    return this._reverseFoldChange;
+  }
+
+  set reverseFoldChange(value: boolean) {
+    this._reverseFoldChange = value;
+  }
   get comparisonSelect(): string[] {
     return this._comparisonSelect;
   }
@@ -69,7 +76,7 @@ export class Differential {
   private _transformSignificant: boolean = false
   private _comparison: string = ""
   private _comparisonSelect: string[] = []
-
+  private _reverseFoldChange: boolean = false
   restore(value: any) {
     for (const i in value) {
       // @ts-ignore

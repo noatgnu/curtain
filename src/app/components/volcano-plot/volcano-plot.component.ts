@@ -12,6 +12,7 @@ import {
   VolcanoPlotTextAnnotationComponent
 } from "../volcano-plot-text-annotation/volcano-plot-text-annotation.component";
 import {ToastService} from "../../toast.service";
+import {FormBuilder} from "@angular/forms";
 
 @Component({
   selector: 'app-volcano-plot',
@@ -23,6 +24,7 @@ export class VolcanoPlotComponent implements OnInit {
   _data: any;
   //nameToID: any = {}
   graphData: any[] = []
+
   graphLayout: any = {
     height: 700, width: 700, xaxis: {title: "<b>Log2FC</b>"},
     yaxis: {title: "<b>-log10(p-value)</b>"},
@@ -391,7 +393,7 @@ export class VolcanoPlotComponent implements OnInit {
     //this.removeAnnotatedDataPoints([])
   }
 
-  constructor(private web: WebService, private dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService) {
+  constructor(private fb: FormBuilder, private web: WebService, private dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService) {
     this.annotated = {}
     for (const i in this.settings.settings.textAnnotation) {
       if (this.settings.settings.textAnnotation[i].data.showannotation === undefined || this.settings.settings.textAnnotation[i].data.showannotation === null) {

@@ -15,6 +15,7 @@ addEventListener('message', (data: MessageEvent<any>) => {
 
         df = df.withSeries("CurtainSetComparison", new Series(Array(df.count()).fill("1"))).bake()
       }
+
       if (!data.data.differentialForm._comparisonSelect) {
         data.data.differentialForm._comparisonSelect = [df.first()[data.data.differentialForm._comparison]]
       } else if (data.data.differentialForm._comparisonSelect.length === 0) {
@@ -24,6 +25,7 @@ addEventListener('message', (data: MessageEvent<any>) => {
       if (data.data.differentialForm._comparisonSelect === "" || data.data.differentialForm._comparisonSelect === undefined) {
         data.data.differentialForm._comparisonSelect = data.data.differential.df.first()[data.data.differentialForm._comparison]
       }
+
       const store: any[] = df.toArray().map((r: any) => {
         r[data.data.differentialForm._foldChange] = Number(r[data.data.differentialForm._foldChange])
         r[data.data.differentialForm._significant] = Number(r[data.data.differentialForm._significant])
@@ -35,6 +37,9 @@ addEventListener('message', (data: MessageEvent<any>) => {
           } else {
             r[data.data.differentialForm._foldChange] = 0
           }
+        }
+        if (data.data.differentialForm._reverseFoldChange) {
+          r[data.data.differentialForm._foldChange] = -r[data.data.differentialForm._foldChange]
         }
         if (data.data.differentialForm._significant) {
           r[data.data.differentialForm._significant] = Number(r[data.data.differentialForm._significant])
