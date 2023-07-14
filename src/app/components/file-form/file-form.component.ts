@@ -26,6 +26,7 @@ export class FileFormComponent implements OnInit {
       if (data) {
         this.updateProgressBar(100, "Restoring session...")
         if (!this.clicked) {
+          console.log(this.settings.settings.currentID)
           this.clicked = true
           this.finished.emit(false)
         }
@@ -41,7 +42,6 @@ export class FileFormComponent implements OnInit {
       // Create a new
       const worker = new Worker(new URL('./data.worker', import.meta.url));
       worker.onmessage = (data: MessageEvent<any>) => {
-        console.log(data.data)
         if (data.data) {
           if (data.data.type === "progress") {
             this.updateProgressBar(data.data.value, data.data.text)
@@ -87,17 +87,32 @@ export class FileFormComponent implements OnInit {
                   this.data.primaryIDsMap[n][p] = true
                 }
               }
+              console.log(this.settings.settings.currentID)
+              for (const s in this.settings.settings) {
+
+                if (this.settings.settings.hasOwnProperty(s)) {
+                  // @ts-ignore
+                  console.log(s, this.settings.settings[s])
+                }
+              }
               worker.postMessage({
                 task: 'processRawFile',
                 rawForm: this.data.rawForm,
                 raw: this.data.raw.originalFile,
-                settings: this.settings.settings
+                settings: Object.assign({}, this.settings.settings)
               })
               this.data.raw.df = new DataFrame()
             } else if (data.data.type === "resultRaw") {
+              console.log(data.data.settings.currentID)
               this.data.raw.df = fromJSON(data.data.raw)
               this.data.sampleMap = data.data.sampleMap
-              this.settings.settings = data.data.settings
+              for (const s in this.settings.settings) {
+
+                if (this.settings.settings.hasOwnProperty(s)) {
+                  // @ts-ignore
+                  this.settings.settings[s] = data.data.settings[s]
+                }
+              }
               this.data.conditions = data.data.conditions
               this.data.colorMap = data.data.colorMap
               this.processUniProt()

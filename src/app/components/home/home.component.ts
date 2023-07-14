@@ -87,8 +87,10 @@ export class HomeComponent implements OnInit {
                       this.restoreSettings(data.data).then(result => {
                         this.accounts.curtainAPI.getSessionSettings(settings[0]).then((d:any)=> {
                           this.data.session = d.data
+
                           this.settings.settings.currentID = d.data.link_id
                           this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
+                          this.data.restoreTrigger.next(true)
                         })
                       })
                       this.accounts.curtainAPI.getOwnership(settings[0]).then((data:any) => {
@@ -151,6 +153,9 @@ export class HomeComponent implements OnInit {
           this.addGeneToSelected(s).then();
         }
       }
+      this.finished = true
+      console.log(this.finished)
+      console.log(this.settings.settings.currentID)
     }
   }
 
@@ -267,7 +272,6 @@ export class HomeComponent implements OnInit {
   }
 
   async restoreSettings(object: any) {
-    console.log(object)
     if (typeof object.settings === "string") {
       object.settings = JSON.parse(object.settings)
     }
@@ -395,13 +399,12 @@ export class HomeComponent implements OnInit {
       this.data.differential = new InputFile(fromCSV(object.processed), "processedFile.txt", object.processed)
     }
     object.settings.version = 2
-    console.log(object.settings.barchartColorMap)
     for (const i in object.settings) {
-      // @ts-ignore
-      this.settings.settings[i] = object.settings[i]
+      if (i !== "currentID") {
+        // @ts-ignore
+        this.settings.settings[i] = object.settings[i]
+      }
     }
-    this.data.restoreTrigger.next(true)
-    console.log(this.settings.settings.barchartColorMap)
   }
 
   clearSelections() {

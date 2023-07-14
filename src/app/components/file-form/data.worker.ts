@@ -67,6 +67,7 @@ addEventListener('message', (data: MessageEvent<any>) => {
       break
     case "processRawFile":
       postMessage({type: "progress", value: 100, text: "Processing primary data"})
+      console.log(data.data.settings.currentID)
       let rawDF: IDataFrame = fromCSV(data.data.raw)
       const totalSampleNumber = data.data.rawForm._samples.length
       let sampleNumber = 0
