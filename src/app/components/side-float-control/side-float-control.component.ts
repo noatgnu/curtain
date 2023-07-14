@@ -45,8 +45,9 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     minP: 0,
     significantOnly: false
   }
-  constructor(private ws: WebsocketService, private fb: FormBuilder, private data: DataService, private saveState: SaveStateService) {
+  constructor(private ws: WebsocketService, private fb: FormBuilder, public data: DataService, private saveState: SaveStateService) {
     this.ws.connection = this.ws.connect()
+
     if (this.webSub) {
       this.webSub.unsubscribe()
     }
@@ -57,6 +58,10 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
         this.setSubscription();
       }
     })
+    if (this.ws.connection) {
+      const message = {message: {message: "Connected to server", timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
+      this.messagesList = [message].concat(this.messagesList)
+    }
   }
 
   allCommands: string[] = [
@@ -73,10 +78,15 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
       data.message.timestamp = new Date(data.message.timestamp)
       this.messagesList = [data].concat(this.messagesList)
       this.senderMap[data.senderID] = data.senderName
+      if (data.requestType === "push-state-all-force") {
+        this.loadSentState(data.message.data)
+      }
       this.chatbox?.nativeElement.scrollTo(0, this.chatbox.nativeElement.scrollHeight)
     }, (error: any) => {
       console.log(error)
     }, () => {
+      const message = {message: {message: "Disconnected from server", timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
+      this.messagesList = [message].concat(this.messagesList)
       console.log("complete")
     })
   }
@@ -121,6 +131,10 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
           break
         case "!savestate":
           this.saveStateCommand(command)
+          break
+        case "!instructor":
+          this.data.instructorMode = !this.data.instructorMode
+          this.messagesList = [{message: {message: `Instructor mode ${this.data.instructorMode ? "enabled" : "disabled"}`, timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}].concat(this.messagesList)
           break
         default:
           const message = {message: {message: "Command not found", timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
@@ -433,5 +447,16 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
   loadSentState(state: any) {
     console.log(state)
     this.saveState.loadStateFromObject(state)
+  }
+
+  forcePushState() {
+    const save = this.saveState.createNewState()
+    const message: Message = {
+      message: {data: save, timestamp: Date.now()},
+      senderID: this.ws.personalID,
+      senderName: this.ws.displayName,
+      requestType: "push-state-all-force"
+    }
+    this.ws.send(message)
   }
 }

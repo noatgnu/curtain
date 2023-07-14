@@ -11,6 +11,7 @@ import {BehaviorSubject, debounceTime, distinctUntilChanged, map, Observable, Op
   providedIn: 'root'
 })
 export class DataService {
+  instructorMode: boolean = false
   loadDataTrigger: Subject<boolean> = new Subject<boolean>()
   externalBarChartDownloadTrigger: Subject<boolean> = new Subject<boolean>()
   session: any = {}
