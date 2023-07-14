@@ -171,4 +171,4 @@
 
 </div>
 
-<app-side-float-control (searchChatSelection)="handleSearch($event)"></app-side-float-control>
+<app-side-float-control *ngIf="finished" (searchChatSelection)="handleSearch($event)"></app-side-float-control>

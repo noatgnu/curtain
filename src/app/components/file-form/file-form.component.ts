@@ -26,7 +26,6 @@ export class FileFormComponent implements OnInit {
       if (data) {
         this.updateProgressBar(100, "Restoring session...")
         if (!this.clicked) {
-          console.log(this.settings.settings.currentID)
           this.clicked = true
           this.finished.emit(false)
         }
@@ -87,14 +86,7 @@ export class FileFormComponent implements OnInit {
                   this.data.primaryIDsMap[n][p] = true
                 }
               }
-              console.log(this.settings.settings.currentID)
-              for (const s in this.settings.settings) {
 
-                if (this.settings.settings.hasOwnProperty(s)) {
-                  // @ts-ignore
-                  console.log(s, this.settings.settings[s])
-                }
-              }
               worker.postMessage({
                 task: 'processRawFile',
                 rawForm: this.data.rawForm,
@@ -257,7 +249,6 @@ export class FileFormComponent implements OnInit {
       }
 
       this.data.currentDF = this.data.currentDF.withSeries("UniquePrimaryIDs", new Series(d)).bake()
-      console.log(this.data.currentDF)
       this.data.primaryIDsList = this.data.currentDF.getSeries(this.data.differentialForm.primaryIDs).distinct().toArray()
       for (const p of this.data.primaryIDsList) {
         if (!this.data.primaryIDsMap[p])  {

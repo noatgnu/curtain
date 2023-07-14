@@ -71,8 +71,9 @@ export class HomeComponent implements OnInit {
                 }
 
                 if (settings.length > 2 && settings[2] !== "") {
+                  //this.ws.close()
                   this.ws.sessionID = settings[2]
-                  this.ws.reconnect()
+                  //this.ws.reconnect()
                 }
               }
 
