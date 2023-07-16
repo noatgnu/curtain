@@ -409,7 +409,14 @@ export class HomeComponent implements OnInit {
   }
 
   clearSelections() {
-    this.data.clear()
+    //this.data.clear()
+    this.data.selected = []
+    this.data.selectedGenes = []
+    this.data.selectedMap = {}
+    this.data.selectOperationNames = []
+    this.settings.settings.rankPlotAnnotation = {}
+    this.settings.settings.textAnnotation = {}
+    this.data.annotatedData = {}
     this.rawFiltered = new DataFrame()
 
     this.data.selectionUpdateTrigger.next(true)
