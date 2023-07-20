@@ -41,5 +41,19 @@ export class Settings {
   rankPlotColorMap: any = {}
   rankPlotAnnotation: any = {}
   legendStatus: any = {}
-
+  stringDBColorMap: any = {
+    "Increase": "#8d0606",
+    "Decrease": "#4f78a4",
+    "In dataset": "#ce8080",
+    "Not in dataset": "#676666"
+  }
+  interactomeAtlasColorMap: any = {
+    "Increase": "#a12323",
+    "Decrease": "#16458c",
+    "No change": "rgba(47,39,40,0.96)",
+    "HI-Union": "rgba(82,110,194,0.96)",
+    "Literature": "rgba(181,151,222,0.96)",
+    "HI-Union and Literature": "rgba(222,178,151,0.96)",
+  }
+  proteomicsDBColor: string = "#ff7f0e"
 }

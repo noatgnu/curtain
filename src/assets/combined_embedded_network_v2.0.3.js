@@ -10,6 +10,7 @@ var selectedGenes = []
 var decrease = []
 var increase = []
 var allGene = []
+var colorMap = {}
 var for_each_node = function (array, callback, scope) {
 
     "use strict";
@@ -219,14 +220,14 @@ function toggle_structure_section (offset, identifier) {
 }
 
 
-function getSTRING(root_url, params, selected, increaseGenes, decreaseGenes, geneList) {
+function getSTRING(root_url, params, selected, increaseGenes, decreaseGenes, geneList, formColorMap) {
 
     js_comm_globals.web_cgi_dir = root_url + /cgi/;
     js_comm_globals.web_images_dir = root_url + /images/;
     selectedGenes = selected
     decrease = decreaseGenes
     increase = increaseGenes
-
+    colorMap = formColorMap
     allGene = geneList
     var stringDiv = document.getElementById('stringEmbedded'+selectedGenes[0]);
     console.log(selectedGenes)
@@ -749,17 +750,18 @@ function init_network_interactive_functionalities (event) {
             var texts = elm.getElementsByTagName("text")
             for (const t of texts) {
               var nodeName = t.innerHTML.toUpperCase()
+              t.setAttribute("font-family", "Arial")
               if (selectedGenes.includes(nodeName)) {
                 t.setAttribute("font-weight", "bold")
               }
               if (increase.includes(nodeName)) {
-                t.setAttribute("fill", "#8d0606")
+                t.setAttribute("fill", colorMap["Increase"])
               } else if (decrease.includes(nodeName)) {
-                t.setAttribute("fill", "#4f78a4")
+                t.setAttribute("fill", colorMap["Decrease"])
               } else if (allGene.includes(nodeName)) {
-                t.setAttribute("fill", "#ce8080")
+                t.setAttribute("fill", colorMap["In dataset"])
               } else {
-                t.setAttribute("fill", "#676666")
+                t.setAttribute("fill", colorMap["Not in dataset"])
               }
             }
             svg_metainfo_nodes[this_id] = {};

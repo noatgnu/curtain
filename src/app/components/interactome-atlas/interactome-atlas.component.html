@@ -6,7 +6,6 @@
   <div class="col-8">
     <div class="card">
       <div class="card-body">
-
         <app-cytoplot *ngIf="hasError === false" #cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
         <div class="card bg-danger" *ngIf="hasError===true">
           <div class="card-body">
@@ -55,36 +54,75 @@
           <label>Score cutoff:</label>
           <input type="number" class="form-control" [(ngModel)]="cutoff" [disabled]="enableFilter === false">
         </div>
-        <button class="btn btn-primary" (click)="reformatInteraction()">Update</button>
       </div>
     </div>
     <div class="card mt-2">
       <div class="card-body">
-        <p><b>Nodes</b><br></p>
-        <p>
-          <span style="color: #a12323">Red</span><span> - Increased abundance</span><br>
-        </p>
-        <p>
-          <span style="color: #16458c">Decrease</span><span> - Decreased abundance</span><br>
-        </p>
-        <p>
-          <span style="color: rgba(47,39,40,0.96)">Brown</span><span> - Protein found in data set but was not changed (FC < 1.5)</span><br>
-        </p>
+        <form [formGroup]="form">
+          <table>
+            <thead>
+            <tr>
+              <th scope="col">Nodes color</th>
+              <th scope="col">Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>
+                <input formControlName="Increase" (colorPickerChange)="updateColor($event, 'Increase')" class="form-control" [(colorPicker)]="colorMap['Increase']" [style.background]="colorMap['Increase']">
+              </td>
+              <td>Increased abundance</td>
+            </tr>
+            <tr>
+              <td>
+                <input formControlName="Decrease" (colorPickerChange)="updateColor($event, 'Decrease')" class="form-control" [(colorPicker)]="colorMap['Decrease']" [style.background]="colorMap['Decrease']">
+              </td>
+              <td>Decreased abundance</td>
+            </tr>
+            <tr>
+              <td>
+                <input formControlName="No change" (colorPickerChange)="updateColor($event, 'Increase')" class="form-control" [(colorPicker)]="colorMap['No change']" [style.background]="colorMap['No change']">
+              </td>
+              <td>Protein found in data set but was not changed (FC < 1.5)</td>
+          </table>
+        </form>
       </div>
     </div>
     <div class="card mt-2">
       <div class="card-body">
-        <p><b>Edges</b><br></p>
-        <p>
-          <span style="color: rgba(82,110,194,0.96)">HI-Union</span><br>
-        </p>
-        <p>
-          <span style="color: rgba(181,151,222,0.96)">Literature</span><br>
-        </p>
-        <p>
-          <span style="color: rgba(222,178,151,0.96)">HI-Union and Literature</span><br>
-        </p>
+        <form [formGroup]="form">
+          <table>
+            <thead>
+            <tr>
+              <th scope="col">Edges color</th>
+              <th scope="col">Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>
+                <input formControlName="HI-Union" (colorPickerChange)="updateColor($event, 'HI-Union')" class="form-control" [(colorPicker)]="colorMap['HI-Union']" [style.background]="colorMap['HI-Union']">
+              </td>
+              <td>HI-Union</td>
+            </tr>
+            <tr>
+              <td>
+                <input formControlName="Literature" (colorPickerChange)="updateColor($event, 'Literature')" class="form-control" [(colorPicker)]="colorMap['Literature']" [style.background]="colorMap['Literature']">
+              </td>
+              <td>Literature</td>
+            </tr>
+            <tr>
+              <td>
+                <input formControlName="HI-Union and Literature" (colorPickerChange)="updateColor($event, 'HI-Union and Literature')" class="form-control" [(colorPicker)]="colorMap['HI-Union and Literature']" [style.background]="colorMap['HI-Union and Literature']">
+              </td>
+              <td>HI-Union and Literature</td>
+          </table>
+        </form>
       </div>
+    </div>
+
+    <div class="mt-2">
+      <button class="btn btn-primary" (click)="reformatInteraction()">Update</button>
     </div>
   </div>
 </div>

@@ -16,6 +16,10 @@ export class DataService {
   externalBarChartDownloadTrigger: Subject<boolean> = new Subject<boolean>()
   session: any = {}
   tempLink: boolean = false
+
+  stringDBColorMapSubject: Subject<boolean> = new Subject<boolean>()
+  interactomeDBColorMapSubject: Subject<boolean> = new Subject<boolean>()
+
   get colorMap(): any {
     return this._colorMap;
   }

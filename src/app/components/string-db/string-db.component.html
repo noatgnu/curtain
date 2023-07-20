@@ -7,50 +7,55 @@
     <div #stringElement [id]="'stringEmbedded'+selected"></div>
   </div>
   <div class="col-3">
-    <table class="table table-bordered">
-      <thead>
-      <tr>
-        <th scope="col">
-          Node Label Color
-        </th>
-        <th scope="col">
-          Description
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td style="background-color: #8d0606">
-        </td>
-        <td>
-          Increase
-        </td>
-      </tr>
-      <tr>
-        <td style="background-color: #4f78a4">
-        </td>
-        <td>
-          Decrease
-        </td>
-      </tr>
-      <tr>
-        <td style="background-color: #ce8080">
+    <form [formGroup]="form">
+      <table class="table table-bordered">
+        <thead>
+        <tr>
+          <th scope="col">
+            Node Label Color
+          </th>
+          <th scope="col">
+            Description
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <input formControlName="Increase" (colorPickerChange)="updateColor($event, 'Increase')" class="form-control" [(colorPicker)]="colorMap['Increase']" [style.background]="colorMap['Increase']">
+            </td>
+            <td>
+              Increase
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input formControlName="Decrease" (colorPickerChange)="updateColor($event, 'Decrease')" class="form-control" [(colorPicker)]="colorMap['Decrease']" [style.background]="colorMap['Decrease']">
+            </td>
+            <td>
+              Decrease
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input formControlName="In dataset" (colorPickerChange)="updateColor($event, 'In dataset')" class="form-control" [(colorPicker)]="colorMap['In dataset']" [style.background]="colorMap['In dataset']">
+            </td>
+            <td>
+              In dataset
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input formControlName="Not in dataset" (colorPickerChange)="updateColor($event, 'Not in dataset')" class="form-control" [(colorPicker)]="colorMap['Not in dataset']" [style.background]="colorMap['Not in dataset']">
+            </td>
+            <td>
+              Not in dataset
+            </td>
+          </tr>
 
-        </td>
-        <td>
-          In dataset
-        </td>
-      </tr>
-      <tr>
-        <td style="background-color: #676666">
-
-        </td>
-        <td>
-          Not in dataset
-        </td>
-      </tr>
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </form>
     <div class="card">
       <div class="card-body">
         <div class="row">

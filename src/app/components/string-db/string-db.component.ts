@@ -5,6 +5,7 @@ import {DataService} from "../../data.service";
 import {Settings} from "../../classes/settings";
 import {SettingsService} from "../../settings.service";
 import {IDataFrame} from "data-forge";
+import {FormBuilder, FormGroup} from "@angular/forms";
 declare const getSTRING: any;
 @Component({
   selector: 'app-string-db',
@@ -41,11 +42,49 @@ export class StringDbComponent implements OnInit {
       this.organism = this._data.organism
       this.ids = ids
       this.selectedGenes = this._data.selectedGenes
+      if (this.settings.settings.stringDBColorMap === undefined) {
+        this.settings.settings.stringDBColorMap = {}
+        for (const i in this.colorMap) {
+          this.settings.settings.stringDBColorMap[i] = this.colorMap[i].slice()
+          this.form.controls[i].setValue(this.colorMap[i])
+        }
+
+      } else {
+        for (const i in this.settings.settings.stringDBColorMap) {
+          this.colorMap[i] = this.settings.settings.stringDBColorMap[i].slice()
+          this.form.controls[i].setValue(this.colorMap[i])
+        }
+      }
       this.getString().then()
     }
 
   }
-  constructor(private uniprot: UniprotService, private data: DataService, private settings: SettingsService) { }
+
+  form: FormGroup = this.fb.group({
+    "Increase": ["#8d0606",],
+    "Decrease": ["#4f78a4",],
+    "In dataset": ["#ce8080",],
+    "Not in dataset": ["#676666",]
+  })
+
+  colorMap: any = {
+    "Increase": "#8d0606",
+    "Decrease": "#4f78a4",
+    "In dataset": "#ce8080",
+    "Not in dataset": "#676666"
+  }
+  constructor(private fb: FormBuilder, private uniprot: UniprotService, private data: DataService, private settings: SettingsService) {
+    this.data.stringDBColorMapSubject.asObservable().subscribe((data) => {
+      if (data) {
+        for (const i in this.settings.settings.stringDBColorMap) {
+          this.colorMap[i] = this.settings.settings.stringDBColorMap[i].slice()
+          this.form.controls[i].setValue(this.colorMap[i])
+        }
+        this.form.markAsPristine()
+      }
+    })
+
+  }
 
   ngOnInit(): void {
     const currentData = this
@@ -57,6 +96,12 @@ export class StringDbComponent implements OnInit {
   }
 
   async getString() {
+    if (this.form.dirty) {
+      for (const i in this.form.value) {
+        this.settings.settings.stringDBColorMap[i] = this.form.value[i]
+      }
+      this.data.stringDBColorMapSubject.next(true)
+    }
     if (this.requiredScore > 1000) {
       this.requiredScore = 1000
     }
@@ -83,7 +128,8 @@ export class StringDbComponent implements OnInit {
         this.uniProtData["Gene Names"].split(";"),
         increased,
         decreased,
-        allGenes
+        allGenes,
+        this.form.value
       )
       console.log("String request submitted")
     }, 3000)
@@ -135,4 +181,9 @@ export class StringDbComponent implements OnInit {
       window.URL.revokeObjectURL(url)
     }
   }
+
+  updateColor(color: string, key: string) {
+    this.form.controls[key].setValue(color)
+  }
+
 }

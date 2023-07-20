@@ -8,6 +8,7 @@ import {IDataFrame} from "data-forge";
 import {CytoplotComponent} from "../cytoplot/cytoplot.component";
 import {getInteractomeAtlas} from "curtain-web-api";
 import {AccountsService} from "../../accounts/accounts.service";
+import {FormBuilder, FormGroup} from "@angular/forms";
 
 @Component({
   selector: 'app-interactome-atlas',
@@ -32,6 +33,19 @@ export class InteractomeAtlasComponent implements OnInit {
     } else {
       this.geneName = ""
     }
+    if (this.settings.settings.interactomeAtlasColorMap=== undefined) {
+      this.settings.settings.interactomeAtlasColorMap = {}
+      for (const i in this.colorMap) {
+        this.settings.settings.interactomeAtlasColorMap[i] = this.colorMap[i].slice()
+        this.form.controls[i].setValue(this.colorMap[i])
+      }
+
+    } else {
+      for (const i in this.settings.settings.interactomeAtlasColorMap) {
+        this.colorMap[i] = this.settings.settings.interactomeAtlasColorMap[i].slice()
+        this.form.controls[i].setValue(this.colorMap[i])
+      }
+    }
     this.getInteractions().then()
 
 
@@ -43,13 +57,46 @@ export class InteractomeAtlasComponent implements OnInit {
 
   selection: string = ""
   hasError: boolean = false
-  constructor(private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService) { }
+  colorMap: any = {
+    "Increase": "#a12323",
+    "Decrease": "#16458c",
+    "No change": "rgba(47,39,40,0.96)",
+    "HI-Union": "rgba(82,110,194,0.96)",
+    "Literature": "rgba(181,151,222,0.96)",
+    "HI-Union and Literature": "rgba(222,178,151,0.96)",
+  }
+
+  form: FormGroup = this.fb.group({
+    "Increase": ["#a12323",],
+    "Decrease": ["#16458c",],
+    "No change": ["rgba(47,39,40,0.96)",],
+    "HI-Union": "rgba(82,110,194,0.96)",
+    "Literature": "rgba(181,151,222,0.96)",
+    "HI-Union and Literature": "rgba(222,178,151,0.96)",
+  })
+  constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService) {
+    this.dataService.interactomeDBColorMapSubject.asObservable().subscribe(data => {
+      if (data) {
+        for (const i in this.settings.settings.interactomeAtlasColorMap) {
+          this.colorMap[i] = this.settings.settings.interactomeAtlasColorMap[i].slice()
+          this.form.controls[i].setValue(this.colorMap[i])
+        }
+        this.form.markAsPristine()
+      }
+    })
+  }
 
   ngOnInit(): void {
   }
 
   async getInteractions() {
     if (this.geneName !== "") {
+      if (this.form.dirty) {
+        for (const i in this.form.value) {
+          this.settings.settings.interactomeAtlasColorMap[i] = this.form.value[i]
+        }
+        this.dataService.interactomeDBColorMapSubject.next(true)
+      }
       this.hasError = false
       try {
         const interactions = await this.accounts.curtainAPI.postInteractomeAtlasProxy([this.geneName.split(";")[0]], "None")
@@ -225,27 +272,27 @@ export class InteractomeAtlasComponent implements OnInit {
       {selector: ".noscore", style: {"line-color": "rgba(47,39,40,0.96)", width: "data(score)"}}
     )
     styles.push(
-      {selector: ".HI-Union", style: {"line-color": "rgba(82,110,194,0.96)", width: "data(score)"}}
+      {selector: ".HI-Union", style: {"line-color": this.form.value["HI-Union"], width: "data(score)"}}
     )
     styles.push(
-      {selector: ".Literature", style: {"line-color": "rgba(181,151,222,0.96)", width: "data(score)"}}
+      {selector: ".Literature", style: {"line-color": this.form.value["Literature"], width: "data(score)"}}
     )
     styles.push(
-      {selector: ".HI-UnionLiterature", style: {"line-color": "rgba(222,178,151,0.96)", width: "data(score)"}}
+      {selector: ".HI-UnionLiterature", style: {"line-color":this.form.value["HI-Union and Literature"], width: "data(score)"}}
     )
     styles.push(
       {selector: ".root", style: {label: "data(label)", "background-color": "#765cd0"}}
     )
     styles.push(
-      {selector: ".increase", style: {label: "data(label)", "background-color": "#a12323", "color": "#ce8080",}}
+      {selector: ".increase", style: {label: "data(label)", "background-color": this.form.value["Increase"], "color": "#ce8080",}}
     )
     styles.push(
-      {selector: ".decrease", style: {label: "data(label)", "background-color": "#16458c", "color": "#6f94bb",}}
+      {selector: ".decrease", style: {label: "data(label)", "background-color": this.form.value["Decrease"], "color": "#6f94bb",}}
     )
     styles.push(
       {
         selector: ".noChange",
-        style: {label: "data(label)", "background-color": "rgba(25,128,128,0.96)", "color": "rgba(47,39,40,0.96)",}
+        style: {label: "data(label)", "background-color": this.form.value["No change"], "color": "rgba(47,39,40,0.96)",}
       }
     )
     this.drawData = {data: nodes, stylesheet: styles, id: "interactome" + this._data}
@@ -292,5 +339,9 @@ export class InteractomeAtlasComponent implements OnInit {
     if (this.cytoplot) {
       this.cytoplot.download()
     }
+  }
+
+  updateColor(color: string, key: string) {
+    this.form.controls[key].setValue(color)
   }
 }

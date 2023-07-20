@@ -59,6 +59,7 @@ import { DraggableElementComponent } from './components/draggable-element/dragga
 import { RankPlotTextAnnotationComponent } from './components/rank-plot-text-annotation/rank-plot-text-annotation.component';
 import { SelectedDataDistributionPlotComponent } from './components/selected-data-distribution-plot/selected-data-distribution-plot.component';
 import { LocalSessionStateModalComponent } from './components/local-session-state-modal/local-session-state-modal.component';
+import { RankAbundanceModalComponent } from './components/rank-abundance-modal/rank-abundance-modal.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -107,6 +108,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     RankPlotTextAnnotationComponent,
     SelectedDataDistributionPlotComponent,
     LocalSessionStateModalComponent,
+    RankAbundanceModalComponent,
   ],
   imports: [
     BrowserModule,
