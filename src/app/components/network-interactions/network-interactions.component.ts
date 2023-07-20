@@ -7,6 +7,8 @@ import {UniprotService} from "../../uniprot.service";
 import {ScrollService} from "../../scroll.service";
 import {getInteractomeAtlas, getStringDBInteractions} from "curtain-web-api";
 import {AccountsService} from "../../accounts/accounts.service";
+import {FormBuilder, FormGroup} from "@angular/forms";
+import {SettingsService} from "../../settings.service";
 
 @Component({
   selector: 'app-network-interactions',
@@ -55,70 +57,27 @@ export class NetworkInteractionsComponent implements OnInit {
   nodes: any[] = []
   currentGenes: any = {}
   edgeDataMap: any = {}
-  styles: any[] = [
-    {
-      selector: "node", style: {
-        label: "data(label)",
-        "background-color": "rgba(25,128,128,0.96)",
-        "color": "#fffffe",
-        "text-valign": "center",
-        "text-halign": "center",
-        "text-outline-width": "1px",
-        "text-outline-color": "rgb(16,10,10)",
-        "height": 100,
-        "width": 100,
-      }
-    },
-    {
-      selector: ".genes", style: {
-        label: "data(label)",
-        "background-color": "rgba(139,0,220,0.96)",
-        "color": "#fffffe",
-        "text-valign": "center",
-        "text-halign": "center",
-        "text-outline-width": "1px",
-        "text-outline-color": "rgb(16,10,10)",
-        "height": 50,
-        "width": 50,
-      }
-    },
-    {
-      selector: ".increase", style: {
-        "background-color": "rgba(220,169,0,0.96)"
-      }
-    },
-    {
-      selector: ".decrease", style: {
-        "background-color": "rgba(220,0,59,0.96)"
-      }
-    },
-    {
-      selector: "edge",
-      style: {
-        "line-color": "rgba(25,128,128,0.66)",
-        width: 6,
-        'curve-style': 'bezier',
-        'control-point-distance':50,
-        //'line-style': 'dashed'
-      }
-    },
-    {
-      selector: ".stringdb",
-      style: {"line-color": "rgb(206,128,128)", width: 2}
-    },
-    {
-      selector: ".interactome",
-      style: {"line-color": "rgb(73,73,101)", width: 2}
-    },
-    {
-      selector: ".lrrk2",
-      style: {"line-color": "rgb(73,73,101)", width: 2, "line-style": "solid"}
-    },
-  ]
+  styles: any[] = this.createStyles()
   currentEdges: any = {}
   geneMap: any = {}
   @Input() set genes(value: string[]) {
     const genes: string[] = []
+    if (this.settings.settings.networkInteractionSettings === undefined) {
+      this.settings.settings.networkInteractionSettings = {}
+      for (const i in this.form.value) {
+        this.settings.settings.networkInteractionSettings[i] = this.form.value[i]
+        if (i in this.colorMap) {
+          this.colorMap[i] = this.form.value[i].slice()
+        }
+      }
+    } else {
+      for (const i in this.settings.settings.networkInteractionSettings) {
+        if (i in this.colorMap) {
+          this.colorMap[i] = this.settings.settings.networkInteractionSettings[i].slice()
+        }
+        this.form.controls[i].setValue(this.colorMap[i])
+      }
+    }
     this.getGenes(value, genes).then();
   }
 
@@ -151,25 +110,60 @@ export class NetworkInteractionsComponent implements OnInit {
     }
   }
 
-  constructor(private accounts: AccountsService, private scroll: ScrollService, private data: DataService, private dbString: DbStringService, private interac: InteractomeAtlasService, private uniprot: UniprotService) { }
+  form: FormGroup = this.fb.group({
+    ascore: [0,],
+    dscore: [0,],
+    escore: [0,],
+    fscore: [0,],
+    nscore: [0,],
+    pscore: [0,],
+    tscore: [0,],
+    atlasScore: [0,],
+    requiredScore: [0.4],
+    networkType: ["functional"],
+    "Increase": ["rgb(25,128,128)",],
+    "Decrease": ["rgb(220,0,59)",],
+    "StringDB": ["rgb(206,128,128)",],
+    "InteractomeAtlas": ["rgb(73,73,101)",],
+  })
+
+  colorMap: any = {
+    "Increase": "rgb(25,128,128)",
+    "Decrease": "rgb(220,0,59)",
+    "StringDB": "rgb(206,128,128)",
+    "InteractomeAtlas": "rgb(73,73,101)",
+  }
+
+  result: any = {data: this.nodes.slice(), stylesheet: this.styles.slice(), id:'networkInteractions'}
+
+  constructor(private fb: FormBuilder, private settings: SettingsService, private accounts: AccountsService, private scroll: ScrollService, private data: DataService, private dbString: DbStringService, private interac: InteractomeAtlasService, private uniprot: UniprotService) { }
 
   ngOnInit(): void {
   }
 
   async getInteractions() {
+    if (this.form.dirty) {
+      for (const i in this.form.value) {
+        this.settings.settings.networkInteractionSettings[i] = this.form.value[i]
+      }
+      console.log(this.settings.settings.networkInteractionSettings)
+      this.styles = [...this.createStyles()]
+      this.form.markAsPristine()
+    }
+    console.log(this.styles)
     const nodes: any[] = []
     this.currentEdges = {}
     this.currentGenes = {}
     let result: any = {}
     let resultInteractome: any = {}
     try {
-      result = await getStringDBInteractions(this._genes, this.uniprot.organism, this._requiredScore*1000, this.networkType)
+      result = await getStringDBInteractions(this._genes, this.uniprot.organism, this.form.value.requiredScore*1000, this.form.value.networkType)
       const tempDF = fromCSV(<string>result.data)
       if (tempDF.count() > 0) {
         for (const r of tempDF) {
           let checked = true
           for (const i in this.otherScore) {
-            if (parseFloat(r[i]) < this.otherScore[i]) {
+            if (parseFloat(r[i]) < this.form.value[i]) {
               checked = false
             }
           }
@@ -218,7 +212,7 @@ export class NetworkInteractionsComponent implements OnInit {
             let checked = false
             if (score !== 0) {
               checked = true
-            } else if (score >= this._atlasScore) {
+            } else if (score >= this.form.value.atlasScore) {
               checked = true
             }
             if (checked) {
@@ -273,6 +267,7 @@ export class NetworkInteractionsComponent implements OnInit {
       nodes.push({data: {id: "gene-"+n, label: this.geneMap[n], size: 2}, classes: classes})
     }
     this.nodes = nodes
+    this.result = {data: this.nodes.slice(), stylesheet: this.styles.slice(), id:'networkInteractions'}
   }
 
   handleSelect(e: string) {
@@ -302,5 +297,73 @@ export class NetworkInteractionsComponent implements OnInit {
   handleSelection(e: string) {
     this.selection = e
     this.getInteractions().then()
+  }
+
+  updateColor(color: string, key: string) {
+    this.form.controls[key].setValue(color)
+    this.form.markAsDirty()
+  }
+
+  createStyles() {
+    return [
+      {
+        selector: "node", style: {
+          label: "data(label)",
+          "background-color": "rgba(25,128,128,0.96)",
+          "color": "#fffffe",
+          "text-valign": "center",
+          "text-halign": "center",
+          "text-outline-width": "1px",
+          "text-outline-color": "rgb(16,10,10)",
+          "height": 100,
+          "width": 100,
+        }
+      },
+      {
+        selector: ".genes", style: {
+          label: "data(label)",
+          "background-color": "rgba(139,0,220,0.96)",
+          "color": "#fffffe",
+          "text-valign": "center",
+          "text-halign": "center",
+          "text-outline-width": "1px",
+          "text-outline-color": "rgb(16,10,10)",
+          "height": 50,
+          "width": 50,
+        }
+      },
+      {
+        selector: ".increase", style: {
+          "background-color": this.settings.settings.networkInteractionSettings["Increase"]
+        }
+      },
+      {
+        selector: ".decrease", style: {
+          "background-color": this.settings.settings.networkInteractionSettings["Decrease"]
+        }
+      },
+      {
+        selector: "edge",
+        style: {
+          "line-color": "rgba(25,128,128,0.66)",
+          width: 6,
+          'curve-style': 'bezier',
+          'control-point-distance':50,
+          //'line-style': 'dashed'
+        }
+      },
+      {
+        selector: ".stringdb",
+        style: {"line-color": this.settings.settings.networkInteractionSettings["StringDB"], width: 2}
+      },
+      {
+        selector: ".interactome",
+        style: {"line-color": this.settings.settings.networkInteractionSettings["InteractomeAtlas"], width: 2}
+      },
+      {
+        selector: ".lrrk2",
+        style: {"line-color": "rgb(73,73,101)", width: 2, "line-style": "solid"}
+      },
+    ]
   }
 }

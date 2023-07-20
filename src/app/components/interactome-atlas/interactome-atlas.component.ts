@@ -343,5 +343,6 @@ export class InteractomeAtlasComponent implements OnInit {
 
   updateColor(color: string, key: string) {
     this.form.controls[key].setValue(color)
+    this.form.markAsDirty()
   }
 }

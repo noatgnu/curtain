@@ -28,10 +28,33 @@
           </div>
         </div>
       </div>
+      <div class="p-2" *ngIf="finished">
+        <div display="dynamic" ngbDropdown class="d-inline-block">
+          <button class="btn btn-outline-primary ml-2" id="plot-dropdown" ngbDropdownToggle> Plot
+          </button>
+          <div ngbDropdownMenu aria-labelledby="plot-dropdown">
+            <button ngbDropdownItem (click)="openCorrelationMatrix()">
+              Correlation Matrix
+            </button>
+            <button ngbDropdownItem (click)="openProfileCompare()">
+              Profile Plot  ({{data.selectedComparison.length}})
+            </button>
+            <button ngbDropdownItem (click)="getSelectedList()">
+              Get Selected Protein List
+            </button>
+            <button ngbDropdownItem (click)="openSampleSettings()">
+              Sample Order & Visibility Settings
+            </button>
+            <button ngbDropdownItem (click)="openColorPaletteModal()">
+              Customize Color Palette
+            </button>
+            <button ngbDropdownItem *ngIf="data.selectOperationNames.length > 0" (click)="openSelectedDataDistributionModal()">Fold Change Distribution</button>
+          </div>
+        </div>
+      </div>
       <div class="p-2">
 
         <div display="dynamic" ngbDropdown class="d-inline-block">
-
             <button class="btn btn-outline-primary ml-2" id="dropdownSession" ngbDropdownToggle>Session
               <ng-container *ngIf="data.session">
                 <span *ngIf="data.session.enable === false" class="badge bg-danger">private</span>
@@ -39,32 +62,19 @@
               </ng-container>
             </button>
           <div ngbDropdownMenu aria-labelledby="dropdownSession">
+            <button ngbDropdownItem (click)="openAnnotation()">Project Annotation</button>
             <ng-container *ngIf="finished">
               <button ngbDropdownItem (click)="saveSession()" [disabled]="data.tempLink===true">Save Session</button>
               <button ngbDropdownItem (click)="clearSelections()">Clear Selections</button>
               <button ngbDropdownItem (click)="web.downloadFile('different.txt', data.differential.originalFile)">Download Differential Analysis File</button>
               <button ngbDropdownItem (click)="web.downloadFile('raw.txt', data.raw.originalFile)">Download Raw File</button>
-              <button ngbDropdownItem (click)="openAnnotation()">Project Annotation</button>
+
 <!--              <button ngbDropdownItem (click)="openQRCode()" *ngIf="settings.settings.currentID !== ''">Session QR Code</button>-->
-              <button ngbDropdownItem *ngIf="data.selectOperationNames.length > 0" (click)="openSelectedDataDistributionModal()">Fold Change Distribution</button>
-              <button ngbDropdownItem (click)="openCorrelationMatrix()">
-                Correlation Matrix
-              </button>
-              <button ngbDropdownItem (click)="openProfileCompare()">
-                Profile Plot  ({{data.selectedComparison.length}})
-              </button>
-              <button ngbDropdownItem (click)="getSelectedList()">
-                Get Selected Protein List
-              </button>
-              <button ngbDropdownItem (click)="openSampleSettings()">
-                Sample Order & Visibility Settings
-              </button>
+
               <!--<button ngbDropdownItem (click)="downloadAll()">
                 Download all Bar Charts and Violin Plots
               </button>-->
-              <button ngbDropdownItem (click)="openColorPaletteModal()">
-                Customize Color Palette
-              </button>
+
               <button ngbDropdownItem (click)="selectionManagementModal()">
                 Data Selection Management
               </button>
