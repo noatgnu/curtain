@@ -301,18 +301,20 @@ export class HomeComponent implements OnInit {
 
         if (object.extraData.uniprot) {
           this.uniprot.results = object.extraData.uniprot.results
-          this.uniprot.dataMap = object.extraData.uniprot.dataMap
-          this.uniprot.db = object.extraData.uniprot.db
+          this.uniprot.dataMap = new Map(object.extraData.uniprot.dataMap.value)
+          this.uniprot.accMap = new Map(object.extraData.uniprot.accMap.value)
+          this.uniprot.db = new Map(object.extraData.uniprot.db.value)
           this.uniprot.organism = object.extraData.uniprot.organism
-          this.uniprot.accMap = object.extraData.uniprot.accMap
+          this.uniprot.accMap = new Map(object.extraData.uniprot.accMap.value)
           this.uniprot.geneNameToAcc = object.extraData.uniprot.geneNameToAcc
         }
         if (object.extraData.data) {
-          this.data.dataMap = object.extraData.data.dataMap
+          this.data.dataMap = new Map(object.extraData.data.dataMap.value)
           this.data.genesMap = object.extraData.data.genesMap
           this.data.primaryIDsMap = object.extraData.data.primaryIDsmap
           this.data.allGenes = object.extraData.data.allGenes
         }
+        console.log(object.extraData)
         this.data.bypassUniProt = true
       }
     }
