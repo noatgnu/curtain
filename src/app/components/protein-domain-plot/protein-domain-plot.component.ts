@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {WebService} from "../../web.service";
+import {SettingsService} from "../../settings.service";
 
 @Component({
   selector: 'app-protein-domain-plot',
@@ -90,9 +91,12 @@ export class ProteinDomainPlotComponent implements OnInit {
       ticks: '',
       showticklabels: false
     }, margin: {t: 25, b: 25, r: 125, l: 175},
-    showlegend: false
+    showlegend: false,
+    font: {
+      family: this.settings.settings.plotFontFamily + ", serif",
+    }
   }
-  constructor(private web: WebService) { }
+  constructor(private web: WebService, private settings: SettingsService) { }
 
   ngOnInit(): void {
   }

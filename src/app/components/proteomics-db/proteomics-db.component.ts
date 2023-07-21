@@ -3,6 +3,7 @@ import {WebService} from "../../web.service";
 import {UniprotService} from "../../uniprot.service";
 import {UntypedFormBuilder, UntypedFormGroup} from "@angular/forms";
 import {getProteomicsData} from "curtain-web-api";
+import {SettingsService} from "../../settings.service";
 
 @Component({
   selector: 'app-proteomics-db',
@@ -13,6 +14,12 @@ export class ProteomicsDbComponent implements OnInit {
   _uniprotID = ""
   @Input() set uniprotID(value: string) {
     this._uniprotID = value
+    if (this.settings.settings.proteomicsDBColor === undefined) {
+      this.settings.settings.proteomicsDBColor = "#1f77b4"
+    } else {
+      this.form.controls["color"].setValue(this.settings.settings.proteomicsDBColor)
+      this.color = this.settings.settings.proteomicsDBColor.slice()
+    }
     if (this._uniprotID !== "") {
       getProteomicsData(this._uniprotID, this.form.value["selected"]).then((r:any) => {
         if (r.data) {
@@ -22,9 +29,6 @@ export class ProteomicsDbComponent implements OnInit {
     }
   }
 
-  form: UntypedFormGroup = this.fb.group({
-    selected: "tissue"
-  })
 
   graphData: any[] = []
   graphLayout: any = {}
@@ -38,7 +42,16 @@ export class ProteomicsDbComponent implements OnInit {
       scale: 1
     }
   }
-  constructor(public web: WebService, private uniprot: UniprotService, private fb: UntypedFormBuilder) {
+
+  form: UntypedFormGroup = this.fb.group({
+    color: "rgb(128,51,169)",
+    selected: "tissue"
+  })
+
+  color = "rgb(128,51,169)"
+
+  constructor(public web: WebService, private uniprot: UniprotService, private fb: UntypedFormBuilder, private settings: SettingsService) {
+
     this.form.valueChanges.subscribe(value => {
       getProteomicsData(this._uniprotID, value.selected).then((r: any) => {
         if (r.data) {
@@ -52,12 +65,14 @@ export class ProteomicsDbComponent implements OnInit {
   }
 
   drawBarChart(data: any) {
+    if (this.form.dirty) {
+      this.settings.settings.proteomicsDBColor = this.form.value["color"]
+    }
     let graphData: any[] = []
     const graphLayout = {
       title: {
         text: "",
         font: {
-          family: "Arial Black",
           size: 24,
         }
       },
@@ -75,6 +90,9 @@ export class ProteomicsDbComponent implements OnInit {
           "size": 17,
           "color": 'black'
         }
+      },
+      font: {
+        family: this.settings.settings.plotFontFamily + ", serif",
       }
     }
     graphLayout.yaxis.tickvals = []
@@ -101,7 +119,7 @@ export class ProteomicsDbComponent implements OnInit {
             x: x,
             y: y,
             marker: {
-              color: "rgb(128,51,169)"
+              color: this.form.value["color"]
             },
             orientation: "h"
           }
@@ -126,5 +144,10 @@ export class ProteomicsDbComponent implements OnInit {
   }
   downloadSVG() {
     this.web.downloadPlotlyImage("svg", "proteomicsDB", this._uniprotID+"bar").then()
+  }
+
+  updateColor(color: string) {
+    this.form.controls["color"].setValue(color)
+    this.form.markAsDirty()
   }
 }

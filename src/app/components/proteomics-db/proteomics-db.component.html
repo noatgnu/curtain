@@ -1,15 +1,22 @@
-<form [formGroup]="form" xmlns="http://www.w3.org/1999/html">
-  <div class="form-group">
-    <label for="tissueType">Select Tissue or Cell Line</label>
-    <select style="max-width: 200px" id="tissueType" class="form-control" formControlName="selected">
-      <option value="tissue">
-        Tissue
-      </option>
-      <option value="cell line">
-        Cell line
-      </option>
-    </select>
+<form [formGroup]="form">
+  <div class="d-flex">
+    <div class="form-group p-2">
+      <label for="tissueType">Select Tissue or Cell Line</label>
+      <select style="max-width: 200px" id="tissueType" class="form-control" formControlName="selected">
+        <option value="tissue">
+          Tissue
+        </option>
+        <option value="cell line">
+          Cell line
+        </option>
+      </select>
+    </div>
+    <div class="form-group p-2">
+      <label for="tissueType">Bar chart color</label>
+      <input formControlName="color" (colorPickerChange)="updateColor($event)" class="form-control" [(colorPicker)]="color" [style.background]="color">
+    </div>
   </div>
+
 </form>
 
 <plotly-plot [config]="config" [divId]="_uniprotID+'bar'" [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>

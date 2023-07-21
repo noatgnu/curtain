@@ -23,7 +23,7 @@ import {LoginModalComponent} from "../../accounts/login-modal/login-modal.compon
 import {AccountsService} from "../../accounts/accounts.service";
 import {SessionSettingsComponent} from "../session-settings/session-settings.component";
 import {AccountsComponent} from "../../accounts/accounts/accounts.component";
-import {reviver, User} from "curtain-web-api";
+import {reviver, replacer, User} from "curtain-web-api";
 import {DefaultColorPaletteComponent} from "../default-color-palette/default-color-palette.component";
 import {DataSelectionManagementComponent} from "../data-selection-management/data-selection-management.component";
 import {QrcodeModalComponent} from "../qrcode-modal/qrcode-modal.component";
@@ -243,6 +243,22 @@ export class HomeComponent implements OnInit {
   }
 
   private saving() {
+    const extraData: any = {
+      uniprot: {
+        results: this.uniprot.results,
+        dataMap: this.uniprot.dataMap,
+        db: this.uniprot.db,
+        organism: this.uniprot.organism,
+        accMap: this.uniprot.accMap,
+        geneNameToAcc: this.uniprot.geneNameToAcc
+      },
+      data: {
+        dataMap: this.data.dataMap,
+        genesMap: this.data.genesMap,
+        primaryIDsmap: this.data.primaryIDsMap,
+        allGenes: this.data.allGenes,
+      }
+    }
     const data: any = {
       raw: this.data.raw.originalFile,
       rawForm: this.data.rawForm,
@@ -254,7 +270,8 @@ export class HomeComponent implements OnInit {
       selectionsName: this.data.selectOperationNames,
       settings: this.settings.settings,
       fetchUniprot: this.data.fetchUniprot,
-      annotatedData: this.data.annotatedData
+      annotatedData: this.data.annotatedData,
+      extraData: extraData
     }
     this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP",  this.onUploadProgress).then((data: any) => {
       if (data.data) {
@@ -274,9 +291,32 @@ export class HomeComponent implements OnInit {
 
   async restoreSettings(object: any) {
     if (typeof object.settings === "string") {
-      object.settings = JSON.parse(object.settings)
+      object.settings = JSON.parse(object.settings, reviver)
     }
-    console.log(object.settings)
+    if (object.fetchUniprot) {
+      if (object.extraData) {
+        if (typeof object.extraData === "string") {
+          object.extraData = JSON.parse(object.extraData, reviver)
+        }
+
+        if (object.extraData.uniprot) {
+          this.uniprot.results = object.extraData.uniprot.results
+          this.uniprot.dataMap = object.extraData.uniprot.dataMap
+          this.uniprot.db = object.extraData.uniprot.db
+          this.uniprot.organism = object.extraData.uniprot.organism
+          this.uniprot.accMap = object.extraData.uniprot.accMap
+          this.uniprot.geneNameToAcc = object.extraData.uniprot.geneNameToAcc
+        }
+        if (object.extraData.data) {
+          this.data.dataMap = object.extraData.data.dataMap
+          this.data.genesMap = object.extraData.data.genesMap
+          this.data.primaryIDsMap = object.extraData.data.primaryIDsmap
+          this.data.allGenes = object.extraData.data.allGenes
+        }
+        this.data.bypassUniProt = true
+      }
+    }
+
     if (!object.settings.project) {
       object.settings.project = new Project()
     } else {
@@ -288,6 +328,10 @@ export class HomeComponent implements OnInit {
         }
       }
       object.settings.project = p
+    }
+
+    if (!object.settings.plotFontFamily) {
+      object.settings.plotFontFamily = "Arial"
     }
     if (!object.settings.scatterPlotMarkerSize) {
       object.settings.scatterPlotMarkerSize = 10
@@ -517,7 +561,14 @@ export class HomeComponent implements OnInit {
   }
 
   onDownloadProgress = (progressEvent: any) => {
-    this.uniprot.uniprotProgressBar.next({value: progressEvent.progress *100, text: "Downloading session data at " + Math.round(progressEvent.progress * 100) + "%"})
+    if (progressEvent.progress) {
+      this.uniprot.uniprotProgressBar.next({value: progressEvent.progress *100, text: "Downloading session data at " + Math.round(progressEvent.progress * 100) + "%"})
+
+    } else {
+      const sizeDownloaded = (progressEvent.loaded / (1024*1024)).toFixed(2)
+      this.uniprot.uniprotProgressBar.next({value: 100, text: "Downloading session data at " + sizeDownloaded + " MB"})
+    }
+
   }
 
   openCollaborateModal() {

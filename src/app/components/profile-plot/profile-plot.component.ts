@@ -46,6 +46,9 @@ export class ProfilePlotComponent implements OnInit {
     showlegend: true,
     legend: {
       orientation: 'h'
+    },
+    font: {
+      family: this.settings.settings.plotFontFamily + ", serif",
     }
   }
   graphSelected: any[] = []

@@ -53,17 +53,22 @@ export class BarChartComponent implements OnInit {
         color: "black",
       },
       tickvals: [],
-      ticktext: []
+      ticktext: [],
+      fixedrange: true
     },
     yaxis: {
       tickfont: {
         size: 17,
         color: "black",
       },
+      fixedrange: true
     },
     annotations: [],
     shapes: [],
-    margin: {r: 50, l: 50, b: 100, t: 100}
+    margin: {r: 50, l: 50, b: 100, t: 100},
+    font: {
+      family: this.settings.settings.plotFontFamily + ", monospace",
+    }
   }
 
   graphDataAverage: any[] = []
@@ -82,7 +87,10 @@ export class BarChartComponent implements OnInit {
         color: "black",
       },
     },
-    margin: {r: 40, l: 40, b: 120, t: 100}
+    margin: {r: 40, l: 40, b: 120, t: 100},
+    font: {
+      family: this.settings.settings.plotFontFamily + ", monospace",
+    }
   }
 
   graphDataViolin: any[] = []
@@ -101,7 +109,10 @@ export class BarChartComponent implements OnInit {
         color: "black",
       },
     },
-    margin: {r: 40, l: 40, b: 120, t: 100}
+    margin: {r: 40, l: 40, b: 120, t: 100},
+    font: {
+      family: this.settings.settings.plotFontFamily + ", monospace",
+    }
   }
   config: any = {
     //modeBarButtonsToRemove: ["toImage"]

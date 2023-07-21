@@ -4,6 +4,7 @@ import {JeezyService} from "../../jeezy.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {ToastService} from "../../toast.service";
 import {WebService} from "../../web.service";
+import {SettingsService} from "../../settings.service";
 
 @Component({
   selector: 'app-correlation-matrix',
@@ -22,11 +23,14 @@ export class CorrelationMatrixComponent implements OnInit {
       tickvals: [],
       ticktext: []
     },
-    height: 1100, width: 1100
+    height: 1100, width: 1100,
+    font: {
+      family: this.settings.settings.plotFontFamily + ", serif",
+    }
   }
   cols: string[] = []
   zmin = 0
-  constructor(private web: WebService, private toast: ToastService, public modal: NgbActiveModal, private data: DataService, private jz: JeezyService) {
+  constructor(private web: WebService, private settings: SettingsService, private toast: ToastService, public modal: NgbActiveModal, private data: DataService, private jz: JeezyService) {
     this.cols = Object.keys(this.data.sampleMap)
 
     this.graphData.push({

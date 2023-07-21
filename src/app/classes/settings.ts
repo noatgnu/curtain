@@ -62,4 +62,5 @@ export class Settings {
     "StringDB": "rgb(206,128,128)",
     "InteractomeAtlas": "rgb(73,73,101)",
   }
+  plotFontFamily: string = "Arial"
 }
