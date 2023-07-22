@@ -34,6 +34,7 @@ import {
 } from "../selected-data-distribution-plot/selected-data-distribution-plot.component";
 import {SaveStateService} from "../../save-state.service";
 import {LocalSessionStateModalComponent} from "../local-session-state-modal/local-session-state-modal.component";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-home',
@@ -46,7 +47,8 @@ export class HomeComponent implements OnInit {
   uniqueLink: string = ""
   filterModel: string = ""
   currentID: string = ""
-
+  subscription: Subscription = new Subscription()
+  progressEvent: any = {}
   constructor(private saveState: SaveStateService, private ws: WebsocketService, public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, public settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
@@ -129,6 +131,12 @@ export class HomeComponent implements OnInit {
   async initialize() {
     await this.accounts.curtainAPI.getSiteProperties()
     await this.accounts.curtainAPI.user.loadFromDB()
+    if (this.subscription) {
+      this.subscription.unsubscribe()
+    }
+    this.subscription = this.uniprot.uniprotProgressBar.asObservable().subscribe((data: any) => {
+      this.progressEvent = data
+    })
   }
 
 
