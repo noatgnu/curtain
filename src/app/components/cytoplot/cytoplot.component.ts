@@ -1,12 +1,13 @@
 import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as cytoscape from "cytoscape";
+import * as fcose from "cytoscape-fcose";
 
 // @ts-ignore
 import * as cytoscapeSVG from "cytoscape-svg";
 import {SettingsService} from "../../settings.service";
 
 cytoscape.use(cytoscapeSVG);
-
+cytoscape.use(fcose);
 @Component({
   selector: 'app-cytoplot',
   templateUrl: './cytoplot.component.html',
@@ -58,14 +59,15 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
       if (this.settings.settings.networkInteractionData.length > 0) {
         this.cy.layout({name: "preset"}).run()
       } else {
-        this.cy.layout({name: "cose", maxSimulationTime: 10000}).run()
+        //this.cy.layout({name: "cose", maxSimulationTime: 10000}).run()
+        this.cy.layout({name: "fcose"}).run()
       }
 
     } else {
       this.cy.elements().remove()
       this.cy.add(this._drawData.data)
       this.cy.style(this._drawData.stylesheet)
-      this.cy.layout({name: "cose", maxSimulationTime: 10000}).run()
+      this.cy.layout({name: "fcose"}).run()
     }
 
     const ad = this
