@@ -66,16 +66,7 @@ export class NetworkInteractionsComponent implements OnInit {
   @Input() set genes(value: string[]) {
     const genes: string[] = []
 
-    if (this.cytoplot) {
-      this.previousMap = {}
-      this.saveNetwork()
-    }
-    for (const i of this.settings.settings.networkInteractionData) {
-      this.previousMap[i.data.id] = i
-    }
-    if (!this.settings.settings.networkInteractionData) {
-      this.settings.settings.networkInteractionData = []
-    }
+
 
     if (this.settings.settings.networkInteractionSettings === undefined) {
       this.settings.settings.networkInteractionSettings = {}
@@ -161,6 +152,16 @@ export class NetworkInteractionsComponent implements OnInit {
   }
 
   async getInteractions() {
+    this.previousMap = {}
+    if (this.cytoplot) {
+      this.saveNetwork()
+    }
+    for (const i of this.settings.settings.networkInteractionData) {
+      this.previousMap[i.data.id] = i
+    }
+    if (!this.settings.settings.networkInteractionData) {
+      this.settings.settings.networkInteractionData = []
+    }
     if (this.form.dirty) {
       for (const i in this.form.value) {
         this.settings.settings.networkInteractionSettings[i] = this.form.value[i]
@@ -175,6 +176,7 @@ export class NetworkInteractionsComponent implements OnInit {
     this.currentGenes = {}
     let result: any = {}
     let resultInteractome: any = {}
+    const newNodes: any[] = []
     try {
       result = await getStringDBInteractions(this._genes, this.uniprot.organism, this.form.value.requiredScore*1000, this.form.value.networkType)
       const tempDF = fromCSV(<string>result.data)
@@ -199,7 +201,7 @@ export class NetworkInteractionsComponent implements OnInit {
                 if (this.previousMap[nodeName]) {
                   nodes.push(this.previousMap[nodeName])
                 } else {
-                  nodes.push(
+                  newNodes.push(
                     {data:
                         {
                           id: nodeName,
@@ -253,7 +255,7 @@ export class NetworkInteractionsComponent implements OnInit {
                   if (this.previousMap[nodeName]) {
                     nodes.push(this.previousMap[nodeName])
                   } else {
-                    nodes.push(
+                    newNodes.push(
                       {data:
                           {
                             id: nodeName,
@@ -297,12 +299,21 @@ export class NetworkInteractionsComponent implements OnInit {
       if (this.previousMap["gene-"+n]) {
         nodes.push(this.previousMap["gene-"+n])
       } else {
-        nodes.push({data: {id: "gene-"+n, label: this.geneMap[n], size: 2}, classes: classes})
+        newNodes.push({data: {id: "gene-"+n, label: this.geneMap[n], size: 2}, classes: classes})
       }
 
     }
-    this.nodes = nodes
-    this.result = {data: this.nodes.slice(), stylesheet: this.styles.slice(), id:'networkInteractions'}
+
+
+    this.nodes = nodes.concat(newNodes)
+    const remove: any[] = this.settings.settings.networkInteractionData.filter(r => !nodes.includes(r))
+
+    let fromBase: boolean = false
+    if (this.settings.settings.networkInteractionData.length > 0) {
+      fromBase = true
+    }
+
+    this.result = {data: this.nodes.slice(), add: newNodes.slice(), stylesheet: this.styles.slice(), id:'networkInteractions', remove: remove, fromBase: fromBase}
   }
 
   handleSelect(e: string) {
@@ -384,8 +395,7 @@ export class NetworkInteractionsComponent implements OnInit {
         style: {
           "line-color": "rgba(25,128,128,0.66)",
           width: 1,
-          'curve-style': 'bezier',
-          'control-point-distance':50,
+          "curve-style": "bezier",
           //'line-style': 'dashed'
         }
       },
@@ -407,7 +417,6 @@ export class NetworkInteractionsComponent implements OnInit {
   saveNetwork() {
     if (this.cytoplot) {
       this.settings.settings.networkInteractionData = this.cytoplot.saveJSON()
-      console.log(this.settings.settings.networkInteractionData)
     }
   }
 }
