@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {DataService} from "../../data.service";
 import {DbStringService} from "../../db-string.service";
 import {InteractomeAtlasService} from "../../interactome-atlas.service";
@@ -9,6 +9,7 @@ import {getInteractomeAtlas, getStringDBInteractions} from "curtain-web-api";
 import {AccountsService} from "../../accounts/accounts.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {SettingsService} from "../../settings.service";
+import {CytoplotComponent} from "../cytoplot/cytoplot.component";
 
 @Component({
   selector: 'app-network-interactions',
@@ -16,6 +17,7 @@ import {SettingsService} from "../../settings.service";
   styleUrls: ['./network-interactions.component.scss']
 })
 export class NetworkInteractionsComponent implements OnInit {
+  @ViewChild(CytoplotComponent) cytoplot: CytoplotComponent | undefined
   get requiredScore(): number {
     return this._requiredScore;
   }
@@ -60,8 +62,21 @@ export class NetworkInteractionsComponent implements OnInit {
   styles: any[] = this.createStyles()
   currentEdges: any = {}
   geneMap: any = {}
+  previousMap: any = {}
   @Input() set genes(value: string[]) {
     const genes: string[] = []
+
+    if (this.cytoplot) {
+      this.previousMap = {}
+      this.saveNetwork()
+    }
+    for (const i of this.settings.settings.networkInteractionData) {
+      this.previousMap[i.data.id] = i
+    }
+    if (!this.settings.settings.networkInteractionData) {
+      this.settings.settings.networkInteractionData = []
+    }
+
     if (this.settings.settings.networkInteractionSettings === undefined) {
       this.settings.settings.networkInteractionSettings = {}
       for (const i in this.form.value) {
@@ -105,6 +120,7 @@ export class NetworkInteractionsComponent implements OnInit {
       this._genes = _genes
 
       if (this._genes.length > 2) {
+        console.log(this._genes)
         await this.getInteractions()
       }
     }
@@ -136,7 +152,10 @@ export class NetworkInteractionsComponent implements OnInit {
 
   result: any = {data: this.nodes.slice(), stylesheet: this.styles.slice(), id:'networkInteractions'}
 
-  constructor(private fb: FormBuilder, private settings: SettingsService, private accounts: AccountsService, private scroll: ScrollService, private data: DataService, private dbString: DbStringService, private interac: InteractomeAtlasService, private uniprot: UniprotService) { }
+  constructor(private fb: FormBuilder, private settings: SettingsService, private accounts: AccountsService, private scroll: ScrollService, private data: DataService, private dbString: DbStringService, private interac: InteractomeAtlasService, private uniprot: UniprotService) {
+
+
+  }
 
   ngOnInit(): void {
   }
@@ -160,6 +179,7 @@ export class NetworkInteractionsComponent implements OnInit {
       result = await getStringDBInteractions(this._genes, this.uniprot.organism, this.form.value.requiredScore*1000, this.form.value.networkType)
       const tempDF = fromCSV(<string>result.data)
       if (tempDF.count() > 0) {
+        console.log(tempDF.count())
         for (const r of tempDF) {
           let checked = true
           for (const i in this.otherScore) {
@@ -176,16 +196,21 @@ export class NetworkInteractionsComponent implements OnInit {
               let classes = "edge stringdb"
               if (this._genes.includes(r["preferredName_A"])&&this._genes.includes(r["preferredName_B"])) {
                 this.currentEdges[nodeName] = true
-                nodes.push(
-                  {data:
-                      {
-                        id: nodeName,
-                        source: "gene-"+ r["preferredName_A"],
-                        target: "gene-"+ r["preferredName_B"],
-                        score: r["score"]
-                      }, classes: classes
-                  }
-                )
+                if (this.previousMap[nodeName]) {
+                  nodes.push(this.previousMap[nodeName])
+                } else {
+                  nodes.push(
+                    {data:
+                        {
+                          id: nodeName,
+                          source: "gene-"+ r["preferredName_A"],
+                          target: "gene-"+ r["preferredName_B"],
+                          score: r["score"]
+                        }, classes: classes
+                    }
+                  )
+                }
+
               }
             }
             if (this.geneMap[r["preferredName_A"]]) {
@@ -225,16 +250,21 @@ export class NetworkInteractionsComponent implements OnInit {
                 if (this._genes.includes(r["interactor_A"]["protein_gene_name"])&&this._genes.includes(r["interactor_B"]["protein_gene_name"])){
 
                   this.currentEdges[nodeName] = true
-                  nodes.push(
-                    {data:
-                        {
-                          id: nodeName,
-                          source: "gene-"+r["interactor_A"]["protein_gene_name"],
-                          target: "gene-"+r["interactor_B"]["protein_gene_name"],
-                          score: r["score"]
-                        }, classes: classes
-                    }
-                  )
+                  if (this.previousMap[nodeName]) {
+                    nodes.push(this.previousMap[nodeName])
+                  } else {
+                    nodes.push(
+                      {data:
+                          {
+                            id: nodeName,
+                            source: "gene-"+r["interactor_A"]["protein_gene_name"],
+                            target: "gene-"+r["interactor_B"]["protein_gene_name"],
+                            score: r["score"]
+                          }, classes: classes
+                      }
+                    )
+                  }
+
                 }
               }
               if (this.geneMap[r["interactor_A"]["protein_gene_name"]]) {
@@ -264,7 +294,12 @@ export class NetworkInteractionsComponent implements OnInit {
       } else if (fc < 0) {
         classes = classes + " decrease"
       }
-      nodes.push({data: {id: "gene-"+n, label: this.geneMap[n], size: 2}, classes: classes})
+      if (this.previousMap["gene-"+n]) {
+        nodes.push(this.previousMap["gene-"+n])
+      } else {
+        nodes.push({data: {id: "gene-"+n, label: this.geneMap[n], size: 2}, classes: classes})
+      }
+
     }
     this.nodes = nodes
     this.result = {data: this.nodes.slice(), stylesheet: this.styles.slice(), id:'networkInteractions'}
@@ -315,8 +350,8 @@ export class NetworkInteractionsComponent implements OnInit {
           "text-halign": "center",
           "text-outline-width": "1px",
           "text-outline-color": "rgb(16,10,10)",
-          "height": 100,
-          "width": 100,
+          "height": 20,
+          "width": 20,
         }
       },
       {
@@ -328,8 +363,10 @@ export class NetworkInteractionsComponent implements OnInit {
           "text-halign": "center",
           "text-outline-width": "1px",
           "text-outline-color": "rgb(16,10,10)",
-          "height": 50,
-          "width": 50,
+          "height": 20,
+          "width": 20,
+          "font-size": "6px",
+          "font-family": "Arial, Helvetica, sans-serif",
         }
       },
       {
@@ -346,7 +383,7 @@ export class NetworkInteractionsComponent implements OnInit {
         selector: "edge",
         style: {
           "line-color": "rgba(25,128,128,0.66)",
-          width: 6,
+          width: 1,
           'curve-style': 'bezier',
           'control-point-distance':50,
           //'line-style': 'dashed'
@@ -354,16 +391,23 @@ export class NetworkInteractionsComponent implements OnInit {
       },
       {
         selector: ".stringdb",
-        style: {"line-color": this.settings.settings.networkInteractionSettings["StringDB"], width: 2}
+        style: {"line-color": this.settings.settings.networkInteractionSettings["StringDB"], width: 1}
       },
       {
         selector: ".interactome",
-        style: {"line-color": this.settings.settings.networkInteractionSettings["InteractomeAtlas"], width: 2}
+        style: {"line-color": this.settings.settings.networkInteractionSettings["InteractomeAtlas"], width: 1}
       },
       {
         selector: ".lrrk2",
-        style: {"line-color": "rgb(73,73,101)", width: 2, "line-style": "solid"}
+        style: {"line-color": "rgb(73,73,101)", width: 1, "line-style": "solid"}
       },
     ]
+  }
+
+  saveNetwork() {
+    if (this.cytoplot) {
+      this.settings.settings.networkInteractionData = this.cytoplot.saveJSON()
+      console.log(this.settings.settings.networkInteractionData)
+    }
   }
 }

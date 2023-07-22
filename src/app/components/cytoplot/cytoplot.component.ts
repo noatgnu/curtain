@@ -3,6 +3,7 @@ import * as cytoscape from "cytoscape";
 
 // @ts-ignore
 import * as cytoscapeSVG from "cytoscape-svg";
+import {SettingsService} from "../../settings.service";
 
 cytoscape.use(cytoscapeSVG);
 
@@ -13,6 +14,7 @@ cytoscape.use(cytoscapeSVG);
 })
 export class CytoplotComponent implements OnInit, AfterViewInit {
   @Output() clickedID = new EventEmitter<string>()
+  @Output() ready = new EventEmitter<boolean>()
   cy: any
   componentID: string = "cy"
   get drawData(): any {
@@ -30,9 +32,9 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
         }, 3000)
       }
     }
-
   }
-  constructor() { }
+
+  constructor(private settings: SettingsService) { }
 
   ngOnInit(): void {
 
@@ -45,17 +47,32 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
     console.log(this._drawData)
     const container = document.getElementById(this._drawData.id)
     console.log(container)
-    this.cy = cytoscape(
-      {
-        container: container,
-        elements: this.drawData.data,
-        style: this.drawData.stylesheet
+    if (!this.cy) {
+      this.cy = cytoscape(
+        {
+          container: container,
+          elements: this._drawData.data,
+          style: this._drawData.stylesheet
+        }
+      )
+      if (this.settings.settings.networkInteractionData.length > 0) {
+        this.cy.layout({name: "preset"}).run()
+      } else {
+        this.cy.layout({name: "cose", maxSimulationTime: 10000}).run()
       }
-    )
+
+    } else {
+      this.cy.elements().remove()
+      this.cy.add(this._drawData.data)
+      this.cy.style(this._drawData.stylesheet)
+      this.cy.layout({name: "cose", maxSimulationTime: 10000}).run()
+    }
 
     const ad = this
+    this.cy.ready(() => {
+      ad.ready.emit(true)
+    })
 
-    this.cy.layout({name: "cose", maxSimulationTime: 10000}).run()
     for (const n of this.cy.nodes()) {
       n.bind("click", function (event:any) {
         ad.clickedID.emit(event.target.id())
@@ -81,5 +98,9 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url)
+  }
+
+  saveJSON() {
+    return this.cy.elements().jsons()
   }
 }

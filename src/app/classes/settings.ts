@@ -63,4 +63,5 @@ export class Settings {
     "InteractomeAtlas": "rgb(73,73,101)",
   }
   plotFontFamily: string = "Arial"
+  networkInteractionData: any[] = []
 }
