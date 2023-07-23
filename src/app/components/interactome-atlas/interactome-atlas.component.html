@@ -6,7 +6,7 @@
   <div class="col-8">
     <div class="card">
       <div class="card-body">
-        <app-cytoplot *ngIf="hasError === false" #cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
+        <app-cytoplot *ngIf="hasError === false" [dimensions]="{width: 1200, height: 700}" #cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
         <div class="card bg-danger" *ngIf="hasError===true">
           <div class="card-body">
             <p class="text-danger">No data found</p>
