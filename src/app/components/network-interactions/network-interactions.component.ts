@@ -166,7 +166,6 @@ export class NetworkInteractionsComponent implements OnInit {
       for (const i in this.form.value) {
         this.settings.settings.networkInteractionSettings[i] = this.form.value[i]
       }
-      console.log(this.settings.settings.networkInteractionSettings)
       this.styles = [...this.createStyles()]
       this.form.markAsPristine()
     }
