@@ -80,6 +80,7 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
         //this.cy.layout({name: "cose", maxSimulationTime: 10000}).run()
         this.cy.layout({name: "fcose", animationDuraction: 0}).run()
       }
+
       /*      let defaults = {
               menuRadius: function(ele:any){ return 100; }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
               selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
@@ -133,22 +134,22 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
       if (this._drawData.add.length > 0) {
         const newNodes = this.cy.add(this._drawData.add)
         newNodes.layout({name: "fcose"}).run()
+        for (const n of newNodes) {
+          n.bind("click", function (event:any) {
+            ad.clickedID.emit(event.target.id())
+          })
+        }
+
       }
 
       this.cy.style().clear().fromJson(this._drawData.stylesheet).update()
     }
 
-    /*    for (const n of this.cy.nodes()) {
-          n.bind("click", function (event:any) {
-            ad.clickedID.emit(event.target.id())
-          })
-        }
-        for (const n of this.cy.edges()) {
-          n.bind("click", function (event:any) {
-            ad.clickedID.emit(event.target.id())
-          })
-        }
-        console.log(this.cy)*/
+    for (const n of this.cy.edges()) {
+      n.bind("click", function (event:any) {
+        ad.clickedID.emit(event.target.id())
+      })
+    }
   }
 
   download() {
