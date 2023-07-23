@@ -10,6 +10,7 @@ import {AccountsService} from "../../accounts/accounts.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {SettingsService} from "../../settings.service";
 import {CytoplotComponent} from "../cytoplot/cytoplot.component";
+import {ToastService} from "../../toast.service";
 
 @Component({
   selector: 'app-network-interactions',
@@ -65,8 +66,6 @@ export class NetworkInteractionsComponent implements OnInit {
   previousMap: any = {}
   @Input() set genes(value: string[]) {
     const genes: string[] = []
-
-
 
     if (this.settings.settings.networkInteractionSettings === undefined) {
       this.settings.settings.networkInteractionSettings = {}
@@ -143,7 +142,7 @@ export class NetworkInteractionsComponent implements OnInit {
 
   result: any = {data: this.nodes.slice(), stylesheet: this.styles.slice(), id:'networkInteractions'}
 
-  constructor(private fb: FormBuilder, private settings: SettingsService, private accounts: AccountsService, private scroll: ScrollService, private data: DataService, private dbString: DbStringService, private interac: InteractomeAtlasService, private uniprot: UniprotService) {
+  constructor(private toast: ToastService, private fb: FormBuilder, private settings: SettingsService, private accounts: AccountsService, private scroll: ScrollService, private data: DataService, private dbString: DbStringService, private interac: InteractomeAtlasService, private uniprot: UniprotService) {
 
 
   }
@@ -156,6 +155,7 @@ export class NetworkInteractionsComponent implements OnInit {
     if (this.cytoplot) {
       this.saveNetwork()
     }
+    this.toast.show("Interaction network", "Getting network interaction data").then()
     for (const i of this.settings.settings.networkInteractionData) {
       this.previousMap[i.data.id] = i
     }
@@ -178,6 +178,7 @@ export class NetworkInteractionsComponent implements OnInit {
     let resultInteractome: any = {}
     const newNodes: any[] = []
     try {
+      this.toast.show("Interaction network", "Getting StringDB data").then()
       result = await getStringDBInteractions(this._genes, this.uniprot.organism, this.form.value.requiredScore*1000, this.form.value.networkType)
       const tempDF = fromCSV(<string>result.data)
       if (tempDF.count() > 0) {
@@ -230,6 +231,7 @@ export class NetworkInteractionsComponent implements OnInit {
     }
     try {
       //const resultInteractome = await getInteractomeAtlas(this._genes, "query_query")
+      this.toast.show("Interaction network", "Getting Interactome Atlas data").then()
       let resultInteractome = await this.accounts.curtainAPI.postInteractomeAtlasProxy(this._genes, "query_query")
       resultInteractome.data = JSON.parse(resultInteractome.data)
       if (resultInteractome.data["all_interactions"]) {
@@ -299,7 +301,7 @@ export class NetworkInteractionsComponent implements OnInit {
       if (this.previousMap["gene-"+n]) {
         nodes.push(this.previousMap["gene-"+n])
       } else {
-        newNodes.push({data: {id: "gene-"+n, label: this.geneMap[n], size: 2}, classes: classes})
+        newNodes.push({data: {id: "gene-"+n, label: this.geneMap[n].split(";")[0], size: 2}, classes: classes})
       }
 
     }
@@ -312,7 +314,7 @@ export class NetworkInteractionsComponent implements OnInit {
     if (this.settings.settings.networkInteractionData.length > 0) {
       fromBase = true
     }
-
+    this.toast.show("Interaction network", `Adding ${newNodes.length} objects while removing ${remove.length} objects`).then()
     this.result = {data: this.nodes.slice(), add: newNodes.slice(), stylesheet: this.styles.slice(), id:'networkInteractions', remove: remove, fromBase: fromBase}
   }
 
@@ -351,6 +353,7 @@ export class NetworkInteractionsComponent implements OnInit {
   }
 
   createStyles() {
+
     return [
       {
         selector: "node", style: {
@@ -417,6 +420,7 @@ export class NetworkInteractionsComponent implements OnInit {
   saveNetwork() {
     if (this.cytoplot) {
       this.settings.settings.networkInteractionData = this.cytoplot.saveJSON()
+      this.toast.show("Interaction network", "Updated network data").then()
     }
   }
 }

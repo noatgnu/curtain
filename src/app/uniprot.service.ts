@@ -36,6 +36,7 @@ export class UniprotService {
       }
       if (currentSegment !== r.segment) {
         totalRun = totalRun + Math.ceil(r.total/500)
+
         currentSegment = r.segment
       }
 
