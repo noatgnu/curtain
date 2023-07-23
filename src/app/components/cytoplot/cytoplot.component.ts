@@ -54,7 +54,8 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
         {
           container: container,
           elements: this._drawData.data,
-          style: this._drawData.stylesheet
+          style: this._drawData.stylesheet,
+          wheelSensitivity: 0.1,
         }
       )
       if (this._drawData.fromBase) {

@@ -35,6 +35,7 @@
     "cytoscape": "^3.21.1",
     "cytoscape-cxtmenu": "^3.5.0",
     "cytoscape-fcose": "^2.2.0",
+    "cytoscape-panzoom": "^2.5.3",
     "cytoscape-svg": "^0.4.0",
     "data-forge": "^1.9.5",
     "jeezy": "^1.13.1",
