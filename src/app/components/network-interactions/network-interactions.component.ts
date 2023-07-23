@@ -95,7 +95,7 @@ export class NetworkInteractionsComponent implements OnInit {
         }
       }
     }
-    if (genes.length > 2) {
+    if (genes.length > 1) {
       const _genes: string[] = []
       for (const v of genes) {
         const g = v.split(";")[0]
@@ -109,7 +109,7 @@ export class NetworkInteractionsComponent implements OnInit {
       }
       this._genes = _genes
 
-      if (this._genes.length > 2) {
+      if (this._genes.length > 1) {
         console.log(this._genes)
         await this.getInteractions()
       }
