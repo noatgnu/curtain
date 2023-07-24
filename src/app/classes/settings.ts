@@ -50,7 +50,6 @@ export class Settings {
   interactomeAtlasColorMap: any = {
     "Increase": "#a12323",
     "Decrease": "#16458c",
-    "No change": "rgba(47,39,40,0.96)",
     "HI-Union": "rgba(82,110,194,0.96)",
     "Literature": "rgba(181,151,222,0.96)",
     "HI-Union and Literature": "rgba(222,178,151,0.96)",
@@ -60,6 +59,9 @@ export class Settings {
     "Increase": "rgba(220,169,0,0.96)",
     "Decrease": "rgba(220,0,59,0.96)",
     "StringDB": "rgb(206,128,128)",
+    "No change": "rgba(47,39,40,0.96)",
+    "Not significant": "rgba(255,255,255,0.96)",
+    "Significant": "rgba(252,107,220,0.96)",
     "InteractomeAtlas": "rgb(73,73,101)",
   }
   plotFontFamily: string = "Arial"
