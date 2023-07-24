@@ -77,8 +77,13 @@ export class NetworkInteractionsComponent implements OnInit {
       }
     } else {
       for (const i in this.colorMap) {
-        this.settings.settings.networkInteractionSettings[i] = this.colorMap[i].slice()
-        this.form.controls[i].setValue(this.colorMap[i])
+        if (!(i in this.settings.settings.networkInteractionSettings)) {
+          this.settings.settings.networkInteractionSettings[i] = this.colorMap[i].slice()
+        } else {
+          this.form.controls[i].setValue(this.settings.settings.networkInteractionSettings[i])
+        }
+
+
       }
     }
     this.getGenes(value, genes).then();
