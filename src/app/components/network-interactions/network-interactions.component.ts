@@ -406,6 +406,11 @@ export class NetworkInteractionsComponent implements OnInit {
         }
       },
       {
+        selector: ".noChange", style: {
+          "background-color": this.settings.settings.networkInteractionSettings["No change"]
+        }
+      },
+      {
         selector: ".significant", style: {
           "color": this.settings.settings.networkInteractionSettings["Significant"]
         }
