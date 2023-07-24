@@ -60,7 +60,7 @@ export class NetworkInteractionsComponent implements OnInit {
   nodes: any[] = []
   currentGenes: any = {}
   edgeDataMap: any = {}
-  styles: any[] = this.createStyles()
+  styles: any[] = []
   currentEdges: any = {}
   geneMap: any = {}
   previousMap: any = {}
@@ -76,10 +76,8 @@ export class NetworkInteractionsComponent implements OnInit {
         }
       }
     } else {
-      for (const i in this.settings.settings.networkInteractionSettings) {
-        if (i in this.colorMap) {
-          this.colorMap[i] = this.settings.settings.networkInteractionSettings[i].slice()
-        }
+      for (const i in this.colorMap) {
+        this.settings.settings.networkInteractionSettings[i] = this.colorMap[i].slice()
         this.form.controls[i].setValue(this.colorMap[i])
       }
     }
@@ -172,10 +170,9 @@ export class NetworkInteractionsComponent implements OnInit {
       for (const i in this.form.value) {
         this.settings.settings.networkInteractionSettings[i] = this.form.value[i]
       }
-      this.styles = [...this.createStyles()]
       this.form.markAsPristine()
     }
-    console.log(this.styles)
+    this.styles = [...this.createStyles()]
     const nodes: any[] = []
     this.currentEdges = {}
     this.currentGenes = {}
@@ -383,7 +380,7 @@ export class NetworkInteractionsComponent implements OnInit {
       {
         selector: ".genes", style: {
           label: "data(label)",
-          "background-color": "rgba(139,0,220,0.96)",
+          //"background-color": "rgba(139,0,220,0.96)",
           "color": "#fffffe",
           "text-valign": "center",
           "text-halign": "center",

@@ -453,7 +453,7 @@ export class HomeComponent implements OnInit {
     } else {
       this.data.differential = new InputFile(fromCSV(object.processed), "processedFile.txt", object.processed)
     }
-    object.settings.version = 2
+    this.settings.settings = new Settings()
     for (const i in object.settings) {
       if (i !== "currentID") {
         // @ts-ignore
