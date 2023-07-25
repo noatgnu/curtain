@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as cytoscape from "cytoscape";
 import * as fcose from "cytoscape-fcose";
+import {saveAs} from "file-saver";
 //import * as cxtmenu from "cytoscape-cxtmenu";
 
 
@@ -164,6 +165,16 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url)*/
+    const pngContent = this.cy.png({full:true, scale: 10, bg: "#FFFFFF", output: "blob"})
+    const url = window.URL.createObjectURL(pngContent);
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "cytoplot.png"
+    document.body.appendChild(a)
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url)
+
   }
 
   saveJSON() {
