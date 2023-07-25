@@ -6,12 +6,12 @@ import * as fcose from "cytoscape-fcose";
 
 
 // @ts-ignore
-import * as cytoscapeSVG from "cytoscape-svg";
+//import * as cytoscapeSVG from "cytoscape-svg";
 // @ts-ignore
 //import * as panzoom from "cytoscape-panzoom";
 import {SettingsService} from "../../settings.service";
 
-cytoscape.use(cytoscapeSVG);
+//cytoscape.use(cytoscapeSVG);
 cytoscape.use(fcose);
 //cytoscape.use(cxtmenu);
 @Component({
@@ -153,7 +153,7 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
   }
 
   download() {
-    const svgContent = this.cy.svg({full:true})
+/*    const svgContent = this.cy.svg({full:true})
     console.log(svgContent)
     const blob = new Blob([svgContent], {type:"image/svg+xml;charset=utf-8"});
     const url = window.URL.createObjectURL(blob);
@@ -163,7 +163,7 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
     document.body.appendChild(a)
     a.click();
     document.body.removeChild(a);
-    window.URL.revokeObjectURL(url)
+    window.URL.revokeObjectURL(url)*/
   }
 
   saveJSON() {
