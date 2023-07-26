@@ -1,0 +1,26 @@
+<div class="modal-header">
+  <h5 class="modal-title">Enrichr</h5>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form">
+    <div class="form-group">
+      <label for="selectedSet">Study gene list</label>
+      <select id="selectedSet" formControlName="selectedSet" class="form-control">
+        <option *ngFor="let s of data.selectOperationNames" [value]="s">{{s}}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="background">Background list</label>
+      <select id="background" formControlName="backgroundSet" class="form-control">
+        <option [value]="'All Genes'">All genes</option>
+        <option *ngFor="let s of data.selectOperationNames" [value]="s">{{s}}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="library">Geneset library</label>
+      <select id="library" formControlName="library">
+        <option *ngFor="let l of libraries" [value]="l">{{l}}</option>
+      </select>
+    </div>
+  </form>
+</div>
