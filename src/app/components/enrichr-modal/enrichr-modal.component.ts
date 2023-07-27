@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {Enrichr} from "enrichrjs";
 import {DataService} from "../../data.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {UniprotService} from "../../uniprot.service";
 
 @Component({
   selector: 'app-enrichr-modal',
@@ -17,7 +19,7 @@ export class EnrichrModalComponent implements OnInit {
     library:[''],
   })
 
-  constructor(public data: DataService, private fb: FormBuilder) {
+  constructor(public data: DataService, private fb: FormBuilder, private modal: NgbActiveModal, private uniprot: UniprotService) {
     this.enrichr.getLibraries().then((data: any) => {
       for (const i in data) {
         this.libraries.push(i)
@@ -30,4 +32,46 @@ export class EnrichrModalComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  submit() {
+    const selectedList: string[] = []
+    this.data.selectedMap.forEach((value: any, key: string) => {
+      for (const v in value) {
+        if (v === this.form.value['selectedSet']) {
+          const uni = this.uniprot.getUniprotFromPrimary(key)
+          if (uni) {
+            selectedList.push(uni["Gene Names"].split(";")[0])
+          }
+        }
+      }
+    })
+    let backgroundList: string[] = []
+    if (this.form.value['backgroundSet'] === 'All Genes') {
+      backgroundList = this.data.allGenes.slice().map((value: any) => {
+        return value.split(";")[0]
+      })
+    } else {
+      this.data.selectedMap.forEach((value: any, key: string) => {
+        for (const v in value) {
+          if (v === this.form.value['backgroundSet']) {
+            const uni = this.uniprot.getUniprotFromPrimary(key)
+            if (uni) {
+              selectedList.push(uni["Gene Names"].split(";")[0])
+            }
+          }
+        }
+      })
+    }
+
+    this.enrichr.addList(selectedList, this.form.value["selectedSet"]).then((geneList) => {
+      this.enrichr.addBackgroundList(backgroundList).then((background) => {
+        this.enrichr.getEnrichmentResults(geneList.userListId, background.backgroundid, this.form.value['library']).then((data: any) => {
+          console.log(data)
+        })
+      })
+    })
+  }
+
+  close() {
+    this.modal.dismiss()
+  }
 }

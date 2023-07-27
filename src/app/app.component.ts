@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {AccountsService} from "./accounts/accounts.service";
+import {Enrichr} from "enrichrjs";
 
 @Component({
   selector: 'app-root',
@@ -15,5 +16,9 @@ export class AppComponent {
       const code = path.split("=")
       this.accounts.ORCIDLogin(code[1]).then((data: any) => {})
     }
+    this.testEnrichr().then()
+  }
+
+  async testEnrichr() {
   }
 }

@@ -31,7 +31,6 @@ import {ColorPickerModule} from "ngx-color-picker";
 import { QuickNavigationComponent } from './components/quick-navigation/quick-navigation.component';
 import { ProfilePlotComponent } from './components/profile-plot/profile-plot.component';
 import { ProfileCompareComponent } from './components/profile-compare/profile-compare.component';
-import { ExperimentalArtComponent } from './components/experimental-art/experimental-art.component';
 import { CorrelationMatrixComponent } from './components/correlation-matrix/correlation-matrix.component';
 import { ToastContainerComponent } from './components/toast-container/toast-container.component';
 import { CitationComponent } from './components/citation/citation.component';
@@ -88,7 +87,6 @@ PlotlyModule.plotlyjs = PlotlyJS;
     QuickNavigationComponent,
     ProfilePlotComponent,
     ProfileCompareComponent,
-    ExperimentalArtComponent,
     CorrelationMatrixComponent,
     ToastContainerComponent,
     CitationComponent,
