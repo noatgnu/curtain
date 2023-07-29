@@ -68,7 +68,7 @@
               <button ngbDropdownItem (click)="clearSelections()">Clear Selections</button>
               <button ngbDropdownItem (click)="web.downloadFile('different.txt', data.differential.originalFile)">Download Differential Analysis File</button>
               <button ngbDropdownItem (click)="web.downloadFile('raw.txt', data.raw.originalFile)">Download Raw File</button>
-
+              <button ngbDropdownItem (click)="openEnrichrModal()">Enrichr</button>
 <!--              <button ngbDropdownItem (click)="openQRCode()" *ngIf="settings.settings.currentID !== ''">Session QR Code</button>-->
 
               <!--<button ngbDropdownItem (click)="downloadAll()">

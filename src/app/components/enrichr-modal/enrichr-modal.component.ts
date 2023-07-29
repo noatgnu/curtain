@@ -16,6 +16,7 @@ export class EnrichrModalComponent implements OnInit {
   form: FormGroup = this.fb.group({
     selectedSet:[""],
     backgroundSet:['All Genes'],
+    userBackgroundSet: [false],
     library:[''],
   })
 
@@ -34,8 +35,8 @@ export class EnrichrModalComponent implements OnInit {
 
   submit() {
     const selectedList: string[] = []
-    this.data.selectedMap.forEach((value: any, key: string) => {
-      for (const v in value) {
+    for (const key in this.data.selectedMap) {
+      for (const v in this.data.selectedMap[key]) {
         if (v === this.form.value['selectedSet']) {
           const uni = this.uniprot.getUniprotFromPrimary(key)
           if (uni) {
@@ -43,31 +44,57 @@ export class EnrichrModalComponent implements OnInit {
           }
         }
       }
-    })
+    }
     let backgroundList: string[] = []
     if (this.form.value['backgroundSet'] === 'All Genes') {
       backgroundList = this.data.allGenes.slice().map((value: any) => {
         return value.split(";")[0]
       })
     } else {
-      this.data.selectedMap.forEach((value: any, key: string) => {
-        for (const v in value) {
+      for (const key in this.data.selectedMap) {
+        for (const v in this.data.selectedMap[key]) {
           if (v === this.form.value['backgroundSet']) {
             const uni = this.uniprot.getUniprotFromPrimary(key)
             if (uni) {
-              selectedList.push(uni["Gene Names"].split(";")[0])
+              backgroundList.push(uni["Gene Names"].split(";")[0])
             }
           }
         }
-      })
+      }
     }
 
     this.enrichr.addList(selectedList, this.form.value["selectedSet"]).then((geneList) => {
-      this.enrichr.addBackgroundList(backgroundList).then((background) => {
-        this.enrichr.getEnrichmentResults(geneList.userListId, background.backgroundid, this.form.value['library']).then((data: any) => {
-          console.log(data)
+      if (this.form.value['userBackgroundSet']) {
+        this.enrichr.addBackgroundList(backgroundList).then((background) => {
+          this.enrichr.getEnrichmentResults(geneList.userListId, background.backgroundid, "").then((data: any) => {
+            console.log(data)
+          })
         })
-      })
+      } else {
+        this.enrichr.getEnrichmentResults(geneList.userListId, "", this.form.value.library.replace(/ /g, "_")).then((data: any) => {
+          const geneRankMap: any = {}
+          for (const i in data) {
+            for (const res of data[i]) {
+              for (const gene of res[5]) {
+                if (!geneRankMap[gene]) {
+                  geneRankMap[gene] = {}
+                }
+                if (!geneRankMap[gene][i]) {
+                  geneRankMap[gene][i] = {}
+                }
+                geneRankMap[gene][i][res[1]] = {
+                  rank: res[0],
+                  termName: res[1],
+                  pValue: res[2],
+                  adjustedpValue: res[6],
+                }
+              }
+            }
+          }
+          this.modal.close({geneRankMap, library: this.form.value.library.replace(/ /g, "_")})
+        })
+      }
+
     })
   }
 

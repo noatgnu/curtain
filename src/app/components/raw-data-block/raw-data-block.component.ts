@@ -21,6 +21,9 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
   foundIn: string[] = []
   active = 2
   selfCheck = false
+  enrichrData: any = null
+  enrichrRunNameList: string[] = []
+  enrichrTermList: string[] = []
   @Input() set data(value: any) {
     this._data = value
 
@@ -47,6 +50,16 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
       if (this.uni) {
         if (this.uni["Gene Names"] !== "") {
           this.title = this.uni["Gene Names"]
+          const gene = this.uni["Gene Names"].split(";")[0]
+          if (this.settings.settings.enrichrGeneRankMap[gene]) {
+            this.enrichrData = this.settings.settings.enrichrGeneRankMap[gene]
+            this.enrichrRunNameList = Object.keys(this.enrichrData)
+            let terms: string[] = []
+            for (const i of this.enrichrRunNameList) {
+              terms = terms.concat(Object.keys(this.enrichrData[i]))
+            }
+            this.enrichrTermList = [...new Set(terms)]
+          }
         }
       }
     }
@@ -62,7 +75,23 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
   constructor(private scroll: ScrollService, public dataService: DataService, private uniprot: UniprotService, private modal: NgbModal, private settings: SettingsService, private fb: FormBuilder) {
     this.dataService.finishedProcessingData.asObservable().subscribe((value) => {
       if (value) {
-        this.foundIn = Object.keys(this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]])
+        if (this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]]) {
+          this.foundIn = Object.keys(this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]])
+        }
+      }
+      if (this.uni) {
+        if (this.uni["Gene Names"] !== "") {
+          const gene = this.uni["Gene Names"].split(";")[0]
+          if (this.settings.settings.enrichrGeneRankMap[gene]) {
+            this.enrichrData = this.settings.settings.enrichrGeneRankMap[gene]
+            this.enrichrRunNameList = Object.keys(this.enrichrData)
+            let terms: string[] = []
+            for (const i of this.enrichrRunNameList) {
+              terms = terms.concat(Object.keys(this.enrichrData[i]))
+            }
+            this.enrichrTermList = [...new Set(terms)]
+          }
+        }
       }
     })
 

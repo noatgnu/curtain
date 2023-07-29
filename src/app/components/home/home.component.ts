@@ -35,6 +35,7 @@ import {
 import {SaveStateService} from "../../save-state.service";
 import {LocalSessionStateModalComponent} from "../local-session-state-modal/local-session-state-modal.component";
 import {Subscription} from "rxjs";
+import {EnrichrModalComponent} from "../enrichr-modal/enrichr-modal.component";
 
 @Component({
   selector: 'app-home',
@@ -163,8 +164,6 @@ export class HomeComponent implements OnInit {
         }
       }
       this.finished = true
-      console.log(this.finished)
-      console.log(this.settings.settings.currentID)
     }
   }
 
@@ -596,6 +595,21 @@ export class HomeComponent implements OnInit {
 
   openStateModal() {
     const ref = this.modal.open(LocalSessionStateModalComponent, {scrollable: true})
+  }
+
+  openEnrichrModal() {
+    const ref = this.modal.open(EnrichrModalComponent, {scrollable: true})
+    ref.closed.subscribe(data => {
+      if (data) {
+        for (const i in data.geneRankMap) {
+          this.settings.settings.enrichrGeneRankMap[i] = data.geneRankMap[i]
+        }
+        this.settings.settings.enrichrRunList.push(data.library)
+        console.log(this.settings.settings.enrichrGeneRankMap)
+        console.log(this.settings.settings.enrichrRunList)
+        this.data.finishedProcessingData.next(true)
+      }
+    })
   }
 }
 

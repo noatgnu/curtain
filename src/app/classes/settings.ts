@@ -66,4 +66,6 @@ export class Settings {
   }
   plotFontFamily: string = "Arial"
   networkInteractionData: any[] = []
+  enrichrGeneRankMap: any = {}
+  enrichrRunList: string[] = []
 }

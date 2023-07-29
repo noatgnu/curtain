@@ -21,6 +21,52 @@
     </div>
   </div>
 </form>
+<div class="p-2">
+  <form [formGroup]="sortForm">
+    Sort settings
+    <div class="d-flex">
+      <div class="p-2 form-group">
+        <select formControlName="key" class="form-control">
+          <option [value]="'Gene Names'">
+            Gene Names
+          </option>
+          <option [value]="'Primary IDs'">
+            Primary IDs
+          </option>
+          <option [value]="'Fold Change'">
+            Fold Change
+          </option>
+          <option [value]="'P-Value'">
+            P-Value
+          </option>
+          <option *ngIf="settings.settings.enrichrRunList.length > 0" [value]="'Enrichr'">
+            Enrichr
+          </option>
+        </select>
+      </div>
+      <div class="p-2 form-group">
+        <select formControlName="order" class="form-control">
+          <option [value]="'asc'">
+            Ascending
+          </option>
+          <option [value]="'desc'">
+            Descending
+          </option>
+        </select>
+      </div>
+      <div class="p-2 form-group" *ngIf="sortForm.value['key']==='Enrichr'">
+        <select formControlName="enrichrRun" class="form-control">
+          <option *ngFor="let run of settings.settings.enrichrRunList" [value]="run">
+            {{run}}
+          </option>
+        </select>
+      </div>
+      <div class="p-2">
+        <button class="btn btn-primary" (click)="sort()">Sort</button>
+      </div>
+    </div>
+  </form>
+</div>
 <!--<div class="card bg-warning">
   <div class="card-body">
     <p>
@@ -31,12 +77,21 @@
 <hr>
 
 <div *ngIf="displayDF.count() > 0; else noData">
-  <ngb-pagination [(page)]="dataService.page" [boundaryLinks]="true" [maxSize]="10" [rotate]="true" [pageSize]="dataService.pageSize" [collectionSize]="displayDF.count()"></ngb-pagination>
+  <div class="d-flex">
+    <div class="p-2">
+      <ngb-pagination [(page)]="dataService.page" [boundaryLinks]="true" [maxSize]="10" [rotate]="true" [pageSize]="dataService.pageSize" [collectionSize]="displayDF.count()"></ngb-pagination>
+    </div>
+
+  </div>
   <hr>
   <ng-container *ngFor="let r of displayDF.toArray()|slice: (dataService.page-1) * dataService.pageSize: dataService.page* dataService.pageSize">
     <app-raw-data-block class="mb-2" [data]="r"></app-raw-data-block>
   </ng-container>
-  <ngb-pagination [(page)]="dataService.page" [boundaryLinks]="true" [maxSize]="10" [rotate]="true" [pageSize]="dataService.pageSize" [collectionSize]="displayDF.count()"></ngb-pagination>
+  <div class="d-flex">
+    <div class="p-2">
+      <ngb-pagination [(page)]="dataService.page" [boundaryLinks]="true" [maxSize]="10" [rotate]="true" [pageSize]="dataService.pageSize" [collectionSize]="displayDF.count()"></ngb-pagination>
+    </div>
+  </div>
 </div>
 <ng-template #noData>
   <div class="card">

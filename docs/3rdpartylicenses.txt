@@ -376,6 +376,9 @@ MIT
 encode-utf8
 MIT
 
+enrichrjs
+MIT
+
 events
 MIT
 MIT
