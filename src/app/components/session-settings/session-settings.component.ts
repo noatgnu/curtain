@@ -28,8 +28,8 @@ export class SessionSettingsComponent implements OnInit {
         this.owners = data.data["owners"]
       })
       for (const i in data.data) {
-        if (i in this.form.value) {
-          this.form.controls[i].setValue(data[i])
+        if (i in this.form.controls) {
+          this.form.controls[i].setValue(data.data[i])
         }
       }
     })
@@ -38,7 +38,7 @@ export class SessionSettingsComponent implements OnInit {
     return this._currretID
   }
   form = this.fb.group({
-    enable: [false,],
+    enable: [this.data.session.enable,],
     update_content: [false,],
     temporary_link_lifetime: [1,],
     additionalOwner: ["",]

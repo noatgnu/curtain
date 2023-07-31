@@ -284,6 +284,7 @@ export class HomeComponent implements OnInit {
       if (data.data) {
         this.data.session = data.data
         this.settings.settings.currentID = data.data.link_id
+        console.log(this.data.session)
         this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
         this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
       }
