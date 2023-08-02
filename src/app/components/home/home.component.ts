@@ -43,6 +43,7 @@ import {EnrichrModalComponent} from "../enrichr-modal/enrichr-modal.component";
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+  GDPR: boolean = false
   finished: boolean = false
   rawFiltered: IDataFrame = new DataFrame()
   uniqueLink: string = ""
@@ -54,6 +55,14 @@ export class HomeComponent implements OnInit {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
+
+    if (localStorage.getItem("GDPR") === "true") {
+      this.GDPR = false
+    } else {
+      this.GDPR = true
+    }
+
+
     this.initialize().then(
       () => {
         this.route.params.subscribe(params => {
@@ -611,6 +620,11 @@ export class HomeComponent implements OnInit {
         this.data.finishedProcessingData.next(true)
       }
     })
+  }
+
+  closeGDPR() {
+    this.GDPR = false
+    localStorage.setItem("GDPR", "true")
   }
 }
 
