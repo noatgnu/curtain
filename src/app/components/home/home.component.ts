@@ -487,8 +487,8 @@ export class HomeComponent implements OnInit {
 
   openProfileCompare() {
     const ref = this.modal.open(ProfileCompareComponent, {size: "xl"})
-    if ( this.data.selectedComparison.length > 0) {
-      ref.componentInstance.selected = this.data.selectedComparison
+    if ( this.settings.settings.selectedComparison.length > 0) {
+      ref.componentInstance.selected = this.settings.settings.selectedComparison
     }
 
     ref.componentInstance.data = this.data.raw.df

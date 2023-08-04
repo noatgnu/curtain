@@ -53,7 +53,7 @@ export class DataSelectionManagementComponent implements OnInit {
         if (textAnnotationList.includes(s)) {
           f.controls["annotate"].setValue(true)
         }
-        if (this.data.selectedComparison.includes(s)) {
+        if (this.settings.settings.selectedComparison.includes(s)) {
           f.controls["profilePlot"].setValue(true)
         }
         f.markAsPristine()
@@ -84,10 +84,10 @@ export class DataSelectionManagementComponent implements OnInit {
             if (this.primaryIDForms[s][p].value["remove"]) {
               delete this.data.selectedMap[p][s]
             } else {
-              if (this.primaryIDForms[s][p].value["profilePlot"] && !this.data.selectedComparison.includes(p)) {
-                this.data.selectedComparison.push(p)
-              } else if (!this.primaryIDForms[s][p].value["profilePlot"] && this.data.selectedComparison.includes(p)) {
-                this.data.selectedComparison.splice(this.data.selectedComparison.indexOf(p), 1)
+              if (this.primaryIDForms[s][p].value["profilePlot"] && !this.settings.settings.selectedComparison.includes(p)) {
+                this.settings.settings.selectedComparison.push(p)
+              } else if (!this.primaryIDForms[s][p].value["profilePlot"] && this.settings.settings.selectedComparison.includes(p)) {
+                this.settings.settings.selectedComparison.splice(this.settings.settings.selectedComparison.indexOf(p), 1)
               }
               if (this.primaryIDForms[s][p].value["annotate"]) {
                 annotateList.push(p)

@@ -25,6 +25,7 @@
                     {{c}}
                   </option>
                 </select>
+                <small class="text-muted">Unique and should contain UniProt Accession ID for Curtain to obtain extra metadata.</small>
               </div>
               <div class="col-3" *ngIf="data.fetchUniprot === false">
                 <label for="geneNames">Select Gene Names</label>
@@ -93,6 +94,7 @@
                     {{c}}
                   </option>
                 </select>
+                <small class="text-muted">Unique and should be the same as differential analysis primary ID column</small>
               </div>
               <div class="col-3">
                 <label for="samples">Select Samples</label>
@@ -101,6 +103,7 @@
                     {{c}}
                   </option>
                 </select>
+                <small class="text-muted">Sample column names in format "condition"."replicate"</small>
               </div>
             </div>
           </div>

@@ -35,7 +35,7 @@ export class SaveStateService {
     }
 
     const state: any = {
-      settings, data, currentID: this.settings.settings.currentID, selectedComparison: this.data.selectedComparison, date: Date.now(), id: stateNumber
+      settings, data, currentID: this.settings.settings.currentID, date: Date.now(), id: stateNumber
     }
     localStorage.setItem("SaveState"+stateNumber, JSON.stringify(state))
     localStorage.setItem("SaveStateNumber", (parseInt(stateNumber)+1).toString())
@@ -53,7 +53,6 @@ export class SaveStateService {
     this.data.selectedMap = loadedState.data.selectedMap
     this.data.selected = loadedState.data.selected
     this.data.selectOperationNames = loadedState.data.selectOperationNames
-    this.data.selectedComparison = loadedState.selectedComparison
 
     for (const s in loadedState.settings) {
       if (s in this.settings.settings && s !== "currentID"){
@@ -109,7 +108,7 @@ export class SaveStateService {
       }
     }
     const state: any = {
-      settings, data, currentID: this.settings.settings.currentID, selectedComparison: this.data.differentialForm.comparisonSelect, date: Date.now(), id: "X"
+      settings, data, currentID: this.settings.settings.currentID, date: Date.now(), id: "X"
     }
     return state
   }

@@ -31,7 +31,7 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
 
     const form = this.fb.group({
       annotate: [false],
-      profilePlot: [this.dataService.selectedComparison.includes(this.primaryID)],
+      profilePlot: [this.settings.settings.selectedComparison.includes(this.primaryID)],
     })
 
     for (const i in this.settings.settings.textAnnotation) {
@@ -93,10 +93,11 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
           }
         }
       }
+      this.form.controls["profilePlot"].setValue(this.settings.settings.selectedComparison.includes(this.primaryID))
     })
 
     this.dataService.batchAnnotateAnnoucement.asObservable().subscribe((value: any) => {
-      this.form.controls["profilePlot"].setValue(this.dataService.selectedComparison.includes(this.primaryID))
+      this.form.controls["profilePlot"].setValue(this.settings.settings.selectedComparison.includes(this.primaryID))
       if (value.id === this.primaryID || value.id.includes(this.primaryID)) {
         this.form.controls["annotate"].setValue(!value.remove)
       }
@@ -117,22 +118,20 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
 
   profileCompare() {
     if (this.form.value.profilePlot) {
-      if (!this.dataService.selectedComparison.includes(this.primaryID)) {
-        this.dataService.selectedComparison.push(this.primaryID)
+      if (!this.settings.settings.selectedComparison.includes(this.primaryID)) {
+        this.settings.settings.selectedComparison.push(this.primaryID)
       }
     } else {
-      if (this.dataService.selectedComparison.includes(this.primaryID)) {
-        const ind = this.dataService.selectedComparison.indexOf(this.primaryID)
+      if (this.settings.settings.selectedComparison.includes(this.primaryID)) {
+        const ind = this.settings.settings.selectedComparison.indexOf(this.primaryID)
         console.log(ind)
-        if (this.dataService.selectedComparison.length === 1) {
-          this.dataService.selectedComparison = []
+        if (this.settings.settings.selectedComparison.length === 1) {
+          this.settings.settings.selectedComparison = []
         } else {
-          this.dataService.selectedComparison.splice(ind, 1)
+          this.settings.settings.selectedComparison.splice(ind, 1)
         }
       }
     }
-
-    console.log(this.dataService.selectedComparison)
   }
 
   annotate() {
