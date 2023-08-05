@@ -40,6 +40,9 @@ export class SampleConditionAssignmentModalComponent implements OnInit {
       }
       if (this.sampleMap[s].condition !== this.settings.settings.sampleMap[s].condition) {
         this.settings.settings.colorMap[this.sampleMap[s].condition] = this.settings.settings.colorMap[this.settings.settings.sampleMap[s].condition]
+        if (this.settings.settings.barchartColorMap[this.sampleMap[s].condition]) {
+          this.settings.settings.barchartColorMap[this.sampleMap[s].condition] = this.settings.settings.barchartColorMap[this.settings.settings.sampleMap[s].condition]
+        }
       }
     }
     this.settings.settings.sampleMap = this.sampleMap

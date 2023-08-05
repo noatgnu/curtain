@@ -105,6 +105,7 @@ export class FileFormComponent implements OnInit {
                 }
               }
               this.data.conditions = data.data.conditions
+              console.log(this.settings.settings)
               this.processUniProt()
               worker.terminate()
             } else if (data.data.type === "resultDifferentialCompleted") {

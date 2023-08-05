@@ -115,8 +115,10 @@ addEventListener('message', (data: MessageEvent<any>) => {
       if (Object.keys(data.data.settings.sampleMap).length === 0) {
         data.data.settings.sampleMap = sampleMap
       }
-      if (Object.keys(data.data.settings.colorMap).length === 0) {
-        data.data.settings.colorMap = colorMap
+      for (const s in colorMap) {
+        if (!(s in data.data.settings.colorMap)) {
+          data.data.settings.colorMap[s] = colorMap[s]
+        }
       }
       const storeRaw = rawDF.toArray().map((r: any) => {
         for (const s of samples) {
@@ -124,7 +126,8 @@ addEventListener('message', (data: MessageEvent<any>) => {
         }
         return r
       })
-
+      console.log(data.data.settings.colorMap)
+      console.log(data.data.settings.barChartColorMap)
       // @ts-ignore
       postMessage({type: "resultRaw", raw: JSON.stringify(storeRaw), settings: data.data.settings, conditions: conditions})
   }
