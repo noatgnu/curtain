@@ -219,7 +219,7 @@ export class BarChartComponent implements OnInit {
       if (this.settings.settings.sampleVisible[s]) {
         sampleNumber ++
         const condition = this.settings.settings.sampleMap[s].condition
-        let color = this.dataService.colorMap[condition]
+        let color = this.settings.settings.colorMap[condition]
         if (this.settings.settings.barchartColorMap[condition]) {
           color = this.settings.settings.barchartColorMap[condition]
         }
@@ -299,7 +299,7 @@ export class BarChartComponent implements OnInit {
       }
     }
     for (const g in graph) {
-      let color = this.dataService.colorMap[g]
+      let color = this.settings.settings.colorMap[g]
       if (this.settings.settings.barchartColorMap[g]) {
         color = this.settings.settings.barchartColorMap[g]
       }

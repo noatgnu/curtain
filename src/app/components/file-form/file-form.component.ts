@@ -105,7 +105,6 @@ export class FileFormComponent implements OnInit {
                 }
               }
               this.data.conditions = data.data.conditions
-              this.data.colorMap = data.data.colorMap
               this.processUniProt()
               worker.terminate()
             } else if (data.data.type === "resultDifferentialCompleted") {
@@ -210,7 +209,7 @@ export class FileFormComponent implements OnInit {
         //this.settings.settings.barchartColorMap[c] = null
         colorPosition++
       }
-      this.data.colorMap = colorMap
+      this.settings.settings.colorMap = colorMap
       this.data.conditions = conditions
       this.data.differential.df = this.toUpperCaseColumn(this.data.differentialForm.primaryIDs, this.data.differential.df)
       this.data.raw.df = this.toUpperCaseColumn(this.data.rawForm.primaryIDs, this.data.raw.df)
