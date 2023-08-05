@@ -28,23 +28,25 @@
           </div>
         </div>
       </div>
-      <div class="p-2" *ngIf="finished">
+      <div class="p-2">
         <div display="dynamic" ngbDropdown class="d-inline-block">
           <button class="btn btn-outline-primary ml-2" id="plot-dropdown" ngbDropdownToggle> Plot
           </button>
           <div ngbDropdownMenu aria-labelledby="plot-dropdown">
-            <button ngbDropdownItem (click)="openCorrelationMatrix()">
-              Correlation Matrix
-            </button>
-            <button ngbDropdownItem (click)="openProfileCompare()">
-              Profile Plot  ({{settings.settings.selectedComparison.length}})
-            </button>
-            <button ngbDropdownItem (click)="getSelectedList()">
-              Get Selected Protein List
-            </button>
-            <button ngbDropdownItem (click)="openSampleSettings()">
-              Sample Order & Visibility Settings
-            </button>
+            <ng-container *ngIf="finished">
+              <button ngbDropdownItem (click)="openCorrelationMatrix()">
+                Correlation Matrix
+              </button>
+              <button ngbDropdownItem (click)="openProfileCompare()">
+                Profile Plot  ({{settings.settings.selectedComparison.length}})
+              </button>
+              <button ngbDropdownItem (click)="getSelectedList()">
+                Get Selected Protein List
+              </button>
+              <button ngbDropdownItem (click)="openSampleSettings()">
+                Sample Order & Visibility Settings
+              </button>
+            </ng-container>
             <button ngbDropdownItem (click)="openColorPaletteModal()">
               Customize Color Palette
             </button>
@@ -52,8 +54,8 @@
           </div>
         </div>
       </div>
-      <div class="p-2">
 
+      <div class="p-2">
         <div display="dynamic" ngbDropdown class="d-inline-block">
             <button class="btn btn-outline-primary ml-2" id="dropdownSession" ngbDropdownToggle>Session
               <ng-container *ngIf="data.session">
