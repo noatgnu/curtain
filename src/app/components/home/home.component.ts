@@ -36,6 +36,9 @@ import {SaveStateService} from "../../save-state.service";
 import {LocalSessionStateModalComponent} from "../local-session-state-modal/local-session-state-modal.component";
 import {Subscription} from "rxjs";
 import {EnrichrModalComponent} from "../enrichr-modal/enrichr-modal.component";
+import {
+  SampleConditionAssignmentModalComponent
+} from "../sample-condition-assignment-modal/sample-condition-assignment-modal.component";
 
 @Component({
   selector: 'app-home',
@@ -625,6 +628,10 @@ export class HomeComponent implements OnInit {
   closeGDPR() {
     this.GDPR = false
     localStorage.setItem("GDPR", "true")
+  }
+
+  openSampleAndConditionModal() {
+    const ref = this.modal.open(SampleConditionAssignmentModalComponent, {scrollable: true})
   }
 }
 

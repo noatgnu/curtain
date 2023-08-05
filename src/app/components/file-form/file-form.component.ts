@@ -97,7 +97,6 @@ export class FileFormComponent implements OnInit {
             } else if (data.data.type === "resultRaw") {
               console.log(data.data.settings.currentID)
               this.data.raw.df = fromJSON(data.data.raw)
-              this.data.sampleMap = data.data.sampleMap
               for (const s in this.settings.settings) {
 
                 if (this.settings.settings.hasOwnProperty(s)) {
@@ -183,7 +182,7 @@ export class FileFormComponent implements OnInit {
         if (!conditions.includes(condition)) {
           conditions.push(condition)
         }
-        this.data.sampleMap[s] = {replicate: replicate, condition: condition}
+        this.settings.settings.sampleMap[s] = {replicate: replicate, condition: condition, name: s}
         if (!this.settings.settings.sampleOrder[condition]) {
           this.settings.settings.sampleOrder[condition] = []
         }

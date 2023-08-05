@@ -21,17 +21,17 @@
           <b>{{c}}</b>
         </div>
         <div class="col-1" style="padding-right: 2px">
-          <button class="btn btn-sm btn-outline-primary" (click)="moveUpCondition(c)">
+          <button class="btn btn-sm btn-outline-primary" (click)="moveUpCondition(c)" id="move-condition-upward-button-for-{{c}}">
             ↑
           </button>
         </div>
         <div class="col-1" style="padding-right: 2px">
-          <button class="btn btn-sm btn-outline-primary" (click)="moveDownCondition(c)">
+          <button class="btn btn-sm btn-outline-primary" (click)="moveDownCondition(c)" id="move-condition-downward-button-for-{{c}}">
             ↓
           </button>
         </div>
         <div class="col">
-          <input class="col-3" [(colorPicker)]="colorMap[c]" [style.background]="colorMap[c]">
+          <input class="col-3 form-control" [(colorPicker)]="colorMap[c]" [style.background]="colorMap[c]" id="color-settings-for-{{c}}">
         </div>
       </div>
       <table class="table">
@@ -55,12 +55,12 @@
             <td>
               <div class="row">
                 <div class="col">
-                  <button class="btn btn-sm btn-outline-primary" (click)="moveUp(s, c)">
+                  <button class="btn btn-sm btn-outline-primary" (click)="moveUp(s, c)" id="move-sample-upward-within-condition-button-for-{{s}}">
                     ↑
                   </button>
                 </div>
                 <div class="col">
-                  <button class="btn btn-sm btn-outline-primary" (click)="moveDown(s, c)">
+                  <button class="btn btn-sm btn-outline-primary" (click)="moveDown(s, c)" id="move-sample-downward-within-condition-button-for-{{s}}">
                     ↓
                   </button>
                 </div>
@@ -68,7 +68,7 @@
             </td>
             <td>
               <div class="form-check">
-                <input type="checkbox" class="form-check-input" [(ngModel)]="samplesVisible[s]">
+                <input type="checkbox" class="form-check-input" [(ngModel)]="samplesVisible[s]" id="visibility-toggle-for-{{s}}">
               </div>
             </td>
           </tr>

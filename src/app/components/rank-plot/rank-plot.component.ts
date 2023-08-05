@@ -58,14 +58,14 @@ export class RankPlotComponent implements OnInit {
       const total: any = {}
       const countNotNull: any = {}
       const average: any = {}
-      for (const s in this.dataService.sampleMap) {
-        if (!total[this.dataService.sampleMap[s].condition]) {
-          total[this.dataService.sampleMap[s].condition] = 0
-          countNotNull[this.dataService.sampleMap[s].condition] = 0
+      for (const s in this.settings.settings.sampleMap) {
+        if (!total[this.settings.settings.sampleMap[s].condition]) {
+          total[this.settings.settings.sampleMap[s].condition] = 0
+          countNotNull[this.settings.settings.sampleMap[s].condition] = 0
         }
         if (r[s]) {
-          total[this.dataService.sampleMap[s].condition] = total[this.dataService.sampleMap[s].condition] + r[s]
-          countNotNull[this.dataService.sampleMap[s].condition] = countNotNull[this.dataService.sampleMap[s].condition] + 1
+          total[this.settings.settings.sampleMap[s].condition] = total[this.settings.settings.sampleMap[s].condition] + r[s]
+          countNotNull[this.settings.settings.sampleMap[s].condition] = countNotNull[this.settings.settings.sampleMap[s].condition] + 1
         }
       }
       for (const c in total) {

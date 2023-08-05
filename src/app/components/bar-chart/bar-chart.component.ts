@@ -214,11 +214,11 @@ export class BarChartComponent implements OnInit {
     let sampleNumber: number = 0
     console.log(this.settings.settings.barchartColorMap)
 
-    for (const s in this.dataService.sampleMap) {
+    for (const s in this.settings.settings.sampleMap) {
 
       if (this.settings.settings.sampleVisible[s]) {
         sampleNumber ++
-        const condition = this.dataService.sampleMap[s].condition
+        const condition = this.settings.settings.sampleMap[s].condition
         let color = this.dataService.colorMap[condition]
         if (this.settings.settings.barchartColorMap[condition]) {
           color = this.settings.settings.barchartColorMap[condition]
@@ -288,10 +288,10 @@ export class BarChartComponent implements OnInit {
     const graphViolin: any[] = []
     const graph: any = {}
     let sampleNumber: number = 0
-    for (const s in this.dataService.sampleMap) {
+    for (const s in this.settings.settings.sampleMap) {
       if (this.settings.settings.sampleVisible[s]) {
         sampleNumber ++
-        const condition = this.dataService.sampleMap[s].condition
+        const condition = this.settings.settings.sampleMap[s].condition
         if (!graph[condition]) {
           graph[condition] = []
         }

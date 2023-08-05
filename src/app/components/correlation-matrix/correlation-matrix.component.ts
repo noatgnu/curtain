@@ -31,7 +31,7 @@ export class CorrelationMatrixComponent implements OnInit {
   cols: string[] = []
   zmin = 0
   constructor(private web: WebService, private settings: SettingsService, private toast: ToastService, public modal: NgbActiveModal, private data: DataService, private jz: JeezyService) {
-    this.cols = Object.keys(this.data.sampleMap)
+    this.cols = Object.keys(this.settings.settings.sampleMap)
 
     this.graphData.push({
       z: this.calculateCorrelation(),

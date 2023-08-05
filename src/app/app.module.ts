@@ -60,6 +60,7 @@ import { SelectedDataDistributionPlotComponent } from './components/selected-dat
 import { LocalSessionStateModalComponent } from './components/local-session-state-modal/local-session-state-modal.component';
 import { RankAbundanceModalComponent } from './components/rank-abundance-modal/rank-abundance-modal.component';
 import { EnrichrModalComponent } from './components/enrichr-modal/enrichr-modal.component';
+import { SampleConditionAssignmentModalComponent } from './components/sample-condition-assignment-modal/sample-condition-assignment-modal.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -109,6 +110,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     LocalSessionStateModalComponent,
     RankAbundanceModalComponent,
     EnrichrModalComponent,
+    SampleConditionAssignmentModalComponent,
   ],
   imports: [
     BrowserModule,
