@@ -165,15 +165,16 @@ export class HomeComponent implements OnInit {
 
   handleFinish(e: boolean) {
     this.finished = e
-    console.log(this.finished)
     if (this.finished) {
       if (this.data.selected.length > 0) {
         this.data.finishedProcessingData.next(e)
         this.rawFiltered = this.data.raw.df.where(r => this.data.selected.includes(r[this.data.rawForm.primaryIDs])).bake()
-        console.log(this.rawFiltered)
         for (const s of this.rawFiltered) {
           this.addGeneToSelected(s).then();
         }
+      } else {
+        this.rawFiltered = new DataFrame()
+        this.data.finishedProcessingData.next(e)
       }
       this.finished = true
     }
