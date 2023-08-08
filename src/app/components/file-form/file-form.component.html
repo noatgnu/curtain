@@ -96,7 +96,7 @@
                 </select>
                 <small class="text-muted">Unique and should be the same as differential analysis primary ID column</small>
               </div>
-              <div class="col-3">
+              <div class="col-5">
                 <label for="samples">Select Samples</label>
                 <select multiple class="form-select" id="samples" aria-label="Select Sampes" [(ngModel)]="data.rawForm.samples">
                   <option *ngFor="let c of data.raw.df.getColumnNames()" [value]="c">

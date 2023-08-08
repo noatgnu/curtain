@@ -76,7 +76,7 @@
 
               <label class="form-check-label" for="custom-volcano-text-col">Custom Popup Label Column</label>
               <select id="custom-volcano-text-col" [(ngModel)]="settings.settings.customVolcanoTextCol" class="form-control">
-                <option [value]="''"></option>
+                <option [value]="''">Default</option>
                 <option *ngFor="let col of dataService.differential.df.getColumnNames()" [value]="col">{{col}}</option>
               </select>
             </div>
