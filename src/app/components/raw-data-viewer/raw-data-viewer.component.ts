@@ -18,6 +18,7 @@ export class RawDataViewerComponent implements OnInit {
   @Input() set data(value: IDataFrame) {
     this._data = value
     this.displayDF = value
+    console.log(this._data)
   }
 
   form = this.fb.group({

@@ -64,7 +64,12 @@ export class HomeComponent implements OnInit {
     } else {
       this.GDPR = true
     }
-
+    this.data.clearWatcher.asObservable().subscribe(data => {
+      if (data) {
+        this.rawFiltered = new DataFrame()
+        this.data.selectionUpdateTrigger.next(true)
+      }
+    })
 
     this.initialize().then(
       () => {
@@ -484,10 +489,9 @@ export class HomeComponent implements OnInit {
     this.settings.settings.rankPlotAnnotation = {}
     this.settings.settings.textAnnotation = {}
     this.data.annotatedData = {}
-    this.rawFiltered = new DataFrame()
-
-    this.data.selectionUpdateTrigger.next(true)
+    this.data.clearWatcher.next(true)
   }
+
 
   openProfileCompare() {
     const ref = this.modal.open(ProfileCompareComponent, {size: "xl"})

@@ -70,4 +70,5 @@ export class Settings {
   networkInteractionData: any[] = []
   enrichrGeneRankMap: any = {}
   enrichrRunList: string[] = []
+  customVolcanoTextCol = ""
 }

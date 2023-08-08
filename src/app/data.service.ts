@@ -41,6 +41,7 @@ export class DataService {
     "ANOVA",
     "TTest"
   ]
+  clearWatcher: Subject<boolean> = new Subject<boolean>()
   redrawTrigger: Subject<boolean> = new Subject()
   annotatedData: any = {}
   get allGenes(): string[] {
@@ -216,6 +217,7 @@ export class DataService {
     this.settings.settings.rankPlotAnnotation = {}
     this.settings.settings.rankPlotColorMap = {}
     this.annotatedData = {}
+    this.clearWatcher.next(true)
   }
 
   significantGroup(x: number, y: number) {

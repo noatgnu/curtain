@@ -81,9 +81,13 @@ export class VolcanoPlotComponent implements OnInit {
     this.graphLayout.title.text = this.settings.settings.volcanoPlotTitle
     let currentColors: string[] = []
     if (this.settings.settings.colorMap) {
-      for (const s of this.dataService.selectOperationNames) {
-        if (this.settings.settings.colorMap[s]) {
-          currentColors.push(this.settings.settings.colorMap[s])
+      for (const s in this.settings.settings.colorMap) {
+        if (!this.dataService.conditions.includes(s)) {
+          if (this.settings.settings.colorMap[s]) {
+            if (this.settings.settings.defaultColorList.includes(this.settings.settings.colorMap[s])) {
+              currentColors.push(this.settings.settings.colorMap[s])
+            }
+          }
         }
       }
     } else {
@@ -208,6 +212,9 @@ export class VolcanoPlotComponent implements OnInit {
       }
       if (geneNames !== "") {
         text = geneNames + "[" + primaryID + "]" + " (" + r[this.dataService.differentialForm.comparison] + ")"
+      }
+      if (this.settings.settings.customVolcanoTextCol !== "") {
+        text = r[this.settings.settings.customVolcanoTextCol]
       }
       //this.nameToID[text] = primaryID
 
@@ -401,7 +408,7 @@ export class VolcanoPlotComponent implements OnInit {
     //this.removeAnnotatedDataPoints([])
   }
 
-  constructor(private fb: FormBuilder, private web: WebService, private dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService) {
+  constructor(private fb: FormBuilder, private web: WebService, public dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService) {
     this.annotated = {}
     for (const i in this.settings.settings.textAnnotation) {
       if (this.settings.settings.textAnnotation[i].data.showannotation === undefined || this.settings.settings.textAnnotation[i].data.showannotation === null) {
@@ -519,6 +526,7 @@ export class VolcanoPlotComponent implements OnInit {
       }
 
       if (!this.annotated[title]) {
+
         const ann: any = {
           xref: 'x',
           yref: 'y',
@@ -536,6 +544,9 @@ export class VolcanoPlotComponent implements OnInit {
             color: "#000000"
           },
           showannotation: true,
+        }
+        if (this.settings.settings.customVolcanoTextCol !== "") {
+          ann.text = "<b>"+a[this.settings.settings.customVolcanoTextCol]+"</b>"
         }
         if (title in this.settings.settings.textAnnotation) {
 
