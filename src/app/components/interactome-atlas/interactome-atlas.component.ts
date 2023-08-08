@@ -292,7 +292,7 @@ export class InteractomeAtlasComponent implements OnInit {
     styles.push(
       {
         selector: ".noChange",
-        style: {label: "data(label)", "background-color": this.form.value["No change"], "color": "rgba(47,39,40,0.96)",}
+        style: {label: "data(label)", "background-color": this.form.value["No change"], "color": "rgba(229,176,63,0.96)",}
       }
     )
     this.drawData = {data: nodes, stylesheet: styles, id: "interactome" + this._data}
