@@ -17,6 +17,9 @@
     <div class="p-2" *ngIf="progressEvent && !finished">
       <span class="text-info">{{progressEvent.text}}</span>
     </div>
+    <div class="p-2" *ngIf="settings.newVersionAvailable">
+      <span class="badge bg-warning">New Curtain version available</span>
+    </div>
     <div class="d-flex">
       <div class="p-2" *ngIf="finished">
         <div display="dynamic" ngbDropdown class="d-inline-block">

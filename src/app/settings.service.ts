@@ -6,5 +6,6 @@ import {Settings} from "./classes/settings";
 })
 export class SettingsService {
   settings = new Settings()
+  newVersionAvailable: boolean = false;
   constructor() { }
 }

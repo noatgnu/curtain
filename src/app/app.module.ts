@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
@@ -61,6 +61,7 @@ import { LocalSessionStateModalComponent } from './components/local-session-stat
 import { RankAbundanceModalComponent } from './components/rank-abundance-modal/rank-abundance-modal.component';
 import { EnrichrModalComponent } from './components/enrichr-modal/enrichr-modal.component';
 import { SampleConditionAssignmentModalComponent } from './components/sample-condition-assignment-modal/sample-condition-assignment-modal.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -124,7 +125,13 @@ PlotlyModule.plotlyjs = PlotlyJS;
     QuillModule.forRoot(),
     AccountsModule,
     NgxPrintModule,
-    NgxQRCodeModule
+    NgxQRCodeModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ],
   providers: [HttpClient,
   ],
