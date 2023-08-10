@@ -24,12 +24,23 @@ export class CorrelationMatrixComponent implements OnInit {
       ticktext: []
     },
     height: 1100, width: 1100,
+    margin: {r: 50, l: 200, b: 200, t: 200},
     font: {
       family: this.settings.settings.plotFontFamily + ", serif",
     }
   }
   cols: string[] = []
   zmin = 0
+  config: any = {
+    //modeBarButtonsToRemove: ["toImage"]
+    toImageButtonOptions: {
+      format: 'svg',
+      filename: 'correlation-matrix',
+      height: this.graphLayout.height,
+      width: this.graphLayout.width,
+      scale: 1
+    }
+  }
   constructor(private web: WebService, private settings: SettingsService, private toast: ToastService, public modal: NgbActiveModal, private data: DataService, private jz: JeezyService) {
     this.cols = Object.keys(this.settings.settings.sampleMap)
 
