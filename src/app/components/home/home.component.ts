@@ -126,6 +126,7 @@ export class HomeComponent implements OnInit {
 
                     }
                   }).catch(error => {
+                    console.log(error.headers)
                     if (error.status === 400) {
                       this.toast.show("Credential Error", "Login Information Required").then()
                       const login = this.openLoginModal()
