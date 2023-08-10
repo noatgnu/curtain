@@ -21,7 +21,9 @@ export class DefaultColorPaletteComponent implements OnInit {
     }
   )
   selectedColor: string[] = []
-  customPalette: string[] = []
+  customPalette: {origin: string, new: string}[] = []
+  colorMap: any = {}
+
   constructor(private modal: NgbActiveModal, public data: DataService, private settings: SettingsService, private fb: FormBuilder, private toast: ToastService) {
     this.currentColor = this.settings.settings.defaultColorList.slice()
     this.colorPaletteList = Object.keys(this.data.palette)
@@ -43,7 +45,7 @@ export class DefaultColorPaletteComponent implements OnInit {
   updateColor() {
 
     if (this.customPalette.length > 0) {
-      this.settings.settings.defaultColorList = this.customPalette.slice()
+      this.settings.settings.defaultColorList = this.customPalette.map((a: any) => a.new)
     } else {
       if (this.form.value["colorPalette"] !=="" && this.form.value["colorPalette"]!== null && this.form.value["colorPalette"]!== undefined) {
         if (this.data.palette[this.form.value["colorPalette"]]) {
@@ -80,9 +82,9 @@ export class DefaultColorPaletteComponent implements OnInit {
   openCustomPalette(palette: string | null | undefined) {
     if (palette) {
       if (palette === "current") {
-        this.customPalette = this.currentColor.slice()
+        this.customPalette = this.currentColor.slice().map((a:string) => {return {origin: a, new: a}})
       } else if (this.colorPaletteList.includes(palette)) {
-        this.customPalette = this.data.palette[palette].slice()
+        this.customPalette = this.data.palette[palette].map((a:string) => {return {origin: a, new: a}})
       }
     }
 
@@ -93,7 +95,7 @@ export class DefaultColorPaletteComponent implements OnInit {
   }
 
   addCustomColor() {
-    this.customPalette.push("#ffffff")
+    this.customPalette.push({origin: "#ffffff", new: "#ffffff"})
   }
 
   removeCustomColor(index: number) {

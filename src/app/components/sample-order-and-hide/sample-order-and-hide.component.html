@@ -31,7 +31,11 @@
           </button>
         </div>
         <div class="col">
-          <input class="col-3 form-control" [(colorPicker)]="colorMap[c]" [style.background]="colorMap[c]" id="color-settings-for-{{c}}">
+          <input
+            class="col-3 form-control"
+            [(colorPicker)]="colorMap[c]"
+            [style.background]="colorMap[c]"
+            id="color-settings-for-{{c}}">
         </div>
       </div>
       <table class="table">

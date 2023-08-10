@@ -103,6 +103,15 @@ export class HomeComponent implements OnInit {
 
                 this.accounts.curtainAPI.getSessionSettings(settings[0]).then((d:any)=> {
                   this.data.session = d.data
+                  this.accounts.curtainAPI.getOwnership(settings[0]).then((data:any) => {
+                    if (data.data.ownership) {
+                      this.accounts.isOwner = true
+                    } else {
+                      this.accounts.isOwner = false
+                    }
+                  }).catch(error => {
+                    this.accounts.isOwner = false
+                  })
                   this.accounts.curtainAPI.postSettings(settings[0], token, this.onDownloadProgress).then((data:any) => {
                     if (data.data) {
                       this.restoreSettings(data.data).then(result => {
@@ -114,15 +123,7 @@ export class HomeComponent implements OnInit {
                           this.data.restoreTrigger.next(true)
                         })
                       })
-                      this.accounts.curtainAPI.getOwnership(settings[0]).then((data:any) => {
-                        if (data.data.ownership) {
-                          this.accounts.isOwner = true
-                        } else {
-                          this.accounts.isOwner = false
-                        }
-                      }).catch(error => {
-                        this.accounts.isOwner = false
-                      })
+
                     }
                   }).catch(error => {
                     if (error.status === 400) {
