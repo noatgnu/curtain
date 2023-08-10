@@ -6,12 +6,18 @@
   <div class="col-8">
     <div class="card">
       <div class="card-body">
-        <app-cytoplot *ngIf="hasError === false" #cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
-        <div class="card bg-danger" *ngIf="hasError===true">
-          <div class="card-body">
-            <p class="text-danger">No data found</p>
+        <div class="d-flex justify-content-center">
+          <div class="p-2">
+            <app-cytoplot *ngIf="hasError === false" #cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
+            <div class="card bg-danger" *ngIf="hasError===true">
+              <div class="card-body">
+                <p class="text-danger">No data found</p>
+              </div>
+            </div>
           </div>
         </div>
+
+
       </div>
     </div>
     <div class="card mt-2 mb-2" *ngIf="selected">
