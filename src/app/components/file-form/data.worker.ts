@@ -126,8 +126,6 @@ addEventListener('message', (data: MessageEvent<any>) => {
         }
         return r
       })
-      console.log(data.data.settings.colorMap)
-      console.log(data.data.settings.barChartColorMap)
       // @ts-ignore
       postMessage({type: "resultRaw", raw: JSON.stringify(storeRaw), settings: data.data.settings, conditions: conditions})
   }
