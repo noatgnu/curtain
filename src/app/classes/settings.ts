@@ -39,7 +39,7 @@ export class Settings {
     "#fdcce5",
     "#8bd3c7",
   ]
-  scatterPlotMarkerSize: number = 5
+  scatterPlotMarkerSize: number = 10
   rankPlotColorMap: any = {}
   rankPlotAnnotation: any = {}
   legendStatus: any = {}
