@@ -53,10 +53,9 @@ export class DefaultColorPaletteComponent implements OnInit {
         }
       }
     }
-    console.log(this.settings.settings.defaultColorList)
-
 
     if (this.form.value["resetVolcanoColor"]) {
+      this.data.resetVolcanoColor.next(true)
       const colorMap: any = {}
       for (const c of this.settings.settings.conditionOrder) {
         colorMap[c] = this.settings.settings.colorMap[c].slice()
@@ -67,8 +66,6 @@ export class DefaultColorPaletteComponent implements OnInit {
     if (this.form.value["resetBarChartColor"]) {
       let currentPosition = 0
       for (const s of this.settings.settings.conditionOrder) {
-        console.log(this.settings.settings.defaultColorList[currentPosition])
-        console.log(this.settings.settings.colorMap[s])
         if (this.settings.settings.defaultColorList[currentPosition] !== this.settings.settings.colorMap[s]) {
           this.settings.settings.barchartColorMap[s] = this.settings.settings.defaultColorList[currentPosition].slice()
           this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[currentPosition].slice()
