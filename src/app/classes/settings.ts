@@ -55,6 +55,8 @@ export class Settings {
     "HI-Union": "rgba(82,110,194,0.96)",
     "Literature": "rgba(181,151,222,0.96)",
     "HI-Union and Literature": "rgba(222,178,151,0.96)",
+    "Not found": "rgba(25,128,128,0.96)",
+    "No change": "rgba(47,39,40,0.96)",
   }
   proteomicsDBColor: string = "#ff7f0e"
   networkInteractionSettings: any = {

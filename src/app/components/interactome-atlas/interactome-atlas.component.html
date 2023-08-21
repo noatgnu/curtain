@@ -90,6 +90,13 @@
                 <input formControlName="No change" (colorPickerChange)="updateColor($event, 'Increase')" class="form-control" [(colorPicker)]="colorMap['No change']" [style.background]="colorMap['No change']">
               </td>
               <td>Protein found in data set but was not changed (FC < 1.5)</td>
+            </tr>
+            <tr>
+              <td>
+                <input formControlName="Not found" (colorPickerChange)="updateColor($event, 'Not found')" class="form-control" [(colorPicker)]="colorMap['Not found']" [style.background]="colorMap['Not found']">
+              </td>
+              <td>Protein not found in data set</td>
+            </tr>
           </table>
         </form>
       </div>

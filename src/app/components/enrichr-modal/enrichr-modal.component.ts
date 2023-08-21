@@ -73,6 +73,7 @@ export class EnrichrModalComponent implements OnInit {
       } else {
         this.enrichr.getEnrichmentResults(geneList.userListId, "", this.form.value.library.replace(/ /g, "_")).then((data: any) => {
           const geneRankMap: any = {}
+          const top10Map: any = {}
           for (const i in data) {
             for (const res of data[i]) {
               for (const gene of res[5]) {
@@ -90,8 +91,16 @@ export class EnrichrModalComponent implements OnInit {
                 }
               }
             }
+            top10Map[i] = data[i].slice(0, 10).map((a: any) => {
+              return {
+                rank: a[0],
+                termName: a[1],
+                pValue: a[2],
+                adjustedpValue: a[6],
+              }
+            })
           }
-          this.modal.close({geneRankMap, library: this.form.value.library.replace(/ /g, "_")})
+          this.modal.close({geneRankMap, library: this.form.value.library.replace(/ /g, "_"), top10Map})
         })
       }
 

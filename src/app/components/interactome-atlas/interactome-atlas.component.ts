@@ -60,6 +60,7 @@ export class InteractomeAtlasComponent implements OnInit {
   colorMap: any = {
     "Increase": "#a12323",
     "Decrease": "#16458c",
+    "Not found": "rgba(25,128,128,0.96)",
     "No change": "rgba(47,39,40,0.96)",
     "HI-Union": "rgba(82,110,194,0.96)",
     "Literature": "rgba(181,151,222,0.96)",
@@ -70,6 +71,7 @@ export class InteractomeAtlasComponent implements OnInit {
     "Increase": ["#a12323",],
     "Decrease": ["#16458c",],
     "No change": ["rgba(47,39,40,0.96)",],
+    "Not found": ["rgba(25,128,128,0.96)",],
     "HI-Union": "rgba(82,110,194,0.96)",
     "Literature": "rgba(181,151,222,0.96)",
     "HI-Union and Literature": "rgba(222,178,151,0.96)",
