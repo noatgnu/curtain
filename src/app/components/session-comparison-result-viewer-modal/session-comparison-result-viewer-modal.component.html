@@ -1,0 +1,54 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    Session Comparison Viewer
+  </h5>
+</div>
+<div class="modal-body">
+  <div class="d-flex">
+    <div ngbNav #nav="ngbNav" [(activeId)]="currentID"  class="nav-pills flex-column" orientation="vertical">
+      <ng-container *ngFor="let s of sessionList" [ngbNavItem]="s">
+        <button ngbNavLink>{{s}}</button>
+        <ng-template ngbNavContent>
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th scope="col">
+                Primary ID
+              </th>
+              <th scope="col">
+                Gene Names
+              </th>
+              <th scope="col">
+                Source Fold Change
+              </th>
+              <th scope="col">
+                Source Significant
+              </th>
+              <th scope="col">
+                Target Fold Change
+              </th>
+              <th scope="col">
+                Target Significant
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let row of data[s]">
+              <td>{{row.primaryID}}</td>
+              <td>{{row.geneName}}</td>
+              <td>{{row.currentFC}}</td>
+              <td>{{row.currentPValue}}</td>
+              <td>{{row.targetFC}}</td>
+              <td>{{row.targetPValue}}</td>
+            </tr>
+            </tbody>
+          </table>
+        </ng-template>
+      </ng-container>
+    </div>
+    <div [ngbNavOutlet]="nav" class="ms-4"></div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-dark" (click)="closeModal()">Close</button>
+</div>

@@ -62,6 +62,8 @@ import { RankAbundanceModalComponent } from './components/rank-abundance-modal/r
 import { EnrichrModalComponent } from './components/enrichr-modal/enrichr-modal.component';
 import { SampleConditionAssignmentModalComponent } from './components/sample-condition-assignment-modal/sample-condition-assignment-modal.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { ComparisonAgainstOtherPromptComponent } from './components/comparison-against-other-prompt/comparison-against-other-prompt.component';
+import { SessionComparisonResultViewerModalComponent } from './components/session-comparison-result-viewer-modal/session-comparison-result-viewer-modal.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -112,6 +114,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     RankAbundanceModalComponent,
     EnrichrModalComponent,
     SampleConditionAssignmentModalComponent,
+    ComparisonAgainstOtherPromptComponent,
+    SessionComparisonResultViewerModalComponent,
   ],
   imports: [
     BrowserModule,

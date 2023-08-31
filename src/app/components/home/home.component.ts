@@ -39,6 +39,12 @@ import {EnrichrModalComponent} from "../enrichr-modal/enrichr-modal.component";
 import {
   SampleConditionAssignmentModalComponent
 } from "../sample-condition-assignment-modal/sample-condition-assignment-modal.component";
+import {
+  ComparisonAgainstOtherPromptComponent
+} from "../comparison-against-other-prompt/comparison-against-other-prompt.component";
+import {
+  SessionComparisonResultViewerModalComponent
+} from "../session-comparison-result-viewer-modal/session-comparison-result-viewer-modal.component";
 
 @Component({
   selector: 'app-home',
@@ -639,6 +645,16 @@ export class HomeComponent implements OnInit {
 
   openSampleAndConditionModal() {
     const ref = this.modal.open(SampleConditionAssignmentModalComponent, {scrollable: true})
+  }
+
+  openCompareSessionModal() {
+    const ref = this.modal.open(ComparisonAgainstOtherPromptComponent, {scrollable: true})
+    ref.closed.subscribe(data => {
+      if (data) {
+        const ref2 = this.modal.open(SessionComparisonResultViewerModalComponent, {scrollable: true, size: "xl"})
+        ref2.componentInstance.data = data
+      }
+    })
   }
 }
 

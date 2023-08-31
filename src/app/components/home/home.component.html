@@ -86,6 +86,9 @@
               <button ngbDropdownItem (click)="openSampleAndConditionModal()">
                 Sample & Condition Assignment
               </button>
+              <button ngbDropdownItem (click)="openCompareSessionModal()" *ngIf="settings.settings.currentID !== ''">
+                Compare Sessions
+              </button>
             </ng-container>
             <button ngbDropdownItem (click)="openLoginModal()" *ngIf="accounts.curtainAPI.user.loginStatus===false">
               Account Login
