@@ -21,7 +21,7 @@ export class SessionComparisonResultViewerModalComponent {
     for (const i in value.data) {
       if (this.settings.settings.currentID !== i) {
         this.sessionList.push(i)
-        this._data[i] = currentDF.joinOuterLeft(new DataFrame(value.data[i]), (left:any) => left[this.dataService.differentialForm.primaryIDs],(right:any) => right["primaryID"],  (left:any, right:any) => {
+        this._data[i] = currentDF.joinOuterLeft(new DataFrame(value.data[i]), (left:any) => left[this.dataService.differentialForm.primaryIDs],(right:any) => right["source_pid"],  (left:any, right:any) => {
           const uni = this.uniprot.getUniprotFromPrimary(left[this.dataService.differentialForm.primaryIDs])
 
           const result: any = {

@@ -3,6 +3,7 @@ import {AccountsService} from "./accounts/accounts.service";
 import {Enrichr} from "enrichrjs";
 import {SwUpdate} from "@angular/service-worker";
 import {SettingsService} from "./settings.service";
+import {WebsocketService} from "./websocket.service";
 
 @Component({
   selector: 'app-root',
@@ -12,12 +13,16 @@ import {SettingsService} from "./settings.service";
 export class AppComponent implements AfterViewInit {
   title = 'Curtain';
 
-  constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private settings: SettingsService) {
+  constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private settings: SettingsService, private ws: WebsocketService) {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
       const code = path.split("=")
       this.accounts.ORCIDLogin(code[1]).then((data: any) => {})
     }
+    this.ws.connectJob()
+    this.ws.getJobMessages()?.subscribe((data: any) => {
+      console.log(data)
+    })
   }
 
   ngAfterViewInit() {

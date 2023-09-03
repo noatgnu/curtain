@@ -12,7 +12,7 @@
     <div class="form-group">
       <label for="matchType">Match Type</label>
       <select id="matchType" class="form-control" formControlName="others">
-        <option [value]="'primaryID'">Primary ID</option>
+        <option *ngFor="let m of matchTypes" [value]="m">{{m}}</option>
       </select>
     </div>
   </form>

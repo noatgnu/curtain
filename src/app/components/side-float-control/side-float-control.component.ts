@@ -46,7 +46,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     significantOnly: false
   }
   constructor(private ws: WebsocketService, private fb: FormBuilder, public data: DataService, private saveState: SaveStateService) {
-    this.ws.connection = this.ws.connect()
+    this.ws.eventConnection = this.ws.connectEvent()
 
     if (this.webSub) {
       this.webSub.unsubscribe()
@@ -58,7 +58,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
         this.setSubscription();
       }
     })
-    if (this.ws.connection) {
+    if (this.ws.eventConnection) {
       const message = {message: {message: "Connected to server", timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
       this.messagesList = [message].concat(this.messagesList)
     }
@@ -74,7 +74,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
   ]
   private setSubscription() {
     console.log("set subscription")
-    this.webSub = this.ws.getMessages()?.subscribe((data: any) => {
+    this.webSub = this.ws.getEventMessages()?.subscribe((data: any) => {
       data.message.timestamp = new Date(data.message.timestamp)
       this.messagesList = [data].concat(this.messagesList)
       this.senderMap[data.senderID] = data.senderName
@@ -108,7 +108,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
       message = this.commandCompleteModel
     }
     if (message !== "" && !message?.startsWith("@") && !message?.startsWith("!")) {
-      this.ws.send({message: {message: message, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat"})
+      this.ws.sendEvent({message: {message: message, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat"})
     } else if (message?.startsWith("!")) {
       const command = message.split(" ")
       const firstParameter = command[0]
@@ -143,7 +143,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
 
     } else {
       //const message: Message = {message: {message: this.form.value.message, timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
-      this.ws.send({message: {message: message, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat"})
+      this.ws.sendEvent({message: {message: message, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat"})
     }
 
     this.form.reset()
@@ -221,7 +221,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.webSub?.unsubscribe()
-    this.ws.close()
+    this.ws.closeEvent()
   }
 
   toggleChat() {
@@ -237,7 +237,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     const selection = JSON.parse(event.dataTransfer.getData("text/plain"));
     switch (selection.type) {
       case "selection-single":
-        this.ws.send({message: {title:selection.title, data: [selection.selection], timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat-selection-single"})
+        this.ws.sendEvent({message: {title:selection.title, data: [selection.selection], timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat-selection-single"})
         break;
       case "selection-group":
         const data: string[] = []
@@ -247,7 +247,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
           }
         }
         if (data.length > 0) {
-          this.ws.send({message: {title:selection.title, data: data, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat-selection-group"})
+          this.ws.sendEvent({message: {title:selection.title, data: data, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat-selection-group"})
         }
         break;
     }
@@ -378,7 +378,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
             senderName: this.ws.displayName,
             requestType: "push-state-all"
           }
-          this.ws.send(message)
+          this.ws.sendEvent(message)
         }
       }
     }
@@ -457,6 +457,6 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
       senderName: this.ws.displayName,
       requestType: "push-state-all-force"
     }
-    this.ws.send(message)
+    this.ws.sendEvent(message)
   }
 }
