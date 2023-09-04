@@ -25,14 +25,14 @@ export class SessionComparisonResultViewerModalComponent {
           const uni = this.uniprot.getUniprotFromPrimary(left[this.dataService.differentialForm.primaryIDs])
 
           const result: any = {
-            primaryID: left[this.dataService.differentialForm.primaryIDs],
-            currentFC: left[this.dataService.differentialForm.foldChange],
-            currentPValue: left[this.dataService.differentialForm.significant],
+            primaryID: parseFloat(left[this.dataService.differentialForm.primaryIDs]),
+            currentFC: parseFloat(left[this.dataService.differentialForm.foldChange]),
+            currentPValue: parseFloat(left[this.dataService.differentialForm.significant]),
 
           }
           if (right) {
-            result["targetFC"] = right["foldChange"]
-            result["targetPValue"] = right["significant"]
+            result["targetFC"] = parseFloat(right["foldChange"])
+            result["targetPValue"] = parseFloat(right["significant"])
           }
           if (uni) {
             if (uni["Gene Names"] !== "") {
@@ -53,7 +53,7 @@ export class SessionComparisonResultViewerModalComponent {
     return this._data
   }
 
-  constructor(private modal: NgbActiveModal, private dataService: DataService, private settings: SettingsService, private uniprot: UniprotService) {
+  constructor(private modal: NgbActiveModal, private dataService: DataService, public settings: SettingsService, private uniprot: UniprotService) {
 
   }
 

@@ -22,7 +22,7 @@
   <div *ngFor="let u of urls; let ind = index">
     <input class="form-control" placeholder="session-link" [(ngModel)]="u.url">
   </div>
-  <button class="btn btn-sm btn-outline-primary" (click)="urls.push('')">+</button>
+  <button class="btn btn-sm btn-outline-primary" (click)="urls.push({url:''})">+</button>
 </div>
 <div class="modal-footer">
   <button class="btn btn-primary" (click)="onSubmit()">Submit</button>
