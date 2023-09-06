@@ -36,10 +36,10 @@
             <tr *ngFor="let row of data[s]">
               <td>{{row.primaryID}}</td>
               <td>{{row.geneName}}</td>
-              <td [ngClass]="{'text-danger': row.currentFC > 0 }">{{row.currentFC}}</td>
-              <td>{{row.currentPValue}}</td>
-              <td>{{row.targetFC}}</td>
-              <td>{{row.targetPValue}}</td>
+              <td [ngClass]="{'text-danger': row.currentFC <0, 'text-success': row.currentFC >0}">{{row.currentFC|number: '0.0-4'}}</td>
+              <td >{{row.currentPValue|number: '0.0-4'}}</td>
+              <td [ngClass]="{'text-danger': row.targetFC <0, 'text-success': row.targetFC >0}">{{row.targetFC|number: '0.0-4'}}</td>
+              <td>{{row.targetPValue|number: '0.0-4'}}</td>
             </tr>
             </tbody>
           </table>

@@ -23,9 +23,8 @@ export class SessionComparisonResultViewerModalComponent {
         this.sessionList.push(i)
         this._data[i] = currentDF.joinOuterLeft(new DataFrame(value.data[i]), (left:any) => left[this.dataService.differentialForm.primaryIDs],(right:any) => right["source_pid"],  (left:any, right:any) => {
           const uni = this.uniprot.getUniprotFromPrimary(left[this.dataService.differentialForm.primaryIDs])
-
           const result: any = {
-            primaryID: parseFloat(left[this.dataService.differentialForm.primaryIDs]),
+            primaryID: left[this.dataService.differentialForm.primaryIDs],
             currentFC: parseFloat(left[this.dataService.differentialForm.foldChange]),
             currentPValue: parseFloat(left[this.dataService.differentialForm.significant]),
 
