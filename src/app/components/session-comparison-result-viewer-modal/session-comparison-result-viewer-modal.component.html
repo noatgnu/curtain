@@ -9,6 +9,51 @@
       <ng-container *ngFor="let s of sessionList" [ngbNavItem]="s">
         <button ngbNavLink>{{s}}</button>
         <ng-template ngbNavContent>
+          <div class="card">
+            <div class="card-body">
+              <form [formGroup]="form">
+                <div class="d-flex">
+                  <div class="p-2">
+                    <label for="searchTerm">
+                      Filter Term
+                    </label>
+                    <input type="text" class="form-control" formControlName="term" id="searchTerm">
+                  </div>
+                  <div class="p-2">
+                    <label for="termCategory">
+                      Term Category
+                    </label>
+                    <select class="form-control" formControlName="category" id="termCategory">
+                      <option value="primaryID">Primary ID</option>
+                      <option value="geneName">Gene Name</option>
+                    </select>
+                  </div>
+                  <div class="p-2" *ngIf="comparison['source']">
+                    <label for="sourceComparison">
+                      Source Comparison
+                    </label>
+                    <select class="form-control" formControlName="category" id="sourceComparison">
+                      <option *ngFor="let c of comparison['source']" [value]="c">{{c}}</option>
+                    </select>
+                  </div>
+                  <div class="p-2" *ngIf="comparison[s]">
+                    <label for="targetComparison">
+                      Target Comparison
+                    </label>
+                    <select class="form-control" formControlName="category" id="targetComparison">
+                      <option *ngFor="let c of comparison[s]" [value]="c">{{c}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="p-2">
+                  <button type="button" class="btn btn-outline-dark m-2" (click)="filterData(s)">Filter</button>
+                  <button type="button" class="btn btn-outline-primary m-2" (click)="exportData(s)">Export</button>
+                  <button type="button" class="btn btn-outline-danger m-2" (click)="resetFilter(s)">Reset Filter</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
           <table class="table table-striped">
             <thead>
             <tr>
@@ -39,7 +84,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let row of data[s]">
+            <tr *ngFor="let row of viewDF[s]">
               <td style="max-width: 100px; word-break: break-all">{{row.primaryID}}</td>
               <td style="max-width: 100px; word-break: break-all">{{row.geneName}}</td>
               <td>{{row.comparison}}</td>

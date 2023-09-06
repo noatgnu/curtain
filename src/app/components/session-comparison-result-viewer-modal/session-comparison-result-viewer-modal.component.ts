@@ -4,6 +4,8 @@ import {DataFrame} from "data-forge";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {UniprotService} from "../../uniprot.service";
+import {FormBuilder} from "@angular/forms";
+import {WebService} from "../../web.service";
 
 @Component({
   selector: 'app-session-comparison-result-viewer-modal',
@@ -15,6 +17,16 @@ export class SessionComparisonResultViewerModalComponent {
   sessionList: string[] = []
   currentID: string = ""
   queryList: string[] = []
+  viewDF: any = {}
+  comparison: any = {}
+
+  form = this.fb.group({
+    comparison: [""],
+    targetComparison: [""],
+    term: [""],
+    category: ["geneName"],
+  })
+
   @Input() set data(value : any) {
     this.queryList = value.queryList
     const currentDF = this.dataService.currentDF.where(row => this.queryList.includes(row[this.dataService.differentialForm.primaryIDs])).bake()
@@ -29,13 +41,15 @@ export class SessionComparisonResultViewerModalComponent {
             currentPValue: parseFloat(left[this.dataService.differentialForm.significant]),
           }
           if (this.dataService.differentialForm.comparison !== "" && this.dataService.differentialForm.comparison !== null && this.dataService.differentialForm.comparison !== undefined && this.dataService.differentialForm.comparison !== "CurtainSetComparison") {
-            result["comparison"] = this.dataService.differentialForm.comparison
+            result["comparison"] = left[this.dataService.differentialForm.comparison]
+            this.comparison['source'] = this.dataService.differentialForm.comparisonSelect
           }
           if (right) {
             result["targetFC"] = parseFloat(right["foldChange"])
             result["targetPValue"] = parseFloat(right["significant"])
             if (right["comparison"]) {
               result["targetComparison"] = right["comparison"]
+              this.comparison[i] = right["comparison"]
             }
           }
 
@@ -46,7 +60,9 @@ export class SessionComparisonResultViewerModalComponent {
           }
           return result
         }).bake()
+        this.viewDF[i] = this._data[i].where((row: any) => row["primaryID"] !== undefined).bake()
       }
+
 
     }
     console.log(this._data)
@@ -58,7 +74,15 @@ export class SessionComparisonResultViewerModalComponent {
     return this._data
   }
 
-  constructor(private modal: NgbActiveModal, private dataService: DataService, public settings: SettingsService, private uniprot: UniprotService) {
+  constructor(
+    private modal: NgbActiveModal,
+    private dataService: DataService,
+    public settings: SettingsService,
+    private uniprot: UniprotService,
+    private fb: FormBuilder,
+    private web: WebService
+  ) {
+
 
   }
 
@@ -66,4 +90,42 @@ export class SessionComparisonResultViewerModalComponent {
     this.modal.dismiss()
   }
 
+  filterData(id: string) {
+    let data = this._data[id].where((row: any) => row["primaryID"]!== undefined).bake()
+
+    if (this.form.value.comparison !== "" && this.form.value.comparison !== null && this.form.value.comparison !== undefined) {
+      data = data.where((row: any) => row["comparison"] === this.form.value.comparison).bake()
+    }
+    if (this.form.value.targetComparison !== "" && this.form.value.targetComparison !== null && this.form.value.targetComparison !== undefined) {
+      data = data.where((row: any) => row["targetComparison"] === this.form.value.targetComparison).bake()
+    }
+    if (this.form.value.term !== "" && this.form.value.term !== null && this.form.value.term !== undefined) {
+      if (this.form.value.category === "geneName") {
+        // @ts-ignore
+        data = data.where((row: any) => row["geneName"].toLowerCase().includes(this.form.value.term.toLowerCase())).bake()
+      } else {
+        // @ts-ignore
+        data = data.where((row: any) => row["primaryID"].toLowerCase().includes(this.form.value.term.toLowerCase())).bake()
+      }
+    }
+    this.viewDF[id] = data
+  }
+
+  resetFilter(id: string) {
+    this.viewDF[id] = this._data[id].where((row: any) => row["primaryID"]!== undefined).bake()
+    this.form.reset()
+  }
+
+  exportData(id: string) {
+    const data = this.viewDF[id].toCSV()
+    this.web.downloadFile("comparison_result.csv", data)
+  }
+
+  exportAll() {
+    //a function to export all data from viewDF
+    for (const id in this.viewDF) {
+      const data = this.viewDF[id].toCSV()
+      this.web.downloadFile(id + "_comparison_result.csv", data)
+    }
+  }
 }
