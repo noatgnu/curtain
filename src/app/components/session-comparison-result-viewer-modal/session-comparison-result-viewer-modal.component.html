@@ -12,11 +12,14 @@
           <table class="table table-striped">
             <thead>
             <tr>
-              <th scope="col">
+              <th scope="col" style="max-width: 100px">
                 Primary ID
               </th>
-              <th scope="col">
+              <th scope="col" style="max-width: 100px">
                 Gene Names
+              </th>
+              <th scope="col">
+                Source Comparison
               </th>
               <th scope="col">
                 Source Fold Change
@@ -30,16 +33,21 @@
               <th scope="col">
                 Target Significant
               </th>
+              <th scope="col">
+                Target Comparison
+              </th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let row of data[s]">
-              <td>{{row.primaryID}}</td>
-              <td>{{row.geneName}}</td>
+              <td style="max-width: 100px; word-break: break-all">{{row.primaryID}}</td>
+              <td style="max-width: 100px; word-break: break-all">{{row.geneName}}</td>
+              <td>{{row.comparison}}</td>
               <td [ngClass]="{'text-danger': row.currentFC <0, 'text-success': row.currentFC >0}">{{row.currentFC|number: '0.0-4'}}</td>
               <td >{{row.currentPValue|number: '0.0-4'}}</td>
               <td [ngClass]="{'text-danger': row.targetFC <0, 'text-success': row.targetFC >0}">{{row.targetFC|number: '0.0-4'}}</td>
               <td>{{row.targetPValue|number: '0.0-4'}}</td>
+              <td>{{row.targetComparison}}</td>
             </tr>
             </tbody>
           </table>

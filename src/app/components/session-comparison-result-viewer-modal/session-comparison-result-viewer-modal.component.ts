@@ -27,12 +27,18 @@ export class SessionComparisonResultViewerModalComponent {
             primaryID: left[this.dataService.differentialForm.primaryIDs],
             currentFC: parseFloat(left[this.dataService.differentialForm.foldChange]),
             currentPValue: parseFloat(left[this.dataService.differentialForm.significant]),
-
+          }
+          if (this.dataService.differentialForm.comparison !== "" && this.dataService.differentialForm.comparison !== null && this.dataService.differentialForm.comparison !== undefined && this.dataService.differentialForm.comparison !== "CurtainSetComparison") {
+            result["comparison"] = this.dataService.differentialForm.comparison
           }
           if (right) {
             result["targetFC"] = parseFloat(right["foldChange"])
             result["targetPValue"] = parseFloat(right["significant"])
+            if (right["comparison"]) {
+              result["targetComparison"] = right["comparison"]
+            }
           }
+
           if (uni) {
             if (uni["Gene Names"] !== "") {
               result["geneName"] = uni["Gene Names"]
