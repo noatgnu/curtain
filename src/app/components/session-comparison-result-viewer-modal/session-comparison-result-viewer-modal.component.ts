@@ -42,14 +42,24 @@ export class SessionComparisonResultViewerModalComponent {
           }
           if (this.dataService.differentialForm.comparison !== "" && this.dataService.differentialForm.comparison !== null && this.dataService.differentialForm.comparison !== undefined && this.dataService.differentialForm.comparison !== "CurtainSetComparison") {
             result["comparison"] = left[this.dataService.differentialForm.comparison]
-            this.comparison['source'] = this.dataService.differentialForm.comparisonSelect
+            if (typeof (this.dataService.differentialForm.comparisonSelect) === "string") {
+              this.comparison['source'] = [this.dataService.differentialForm.comparisonSelect]
+            } else {
+              this.comparison['source'] = this.dataService.differentialForm.comparisonSelect
+            }
           }
           if (right) {
             result["targetFC"] = parseFloat(right["foldChange"])
             result["targetPValue"] = parseFloat(right["significant"])
             if (right["comparison"]) {
-              result["targetComparison"] = right["comparison"]
-              this.comparison[i] = right["comparison"]
+              if (typeof (right["comparison"]) === "string") {
+                result["targetComparison"] = [right["comparison"]]
+                this.comparison[i] = [right["comparison"]]
+              } else{
+                result["targetComparison"] = right["comparison"]
+                this.comparison[i] = right["comparison"]
+              }
+
             }
           }
 
@@ -62,12 +72,11 @@ export class SessionComparisonResultViewerModalComponent {
         }).bake()
         this.viewDF[i] = this._data[i].where((row: any) => row["primaryID"] !== undefined).bake()
       }
-
-
     }
-    console.log(this._data)
 
     this.currentID = this.sessionList[0]
+    console.log(this.form)
+
   }
 
   get data() {
