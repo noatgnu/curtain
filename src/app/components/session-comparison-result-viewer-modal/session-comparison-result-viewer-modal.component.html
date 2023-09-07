@@ -80,6 +80,9 @@
               <th scope="col">
                 Target Comparison
               </th>
+              <th scope="col">
+                Target Primary ID
+              </th>
             </tr>
             </thead>
             <tbody>
@@ -92,6 +95,7 @@
               <td [ngClass]="{'text-danger': row.targetFC <0, 'text-success': row.targetFC >0}">{{row.targetFC|number: '0.0-4'}}</td>
               <td>{{row.targetPValue|number: '0.0-4'}}</td>
               <td>{{row.targetComparison}}</td>
+              <td>{{row.targetPrimaryID}}</td>
             </tr>
             </tbody>
           </table>

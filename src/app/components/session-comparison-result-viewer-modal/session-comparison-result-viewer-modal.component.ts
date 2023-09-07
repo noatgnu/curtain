@@ -51,6 +51,7 @@ export class SessionComparisonResultViewerModalComponent {
           if (right) {
             result["targetFC"] = parseFloat(right["foldChange"])
             result["targetPValue"] = parseFloat(right["significant"])
+            result["targetPrimaryID"] = right["primaryID"]
             if (right["comparison"]) {
               if (typeof (right["comparison"]) === "string") {
                 result["targetComparison"] = [right["comparison"]]
