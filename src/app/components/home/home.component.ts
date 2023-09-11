@@ -52,6 +52,7 @@ import {
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+  isRankPlotCollapse: boolean = true
   GDPR: boolean = false
   finished: boolean = false
   rawFiltered: IDataFrame = new DataFrame()

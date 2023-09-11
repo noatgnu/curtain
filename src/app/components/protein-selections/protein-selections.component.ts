@@ -19,7 +19,7 @@ export interface selectionData {
   styleUrls: ['./protein-selections.component.scss']
 })
 export class ProteinSelectionsComponent implements OnInit {
-
+  iscollapse: boolean = false
   tableFilterModel: string = ""
   @Output() searchResult: EventEmitter<selectionData> = new EventEmitter<selectionData>()
   progressBar: any = {text: "", value: 0}

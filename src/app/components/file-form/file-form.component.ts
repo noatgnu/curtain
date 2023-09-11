@@ -12,6 +12,7 @@ import {ToastService} from "../../toast.service";
   styleUrls: ['./file-form.component.scss']
 })
 export class FileFormComponent implements OnInit {
+  iscollapse=false;
   progressBar: any = {value: 0, text: ""}
   transformedFC: boolean = false
   transformedP: boolean = false
