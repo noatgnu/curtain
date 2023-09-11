@@ -11,7 +11,7 @@ import {ScrollService} from "../../scroll.service";
 export class VolcanoAndCytoComponent implements OnInit {
   @Output() selected: EventEmitter<selectionData> = new EventEmitter<selectionData>()
   isVolcanoCollapse: boolean = false
-  isNetworkCollapse: boolean = false
+  isNetworkCollapse: boolean = true
   constructor(public data: DataService, private scroll: ScrollService) { }
 
   ngOnInit(): void {
