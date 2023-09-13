@@ -506,7 +506,7 @@ export class VolcanoPlotComponent implements OnInit {
           this.selected.emit(
             {
               data: selected,
-              title: "Selected " + selected.length + " genes." + "(Selection #" + (this.dataService.selectOperationNames.length+1) + ")"
+              title: "Selected " + selected.length + " genes." + "[Selection #" + (this.dataService.selectOperationNames.length+1) + "]"
             }
           )
         }
