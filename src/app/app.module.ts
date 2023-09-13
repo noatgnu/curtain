@@ -64,6 +64,7 @@ import { SampleConditionAssignmentModalComponent } from './components/sample-con
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { ComparisonAgainstOtherPromptComponent } from './components/comparison-against-other-prompt/comparison-against-other-prompt.component';
 import { SessionComparisonResultViewerModalComponent } from './components/session-comparison-result-viewer-modal/session-comparison-result-viewer-modal.component';
+import { CurtainStatsSummaryComponent } from './components/curtain-stats-summary/curtain-stats-summary.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -116,6 +117,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     SampleConditionAssignmentModalComponent,
     ComparisonAgainstOtherPromptComponent,
     SessionComparisonResultViewerModalComponent,
+    CurtainStatsSummaryComponent,
   ],
   imports: [
     BrowserModule,

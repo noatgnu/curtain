@@ -4,6 +4,8 @@ import {Enrichr} from "enrichrjs";
 import {SwUpdate} from "@angular/service-worker";
 import {SettingsService} from "./settings.service";
 import {WebsocketService} from "./websocket.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {CurtainStatsSummaryComponent} from "./components/curtain-stats-summary/curtain-stats-summary.component";
 
 @Component({
   selector: 'app-root',
@@ -13,7 +15,7 @@ import {WebsocketService} from "./websocket.service";
 export class AppComponent implements AfterViewInit {
   title = 'Curtain';
 
-  constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private settings: SettingsService, private ws: WebsocketService) {
+  constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private settings: SettingsService, private ws: WebsocketService, private modal: NgbModal) {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
       const code = path.split("=")
@@ -35,5 +37,9 @@ export class AppComponent implements AfterViewInit {
         })
       }, 1000*60)
     }
+  }
+
+  openStatsSummary() {
+    this.modal.open(CurtainStatsSummaryComponent, {size: "xl"})
   }
 }
