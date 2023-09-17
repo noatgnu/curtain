@@ -3,10 +3,7 @@
 </div>
 <div class="modal-body">
   <div class="d-flex justify-content-center">
-    <ngx-qrcode
-      [value]="url"
-    >
-    </ngx-qrcode>
+    <ngx-qrcode-styling [config]="config" *ngIf="config.data !== ''"></ngx-qrcode-styling>
   </div>
 
   <div class="alert alert-info">

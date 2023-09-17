@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1694782390995,
+  "timestamp": 1694965655934,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -11,16 +11,16 @@
         "ignoreVary": true
       },
       "urls": [
-        "/817.1ee760ba317f89db.js",
-        "/971.dad6f5ad26ec0252.js",
+        "/536.93079147f285c953.js",
+        "/989.eb625c2cb9acc134.js",
         "/favicon.ico",
         "/index.html",
-        "/main.296dac2fe44af29b.js",
+        "/main.6ab8596f1b0c2242.js",
         "/manifest.webmanifest",
-        "/polyfills.f61c097c1beb1f00.js",
-        "/runtime.6964ec488d3aefc2.js",
+        "/polyfills.badb0bb7943c1e0c.js",
+        "/runtime.4b050c4d6e942711.js",
         "/scripts.dfd002a3f97f1569.js",
-        "/styles.8b629142613b4e38.css"
+        "/styles.a375c3631cdacd93.css"
       ],
       "patterns": []
     },
@@ -34,6 +34,8 @@
       "urls": [
         "/3rdpartylicenses.txt",
         "/assets/combined_embedded_network_v2.0.3.js",
+        "/assets/favicon.128x128.png",
+        "/assets/favicon.512x512.png",
         "/assets/favicon.png",
         "/assets/icons/icon-128x128.png",
         "/assets/icons/icon-144x144.png",
@@ -72,19 +74,21 @@
         "/assets/proteinLists/pd.txt",
         "/assets/proteinLists/phosphatases.txt",
         "/assets/proteinLists/pink1.txt",
-        "/bootstrap-icons.02685dabe0850e40.woff2",
-        "/bootstrap-icons.8463cb1e163733b5.woff"
+        "/bootstrap-icons.49c9b8524d23a4c2.woff",
+        "/bootstrap-icons.f41d849d445f6f5f.woff2"
       ],
       "patterns": []
     }
   ],
   "dataGroups": [],
   "hashTable": {
-    "/3rdpartylicenses.txt": "d02dfdfdb82cb5a160aa8ca6c1c337769a59d953",
-    "/817.1ee760ba317f89db.js": "686d623f871a5ba0f8a634c64fe0a057f626c3c8",
-    "/971.dad6f5ad26ec0252.js": "e24a2a9353324db9d897f146733c4a89d0809d16",
+    "/3rdpartylicenses.txt": "18b36556574c34ed28e2651184d1e29d50256706",
+    "/536.93079147f285c953.js": "2ca48b00e37c90eaa6f9419b635faad74f9f453c",
+    "/989.eb625c2cb9acc134.js": "b67e82d3c3c75d8464a0c5738f724162e0c74f34",
     "/assets/combined_embedded_network_v2.0.3.js": "473daba41712901180a48ad0fbab58d35d92a23d",
-    "/assets/favicon.png": "f4ddf1efd4854bb9fc2dc974604383f90de254bd",
+    "/assets/favicon.128x128.png": "ac922b4dc97e23fd8cdf6c9787dddb1e12edc1bc",
+    "/assets/favicon.512x512.png": "f4ddf1efd4854bb9fc2dc974604383f90de254bd",
+    "/assets/favicon.png": "16140137964ecabfa5b04df1f6337978bd8b5238",
     "/assets/icons/icon-128x128.png": "dae3b6ed49bdaf4327b92531d4b5b4a5d30c7532",
     "/assets/icons/icon-144x144.png": "b0bd89982e08f9bd2b642928f5391915b74799a7",
     "/assets/icons/icon-152x152.png": "7479a9477815dfd9668d60f8b3b2fba709b91310",
@@ -122,16 +126,16 @@
     "/assets/proteinLists/pd.txt": "915c4a708c5dc7227d0b8fdc5eb51b17b2342746",
     "/assets/proteinLists/phosphatases.txt": "c350ec4656fee8be08c7dead8fdd42a0cd20e350",
     "/assets/proteinLists/pink1.txt": "6b73c270d0407981851903bae49a622c0c22e0f8",
-    "/bootstrap-icons.02685dabe0850e40.woff2": "4c0efcf1dccc7295efc26fabe81ffe8f28d594a3",
-    "/bootstrap-icons.8463cb1e163733b5.woff": "d598cc620458b22d80443cdd69100217316efaf3",
+    "/bootstrap-icons.49c9b8524d23a4c2.woff": "cce254d50d2f744cd8f384cd4aa2a23c8850e2ee",
+    "/bootstrap-icons.f41d849d445f6f5f.woff2": "d33714cb0836ea9ebe02f4ccc22806593903167a",
     "/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/index.html": "3921abb3839b488d3686749153fbf634a6a3dcc2",
-    "/main.296dac2fe44af29b.js": "938d1a73a4bce6ec0dafc2a11e3704347ffe6c34",
+    "/index.html": "19b606c498d5b9ab0158bd11d5c20763c48080b0",
+    "/main.6ab8596f1b0c2242.js": "a7ffdcb083945209c6e234a7e8643dbd3f4c52d4",
     "/manifest.webmanifest": "0f6d8f1c753e9f503daf4cd303ebecc6b0b0a04b",
-    "/polyfills.f61c097c1beb1f00.js": "11cbd063e34dc9ba317f98e22b43f02dd9f3f5b8",
-    "/runtime.6964ec488d3aefc2.js": "84c7df04ac5d141ef7b6a348d409cb7e84274348",
+    "/polyfills.badb0bb7943c1e0c.js": "5c494aca86632278c8714de572f519df52bfba07",
+    "/runtime.4b050c4d6e942711.js": "c6da97cd0720e9c26383bcbbb6264f64823b0105",
     "/scripts.dfd002a3f97f1569.js": "501268a3f4d8c853caa3861c482a51405f69c7cc",
-    "/styles.8b629142613b4e38.css": "bd9f905f3e71b37182504e0fa4cbcf1a6a74e6cb"
+    "/styles.a375c3631cdacd93.css": "74fcfd3f61506da6f70edf63019c3ad1e97d1b24"
   },
   "navigationUrls": [
     {

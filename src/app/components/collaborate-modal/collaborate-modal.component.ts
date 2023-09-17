@@ -16,6 +16,9 @@ export class CollaborateModalComponent implements OnInit {
     displayName: ['']
   })
   collaborateLink = location.origin + "/#/" + this.settings.settings.currentID + "&&" + this.ws.sessionID
+  config = {
+    data: this.collaborateLink,
+  }
   constructor(private ws: WebsocketService, private fb: FormBuilder, private modal: NgbActiveModal, private settings: SettingsService, private toast: ToastService) {
     this.form.controls['sessionID'].setValue(this.ws.sessionID)
     this.form.controls['sessionID'].disable()

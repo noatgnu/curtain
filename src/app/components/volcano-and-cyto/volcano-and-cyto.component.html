@@ -25,7 +25,7 @@
       </h2>
       <div #collapse2="ngbCollapse" [(ngbCollapse)]="isNetworkCollapse">
         <div class="accordion-body">
-          <app-network-interactions [genes]="data.selected"></app-network-interactions>
+          <app-network-interactions *ngIf="isNetworkCollapse === false" [genes]="data.selected"></app-network-interactions>
         </div>
       </div>
     </div>
