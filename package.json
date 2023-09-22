@@ -36,7 +36,7 @@
     "cytoscape-cxtmenu": "^3.5.0",
     "cytoscape-fcose": "^2.2.0",
     "cytoscape-panzoom": "^2.5.3",
-    "data-forge": "^1.9.5",
+    "data-forge": "^1.10.1",
     "enrichrjs": "^1.0.2",
     "jeezy": "^1.13.1",
     "jstat": "^1.9.5",
