@@ -366,7 +366,7 @@ export class BarChartComponent implements OnInit {
         default:
           break
       }
-      graphData.push({
+      const data = {
         x: [g], y: [mean],
         type: 'bar',
         mode: 'markers',
@@ -383,7 +383,8 @@ export class BarChartComponent implements OnInit {
         },
         //visible: temp[t].visible,
         showlegend: false
-      })
+      }
+      graphData.push(data)
       graphData.push(box)
       tickVals.push(g)
       tickText.push(g)
@@ -401,17 +402,14 @@ export class BarChartComponent implements OnInit {
     //const b = this.graph[this.conditionB]
 
     const conditions = this.selectedConditions.map(a => this.graph[a].y)
-    console.log(conditions)
     switch (this.testType) {
       case "ANOVA":
         this.comparisons = [{conditions: this.selectedConditions.slice(), comparison: this.stats.calculateAnova2(conditions)}]
-        console.log(this.comparisons)
         break
       case "TTest":
         this.stats.calculateTTest(this.graph[this.conditionA].y, this.graph[this.conditionB].y).then((result: any) => {
           this.selectedConditions = [this.conditionA, this.conditionB]
           this.comparisons = [{conditions: this.selectedConditions.slice(), comparison: result.data}]
-          console.log(this.comparisons)
         })
         //console.log(this.stats.calculateTTest(a.y, b.y))
         //this.comparisons = [{a: this.conditionA, b: this.conditionB, comparison: this.stats.calculateTTest(a.y, b.y)}]

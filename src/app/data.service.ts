@@ -212,12 +212,15 @@ export class DataService {
     this.selectedGenes = []
     this.selectedMap = {}
     this.selectOperationNames = []
-    this.settings.settings.colorMap = {}
+    //this.settings.settings.colorMap = {}
     this.settings.settings.textAnnotation = {}
-    this.settings.settings.barchartColorMap = {}
+    //this.settings.settings.barchartColorMap = {}
     this.settings.settings.rankPlotAnnotation = {}
     this.settings.settings.rankPlotColorMap = {}
     this.annotatedData = {}
+    let colorPosition = 0
+
+
     this.clearWatcher.next(true)
   }
 
