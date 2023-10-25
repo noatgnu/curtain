@@ -423,9 +423,11 @@ export class VolcanoPlotComponent implements OnInit {
 
       this.graphLayout.shapes = cutOff
     }
-    this.graphData = graphData.reverse()
+    if (!this.scattergl) {
+      this.graphData = graphData.reverse()
+    }
+
     this.graphLayout.annotations = []
-    console.log(this.settings.settings.textAnnotation)
     for (const i in this.settings.settings.textAnnotation) {
       if (this.settings.settings.textAnnotation[i].data.showannotation === true) {
         this.annotated[this.settings.settings.textAnnotation[i].title] = this.settings.settings.textAnnotation[i].data
