@@ -17,7 +17,6 @@ const routes: Routes = [
   },
   {path: ':settings', component: HomeComponent},
   {path: "**", redirectTo:"home"}
-
 ];
 
 @NgModule({

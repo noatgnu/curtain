@@ -24,7 +24,7 @@ export class VolcanoPlotComponent implements OnInit {
   _data: any;
   //nameToID: any = {}
   graphData: any[] = []
-
+  scattergl: boolean = false
   graphLayout: any = {
     height: 700, width: 700, xaxis: {title: "<b>Log2FC</b>"},
     yaxis: {title: "<b>-log10(p-value)</b>"},
@@ -180,6 +180,9 @@ export class VolcanoPlotComponent implements OnInit {
       mode: "markers",
       name: "Background"
     }
+    if (this.scattergl) {
+      temp["Background"].type = "scattergl"
+    }
     if (this.settings.settings.backGroundColorGrey) {
       temp["Background"]["marker"] = {
         color: "#a4a2a2",
@@ -287,6 +290,9 @@ export class VolcanoPlotComponent implements OnInit {
               size: this.settings.settings.scatterPlotMarkerSize
             },
             name: group
+          }
+          if (this.scattergl) {
+            temp[group].type = "scattergl"
           }
         }
         temp[group].x.push(x)
