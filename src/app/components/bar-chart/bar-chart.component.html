@@ -46,6 +46,13 @@
 </div>
 
 <div class="mt-2">
+  <div class="form-check">
+    <input id="enableDotpoints" type="checkbox" class="form-check-input" [(ngModel)]="averageBarchartEnableDot" (change)="drawAverageBarChart()">
+    <label for="enableDotpoints" class="form-check-label">Dot points within error bar chart</label>
+  </div>
+</div>
+
+<div class="mt-2">
   <ngb-accordion>
     <ngb-panel title="Additional Individual Statistical Test">
       <ng-template ngbPanelContent>

@@ -43,6 +43,8 @@ export class BarChartComponent implements OnInit {
 
   }
 
+  averageBarchartEnableDot = true
+
   title = ""
   graph: any = {}
   graphData: any[] = []
@@ -366,7 +368,7 @@ export class BarChartComponent implements OnInit {
         default:
           break
       }
-      const data = {
+      const data: any = {
         x: [g], y: [mean],
         type: 'bar',
         mode: 'markers',
@@ -383,6 +385,10 @@ export class BarChartComponent implements OnInit {
         },
         //visible: temp[t].visible,
         showlegend: false
+      }
+
+      if (!this.averageBarchartEnableDot) {
+        box.boxpoints = "false"
       }
       graphData.push(data)
       graphData.push(box)
