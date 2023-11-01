@@ -35,7 +35,8 @@ export class VolcanoPlotComponent implements OnInit {
     title: {
       text: this.settings.settings.volcanoPlotTitle,
       font: {
-        size: 24
+        size: 24,
+        family: "Arial, sans-serif"
       },
     }
   }
@@ -576,7 +577,8 @@ export class VolcanoPlotComponent implements OnInit {
           ay: -20,
           font: {
             size: 15,
-            color: "#000000"
+            color: "#000000",
+            family: "Arial, sans-serif"
           },
           showannotation: true,
         }

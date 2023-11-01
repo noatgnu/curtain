@@ -19,7 +19,10 @@ export class AppComponent implements AfterViewInit {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
       const code = path.split("=")
-      this.accounts.ORCIDLogin(code[1]).then((data: any) => {})
+      this.accounts.ORCIDLogin(code[1]).then((data: any) => {
+        console.log(data)
+      })
+
     }
     this.ws.connectJob()
     this.ws.getJobMessages()?.subscribe((data: any) => {

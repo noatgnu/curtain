@@ -1,6 +1,10 @@
 {
   "configVersion": 1,
+<<<<<<< Updated upstream
   "timestamp": 1698402051168,
+=======
+  "timestamp": 1698849772894,
+>>>>>>> Stashed changes
   "index": "/index.html",
   "assetGroups": [
     {
@@ -15,7 +19,11 @@
         "/989.eb625c2cb9acc134.js",
         "/favicon.ico",
         "/index.html",
+<<<<<<< Updated upstream
         "/main.fdcfaf6fa1be56a6.js",
+=======
+        "/main.4922359ad005454b.js",
+>>>>>>> Stashed changes
         "/manifest.webmanifest",
         "/polyfills.badb0bb7943c1e0c.js",
         "/runtime.4b050c4d6e942711.js",
@@ -129,9 +137,15 @@
     "/bootstrap-icons.49c9b8524d23a4c2.woff": "cce254d50d2f744cd8f384cd4aa2a23c8850e2ee",
     "/bootstrap-icons.f41d849d445f6f5f.woff2": "d33714cb0836ea9ebe02f4ccc22806593903167a",
     "/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
+<<<<<<< Updated upstream
     "/index.html": "4314e3091ba1dd432eec42a7525bbf2c7527887b",
     "/main.fdcfaf6fa1be56a6.js": "2b937af34082ca94275ca7707fdaf074f079d7c3",
     "/manifest.webmanifest": "3e31472eeb28a5c6ed96c83575abe81c996e424f",
+=======
+    "/index.html": "c36504834cd1ff9b410479fce7434bbd98b15bdb",
+    "/main.4922359ad005454b.js": "72b30e1492ec3014a0aecceda00cd6c413f7bede",
+    "/manifest.webmanifest": "0f6d8f1c753e9f503daf4cd303ebecc6b0b0a04b",
+>>>>>>> Stashed changes
     "/polyfills.badb0bb7943c1e0c.js": "5c494aca86632278c8714de572f519df52bfba07",
     "/runtime.4b050c4d6e942711.js": "c6da97cd0720e9c26383bcbbb6264f64823b0105",
     "/scripts.dfd002a3f97f1569.js": "501268a3f4d8c853caa3861c482a51405f69c7cc",

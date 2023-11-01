@@ -65,7 +65,7 @@ export class HomeComponent implements OnInit {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
-
+    console.log(this.accounts.curtainAPI.user)
     if (localStorage.getItem("GDPR") === "true") {
       this.GDPR = false
     } else {
