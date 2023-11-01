@@ -35,6 +35,7 @@ export class AccountsService {
           config.url === this.curtainAPI.userInfoURL ||
           config.url.startsWith(this.curtainAPI.baseURL + "curtain/") ||
           config.url.startsWith(this.curtainAPI.baseURL + "data_filter_list/")) {
+          console.log(this.curtainAPI.user)
           if (this.curtainAPI.user.loginStatus) {
             config.headers["Authorization"] = "Bearer " + this.curtainAPI.user.access_token;
           }
