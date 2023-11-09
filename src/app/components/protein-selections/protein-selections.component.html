@@ -8,31 +8,34 @@
       </h2>
       <div #collapse="ngbCollapse" [(ngbCollapse)]="iscollapse">
         <div class="accordion-body">
-          <div class="row">
-            <div class="col-3">
-              <input id="searchProteinOrGene" type="text" class="form-control" [(ngModel)]="tableFilterModel" placeholder="Search" [ngbTypeahead]="data.search">
+          <form (ngSubmit)="singleSearchHandle()">
+            <div class="row">
+              <div class="col-3">
+                <input id="searchProteinOrGene" type="text" class="form-control" [ngModelOptions]="{standalone: true}" [(ngModel)]="tableFilterModel" placeholder="Search" [ngbTypeahead]="data.search">
+              </div>
+              <div class="col-2">
+                <select class="form-control" [(ngModel)]="data.searchType" [ngModelOptions]="{standalone: true}">
+                  <option>
+                    Gene Names
+                  </option>
+                  <option>
+                    Primary IDs
+                  </option>
+                </select>
+              </div>
+              <div class="col-1">
+                <button class="btn btn-primary" (click)="singleSearchHandle()">
+                  Search
+                </button>
+              </div>
+              <div class="col-2">
+                <button class="btn btn-primary" (click)="openBatchSearch()">
+                  Batch Search
+                </button>
+              </div>
             </div>
-            <div class="col-2">
-              <select class="form-control" [(ngModel)]="data.searchType">
-                <option>
-                  Gene Names
-                </option>
-                <option>
-                  Primary IDs
-                </option>
-              </select>
-            </div>
-            <div class="col-1">
-              <button class="btn btn-primary" (click)="singleSearchHandle()">
-                Search
-              </button>
-            </div>
-            <div class="col-2">
-              <button class="btn btn-primary" (click)="openBatchSearch()">
-                Batch Search
-              </button>
-            </div>
-          </div>
+          </form>
+
         </div>
       </div>
     </div>
