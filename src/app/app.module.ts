@@ -68,6 +68,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { ComparisonAgainstOtherPromptComponent } from './components/comparison-against-other-prompt/comparison-against-other-prompt.component';
 import { SessionComparisonResultViewerModalComponent } from './components/session-comparison-result-viewer-modal/session-comparison-result-viewer-modal.component';
 import { CurtainStatsSummaryComponent } from './components/curtain-stats-summary/curtain-stats-summary.component';
+import { EncryptionSettingsComponent } from './components/encryption-settings/encryption-settings.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -121,6 +122,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     ComparisonAgainstOtherPromptComponent,
     SessionComparisonResultViewerModalComponent,
     CurtainStatsSummaryComponent,
+    EncryptionSettingsComponent,
   ],
   imports: [
     BrowserModule,

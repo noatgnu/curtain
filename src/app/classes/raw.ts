@@ -16,6 +16,13 @@ export class Raw {
   }
   private _primaryIDs: string = ""
   private _samples: string[] = []
+  private _log2: boolean = false
+   get log2(): boolean {
+    return this._log2;
+   }
+   set log2(value: boolean) {
+    this._log2 = value;
+   }
 
   restore(value: any) {
     for (const i in value) {

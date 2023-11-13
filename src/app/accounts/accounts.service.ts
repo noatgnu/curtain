@@ -49,6 +49,7 @@ export class AccountsService {
     this.curtainAPI.axiosInstance.interceptors.response.use((response) => {
       return response
     } , (error) => {
+      console.log(error.response)
       if (error.response.status === 401) {
         if (error.config.url !== this.curtainAPI.refereshURL &&
           error.config.url !== this.curtainAPI.loginURL &&

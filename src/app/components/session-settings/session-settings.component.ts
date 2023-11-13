@@ -6,6 +6,8 @@ import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {ToastService} from "../../toast.service";
 import {AccountsService} from "../../accounts/accounts.service";
+import {CurtainEncryption} from "curtain-web-api";
+import {UniprotService} from "../../uniprot.service";
 
 @Component({
   selector: 'app-session-settings',
@@ -44,7 +46,7 @@ export class SessionSettingsComponent implements OnInit {
     additionalOwner: ["",]
   })
   temporaryLink: string = ""
-  constructor(private fb: UntypedFormBuilder, private web:WebService, private modal: NgbActiveModal, private data: DataService, private settings: SettingsService, private toast: ToastService, private accounts: AccountsService) {
+  constructor(private fb: UntypedFormBuilder, private web:WebService, private modal: NgbActiveModal, private data: DataService, private settings: SettingsService, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService) {
 
   }
 
@@ -60,6 +62,22 @@ export class SessionSettingsComponent implements OnInit {
   }
 
   submit() {
+    const extraData: any = {
+      uniprot: {
+        results: this.uniprot.results,
+        dataMap: this.uniprot.dataMap,
+        db: this.uniprot.db,
+        organism: this.uniprot.organism,
+        accMap: this.uniprot.accMap,
+        geneNameToAcc: this.uniprot.geneNameToAcc
+      },
+      data: {
+        dataMap: this.data.dataMap,
+        genesMap: this.data.genesMap,
+        primaryIDsmap: this.data.primaryIDsMap,
+        allGenes: this.data.allGenes,
+      }
+    }
     const payload: any = {enable: this.form.value["enable"]}
     if (this.form.value["update_content"]) {
       payload["file"] = {
@@ -73,11 +91,16 @@ export class SessionSettingsComponent implements OnInit {
         selectionsName: this.data.selectOperationNames,
         settings: this.settings.settings,
         fetchUniprot: this.data.fetchUniprot,
-        annotatedData: this.data.annotatedData
+        annotatedData: this.data.annotatedData,
+        extraData: extraData
       }
     }
-
-    this.accounts.curtainAPI.updateSession(payload, this.currentID).then(data => {
+    const encryption: CurtainEncryption = {
+      encrypted: this.settings.settings.encrypted,
+      e2e: this.settings.settings.encrypted,
+      publicKey: this.data.public_key,
+    }
+    this.accounts.curtainAPI.updateSession(payload, this.currentID, encryption).then(data => {
       this.data.session = data.data
       this.modal.dismiss()
     })

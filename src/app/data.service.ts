@@ -6,6 +6,7 @@ import {UniprotService} from "./uniprot.service";
 import {SettingsService} from "./settings.service";
 import {DataFrame, IDataFrame} from "data-forge";
 import {BehaviorSubject, debounceTime, distinctUntilChanged, map, Observable, OperatorFunction, Subject} from "rxjs";
+import {loadFromLocalStorage} from "curtain-web-api";
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +45,10 @@ export class DataService {
   clearWatcher: Subject<boolean> = new Subject<boolean>()
   redrawTrigger: Subject<boolean> = new Subject()
   annotatedData: any = {}
+
+  private_key: CryptoKey | undefined
+  public_key: CryptoKey | undefined
+
   get allGenes(): string[] {
     return this._allGenes;
   }
@@ -325,5 +330,10 @@ export class DataService {
       rest  = list.slice(1),
       pairs = rest.map(function (x) { return [first, x]; });
     return pairs.concat(this.pairwise(rest));
+  }
+
+  async getKey() {
+    this.private_key = await loadFromLocalStorage("private")
+    this.public_key = await loadFromLocalStorage("public")
   }
 }

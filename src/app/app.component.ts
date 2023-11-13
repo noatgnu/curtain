@@ -6,6 +6,8 @@ import {SettingsService} from "./settings.service";
 import {WebsocketService} from "./websocket.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {CurtainStatsSummaryComponent} from "./components/curtain-stats-summary/curtain-stats-summary.component";
+import {loadFromLocalStorage} from "curtain-web-api";
+import {DataService} from "./data.service";
 
 @Component({
   selector: 'app-root',
@@ -15,14 +17,13 @@ import {CurtainStatsSummaryComponent} from "./components/curtain-stats-summary/c
 export class AppComponent implements AfterViewInit {
   title = 'Curtain';
 
-  constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private settings: SettingsService, private ws: WebsocketService, private modal: NgbModal) {
+  constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private data: DataService,  private settings: SettingsService, private ws: WebsocketService, private modal: NgbModal) {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
       const code = path.split("=")
       this.accounts.ORCIDLogin(code[1]).then((data: any) => {
         console.log(data)
       })
-
     }
     this.ws.connectJob()
     this.ws.getJobMessages()?.subscribe((data: any) => {
@@ -45,4 +46,6 @@ export class AppComponent implements AfterViewInit {
   openStatsSummary() {
     this.modal.open(CurtainStatsSummaryComponent, {size: "xl"})
   }
+
+
 }

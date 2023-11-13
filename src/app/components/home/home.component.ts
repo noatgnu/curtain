@@ -23,7 +23,15 @@ import {LoginModalComponent} from "../../accounts/login-modal/login-modal.compon
 import {AccountsService} from "../../accounts/accounts.service";
 import {SessionSettingsComponent} from "../session-settings/session-settings.component";
 import {AccountsComponent} from "../../accounts/accounts/accounts.component";
-import {reviver, replacer, User} from "curtain-web-api";
+import {
+  reviver,
+  replacer,
+  User,
+  saveToLocalStorage,
+  CurtainEncryption,
+  base64ToArrayBuffer,
+  arrayBufferToBase64String
+} from "curtain-web-api";
 import {DefaultColorPaletteComponent} from "../default-color-palette/default-color-palette.component";
 import {DataSelectionManagementComponent} from "../data-selection-management/data-selection-management.component";
 import {QrcodeModalComponent} from "../qrcode-modal/qrcode-modal.component";
@@ -45,6 +53,14 @@ import {
 import {
   SessionComparisonResultViewerModalComponent
 } from "../session-comparison-result-viewer-modal/session-comparison-result-viewer-modal.component";
+import {EncryptionSettingsComponent} from "../encryption-settings/encryption-settings.component";
+import {encryptDataRSA} from "curtain-web-api/src/classes/curtain-encryption";
+import {
+  decryptAESData,
+  decryptAESKey, encryptAESData, encryptAESKey, exportAESKey,
+  generateAESKey,
+  importAESKey
+} from "curtain-web-api/build/classes/curtain-encryption";
 
 @Component({
   selector: 'app-home',
@@ -65,6 +81,7 @@ export class HomeComponent implements OnInit {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
+
     if (localStorage.getItem("GDPR") === "true") {
       this.GDPR = false
     } else {
@@ -106,44 +123,8 @@ export class HomeComponent implements OnInit {
               this.toast.show("Initialization", "Fetching data from session " + settings[0]).then()
               if (this.currentID !== settings[0]) {
                 this.currentID = settings[0]
+                this.getSessionData(settings[0], token).then()
 
-                this.accounts.curtainAPI.getSessionSettings(settings[0]).then((d:any)=> {
-                  this.data.session = d.data
-                  this.accounts.curtainAPI.getOwnership(settings[0]).then((data:any) => {
-                    if (data.data.ownership) {
-                      this.accounts.isOwner = true
-                    } else {
-                      this.accounts.isOwner = false
-                    }
-                  }).catch(error => {
-                    this.accounts.isOwner = false
-                  })
-                  this.accounts.curtainAPI.postSettings(settings[0], token, this.onDownloadProgress).then((data:any) => {
-                    if (data.data) {
-                      this.restoreSettings(data.data).then(result => {
-                        this.accounts.curtainAPI.getSessionSettings(settings[0]).then((d:any)=> {
-                          this.data.session = d.data
-
-                          this.settings.settings.currentID = d.data.link_id
-                          this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
-                          this.data.restoreTrigger.next(true)
-                        })
-                      })
-
-                    }
-                  }).catch(error => {
-                    console.log(error.headers)
-                    if (error.status === 400) {
-                      this.toast.show("Credential Error", "Login Information Required").then()
-                      const login = this.openLoginModal()
-                      login.componentInstance.loginStatus.asObservable().subscribe((data:boolean) => {
-                        if (data) {
-                          location.reload()
-                        }
-                      })
-                    }
-                  })
-                })
               }
             }
           }
@@ -153,8 +134,70 @@ export class HomeComponent implements OnInit {
 
 
   }
+  async getSessionData(id: string, token: string = "") {
+    const d = await this.accounts.curtainAPI.getSessionSettings(id)
+    this.data.session = d.data
 
+    try {
+      const ownership = await this.accounts.curtainAPI.getOwnership(id)
+      if (ownership.data.ownership) {
+        this.accounts.isOwner = true
+      } else {
+        this.accounts.isOwner = false
+      }
+    } catch (e) {
+      this.accounts.isOwner = false
+    }
+    try {
+      const data = await this.accounts.curtainAPI.postSettings(id, token, this.onDownloadProgress)
+      if (data.data) {
+        if (d.data.encrypted) {
+          const encryption = await this.accounts.curtainAPI.getEncryptionFactors(id)
+          if (this.data.private_key) {
+            this.toast.show("Encryption", "Decrypting data using private key").then()
+            const decryptedKey = await decryptAESKey(this.data.private_key, base64ToArrayBuffer(encryption.data.encryption_key))
+            const decryptedIV = await decryptAESKey(this.data.private_key, base64ToArrayBuffer(encryption.data.encryption_iv))
+            data.data = await decryptAESData(await importAESKey(decryptedKey), data.data, arrayBufferToBase64String(decryptedIV))
+            this.restoreSettings(data.data).then(result => {
+              this.accounts.curtainAPI.getSessionSettings(id).then((d:any)=> {
+                this.data.session = d.data
+                this.settings.settings.currentID = d.data.link_id
+                this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
+                this.data.restoreTrigger.next(true)
+              })
+            })
+            this.toast.show("Encryption", "Data decrypted").then()
+          } else {
+            this.toast.show("Encryption", "Data is encrypted but no private key has been supplied").then()
+          }
+        } else {
+          this.restoreSettings(data.data).then(result => {
+            console.log(data.data)
+            this.accounts.curtainAPI.getSessionSettings(id).then((d:any)=> {
+              this.data.session = d.data
+              this.settings.settings.currentID = d.data.link_id
+              this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
+              this.data.restoreTrigger.next(true)
+            })
+          })
+        }
+      }
+    } catch (error: any) {
+      console.log(error)
+      if (error.status === 400) {
+        this.toast.show("Credential Error", "Login Information Required").then()
+        const login = this.openLoginModal()
+        login.componentInstance.loginStatus.asObservable().subscribe((data:boolean) => {
+          if (data) {
+            location.reload()
+          }
+        })
+      }
+    }
+  }
   async initialize() {
+    await this.data.getKey()
+    console.log(this.data.public_key)
     await this.accounts.curtainAPI.getSiteProperties()
     await this.accounts.curtainAPI.user.loadFromDB()
     if (this.subscription) {
@@ -275,7 +318,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private saving() {
+  private createPayload() {
     const extraData: any = {
       uniprot: {
         results: this.uniprot.results,
@@ -306,7 +349,20 @@ export class HomeComponent implements OnInit {
       annotatedData: this.data.annotatedData,
       extraData: extraData
     }
-    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP",  this.onUploadProgress).then((data: any) => {
+
+    return data
+  }
+
+  private saving() {
+    const data = this.createPayload()
+    const encryption: CurtainEncryption = {
+      encrypted: this.settings.settings.encrypted,
+      e2e: this.settings.settings.encrypted,
+      publicKey: this.data.public_key,
+    }
+    console.log(encryption)
+
+    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, this.onUploadProgress).then((data: any) => {
       if (data.data) {
         this.data.session = data.data
         this.settings.settings.currentID = data.data.link_id
@@ -315,6 +371,7 @@ export class HomeComponent implements OnInit {
         this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
       }
     }).catch(err => {
+      console.log(err)
       this.toast.show("User information", "Curtain link cannot be saved").then()
     })
   }
@@ -324,6 +381,10 @@ export class HomeComponent implements OnInit {
   }
 
   async restoreSettings(object: any) {
+
+    if (typeof object === "string") {
+      object = JSON.parse(object, reviver)
+    }
     if (typeof object.settings === "string") {
       object.settings = JSON.parse(object.settings, reviver)
     }
@@ -631,8 +692,6 @@ export class HomeComponent implements OnInit {
           this.settings.settings.enrichrGeneRankMap[i] = data.geneRankMap[i]
         }
         this.settings.settings.enrichrRunList.push(data.library)
-        console.log(this.settings.settings.enrichrGeneRankMap)
-        console.log(this.settings.settings.enrichrRunList)
         this.data.finishedProcessingData.next(true)
       }
     })
@@ -656,5 +715,56 @@ export class HomeComponent implements OnInit {
       }
     })
   }
-}
 
+  openEncryptionSettings() {
+
+    const ref = this.modal.open(EncryptionSettingsComponent, {scrollable: true})
+    ref.componentInstance.enabled = this.settings.settings.encrypted
+    ref.closed.subscribe(data => {
+      if (data.savePublicKey && data.public_key) {
+        saveToLocalStorage(data.public_key, "public").then()
+      }
+      if (data.savePrivateKey && data.private_key) {
+        saveToLocalStorage(data.private_key, "private").then()
+      }
+      this.settings.settings.encrypted = data.enabled
+      if (data.public_key) {
+        this.data.public_key = data.public_key
+      }
+      if (data.private_key) {
+        this.data.private_key = data.private_key
+      }
+
+    })
+  }
+
+  async testEncryptSave() {
+    const data = this.createPayload()
+    const jsonstring = JSON.stringify(data, replacer)
+    if (this.data.public_key) {
+      //generate aes key and encrypt data then encrypt aes key and initialization vector with public key
+      const aesKey = await generateAESKey()
+      const encryptedData = await encryptAESData(aesKey, jsonstring)
+      const encryptedKey = await encryptAESKey(this.data.public_key, await exportAESKey(aesKey))
+      const encryptedIV = await encryptAESKey(this.data.public_key, base64ToArrayBuffer(encryptedData.iv))
+      const payload = {
+        encryptedData: encryptedData.encrypted,
+        encryptedKey: arrayBufferToBase64String(encryptedKey),
+        encryptedIV: arrayBufferToBase64String(encryptedIV)
+      }
+      //decrypt the encrypted key and iv then use the decrypted key and iv to decrypt the data and test if it is the same as the original data
+      if (this.data.private_key) {
+        const decryptedKey = await decryptAESKey(this.data.private_key, base64ToArrayBuffer(payload.encryptedKey))
+        const decryptedIV = await decryptAESKey(this.data.private_key, base64ToArrayBuffer(payload.encryptedIV))
+        const decryptedData = await decryptAESData(await importAESKey(decryptedKey), payload.encryptedData, arrayBufferToBase64String(decryptedIV))
+        if (decryptedData === jsonstring) {
+          this.toast.show("Test Encryption", "Encryption and decryption successful").then()
+        } else {
+          this.toast.show("Test Encryption", "Encryption and decryption failed").then()
+        }
+      }
+    }
+  }
+
+
+}

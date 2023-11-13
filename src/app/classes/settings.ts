@@ -73,4 +73,5 @@ export class Settings {
   enrichrGeneRankMap: any = {}
   enrichrRunList: string[] = []
   customVolcanoTextCol = ""
+  encrypted: boolean = false
 }
