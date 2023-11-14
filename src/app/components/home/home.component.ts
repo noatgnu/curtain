@@ -151,6 +151,7 @@ export class HomeComponent implements OnInit {
     try {
       const data = await this.accounts.curtainAPI.postSettings(id, token, this.onDownloadProgress)
       if (data.data) {
+        console.log(d.data)
         if (d.data.encrypted) {
           const encryption = await this.accounts.curtainAPI.getEncryptionFactors(id)
           if (this.data.private_key) {

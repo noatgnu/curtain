@@ -47,8 +47,8 @@ export class WebService {
   }
 
 
-  downloadFile(fileName: string, fileContent: string) {
-    const blob = new Blob([fileContent], {type: 'text/csv'})
+  downloadFile(fileName: string, fileContent: string, type: string = 'text/csv') {
+    const blob = new Blob([fileContent], {type: type})
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a")
     a.href = url

@@ -92,8 +92,8 @@ export class EncryptionSettingsComponent {
     this.private_key_string = arrayBufferToBase64String(privateKey)
     const public_pem = ['-----BEGIN PUBLIC KEY-----', this.public_key_string, '-----END PUBLIC KEY-----'].join('\n')
     const private_pem = ['-----BEGIN PRIVATE KEY-----', this.private_key_string, '-----END PRIVATE KEY-----'].join('\n')
-    this.web.downloadFile("public_key.pem", public_pem)
-    this.web.downloadFile("private_key.pem", private_pem)
+    this.web.downloadFile("public_key.pem", public_pem, "text/plain")
+    this.web.downloadFile("private_key.pem", private_pem, "text/plain")
 
   }
 }
