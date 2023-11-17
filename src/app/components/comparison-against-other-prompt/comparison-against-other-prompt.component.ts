@@ -66,7 +66,14 @@ export class ComparisonAgainstOtherPromptComponent implements OnDestroy{
               console.log(message)
               this.toast.show(message.requestType, message.message).then()
               if (message.message === "Operation Completed" && message.requestType === "Compare Session") {
-                this.modal.close({data: message.data, queryList: selections})
+                const data: any = {}
+                for (const d in message.data) {
+                  if (d!== "found") {
+                    data[d] = message.data[d]["differential"]
+                  }
+
+                }
+                this.modal.close({data: data, queryList: selections})
               }
             })
           }
