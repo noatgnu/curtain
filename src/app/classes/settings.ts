@@ -74,4 +74,10 @@ export class Settings {
   enrichrRunList: string[] = []
   customVolcanoTextCol = ""
   encrypted: boolean = false
+  columnSize: any = {
+    barChart: 0,
+    averageBarChart: 0,
+    violinPlot: 0,
+    profilePlot: 0,
+  }
 }

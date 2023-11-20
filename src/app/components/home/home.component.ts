@@ -596,7 +596,7 @@ export class HomeComponent implements OnInit {
   }
 
   openSampleSettings() {
-    const ref = this.modal.open(SampleOrderAndHideComponent)
+    const ref = this.modal.open(SampleOrderAndHideComponent, {scrollable:true})
 
   }
 
