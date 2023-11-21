@@ -23,7 +23,7 @@ export class BarChartComponent implements OnInit {
   testType: string = "ANOVA"
   selectedConditions: string[] = []
   barChartErrorType: string = "Standard Error"
-
+  violinPointPos: number = -2
   @Input() set data(value: any) {
     this._data = value
     this.title = "<b>" + this._data[this.dataService.rawForm.primaryIDs] + "</b>"
@@ -334,6 +334,7 @@ export class BarChartComponent implements OnInit {
         //y: graph[g].filter((d: number) => !isNaN(d)),
         y: graph[g],
         points: "all",
+        pointpos: this.settings.settings.violinPointPos,
         box: {
           visible: true
         },

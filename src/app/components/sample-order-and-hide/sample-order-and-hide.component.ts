@@ -20,7 +20,7 @@ export class SampleOrderAndHideComponent implements OnInit {
     averageBarChart: 0,
     violinPlot: 0,
   }
-
+  violinPointPos: number = -2
   constructor(public dataService: DataService, public modal: NgbActiveModal, private settings: SettingsService) {
     console.log(this.settings.settings.sampleMap)
     for (const c in this.settings.settings.columnSize) {
@@ -28,6 +28,7 @@ export class SampleOrderAndHideComponent implements OnInit {
         this.columnSize[c] = this.settings.settings.columnSize[c]
       }
     }
+    this.violinPointPos = this.settings.settings.violinPointPos
     for (const s in settings.settings.sampleMap) {
       const condition = settings.settings.sampleMap[s].condition
       this.samplesVisible[s] = true
@@ -86,6 +87,7 @@ export class SampleOrderAndHideComponent implements OnInit {
     this.settings.settings.sampleVisible = this.samplesVisible
     this.settings.settings.sampleOrder = this.samples
     this.settings.settings.conditionOrder = this.condition
+    this.settings.settings.violinPointPos = this.violinPointPos
     for (const c in this.columnSize) {
       this.settings.settings.columnSize[c] = this.columnSize[c]
     }
