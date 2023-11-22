@@ -47,6 +47,7 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
     this.foundIn = Object.keys(this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]])
     if (this.dataService.fetchUniprot) {
       this.uni = this.uniprot.getUniprotFromPrimary(this.primaryID)
+      console.log(this.uni)
       if (this.uni) {
         if (this.uni["Gene Names"] !== "") {
           this.title = this.uni["Gene Names"]

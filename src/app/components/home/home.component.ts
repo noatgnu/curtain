@@ -394,24 +394,45 @@ export class HomeComponent implements OnInit {
         if (typeof object.extraData === "string") {
           object.extraData = JSON.parse(object.extraData, reviver)
         }
-
+        console.log(object.extraData)
         if (object.extraData.uniprot) {
           this.uniprot.results = object.extraData.uniprot.results
-          this.uniprot.dataMap = new Map(object.extraData.uniprot.dataMap.value)
-          this.uniprot.accMap = new Map(object.extraData.uniprot.accMap.value)
-          this.uniprot.db = new Map(object.extraData.uniprot.db.value)
+          if (object.extraData.uniprot.dataMap instanceof Map) {
+            this.uniprot.dataMap = object.extraData.uniprot.dataMap
+          } else {
+            this.uniprot.dataMap = new Map(object.extraData.uniprot.dataMap.value)
+          }
+          if (object.extraData.uniprot.accMap instanceof Map) {
+            this.uniprot.accMap = object.extraData.uniprot.accMap
+          } else {
+            this.uniprot.accMap = new Map(object.extraData.uniprot.accMap.value)
+          }
+          if (object.extraData.uniprot.db instanceof Map) {
+            this.uniprot.db = object.extraData.uniprot.db
+          } else {
+            this.uniprot.db = new Map(object.extraData.uniprot.db.value)
+          }
+
           this.uniprot.organism = object.extraData.uniprot.organism
-          this.uniprot.accMap = new Map(object.extraData.uniprot.accMap.value)
+          if (object.extraData.uniprot.accMap instanceof Map) {
+            this.uniprot.accMap = object.extraData.uniprot.accMap
+          } else {
+            this.uniprot.accMap = new Map(object.extraData.uniprot.accMap.value)
+          }
           this.uniprot.geneNameToAcc = object.extraData.uniprot.geneNameToAcc
         }
         if (object.extraData.data) {
-          this.data.dataMap = new Map(object.extraData.data.dataMap.value)
+          if (object.extraData.data.dataMap instanceof Map) {
+            this.data.dataMap = object.extraData.data.dataMap
+          } else {
+            this.data.dataMap = new Map(object.extraData.data.dataMap.value)
+          }
           this.data.genesMap = object.extraData.data.genesMap
           this.data.primaryIDsMap = object.extraData.data.primaryIDsmap
           this.data.allGenes = object.extraData.data.allGenes
         }
-        console.log(object.extraData)
         this.data.bypassUniProt = true
+        console.log(this.data.dataMap)
       }
     }
 
@@ -548,6 +569,7 @@ export class HomeComponent implements OnInit {
         this.settings.settings[i] = object.settings[i]
       }
     }
+    console.log(this.data.fetchUniprot)
   }
 
   clearSelections() {
