@@ -14,16 +14,19 @@ import {SettingsService} from "../../settings.service";
 })
 export class RawDataViewerComponent implements OnInit {
   _data: IDataFrame = new DataFrame()
-
+  baseData: IDataFrame = new DataFrame()
   @Input() set data(value: IDataFrame) {
     this._data = value
+    this.baseData = value
     this.displayDF = value
+    this.ready = true
     console.log(this._data)
   }
 
   form = this.fb.group({
     filterTerm: [""],
     filterType: ["Gene Names"],
+    filterSearchOperation: ["All selected"],
   })
 
   sortForm = this.fb.group({
@@ -31,10 +34,11 @@ export class RawDataViewerComponent implements OnInit {
     order: ['asc'],
     enrichrRun: [""],
   })
-
+  ready = false
   displayDF: IDataFrame = new DataFrame()
   constructor(public dataService: DataService, private fb: FormBuilder, private uniprot: UniprotService, public settings: SettingsService) {
     this.form.controls["filterTerm"].valueChanges.pipe(debounceTime(200), distinctUntilChanged()).subscribe((value) => {
+      this.ready = false
       let primaryIds: string[] = []
       if (value){
         if (value.length > 2) {
@@ -49,7 +53,7 @@ export class RawDataViewerComponent implements OnInit {
               primaryIds = this.dataService.selected.filter((primaryID: string) => primaryID.toLowerCase().includes(value.toLowerCase()))
               break
             case "Diseases":
-              this._data.forEach((row: any) => {
+              this.baseData.forEach((row: any) => {
                 const uni = this.uniprot.getUniprotFromPrimary(row[this.dataService.rawForm.primaryIDs])
                 if (uni["Involvement in disease"]) {
                   if (uni["Involvement in disease"].toLowerCase().includes(value.toLowerCase())) {
@@ -59,19 +63,42 @@ export class RawDataViewerComponent implements OnInit {
               })
           }
           if (value === "") {
-            this.displayDF = this._data
+            this.displayDF = this.baseData
           } else if (primaryIds.length > 0) {
-            this.displayDF = this._data.where((row: any) => primaryIds.includes(row[this.dataService.rawForm.primaryIDs]))
+            this.displayDF = this.baseData.where((row: any) => primaryIds.includes(row[this.dataService.rawForm.primaryIDs]))
           } else {
             this.displayDF = new DataFrame()
           }
         }
-
-
       } else {
-        this.displayDF = this._data
+        this.displayDF = this.baseData
       }
+      this.ready = true
+    })
 
+    this.form.controls.filterSearchOperation.valueChanges.subscribe((value) => {
+      this.ready = false
+      if (value !== null) {
+        if (value === "All selected") {
+          this.baseData = this._data.where((row: any) => {
+            if (this.dataService.selectedMap[row[this.dataService.rawForm.primaryIDs]]) {
+              return true
+            }
+            return false
+          }).bake()
+        } else if (this.dataService.selectOperationNames.includes(value)) {
+          this.baseData = this._data.where((row: any) => {
+            if (this.dataService.selectedMap[row[this.dataService.rawForm.primaryIDs]]) {
+              if (this.dataService.selectedMap[row[this.dataService.rawForm.primaryIDs]][value]) {
+                return true
+              }
+            }
+            return false
+          }).bake()
+        }
+        this.displayDF = this.baseData
+      }
+      this.ready = true
     })
   }
 

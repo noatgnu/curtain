@@ -181,7 +181,13 @@
     <app-volcano-and-cyto (selected)="handleSearch($event)"></app-volcano-and-cyto>
   </ng-container>
 
+
+
   <ng-container *ngIf="rawFiltered.count() > 0">
+<!--    <div class="container mt-4">-->
+<!--      <app-sub-filter [data]="rawFiltered"></app-sub-filter>-->
+<!--    </div>-->
+
     <div class="container-fluid mt-4">
       <app-raw-data-viewer [data]="rawFiltered"></app-raw-data-viewer>
     </div>

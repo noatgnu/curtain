@@ -19,6 +19,12 @@
         </select>
       </div>
     </div>
+    <div class="p-2">
+      <select formControlName="filterSearchOperation" class="form-control">
+        <option value="All selected">All selected</option>
+        <option *ngFor="let o of dataService.selectOperationNames" [value]="o">{{o}}</option>
+      </select>
+    </div>
   </div>
 </form>
 <div class="p-2">
@@ -75,24 +81,26 @@
   </div>
 </div>-->
 <hr>
+<div *ngIf="ready; else notready">
+  <div *ngIf="displayDF.count() > 0; else noData">
+    <div class="d-flex">
+      <div class="p-2">
+        <ngb-pagination [(page)]="dataService.page" [boundaryLinks]="true" [maxSize]="10" [rotate]="true" [pageSize]="dataService.pageSize" [collectionSize]="displayDF.count()"></ngb-pagination>
+      </div>
 
-<div *ngIf="displayDF.count() > 0; else noData">
-  <div class="d-flex">
-    <div class="p-2">
-      <ngb-pagination [(page)]="dataService.page" [boundaryLinks]="true" [maxSize]="10" [rotate]="true" [pageSize]="dataService.pageSize" [collectionSize]="displayDF.count()"></ngb-pagination>
     </div>
-
-  </div>
-  <hr>
-  <ng-container *ngFor="let r of displayDF.toArray()|slice: (dataService.page-1) * dataService.pageSize: dataService.page* dataService.pageSize">
-    <app-raw-data-block class="mb-2" [data]="r"></app-raw-data-block>
-  </ng-container>
-  <div class="d-flex">
-    <div class="p-2">
-      <ngb-pagination [(page)]="dataService.page" [boundaryLinks]="true" [maxSize]="10" [rotate]="true" [pageSize]="dataService.pageSize" [collectionSize]="displayDF.count()"></ngb-pagination>
+    <hr>
+    <ng-container *ngFor="let r of displayDF.toArray()|slice: (dataService.page-1) * dataService.pageSize: dataService.page* dataService.pageSize">
+      <app-raw-data-block class="mb-2" [data]="r"></app-raw-data-block>
+    </ng-container>
+    <div class="d-flex">
+      <div class="p-2">
+        <ngb-pagination [(page)]="dataService.page" [boundaryLinks]="true" [maxSize]="10" [rotate]="true" [pageSize]="dataService.pageSize" [collectionSize]="displayDF.count()"></ngb-pagination>
+      </div>
     </div>
   </div>
 </div>
+
 <ng-template #noData>
   <div class="card">
     <div class="card-body">
@@ -102,4 +110,12 @@
   </div>
 </ng-template>
 
+<ng-template #notready>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Not ready</h5>
+      <p class="card-text">Please wait for the search to finish.</p>
+    </div>
+  </div>
+</ng-template>
 

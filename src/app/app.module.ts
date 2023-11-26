@@ -69,6 +69,7 @@ import { ComparisonAgainstOtherPromptComponent } from './components/comparison-a
 import { SessionComparisonResultViewerModalComponent } from './components/session-comparison-result-viewer-modal/session-comparison-result-viewer-modal.component';
 import { CurtainStatsSummaryComponent } from './components/curtain-stats-summary/curtain-stats-summary.component';
 import { EncryptionSettingsComponent } from './components/encryption-settings/encryption-settings.component';
+import { SubFilterComponent } from './components/sub-filter/sub-filter.component';
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -123,6 +124,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     SessionComparisonResultViewerModalComponent,
     CurtainStatsSummaryComponent,
     EncryptionSettingsComponent,
+    SubFilterComponent,
   ],
   imports: [
     BrowserModule,

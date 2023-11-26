@@ -1,0 +1,13 @@
+<form [formGroup]="form">
+  <div class="d-flex justify-content-start gap-2">
+    <div class="form-group">
+      <label for="primaryIDs">Primary IDs</label>
+      <select id="primaryIDs" class="form-control" formControlName="primaryIDs" multiple>
+        <option *ngFor="let primaryID of primaryData" [value]="primaryID.primaryID">{{primaryID.primaryID}} <span *ngIf="primaryID.uniprot" class="text-primary">({{primaryID.uniprot["Gene Names"]}})</span></option>
+      </select>
+    </div>
+    <div class="form-group">
+
+    </div>
+  </div>
+</form>
