@@ -6,6 +6,7 @@ import {FormBuilder} from "@angular/forms";
 import {debounceTime, distinctUntilChanged, map} from "rxjs";
 import {Settings} from "../../classes/settings";
 import {SettingsService} from "../../settings.service";
+import {ToastService} from "../../toast.service";
 
 @Component({
   selector: 'app-raw-data-viewer',
@@ -36,7 +37,7 @@ export class RawDataViewerComponent implements OnInit {
   })
   ready = false
   displayDF: IDataFrame = new DataFrame()
-  constructor(public dataService: DataService, private fb: FormBuilder, private uniprot: UniprotService, public settings: SettingsService) {
+  constructor(public dataService: DataService, private fb: FormBuilder, private uniprot: UniprotService, public settings: SettingsService, private toast: ToastService) {
     this.form.controls["filterTerm"].valueChanges.pipe(debounceTime(200), distinctUntilChanged()).subscribe((value) => {
       this.ready = false
       let primaryIds: string[] = []
@@ -78,14 +79,10 @@ export class RawDataViewerComponent implements OnInit {
 
     this.form.controls.filterSearchOperation.valueChanges.subscribe((value) => {
       this.ready = false
+      this.toast.show("Filtering", "Filtering data for " + value, 5000).then()
       if (value !== null) {
         if (value === "All selected") {
-          this.baseData = this._data.where((row: any) => {
-            if (this.dataService.selectedMap[row[this.dataService.rawForm.primaryIDs]]) {
-              return true
-            }
-            return false
-          }).bake()
+          this.baseData = this._data
         } else if (this.dataService.selectOperationNames.includes(value)) {
           this.baseData = this._data.where((row: any) => {
             if (this.dataService.selectedMap[row[this.dataService.rawForm.primaryIDs]]) {
@@ -98,6 +95,7 @@ export class RawDataViewerComponent implements OnInit {
         }
         this.displayDF = this.baseData
       }
+      this.toast.show("Filtering", "Completed filtering data for " + value, 5000).then()
       this.ready = true
     })
   }

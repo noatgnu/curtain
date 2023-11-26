@@ -73,7 +73,7 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
   })
   annotateSubscription = new Subscription()
   profilePlotSubscription = new Subscription()
-  constructor(private scroll: ScrollService, public dataService: DataService, private uniprot: UniprotService, private modal: NgbModal, private settings: SettingsService, private fb: FormBuilder) {
+  constructor(private scroll: ScrollService, public dataService: DataService, private uniprot: UniprotService, private modal: NgbModal, public settings: SettingsService, private fb: FormBuilder) {
     this.dataService.finishedProcessingData.asObservable().subscribe((value) => {
       if (value) {
         if (this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]]) {
