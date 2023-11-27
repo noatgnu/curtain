@@ -68,7 +68,7 @@ export class BarChartComponent implements OnInit {
     },
     annotations: [],
     shapes: [],
-    margin: {r: 50, l: 50, b: 100, t: 100},
+    margin: {r: 50, l: 100, b: 100, t: 100},
     font: {
       family: this.settings.settings.plotFontFamily + ", monospace",
     }
@@ -90,7 +90,7 @@ export class BarChartComponent implements OnInit {
         color: "black",
       },
     },
-    margin: {r: 40, l: 40, b: 120, t: 100},
+    margin: {r: 40, l: 100, b: 120, t: 100},
     font: {
       family: this.settings.settings.plotFontFamily + ", monospace",
     }
@@ -112,7 +112,7 @@ export class BarChartComponent implements OnInit {
         color: "black",
       },
     },
-    margin: {r: 40, l: 40, b: 120, t: 100},
+    margin: {r: 40, l: 100, b: 120, t: 100},
     font: {
       family: this.settings.settings.plotFontFamily + ", monospace",
     }
