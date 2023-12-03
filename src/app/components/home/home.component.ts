@@ -170,6 +170,36 @@ export class HomeComponent implements OnInit {
             this.toast.show("Encryption", "Data decrypted").then()
           } else {
             this.toast.show("Encryption", "Data is encrypted but no private key has been supplied").then()
+            const ref = this.modal.open(EncryptionSettingsComponent, {scrollable: true})
+            ref.componentInstance.enabled = this.settings.settings.encrypted
+            ref.closed.subscribe(async (keyData: any) => {
+              if (keyData.savePublicKey && keyData.public_key) {
+                saveToLocalStorage(keyData.public_key, "public").then()
+              }
+              if (keyData.savePrivateKey && keyData.private_key) {
+                saveToLocalStorage(keyData.private_key, "private").then()
+              }
+              this.settings.settings.encrypted = keyData.enabled
+              if (keyData.public_key) {
+                this.data.public_key = keyData.public_key
+              }
+              if (keyData.private_key) {
+                this.data.private_key = keyData.private_key
+                this.toast.show("Encryption", "Decrypting data using private key").then()
+                const decryptedKey = await decryptAESKey(keyData.private_key, base64ToArrayBuffer(encryption.data.encryption_key))
+                const decryptedIV = await decryptAESKey(keyData.private_key, base64ToArrayBuffer(encryption.data.encryption_iv))
+                data.data = await decryptAESData(await importAESKey(decryptedKey), data.data, arrayBufferToBase64String(decryptedIV))
+                this.restoreSettings(data.data).then(result => {
+                  this.accounts.curtainAPI.getSessionSettings(id).then((d:any)=> {
+                    this.data.session = d.data
+                    this.settings.settings.currentID = d.data.link_id
+                    this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
+                    this.data.restoreTrigger.next(true)
+                  })
+                })
+              }
+
+            })
           }
         } else {
           this.restoreSettings(data.data).then(result => {
