@@ -53,8 +53,8 @@ export class AccountsComponent implements OnInit {
   }
 
   private updateShowingLink(data: any) {
-    console.log(data.data)
-    data.data.results = data.data.results.map((a: any) => {
+    console.log(data)
+    data.results = data.results.map((a: any) => {
       if (!(a.link_id in this.descriptionTrigger)) {
         this.descriptionTrigger[a.link_id] = false
         this.selectedLinks[a.link_id] = false
@@ -62,9 +62,9 @@ export class AccountsComponent implements OnInit {
       a.created = new Date(a.created)
       return a
     })
-    this.totalItems = data.data.count
+    this.totalItems = data.count
     this.pageNumber = this.totalItems / 20
-    this.data = data.data
+    this.data = data
   }
 
   deleteLink(link_id: string) {
