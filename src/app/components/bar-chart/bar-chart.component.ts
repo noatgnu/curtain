@@ -6,7 +6,7 @@ import {PlotlyService} from "angular-plotly.js";
 import {WebService} from "../../web.service";
 import {StatsService} from "../../stats.service";
 import {SettingsService} from "../../settings.service";
-import {Subject} from "rxjs";
+import {ObjectUnsubscribedError, Subject} from "rxjs";
 
 @Component({
   selector: 'app-bar-chart',
@@ -431,5 +431,14 @@ export class BarChartComponent implements OnInit {
         //this.comparisons = [{a: this.conditionA, b: this.conditionB, comparison: this.stats.calculateTTest(a.y, b.y)}]
         break
     }
+  }
+
+  downloadData() {
+    console.log(this._data)
+    let data: string = ""
+    data = Object.keys(this._data).join("\t") + "\n"
+    data = data+ Object.values(this._data).join("\t") + "\n"
+
+    this.web.downloadFile(this.title + ".txt", data)
   }
 }
