@@ -67,8 +67,12 @@
             <th scope="col">
               Move
             </th>
+
             <th scope="col">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="batchToggle[c]" (change)="batchToggleSamples(c)">
               Visibility
+
+
             </th>
           </tr>
         </thead>
