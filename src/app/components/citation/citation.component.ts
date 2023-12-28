@@ -14,6 +14,14 @@ export class CitationComponent implements OnInit {
   get resourceName(): string {
     return this._resourceName
   }
+  pdbeCollapsed: boolean = true
+  molstartCollapsed: boolean = true
+  uniprotCollapsed: boolean = true
+  alphaFoldCollapsed: boolean = true
+  interactomeAtlasCollapsed: boolean = true
+  proteomicsDBCollapsed: boolean = true
+  stringDBCollapsed: boolean = true
+
   constructor(public modal: NgbActiveModal) { }
 
   ngOnInit(): void {

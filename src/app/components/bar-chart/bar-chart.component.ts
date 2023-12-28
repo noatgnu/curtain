@@ -24,6 +24,7 @@ export class BarChartComponent implements OnInit {
   selectedConditions: string[] = []
   barChartErrorType: string = "Standard Error"
   violinPointPos: number = -2
+  isCollapse: boolean = true
   @Input() set data(value: any) {
     this._data = value
     this.title = "<b>" + this._data[this.dataService.rawForm.primaryIDs] + "</b>"

@@ -9,6 +9,9 @@ export class ProteinInformationComponent implements OnInit {
   _data: any = {}
   diseases: string[] = []
   pharmaUse: string[] = []
+  isDiseaseCollapse: boolean = true
+  isPharmaUseCollapse: boolean = true
+  isMutagenesisCollapse: boolean = true
   @Input() set data(value: any) {
     this._data = value
     if (this._data["Involvement in disease"] && this._data["Involvement in disease"].length > 0) {
