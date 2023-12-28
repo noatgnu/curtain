@@ -52,6 +52,7 @@ export class AccountsComponent implements OnInit {
   }
 
   private updateShowingLink(data: any) {
+    console.log(data.data)
     data.data.results = data.data.results.map((a: any) => {
       if (!(a.link_id in this.descriptionTrigger)) {
         this.descriptionTrigger[a.link_id] = false
