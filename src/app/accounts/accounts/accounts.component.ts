@@ -42,6 +42,7 @@ export class AccountsComponent implements OnInit {
   submit(page: number = 0) {
     // @ts-ignore
     this.accounts.curtainAPI.getCurtainLinks(this.accounts.curtainAPI.user.username, this.form.value["sessionDescription"], page*20).then((data: any) => {
+      console.log(data)
       this.updateShowingLink(data);
     }).catch((err) => {
       if (err.code === "token_not_valid") {
