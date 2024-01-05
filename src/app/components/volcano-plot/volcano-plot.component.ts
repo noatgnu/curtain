@@ -451,7 +451,7 @@ export class VolcanoPlotComponent implements OnInit {
     this.graphLayout.yaxis.showgrid = this.settings.settings.volcanoPlotGrid.y
     this.graphLayout.xaxis.showgrid = this.settings.settings.volcanoPlotGrid.x
     if (this.settings.settings.volcanoPlotYaxisPosition.includes("left")) {
-      this.graphLayout.shapes = []
+
       // draw y axis line at min x
       this.graphLayout.shapes.push({
         type: "line",
@@ -465,7 +465,7 @@ export class VolcanoPlotComponent implements OnInit {
         }
       })
     } else {
-      this.graphLayout.shapes = []
+
     }
     if (this.settings.settings.volcanoPlotYaxisPosition.includes("middle")) {
       this.graphLayout.xaxis.zerolinecolor = "#000000"
