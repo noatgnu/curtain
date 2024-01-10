@@ -107,5 +107,6 @@ export class EncryptionSettingsComponent {
     // remove keys from local storage
     localStorage.removeItem("public_key")
     localStorage.removeItem("private_key")
+    this.toastService.show("Encryption", "Keys cleared").then()
   }
 }
