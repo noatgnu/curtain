@@ -95,6 +95,7 @@ export class VolcanoPlotComponent implements OnInit {
 
   markerSize: number = 10
   specialColorMap: any = {}
+  repeat = false
   drawVolcano() {
 
     this.currentPosition = 0
@@ -104,10 +105,13 @@ export class VolcanoPlotComponent implements OnInit {
     }
     this.graphLayout.title.text = this.settings.settings.volcanoPlotTitle
     let currentColors: string[] = []
+    console.log(this.settings.settings.colorMap)
     if (this.settings.settings.colorMap) {
       for (const s in this.settings.settings.colorMap) {
+        console.log(s)
         if (!this.dataService.conditions.includes(s)) {
           if (this.settings.settings.colorMap[s]) {
+            console.log(this.settings.settings.colorMap[s])
             if (this.settings.settings.defaultColorList.includes(this.settings.settings.colorMap[s])) {
               currentColors.push(this.settings.settings.colorMap[s])
             }
@@ -117,7 +121,7 @@ export class VolcanoPlotComponent implements OnInit {
     } else {
       this.settings.settings.colorMap = {}
     }
-
+    console.log(currentColors)
     let fdrCurve: IDataFrame = new DataFrame()
     if (this.settings.settings.fdrCurveTextEnable) {
       if (this.settings.settings.fdrCurveText !== "") {
@@ -130,18 +134,32 @@ export class VolcanoPlotComponent implements OnInit {
     if (currentColors.length !== this.settings.settings.defaultColorList.length) {
       this.currentPosition = currentColors.length
     }
+    console.log(this.dataService.selectOperationNames)
     for (const s of this.dataService.selectOperationNames) {
+      console.log(s)
       if (!this.settings.settings.colorMap[s]) {
+
         while (true) {
+          console.log(this.currentPosition)
           if (this.breakColor) {
             this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
             break
           }
           if (currentColors.indexOf(this.settings.settings.defaultColorList[this.currentPosition]) !== -1) {
             this.currentPosition ++
+            if (this.repeat) {
+              this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
+              break
+            }
+          } else if (this.currentPosition >= this.settings.settings.defaultColorList.length) {
+            this.currentPosition = 0
+            this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
+            this.repeat = true
+            break
           } else if (this.currentPosition !== this.settings.settings.defaultColorList.length) {
             this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
             break
+
           } else {
             this.breakColor = true
             this.currentPosition = 0
@@ -152,6 +170,8 @@ export class VolcanoPlotComponent implements OnInit {
         if (this.currentPosition === this.settings.settings.defaultColorList.length) {
           this.currentPosition = 0
         }
+        console.log(this.currentPosition)
+        console.log(this.settings.settings.colorMap[s])
       }
       temp[s] = {
         x: [],
@@ -576,6 +596,7 @@ export class VolcanoPlotComponent implements OnInit {
   openCustomColor() {
     const ref = this.modal.open(VolcanoColorsComponent)
     const colorGroups: any[] = []
+    console.log(this.settings.settings.colorMap)
     for (const g in this.settings.settings.colorMap) {
       if (this.currentLegend.includes(g)) {
         colorGroups.push({color: this.settings.settings.colorMap[g], group: g, remove: false})

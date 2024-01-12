@@ -16,6 +16,7 @@ export class VolcanoColorsComponent implements OnInit {
   @Input() set data(value: any) {
     this._data = value.groups
     this.colorGroups = value.colorGroups
+    console.log(value)
   }
 
   get data(): string[] {
