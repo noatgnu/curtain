@@ -134,13 +134,10 @@ export class VolcanoPlotComponent implements OnInit {
     if (currentColors.length !== this.settings.settings.defaultColorList.length) {
       this.currentPosition = currentColors.length
     }
-    console.log(this.dataService.selectOperationNames)
     for (const s of this.dataService.selectOperationNames) {
-      console.log(s)
       if (!this.settings.settings.colorMap[s]) {
 
         while (true) {
-          console.log(this.currentPosition)
           if (this.breakColor) {
             this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
             break
@@ -170,8 +167,6 @@ export class VolcanoPlotComponent implements OnInit {
         if (this.currentPosition === this.settings.settings.defaultColorList.length) {
           this.currentPosition = 0
         }
-        console.log(this.currentPosition)
-        console.log(this.settings.settings.colorMap[s])
       }
       temp[s] = {
         x: [],
