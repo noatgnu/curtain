@@ -61,6 +61,7 @@ import {
   generateAESKey,
   importAESKey
 } from "curtain-web-api/build/classes/curtain-encryption";
+import {PrimaryIdExportModalComponent} from "../primary-id-export-modal/primary-id-export-modal.component";
 
 @Component({
   selector: 'app-home',
@@ -643,8 +644,9 @@ export class HomeComponent implements OnInit {
   }
 
   getSelectedList() {
-    this.web.downloadFile("SelectedPrimaryIDs.txt", this.data.selected.join("\n"))
-    this.web.downloadFile("SelectedGenes.txt", this.data.selectedGenes.join("\n"))
+    //this.web.downloadFile("SelectedPrimaryIDs.txt", this.data.selected.join("\n"))
+    //this.web.downloadFile("SelectedGenes.txt", this.data.selectedGenes.join("\n"))
+    const ref = this.modal.open(PrimaryIdExportModalComponent, {scrollable: true})
   }
 
   openSampleSettings() {
