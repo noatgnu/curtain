@@ -8,6 +8,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {CurtainStatsSummaryComponent} from "./components/curtain-stats-summary/curtain-stats-summary.component";
 import {loadFromLocalStorage} from "curtain-web-api";
 import {DataService} from "./data.service";
+import {environment} from "../environments/environment";
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,7 @@ import {DataService} from "./data.service";
 })
 export class AppComponent implements AfterViewInit {
   title = 'Curtain';
-
+  baseURL = environment.apiURL
   constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private data: DataService,  private settings: SettingsService, private ws: WebsocketService, private modal: NgbModal) {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
