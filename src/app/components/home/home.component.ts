@@ -306,8 +306,11 @@ export class HomeComponent implements OnInit {
         this.data.selectedMap[s][title] = true
       }
     }
-
-    this.rawFiltered = DataFrame.concat([rawFiltered, this.rawFiltered])
+    if (this.rawFiltered.count() > 1) {
+      this.rawFiltered = DataFrame.concat([rawFiltered, this.rawFiltered])
+    } else if (this.rawFiltered.count() === 1) {
+      this.rawFiltered = rawFiltered
+    }
     this.data.selectionUpdateTrigger.next(true)
   }
 

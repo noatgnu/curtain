@@ -370,8 +370,8 @@ export class FileFormComponent implements OnInit {
     } else {
       this.uniprot.geneNameToAcc = {}
       if (this.data.differentialForm.geneNames !== "") {
-        for (const r of this.data.differential.df) {
-          if (r[this.data.differentialForm.geneNames] !== "") {
+        for (const r of this.data.currentDF) {
+          if (r[this.data.differentialForm.geneNames]) {
             const g = r[this.data.differentialForm.geneNames]
             if (!this.data.genesMap[g])  {
               this.data.genesMap[g] = {}
@@ -392,7 +392,7 @@ export class FileFormComponent implements OnInit {
             this.uniprot.geneNameToAcc[g][r[this.data.differentialForm.primaryIDs]] = true
           }
         }
-        this.data.allGenes = this.data.differential.df.getSeries(this.data.differentialForm.geneNames).toArray().filter(v => v !== "")
+        this.data.allGenes = this.data.currentDF.getSeries(this.data.differentialForm.geneNames).distinct().toArray().filter(v => v !== "")
       }
       this.finished.emit(true)
       this.clicked = false
