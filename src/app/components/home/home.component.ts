@@ -335,6 +335,7 @@ export class HomeComponent implements OnInit {
   }
 
   saveSession() {
+    this.toast.show("User information", "Saving session data").then()
     if (!this.accounts.curtainAPI.user.loginStatus) {
       if (this.web.siteProperties.non_user_post) {
         this.saving();
@@ -396,6 +397,7 @@ export class HomeComponent implements OnInit {
 
     this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, this.onUploadProgress).then((data: any) => {
       if (data.data) {
+        this.toast.show("User information", `Curtain link saved with unique id ${data.data.link_id}`).then()
         this.data.session = data.data
         this.settings.settings.currentID = data.data.link_id
         console.log(this.data.session)
