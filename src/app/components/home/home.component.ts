@@ -631,7 +631,7 @@ export class HomeComponent implements OnInit {
   }
 
   openCorrelationMatrix() {
-    this.modal.open(CorrelationMatrixComponent, {size: "xl"})
+    this.modal.open(CorrelationMatrixComponent, {size: "xl", scrollable: true})
   }
 
   openResourceCitation() {
@@ -639,7 +639,7 @@ export class HomeComponent implements OnInit {
   }
 
   openAnnotation() {
-    const ref = this.modal.open(SampleAnnotationComponent, {size: "lg"})
+    const ref = this.modal.open(SampleAnnotationComponent, {size: "lg", scrollable: true})
     ref.closed.subscribe(data => {
       for (const i in data) {
         // @ts-ignore

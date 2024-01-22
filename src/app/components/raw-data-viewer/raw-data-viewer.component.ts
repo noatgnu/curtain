@@ -148,8 +148,8 @@ export class RawDataViewerComponent implements OnInit {
           if (!left["Fold Change"]) {
             result["Fold Change"] = right[this.dataService.differentialForm.foldChange]
           }
-          if (!left["P Value"]) {
-            result["P Value"] = right[this.dataService.differentialForm.significant]
+          if (!left["P-Value"]) {
+            result["P-Value"] = right[this.dataService.differentialForm.significant]
           }
           if (!left["Gene Names"]) {
             if (uni) {
