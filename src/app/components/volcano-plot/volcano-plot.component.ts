@@ -21,6 +21,7 @@ import {FormBuilder} from "@angular/forms";
 })
 export class VolcanoPlotComponent implements OnInit {
   @Output() selected: EventEmitter<selectionData> = new EventEmitter<selectionData>()
+  isVolcanoParameterCollapsed: boolean = false
   _data: any;
   //nameToID: any = {}
   graphData: any[] = []
@@ -186,7 +187,6 @@ export class VolcanoPlotComponent implements OnInit {
     this.layoutMaxMin = {
       xMin: 0, xMax: 0, yMin: 0, yMax: 0
     }
-    console.log(temp)
     this.layoutMaxMin.xMin = this.dataService.minMax.fcMin
     this.layoutMaxMin.xMax = this.dataService.minMax.fcMax
     this.layoutMaxMin.yMin = this.dataService.minMax.pMin
@@ -206,6 +206,12 @@ export class VolcanoPlotComponent implements OnInit {
     }
     if (this.settings.settings.volcanoAxis.maxY) {
       this.graphLayout.yaxis.range[1] = this.settings.settings.volcanoAxis.maxY
+    }
+    if (this.settings.settings.volcanoAxis.x) {
+      this.graphLayout.xaxis.title = `<b>${this.settings.settings.volcanoAxis.x}</b>`
+    }
+    if (this.settings.settings.volcanoAxis.y) {
+      this.graphLayout.yaxis.title = `<b>${this.settings.settings.volcanoAxis.y}</b>`
     }
     temp["Background"] = {
       x:[],
@@ -465,6 +471,12 @@ export class VolcanoPlotComponent implements OnInit {
     }
     this.graphLayout.yaxis.showgrid = this.settings.settings.volcanoPlotGrid.y
     this.graphLayout.xaxis.showgrid = this.settings.settings.volcanoPlotGrid.x
+    if (this.settings.settings.volcanPlotDimension.height) {
+      this.graphLayout.height = this.settings.settings.volcanPlotDimension.height
+    }
+    if (this.settings.settings.volcanPlotDimension.width) {
+      this.graphLayout.width = this.settings.settings.volcanPlotDimension.width
+    }
     if (this.settings.settings.volcanoPlotYaxisPosition.includes("left")) {
 
       // draw y axis line at min x

@@ -14,7 +14,7 @@
         </div>
       </div>
     </ng-container>
-    <div class="p-2" *ngIf="progressEvent && !finished">
+    <div class="p-2 glitch-element" *ngIf="progressEvent && !finished" >
       <span class="text-info">{{progressEvent.text}}</span>
     </div>
     <div class="p-2" *ngIf="settings.newVersionAvailable">
