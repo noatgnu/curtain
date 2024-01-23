@@ -213,6 +213,8 @@ export class VolcanoPlotComponent implements OnInit {
     if (this.settings.settings.volcanoAxis.y) {
       this.graphLayout.yaxis.title = `<b>${this.settings.settings.volcanoAxis.y}</b>`
     }
+
+
     temp["Background"] = {
       x:[],
       y:[],
@@ -295,10 +297,6 @@ export class VolcanoPlotComponent implements OnInit {
         if (!temp[group]) {
           if (!this.settings.settings.colorMap[group]) {
             if (!this.specialColorMap[gr[1]]) {
-
-              console.log(this.currentPosition)
-              console.log(this.settings.settings.defaultColorList.length)
-              console.log(this.settings.settings.defaultColorList[this.currentPosition])
               if (this.settings.settings.defaultColorList[this.currentPosition]) {
                 this.specialColorMap[gr[1]] = this.settings.settings.defaultColorList[this.currentPosition].slice()
                 this.settings.settings.colorMap[group] = this.settings.settings.defaultColorList[this.currentPosition].slice()
@@ -471,12 +469,16 @@ export class VolcanoPlotComponent implements OnInit {
     }
     this.graphLayout.yaxis.showgrid = this.settings.settings.volcanoPlotGrid.y
     this.graphLayout.xaxis.showgrid = this.settings.settings.volcanoPlotGrid.x
-    if (this.settings.settings.volcanPlotDimension.height) {
-      this.graphLayout.height = this.settings.settings.volcanPlotDimension.height
+    if (this.settings.settings.volcanoPlotDimension.height) {
+      this.graphLayout.height = this.settings.settings.volcanoPlotDimension.height
     }
-    if (this.settings.settings.volcanPlotDimension.width) {
-      this.graphLayout.width = this.settings.settings.volcanPlotDimension.width
+    if (this.settings.settings.volcanoPlotDimension.width) {
+      this.graphLayout.width = this.settings.settings.volcanoPlotDimension.width
     }
+    if (this.settings.settings.volcanoPlotDimension.margin) {
+      this.graphLayout.margin = this.settings.settings.volcanoPlotDimension.margin
+    }
+
     if (this.settings.settings.volcanoPlotYaxisPosition.includes("left")) {
 
       // draw y axis line at min x

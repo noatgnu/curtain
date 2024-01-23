@@ -88,8 +88,14 @@ export class Settings {
   volcanoPlotYaxisPosition: string[] = [
     "middle"
   ]
-  volcanPlotDimension: any = {
-    width: 700,
-    height: 700,
+  volcanoPlotDimension: any = {
+    width: 800,
+    height: 1000,
+    margin: {
+      l: null,
+      r: null,
+      b: null,
+      t: null,
+    },
   }
 }
