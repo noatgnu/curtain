@@ -62,16 +62,25 @@ import {
   importAESKey
 } from "curtain-web-api/build/classes/curtain-encryption";
 import {PrimaryIdExportModalComponent} from "../primary-id-export-modal/primary-id-export-modal.component";
+import {animate, style, transition, trigger} from "@angular/animations";
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
+  animate: boolean = false
   isRankPlotCollapse: boolean = true
   GDPR: boolean = false
-  finished: boolean = false
+  _finished: boolean = false
+  set finished(value: boolean) {
+    this._finished = value
+  }
+  get finished(): boolean {
+    return this._finished
+  }
+
   rawFiltered: IDataFrame = new DataFrame()
   uniqueLink: string = ""
   filterModel: string = ""
@@ -289,6 +298,8 @@ export class HomeComponent implements OnInit {
     console.log(e)
     const rawFiltered = this.data.raw.df.where(r => e.data.includes(r[this.data.rawForm.primaryIDs])).bake()
     this.data.selected = this.data.selected.concat(e.data)
+    console.log(rawFiltered)
+    console.log(this.data.selected)
     for (const c of this.data.differentialForm.comparisonSelect) {
       let title = e.title + " (" + c + ")"
       if (e.title.endsWith(" (" + c + ")")) {
@@ -306,11 +317,13 @@ export class HomeComponent implements OnInit {
         this.data.selectedMap[s][title] = true
       }
     }
-    if (this.rawFiltered.count() > 1) {
+
+    if (this.rawFiltered.count() >= 1) {
       this.rawFiltered = DataFrame.concat([rawFiltered, this.rawFiltered])
-    } else if (this.rawFiltered.count() === 1) {
+    } else if (this.rawFiltered.count() === 0) {
       this.rawFiltered = rawFiltered
     }
+    console.log(this.rawFiltered)
     this.data.selectionUpdateTrigger.next(true)
   }
 
