@@ -109,6 +109,9 @@
               <button ngbDropdownItem (click)="openAccountModal()">
                 Account
               </button>
+              <button ngbDropdownItem (click)="openAPIKeyModal()">
+                API Keys
+              </button>
               <button ngbDropdownItem (click)="accounts.logout()">
                 Logout
               </button>
@@ -168,7 +171,9 @@
         </h2>
         <div #collapse="ngbCollapse" [(ngbCollapse)]="isRankPlotCollapse">
           <div class="accordion-body">
-            <app-rank-plot [data]="data.raw.df" *ngIf="isRankPlotCollapse === false"></app-rank-plot>
+            @if (isRankPlotCollapse === false) {
+              <app-rank-plot [data]="data.raw.df"></app-rank-plot>
+            }
           </div>
         </div>
       </div>

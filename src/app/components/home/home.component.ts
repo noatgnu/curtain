@@ -63,6 +63,7 @@ import {
 } from "curtain-web-api/build/classes/curtain-encryption";
 import {PrimaryIdExportModalComponent} from "../primary-id-export-modal/primary-id-export-modal.component";
 import {animate, style, transition, trigger} from "@angular/animations";
+import {ApiKeyModalComponent} from "../api-key-modal/api-key-modal.component";
 
 @Component({
   selector: 'app-home',
@@ -839,5 +840,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-
+  openAPIKeyModal() {
+    this.modal.open(ApiKeyModalComponent, {scrollable: true})
+  }
 }

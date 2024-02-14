@@ -1,0 +1,28 @@
+<div class="modal-header">
+  <h5 class="modal-title">API Keys</h5>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form">
+    <div class="d-flex">
+      <div class="form-floating">
+        <input type="text" class="form-control" formControlName="name" id="api-key-name" placeholder="API Key Name">
+        <label for="api-key-name">API Key Name</label>
+      </div>
+      <button type="button" class="btn btn-primary" (click)="create()">Generate</button>
+    </div>
+  </form>
+  @if (apiKey && apiKey.length > 0) {
+    <div class="form-floating">
+      <textarea class="form-control" id="api-key" placeholder="API Key" readonly [(ngModel)]="apiKey"></textarea>
+      <label for="api-key">Generated API Key</label>
+      <ngb-alert type="warning">
+        <strong>Warning!</strong> This is your only chance to copy the API Key. If you lose it, you will have to generate a new one.
+      </ngb-alert>
+    </div>
+  }
+
+
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+</div>
