@@ -24,7 +24,10 @@
     @for (a of apiKeys; track a) {
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">{{ a.name }}</h5>
+          <div class="card-header">
+            {{ a.name }}
+            <button type="button" class="btn btn-warning" (click)="delete(a.id)"><i class="bi bi-trash"></i></button>
+          </div>
           <div class="card-text">
             <div>
               <b>Key ID:</b> {{ a.id }}

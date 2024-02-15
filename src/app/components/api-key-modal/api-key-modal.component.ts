@@ -26,9 +26,6 @@ export class ApiKeyModalComponent {
     this.refreshList()
   }
 
-  submit() {
-    this.activeModal.close(this.form.value)
-  }
 
   close() {
     this.activeModal.dismiss()
@@ -47,6 +44,12 @@ export class ApiKeyModalComponent {
   refreshList() {
     this.account.curtainAPI.getCurtainAPIKeys().then((data: any) => {
       this.apiKeys = data.data.results
+    })
+  }
+
+  delete(id: any) {
+    this.account.curtainAPI.deleteCurtainAPIKey(id).then(() => {
+      this.refreshList()
     })
   }
 }
