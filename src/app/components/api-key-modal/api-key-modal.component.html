@@ -25,10 +25,7 @@
       @for (a of apiKeys; track a) {
         <div class="card">
           <div class="card-header">
-            <div class="d-flex justify-content-around">
-              <h5>{{ a.name }}</h5>
-              <button type="button" class="btn btn-warning" (click)="delete(a.id)"><i class="bi bi-trash"></i></button>
-            </div>
+            <h5>{{ a.name }}</h5>
           </div>
           <div class="card-body">
             <div class="card-text">
@@ -36,6 +33,7 @@
                 <b>Key ID:</b> {{ a.id }}
               </div>
             </div>
+            <button type="button" class="btn btn-warning" (click)="delete(a.id)"><i class="bi bi-trash"></i></button>
           </div>
         </div>
       }
