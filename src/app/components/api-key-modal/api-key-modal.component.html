@@ -20,25 +20,27 @@
       </ngb-alert>
     </div>
   }
-  <div class="d-flex flex-column gap-2 overflow-auto mt-2">
-    @for (a of apiKeys; track a) {
-      <div class="card">
-        <div class="card-body">
+  @if (apiKeys.length > 0) {
+    <div class="d-flex flex-column gap-2 overflow-auto mt-2">
+      @for (a of apiKeys; track a) {
+        <div class="card">
           <div class="card-header">
             <div class="d-flex justify-content-around">
               <h5>{{ a.name }}</h5>
               <button type="button" class="btn btn-warning" (click)="delete(a.id)"><i class="bi bi-trash"></i></button>
             </div>
           </div>
-          <div class="card-text">
-            <div>
-              <b>Key ID:</b> {{ a.id }}
+          <div class="card-body">
+            <div class="card-text">
+              <div>
+                <b>Key ID:</b> {{ a.id }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    }
-  </div>
+      }
+    </div>
+  }
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
