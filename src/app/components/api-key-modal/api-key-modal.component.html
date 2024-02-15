@@ -3,12 +3,12 @@
 </div>
 <div class="modal-body">
   <form [formGroup]="form">
-    <div class="d-flex">
-      <div class="form-floating">
-        <input type="text" class="form-control" formControlName="name" id="api-key-name" placeholder="API Key Name">
-        <label for="api-key-name">API Key Name</label>
-      </div>
-      <button type="button" class="btn btn-primary" (click)="create()">Generate</button>
+    <div class="form-group">
+      <label for="api-key-name">API Key Name</label>
+      <input type="text" class="form-control" formControlName="name" id="api-key-name" placeholder="API Key Name">
+    </div>
+    <div>
+      <button type="button" class="btn btn-primary" (click)="create()">+</button>
     </div>
   </form>
   @if (apiKey && apiKey.length > 0) {
@@ -20,8 +20,20 @@
       </ngb-alert>
     </div>
   }
-
-
+  <div class="d-flex flex-column gap-2 overflow-auto">
+    @for (a of apiKeys; track a) {
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ a.name }}</h5>
+          <div class="card-text">
+            <div>
+              <b>Key ID:</b> {{ a.id }}
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
