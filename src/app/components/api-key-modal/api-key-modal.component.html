@@ -25,8 +25,10 @@
       <div class="card">
         <div class="card-body">
           <div class="card-header">
-            {{ a.name }}
-            <button type="button" class="btn btn-warning" (click)="delete(a.id)"><i class="bi bi-trash"></i></button>
+            <div class="d-flex justify-content-around">
+              <h5>{{ a.name }}</h5>
+              <button type="button" class="btn btn-warning" (click)="delete(a.id)"><i class="bi bi-trash"></i></button>
+            </div>
           </div>
           <div class="card-text">
             <div>
