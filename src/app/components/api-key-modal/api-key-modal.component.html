@@ -12,13 +12,16 @@
     </div>
   </form>
   @if (apiKey && apiKey.length > 0) {
-    <div class="form-floating mt-2">
-      <textarea class="form-control" id="api-key" placeholder="API Key" readonly [(ngModel)]="apiKey"></textarea>
-      <label for="api-key">Generated API Key</label>
+    <div class="d-flex flex-column gap-2">
+      <div class="form-group mt-2">
+        <label for="api-key">Generated API Key</label>
+        <textarea class="form-control" id="api-key" placeholder="API Key" readonly [(ngModel)]="apiKey" style="height: 200px"></textarea>
+      </div>
       <ngb-alert type="warning">
         <strong>Warning!</strong> This is your only chance to copy the API Key. If you lose it, you will have to generate a new one.
       </ngb-alert>
     </div>
+
   }
   @if (apiKeys.length > 0) {
     <div class="d-flex flex-column gap-2 overflow-auto mt-2">
