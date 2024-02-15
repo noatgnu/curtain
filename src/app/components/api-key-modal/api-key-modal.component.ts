@@ -41,8 +41,9 @@ export class ApiKeyModalComponent {
     if (this.form.valid && this.form.value.name) {
       this.account.curtainAPI.createCurtainAPIKey(this.form.value.name).then((data: any) => {
         console.log(data)
+        console.log(data.data.results)
         this.apiKeys = data.data.results
-        console.log(this.apiKeys)
+
       })
     }
 
