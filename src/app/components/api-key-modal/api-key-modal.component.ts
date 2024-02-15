@@ -23,9 +23,7 @@ export class ApiKeyModalComponent {
   apiKeys: {name: string, id: string}[] = []
   apiKey: string = ""
   constructor(private fb: FormBuilder, private activeModal: NgbActiveModal, private account: AccountsService) {
-    this.account.curtainAPI.getCurtainAPIKeys().then((data: any) => {
-      this.apiKeys = data.data.results
-    })
+    this.refreshList()
   }
 
   submit() {
@@ -40,9 +38,15 @@ export class ApiKeyModalComponent {
     if (this.form.valid && this.form.value.name) {
       this.account.curtainAPI.createCurtainAPIKey(this.form.value.name).then((data: any) => {
         this.apiKey = data.data.key
-
+        console.log(data)
+        this.refreshList()
       })
     }
+  }
 
+  refreshList() {
+    this.account.curtainAPI.getCurtainAPIKeys().then((data: any) => {
+      this.apiKeys = data.data.results
+    })
   }
 }
