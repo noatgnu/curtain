@@ -14,7 +14,7 @@
   @if (apiKey && apiKey.length > 0) {
     <div class="d-flex flex-column gap-2">
       <div class="form-group mt-2">
-        <label for="api-key">Generated API Key</label>
+        <label for="api-key"><b>Generated API Key</b></label>
         <textarea class="form-control" id="api-key" placeholder="API Key" readonly [(ngModel)]="apiKey" style="height: 200px"></textarea>
       </div>
       <ngb-alert type="warning">
