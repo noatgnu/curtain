@@ -476,7 +476,11 @@ export class VolcanoPlotComponent implements OnInit {
       this.graphLayout.width = this.settings.settings.volcanoPlotDimension.width
     }
     if (this.settings.settings.volcanoPlotDimension.margin) {
-      this.graphLayout.margin = this.settings.settings.volcanoPlotDimension.margin
+      for (const i in this.settings.settings.volcanoPlotDimension.margin) {
+        if (this.settings.settings.volcanoPlotDimension.margin[i]) {
+          this.graphLayout.margin[i] = this.settings.settings.volcanoPlotDimension.margin[i]
+        }
+      }
     }
 
     if (this.settings.settings.volcanoPlotYaxisPosition.includes("left")) {
