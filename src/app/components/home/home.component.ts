@@ -92,12 +92,14 @@ export class HomeComponent implements OnInit {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
-
-    if (localStorage.getItem("GDPR") === "true") {
-      this.GDPR = false
-    } else {
+    if (localStorage.getItem("CurtainGDPR") === "true") {
       this.GDPR = true
+      this.gdprAccepted = true
+    } else {
+      this.GDPR = false
+      this.gdprAccepted = false
     }
+
     this.data.clearWatcher.asObservable().subscribe(data => {
       if (data) {
         this.rawFiltered = new DataFrame()
@@ -772,8 +774,18 @@ export class HomeComponent implements OnInit {
   }
 
   closeGDPR() {
-    this.GDPR = false
-    localStorage.setItem("GDPR", "true")
+    this.GDPR = true
+    //localStorage.setItem("GDPR", "true")
+  }
+
+  _gdprAccepted: boolean = false
+  set gdprAccepted(value: boolean) {
+    this._gdprAccepted = value
+    localStorage.setItem("CurtainGDPR", value.toString())
+  }
+
+  get gdprAccepted(): boolean {
+    return this._gdprAccepted
   }
 
   openSampleAndConditionModal() {
