@@ -64,6 +64,7 @@ import {
 import {PrimaryIdExportModalComponent} from "../primary-id-export-modal/primary-id-export-modal.component";
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ApiKeyModalComponent} from "../api-key-modal/api-key-modal.component";
+import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you-sure-clear-modal.component";
 
 @Component({
   selector: 'app-home',
@@ -625,15 +626,31 @@ export class HomeComponent implements OnInit {
   }
 
   clearSelections() {
-    //this.data.clear()
-    this.data.selected = []
-    this.data.selectedGenes = []
-    this.data.selectedMap = {}
-    this.data.selectOperationNames = []
-    this.settings.settings.rankPlotAnnotation = {}
-    this.settings.settings.textAnnotation = {}
-    this.data.annotatedData = {}
-    this.data.clearWatcher.next(true)
+    const rememberClearSettings = localStorage.getItem("curtainRememberClearSettings")
+    if (rememberClearSettings === "true") {
+      this.data.selected = []
+      this.data.selectedGenes = []
+      this.data.selectedMap = {}
+      this.data.selectOperationNames = []
+      this.settings.settings.rankPlotAnnotation = {}
+      this.settings.settings.textAnnotation = {}
+      this.data.annotatedData = {}
+      this.data.clearWatcher.next(true)
+    } else {
+      const ref = this.modal.open(AreYouSureClearModalComponent)
+      ref.closed.subscribe(data => {
+        if (data) {
+          this.data.selected = []
+          this.data.selectedGenes = []
+          this.data.selectedMap = {}
+          this.data.selectOperationNames = []
+          this.settings.settings.rankPlotAnnotation = {}
+          this.settings.settings.textAnnotation = {}
+          this.data.annotatedData = {}
+          this.data.clearWatcher.next(true)
+        }
+      })
+    }
   }
 
 

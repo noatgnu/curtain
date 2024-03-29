@@ -13,6 +13,7 @@ import {
 } from "../volcano-plot-text-annotation/volcano-plot-text-annotation.component";
 import {ToastService} from "../../toast.service";
 import {FormBuilder} from "@angular/forms";
+import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you-sure-clear-modal.component";
 
 @Component({
   selector: 'app-volcano-plot',
@@ -750,5 +751,20 @@ export class VolcanoPlotComponent implements OnInit {
     } else {
       this.settings.settings.visible[event.event.srcElement.__data__[0].trace.name] = "legendonly"
     }
+  }
+
+  clear() {
+    const rememberClearSettings = localStorage.getItem("curtainRememberClearSettings")
+    if (rememberClearSettings === "true") {
+      this.dataService.clear()
+    } else {
+      const ref = this.modal.open(AreYouSureClearModalComponent)
+      ref.closed.subscribe((result: boolean) => {
+        if (result) {
+          this.dataService.clear()
+        }
+      })
+    }
+
   }
 }
