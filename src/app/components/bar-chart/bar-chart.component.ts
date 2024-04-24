@@ -246,7 +246,11 @@ export class BarChartComponent implements OnInit {
       }
     }
     let currentSampleNumber: number = 0
-    for (const g in graph) {
+    console.log(this.settings.settings.conditionOrder)
+    for (const g of this.settings.settings.conditionOrder) {
+      if (!graph[g]) {
+        continue
+      }
       const annotationsPosition = currentSampleNumber +  graph[g].x.length/2
       currentSampleNumber = currentSampleNumber + graph[g].x.length
       this.graphData.push(graph[g])
@@ -303,7 +307,11 @@ export class BarChartComponent implements OnInit {
         graph[condition].push(this._data[s])
       }
     }
-    for (const g in graph) {
+
+    for (const g of this.settings.settings.conditionOrder) {
+      if (!graph[g]) {
+        continue
+      }
       let color = this.settings.settings.colorMap[g]
       if (this.settings.settings.barchartColorMap[g]) {
         color = this.settings.settings.barchartColorMap[g]

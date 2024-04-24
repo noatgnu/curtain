@@ -114,7 +114,7 @@ addEventListener('message', (data: MessageEvent<any>) => {
         }
         sampleMap[s] = {replicate: replicate, condition: condition, name: s}
       }
-
+      console.log(conditions)
       if (Object.keys(data.data.settings.sampleMap).length === 0) {
         data.data.settings.sampleMap = sampleMap
       }
@@ -146,16 +146,19 @@ addEventListener('message', (data: MessageEvent<any>) => {
       if (data.data.settings.conditionOrder.length === 0) {
         data.data.settings.conditionOrder = conditions.slice()
       } else {
-        for (const c of conditions) {
+        let conditionOrder = conditions.slice()
+        for (const c of data.data.settings.conditionOrder) {
+          if (!conditionOrder.includes(c)) {
+            data.data.settings.conditionOrder = data.data.settings.conditionOrder.filter((cc: string) => cc !== c)
+          }
+        }
+        console.log(conditionOrder)
+        for (const c of conditionOrder) {
           if (!data.data.settings.conditionOrder.includes(c)) {
             data.data.settings.conditionOrder.push(c)
           }
         }
-        for (const c of data.data.settings.conditionOrder) {
-          if (!conditions.includes(c)) {
-            data.data.settings.conditionOrder = data.data.settings.conditionOrder.filter((cc: string) => cc !== c)
-          }
-        }
+        console.log(data.data.settings.conditionOrder)
       }
       for (const c in data.data.settings.sampleOrder) {
         if (!conditions.includes(c)) {
