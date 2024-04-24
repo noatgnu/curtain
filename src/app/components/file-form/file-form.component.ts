@@ -98,6 +98,7 @@ export class FileFormComponent implements OnInit {
             } else if (data.data.type === "resultRaw") {
               console.log(data.data.settings.currentID)
               this.data.raw.df = fromJSON(data.data.raw)
+              console.log(data.data.settings)
               for (const s in this.settings.settings) {
 
                 if (this.settings.settings.hasOwnProperty(s)) {

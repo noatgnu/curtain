@@ -76,8 +76,9 @@ addEventListener('message', (data: MessageEvent<any>) => {
       const colorMap: any = {}
 
       const conditionOrder = data.data.settings.conditionOrder.slice()
-      let samples: string[] = []
-      if (conditionOrder.length > 0) {
+      let samples: string[] = data.data.rawForm._samples.slice()
+      /*if (conditionOrder.length > 0) {
+        // re order samples based on condition order but check if condition exists
         for (const c of conditionOrder) {
           for (const s of data.data.settings.sampleOrder[c]) {
             samples.push(s)
@@ -85,14 +86,16 @@ addEventListener('message', (data: MessageEvent<any>) => {
         }
       } else {
         samples = data.data.rawForm._samples.slice()
-      }
+      }*/
       const sampleMap: any = {}
       for (const s of samples) {
+        console.log(s)
         const condition_replicate = s.split(".")
         const replicate = condition_replicate[condition_replicate.length-1]
         const condition = condition_replicate.slice(0, condition_replicate.length-1).join(".")
         if (!conditions.includes(condition)) {
           conditions.push(condition)
+
           if (colorPosition >= data.data.settings.defaultColorList.length) {
             colorPosition = 0
           }
@@ -115,6 +118,26 @@ addEventListener('message', (data: MessageEvent<any>) => {
       if (Object.keys(data.data.settings.sampleMap).length === 0) {
         data.data.settings.sampleMap = sampleMap
       }
+
+      for (const s in data.data.settings.sampleVisible) {
+        if (!(s in sampleMap)) {
+          delete data.data.settings.sampleVisible[s]
+        }
+      }
+
+      for (const s in sampleMap) {
+        if (!(s in data.data.settings.sampleMap)) {
+          data.data.settings.sampleMap[s] = sampleMap[s]
+        }
+      }
+
+      for (const s in data.data.settings.sampleMap) {
+        if (!(s in sampleMap)) {
+          delete data.data.settings.sampleMap[s]
+        }
+      }
+
+
       for (const s in colorMap) {
         if (!(s in data.data.settings.colorMap)) {
           data.data.settings.colorMap[s] = colorMap[s]
@@ -122,7 +145,24 @@ addEventListener('message', (data: MessageEvent<any>) => {
       }
       if (data.data.settings.conditionOrder.length === 0) {
         data.data.settings.conditionOrder = conditions.slice()
+      } else {
+        for (const c of conditions) {
+          if (!data.data.settings.conditionOrder.includes(c)) {
+            data.data.settings.conditionOrder.push(c)
+          }
+        }
+        for (const c of data.data.settings.conditionOrder) {
+          if (!conditions.includes(c)) {
+            data.data.settings.conditionOrder = data.data.settings.conditionOrder.filter((cc: string) => cc !== c)
+          }
+        }
       }
+      for (const c in data.data.settings.sampleOrder) {
+        if (!conditions.includes(c)) {
+          delete data.data.settings.sampleOrder[c]
+        }
+      }
+
       const storeRaw = rawDF.toArray().map((r: any) => {
         for (const s of samples) {
           r[s] = Number(r[s])
