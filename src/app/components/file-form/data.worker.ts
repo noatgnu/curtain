@@ -146,7 +146,7 @@ addEventListener('message', (data: MessageEvent<any>) => {
       if (data.data.settings.conditionOrder.length === 0) {
         data.data.settings.conditionOrder = conditions.slice()
       } else {
-        let conditionOrder = conditions.slice()
+        //let conditionOrder = conditions.slice()
         /*for (const c of data.data.settings.conditionOrder) {
           if (!conditionOrder.includes(c)) {
             data.data.settings.conditionOrder = data.data.settings.conditionOrder.filter((cc: string) => cc !== c)
@@ -161,6 +161,8 @@ addEventListener('message', (data: MessageEvent<any>) => {
         console.log(data.data.settings.conditionOrder)
       }*/
         data.data.settings.conditionOrder = conditions.slice()
+      }
+
       for (const c in data.data.settings.sampleOrder) {
         if (!conditions.includes(c)) {
           delete data.data.settings.sampleOrder[c]
