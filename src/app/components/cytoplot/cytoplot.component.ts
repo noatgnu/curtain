@@ -3,15 +3,11 @@ import * as cytoscape from "cytoscape";
 import * as fcose from "cytoscape-fcose";
 import {saveAs} from "file-saver";
 //import * as cxtmenu from "cytoscape-cxtmenu";
-
-
-
 // @ts-ignore
 //import * as cytoscapeSVG from "cytoscape-svg";
 // @ts-ignore
 //import * as panzoom from "cytoscape-panzoom";
 import {SettingsService} from "../../settings.service";
-
 //cytoscape.use(cytoscapeSVG);
 cytoscape.use(fcose);
 //cytoscape.use(cxtmenu);

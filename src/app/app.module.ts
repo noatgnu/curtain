@@ -70,6 +70,7 @@ import { SessionComparisonResultViewerModalComponent } from './components/sessio
 import { CurtainStatsSummaryComponent } from './components/curtain-stats-summary/curtain-stats-summary.component';
 import { EncryptionSettingsComponent } from './components/encryption-settings/encryption-settings.component';
 import { SubFilterComponent } from './components/sub-filter/sub-filter.component';
+import {ToastProgressbarComponent} from "./components/toast-container/toast-progressbar/toast-progressbar.component";
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -126,26 +127,27 @@ PlotlyModule.plotlyjs = PlotlyJS;
     EncryptionSettingsComponent,
     SubFilterComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    NgbModule,
-    FormsModule,
-    HttpClientModule,
-    PlotlyModule,
-    ReactiveFormsModule,
-    ColorPickerModule,
-    QuillModule.forRoot(),
-    AccountsModule,
-    NgxPrintModule,
-    NgxQrcodeStylingModule,
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: !isDevMode(),
-      // Register the ServiceWorker as soon as the application is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: 'registerWhenStable:30000'
-    })
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        NgbModule,
+        FormsModule,
+        HttpClientModule,
+        PlotlyModule,
+        ReactiveFormsModule,
+        ColorPickerModule,
+        QuillModule.forRoot(),
+        AccountsModule,
+        NgxPrintModule,
+        NgxQrcodeStylingModule,
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            // Register the ServiceWorker as soon as the application is stable
+            // or after 30 seconds (whichever comes first).
+            registrationStrategy: 'registerWhenStable:30000'
+        }),
+        ToastProgressbarComponent
+    ],
   providers: [HttpClient,
   ],
   bootstrap: [AppComponent]
