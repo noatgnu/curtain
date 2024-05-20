@@ -76,6 +76,7 @@ addEventListener('message', (data: MessageEvent<any>) => {
       const colorMap: any = {}
 
       const conditionOrder = data.data.settings.conditionOrder.slice()
+      console.log(conditionOrder)
       let samples: string[] = data.data.rawForm._samples.slice()
       /*if (conditionOrder.length > 0) {
         // re order samples based on condition order but check if condition exists
@@ -144,8 +145,10 @@ addEventListener('message', (data: MessageEvent<any>) => {
         }
       }
       if (data.data.settings.conditionOrder.length === 0) {
+        console.log("condition order is empty")
         data.data.settings.conditionOrder = conditions.slice()
       } else {
+        console.log("condition order is not empty")
         //let conditionOrder = conditions.slice()
         /*for (const c of data.data.settings.conditionOrder) {
           if (!conditionOrder.includes(c)) {
@@ -160,7 +163,21 @@ addEventListener('message', (data: MessageEvent<any>) => {
         }
         console.log(data.data.settings.conditionOrder)
       }*/
-        data.data.settings.conditionOrder = conditions.slice()
+        const conditionO: string[] = []
+        for (const c of conditionOrder) {
+
+          if (!conditions.includes(c)) {
+
+          } else {
+            conditionO.push(c)
+          }
+        }
+        for (const c of conditions) {
+          if (!conditionO.includes(c)) {
+            conditionO.push(c)
+          }
+        }
+        data.data.settings.conditionOrder = conditionO
       }
 
       for (const c in data.data.settings.sampleOrder) {

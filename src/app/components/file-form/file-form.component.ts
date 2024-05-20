@@ -97,6 +97,7 @@ export class FileFormComponent implements OnInit {
               this.data.raw.df = new DataFrame()
             } else if (data.data.type === "resultRaw") {
               console.log(data.data.settings.currentID)
+              console.log(data.data.raw)
               this.data.raw.df = fromJSON(data.data.raw)
               console.log(data.data.settings)
               for (const s in this.settings.settings) {
@@ -299,7 +300,9 @@ export class FileFormComponent implements OnInit {
   }
 
   processUniProt(){
+    console.log(this.data.fetchUniprot)
     if (this.data.fetchUniprot) {
+
       if (!this.data.bypassUniProt) {
         this.uniprot.geneNameToAcc = {}
         this.uniprot.uniprotParseStatus.next(false)
@@ -308,6 +311,7 @@ export class FileFormComponent implements OnInit {
         this.data.genesMap = {}
         this.uniprot.accMap = new Map<string, string[]>()
         this.uniprot.dataMap = new Map<string, any>()
+        console.log(this.data.raw.df)
         for (const r of this.data.raw.df) {
           const a = r[this.data.rawForm.primaryIDs]
 
@@ -344,6 +348,7 @@ export class FileFormComponent implements OnInit {
             }
           }
         }
+        console.log(accList)
         if (accList.length > 0) {
           this.toast.show("UniProt", "Building local UniProt database. This may take a few minutes.").then(() => {
             this.uniprot.db = new Map<string, any>()

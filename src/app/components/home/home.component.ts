@@ -358,6 +358,7 @@ export class HomeComponent implements OnInit {
 
   saveSession() {
     this.toast.show("User information", "Saving session data").then()
+    console.log(this.settings.settings.conditionOrder.slice())
     if (!this.accounts.curtainAPI.user.loginStatus) {
       if (this.web.siteProperties.non_user_post) {
         this.saving();
@@ -404,6 +405,7 @@ export class HomeComponent implements OnInit {
       annotatedData: this.data.annotatedData,
       extraData: extraData
     }
+    console.log(data.settings.conditionOrder)
 
     return data
   }
@@ -536,6 +538,7 @@ export class HomeComponent implements OnInit {
     if (!object.settings.sampleVisible) {
       object.settings.sampleVisible = {}
     }
+    console.log(JSON.stringify(object.settings.conditionOrder))
     if (!object.settings.conditionOrder) {
       object.settings.conditionOrder = []
     }
