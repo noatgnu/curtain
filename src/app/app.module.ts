@@ -71,6 +71,7 @@ import { CurtainStatsSummaryComponent } from './components/curtain-stats-summary
 import { EncryptionSettingsComponent } from './components/encryption-settings/encryption-settings.component';
 import { SubFilterComponent } from './components/sub-filter/sub-filter.component';
 import {ToastProgressbarComponent} from "./components/toast-container/toast-progressbar/toast-progressbar.component";
+import {AnnotationComponent} from "./components/volcano-plot/annotation/annotation.component";
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -146,7 +147,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
             // or after 30 seconds (whichever comes first).
             registrationStrategy: 'registerWhenStable:30000'
         }),
-        ToastProgressbarComponent
+        ToastProgressbarComponent,
+        AnnotationComponent
     ],
   providers: [HttpClient,
   ],

@@ -21,6 +21,7 @@ import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you
   styleUrls: ['./volcano-plot.component.scss']
 })
 export class VolcanoPlotComponent implements OnInit {
+  settingsNav: string = "parameters"
   @Output() selected: EventEmitter<selectionData> = new EventEmitter<selectionData>()
   isVolcanoParameterCollapsed: boolean = false
   _data: any;
@@ -695,6 +696,7 @@ export class VolcanoPlotComponent implements OnInit {
     if (annotations.length > 0) {
       this.graphLayout.annotations = this.graphLayout.annotations.concat(annotations)
     }
+    this.dataService.annotationVisualUpdated.next(true)
   }
 
   async removeAnnotatedDataPoints(data: string[]) {
@@ -713,35 +715,39 @@ export class VolcanoPlotComponent implements OnInit {
       }
     }
     this.graphLayout.annotations = Object.values(this.annotated)
+    this.dataService.annotationVisualUpdated.next(true)
   }
 
   download() {
     this.web.downloadPlotlyImage("svg", "volcano","volcanoPlot")
   }
 
+  updateAnnotation(data: any) {
+    this.graphLayout.annotations = []
+    this.annotated = {}
+    for (const f of data) {
+      console.log(f)
+      this.settings.settings.textAnnotation[f.value.annotationID].data.showarrow = f.value.showarrow
+      this.settings.settings.textAnnotation[f.value.annotationID].data.arrowhead = f.value.arrowhead
+      this.settings.settings.textAnnotation[f.value.annotationID].data.arrowsize = f.value.arrowsize
+      this.settings.settings.textAnnotation[f.value.annotationID].data.arrowwidth = f.value.arrowwidth
+      this.settings.settings.textAnnotation[f.value.annotationID].data.ax = f.value.ax
+      this.settings.settings.textAnnotation[f.value.annotationID].data.ay = f.value.ay
+      this.settings.settings.textAnnotation[f.value.annotationID].data.font.size = f.value.fontsize
+      this.settings.settings.textAnnotation[f.value.annotationID].data.font.color = f.value.fontcolor
+      this.settings.settings.textAnnotation[f.value.annotationID].data.text = f.value.text
+      this.settings.settings.textAnnotation[f.value.annotationID].data.showannotation = f.value.showannotation
+      this.annotated[f.value.annotationID] = this.settings.settings.textAnnotation[f.value.annotationID].data
+      this.graphLayout.annotations.push(this.annotated[f.value.annotationID])
+    }
+    this.drawVolcano()
+  }
+
   openTextEditor() {
     const ref = this.modal.open(VolcanoPlotTextAnnotationComponent, {size: "xl", scrollable: true})
     ref.componentInstance.data = {annotation: this.settings.settings.textAnnotation}
     ref.closed.subscribe(data => {
-      this.graphLayout.annotations = []
-      this.annotated = {}
-      for (const f of data) {
-        console.log(f)
-        this.settings.settings.textAnnotation[f.value.annotationID].data.showarrow = f.value.showarrow
-        this.settings.settings.textAnnotation[f.value.annotationID].data.arrowhead = f.value.arrowhead
-        this.settings.settings.textAnnotation[f.value.annotationID].data.arrowsize = f.value.arrowsize
-        this.settings.settings.textAnnotation[f.value.annotationID].data.arrowwidth = f.value.arrowwidth
-        this.settings.settings.textAnnotation[f.value.annotationID].data.ax = f.value.ax
-        this.settings.settings.textAnnotation[f.value.annotationID].data.ay = f.value.ay
-        this.settings.settings.textAnnotation[f.value.annotationID].data.font.size = f.value.fontsize
-        this.settings.settings.textAnnotation[f.value.annotationID].data.font.color = f.value.fontcolor
-        this.settings.settings.textAnnotation[f.value.annotationID].data.text = f.value.text
-        this.settings.settings.textAnnotation[f.value.annotationID].data.showannotation = f.value.showannotation
-        this.annotated[f.value.annotationID] = this.settings.settings.textAnnotation[f.value.annotationID].data
-        this.graphLayout.annotations.push(this.annotated[f.value.annotationID])
-
-      }
-      this.drawVolcano()
+      this.updateAnnotation(data)
     })
   }
 
@@ -766,5 +772,59 @@ export class VolcanoPlotComponent implements OnInit {
       })
     }
 
+  }
+
+  isOverlapping(labelA: any, labelB: any) {
+    const labelAWidth = labelA["font"]["size"] * this.stripHTML(labelA["text"]).length
+    const labelBWidth = labelB["font"]["size"] * this.stripHTML(labelB["text"]).length
+    return !(labelA.x > labelB.x + labelBWidth || labelA.x + labelAWidth < labelB.x || labelA.y > labelB.y + labelB["font"]["size"] || labelA.y + labelA["font"]["size"] < labelB.y)
+  }
+
+  addJitterUntilNoOverlap(currentLabel: any, existingLabels: any[], jitterAmount: number, plotBounds: {xMin: number, xMax: number, yMin: number, yMax: number}) {
+    let jitteredLabel = {...currentLabel}; // Create a copy of the current label
+    let isOverlapping: boolean;
+
+    do {
+      isOverlapping = false; // Reset the overlap flag for each iteration
+
+      // Check if the jittered label overlaps with any of the existing labels
+      for (const existingLabel of existingLabels) {
+        if (this.isOverlapping(jitteredLabel, existingLabel)) {
+          isOverlapping = true; // Set the overlap flag to true
+
+          // Add jitter to the label's position
+          jitteredLabel.x += (Math.random() - 0.5) * 2 * jitterAmount;
+          jitteredLabel.y += (Math.random() - 0.5) * 2 * jitterAmount;
+
+          // Ensure the jittered label does not go out of the plot
+          jitteredLabel.x = Math.max(plotBounds.xMin, Math.min(plotBounds.xMax, jitteredLabel.x));
+          jitteredLabel.y = Math.max(plotBounds.yMin, Math.min(plotBounds.yMax, jitteredLabel.y));
+
+          break; // Break the loop as soon as an overlap is found
+        }
+      }
+    } while (isOverlapping); // Repeat until no overlap is found
+
+    return jitteredLabel; // Return the jittered label
+  }
+
+  jitterAnnotations() {
+    // Jitter the annotations to prevent overlapping
+    const jitterAmount = 5; // Amount of jitter to add to the annotations
+    const jitteredAnnotations = this.graphLayout.annotations.map((annotation: any) => {
+      return this.addJitterUntilNoOverlap(annotation, this.graphLayout.annotations.filter((a: any) => a !== annotation), jitterAmount, {
+        xMin: this.graphLayout.xaxis.range[0],
+        xMax: this.graphLayout.xaxis.range[1],
+        yMin: this.graphLayout.yaxis.range[0],
+        yMax: this.graphLayout.yaxis.range[1]
+      });
+    });
+
+    // Update the annotations with the jittered positions
+    this.graphLayout.annotations = jitteredAnnotations;
+  }
+
+  stripHTML(text: string) {
+    return text.replace(/<[^>]*>?/gm, '')
   }
 }

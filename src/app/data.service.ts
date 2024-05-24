@@ -199,6 +199,7 @@ export class DataService {
   primaryIDsList: string[] = []
   restoreTrigger: Subject<boolean> = new Subject<boolean>()
   annotationService: Subject<any> = new Subject<any>()
+  annotationVisualUpdated: Subject<boolean> = new Subject<boolean>()
   searchCommandService: Subject<any> = new Subject<any>()
   resetVolcanoColor: Subject<boolean> = new Subject<boolean>()
   constructor(private uniprot: UniprotService, private settings: SettingsService) { }
