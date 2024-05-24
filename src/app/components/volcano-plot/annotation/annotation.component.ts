@@ -22,7 +22,8 @@ export class AnnotationComponent {
   forms: FormGroup[] = []
   @Output() updateAnnotation: EventEmitter<any> = new EventEmitter<any>()
   constructor(private fb: FormBuilder, private settings: SettingsService, private dataService: DataService) {
-
+    this.forms = []
+    this.composeForms()
     this.dataService.annotationVisualUpdated.asObservable().subscribe(
       (value) => {
         this.forms = []
