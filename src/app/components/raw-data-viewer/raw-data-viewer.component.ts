@@ -20,6 +20,7 @@ export class RawDataViewerComponent implements OnInit {
     this._data = value
     this.baseData = value
     this.displayDF = value
+    this.displayDF = this.displayDF.distinct((row: any) => row[this.dataService.rawForm.primaryIDs]).bake()
     this.ready = true
     console.log(this._data)
   }
