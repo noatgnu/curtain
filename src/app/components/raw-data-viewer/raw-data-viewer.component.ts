@@ -74,6 +74,7 @@ export class RawDataViewerComponent implements OnInit {
       } else {
         this.displayDF = this.baseData
       }
+      this.displayDF = this.displayDF.distinct((row: any) => row[this.dataService.rawForm.primaryIDs]).bake()
       this.ready = true
     })
 
@@ -94,6 +95,7 @@ export class RawDataViewerComponent implements OnInit {
           }).bake()
         }
         this.displayDF = this.baseData
+        this.displayDF = this.displayDF.distinct((row: any) => row[this.dataService.rawForm.primaryIDs]).bake()
       }
       this.toast.show("Filtering", "Completed filtering data for " + value, 5000).then()
       this.ready = true
@@ -214,10 +216,10 @@ export class RawDataViewerComponent implements OnInit {
               return highestEnrichrRankMap[this.sortForm.value.enrichrRun] + 1
             }
           }).bake()
-
         }
       }
-      console.log(this.displayDF)
+      this.displayDF = this.displayDF.distinct((row: any) => row[this.dataService.rawForm.primaryIDs]).bake()
+
     }
   }
 
