@@ -43,9 +43,13 @@ export class SampleConditionAssignmentModalComponent implements OnInit {
         if (this.settings.settings.barchartColorMap[this.sampleMap[s].condition]) {
           this.settings.settings.barchartColorMap[this.sampleMap[s].condition] = this.settings.settings.barchartColorMap[this.settings.settings.sampleMap[s].condition]
         }
+        this.settings.settings.sampleVisible[s] = this.settings.settings.sampleVisible[s]
       }
     }
+    this.settings.settings.conditionOrder = conditions.slice()
+
     this.settings.settings.sampleMap = this.sampleMap
+    console.log(this.sampleMap)
     this.dataService.conditions = conditions.slice()
     this.dataService.redrawTrigger.next(true)
     this.modal.close()
