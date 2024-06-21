@@ -89,11 +89,16 @@ addEventListener('message', (data: MessageEvent<any>) => {
         samples = data.data.rawForm._samples.slice()
       }*/
       const sampleMap: any = {}
+      //console.log(data.data.settings.sampleMap)
       for (const s of samples) {
-        console.log(s)
+        //console.log(s)
         const condition_replicate = s.split(".")
+        //console.log(data.data.settings.sampleMap[s])
         const replicate = condition_replicate[condition_replicate.length-1]
-        const condition = condition_replicate.slice(0, condition_replicate.length-1).join(".")
+        let condition = condition_replicate.slice(0, condition_replicate.length-1).join(".")
+        if (data.data.settings.sampleMap[s]["condition"]) {
+          condition = data.data.settings.sampleMap[s]["condition"]
+        }
         if (!conditions.includes(condition)) {
           conditions.push(condition)
 
@@ -115,7 +120,7 @@ addEventListener('message', (data: MessageEvent<any>) => {
         }
         sampleMap[s] = {replicate: replicate, condition: condition, name: s}
       }
-      console.log(conditions)
+      //console.log(conditions)
       if (Object.keys(data.data.settings.sampleMap).length === 0) {
         data.data.settings.sampleMap = sampleMap
       }

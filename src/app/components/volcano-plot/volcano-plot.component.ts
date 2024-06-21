@@ -216,7 +216,8 @@ export class VolcanoPlotComponent implements OnInit {
     if (this.settings.settings.volcanoAxis.y) {
       this.graphLayout.yaxis.title = `<b>${this.settings.settings.volcanoAxis.y}</b>`
     }
-
+    console.log(this.graphLayout.xaxis.range)
+    console.log(this.graphLayout.yaxis.range)
 
     temp["Background"] = {
       x:[],
