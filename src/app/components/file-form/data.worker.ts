@@ -96,9 +96,12 @@ addEventListener('message', (data: MessageEvent<any>) => {
         //console.log(data.data.settings.sampleMap[s])
         const replicate = condition_replicate[condition_replicate.length-1]
         let condition = condition_replicate.slice(0, condition_replicate.length-1).join(".")
-        if (data.data.settings.sampleMap[s]["condition"]) {
-          condition = data.data.settings.sampleMap[s]["condition"]
+        if (data.data.settings.sampleMap[s]){
+          if (data.data.settings.sampleMap[s]["condition"]) {
+            condition = data.data.settings.sampleMap[s]["condition"]
+          }
         }
+
         if (!conditions.includes(condition)) {
           conditions.push(condition)
 
