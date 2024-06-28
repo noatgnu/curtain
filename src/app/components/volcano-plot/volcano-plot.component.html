@@ -5,11 +5,12 @@
       [data]="graphData"
       [layout]="graphLayout"
       [config]="config"
-      [updateOnDataChange]="true"
-      [updateOnLayoutChange]="true"
+      [updateOnlyWithRevision]="true"
+      [revision]="revision"
       (plotlyClick)="selectData($event)"
       (selected)="selectData($event)"
       (legendClick)="legendClickHandler($event)"
+      (relayout)="handleLayoutChange($event)"
     ></plotly-plot>
   </div>
   <div class="flex-grow-0" style="max-width: 500px">

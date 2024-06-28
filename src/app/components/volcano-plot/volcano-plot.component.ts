@@ -32,7 +32,7 @@ export class VolcanoPlotComponent implements OnInit {
     "middle",
     "left"
   ]
-
+  revision = 0
   graphLayout: any = {
     height: 700, width: 700,
     margin: {r: null, l: null, b: null, t: null},
@@ -527,9 +527,15 @@ export class VolcanoPlotComponent implements OnInit {
         width: this.graphLayout.width,
         scale: 1,
         margin: this.graphLayout.margin
+      },
+      modeBarButtonsToAdd: ["drawline", "drawcircle", "drawrect", "eraseshape"]
+    }
+    if (this.settings.settings.volcanoAdditionalShapes) {
+      for (const s of this.settings.settings.volcanoAdditionalShapes) {
+        this.graphLayout.shapes.push(s)
       }
     }
-
+    this.revision ++
     this.messageService.show("Volcano Plot", "Finished drawing volcano plot")
     //this.removeAnnotatedDataPoints([])
   }
@@ -827,5 +833,11 @@ export class VolcanoPlotComponent implements OnInit {
 
   stripHTML(text: string) {
     return text.replace(/<[^>]*>?/gm, '')
+  }
+
+  handleLayoutChange(data: any) {
+    if (data.shapes) {
+      this.settings.settings.volcanoAdditionalShapes = data.shapes
+    }
   }
 }

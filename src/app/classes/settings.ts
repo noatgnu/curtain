@@ -98,4 +98,5 @@ export class Settings {
       t: null,
     },
   }
+  volcanoAdditionalShapes: any = []
 }
