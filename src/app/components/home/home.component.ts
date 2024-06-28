@@ -82,7 +82,7 @@ export class HomeComponent implements OnInit {
   get finished(): boolean {
     return this._finished
   }
-
+  permanent: boolean = false
   rawFiltered: IDataFrame = new DataFrame()
   uniqueLink: string = ""
   filterModel: string = ""
@@ -151,6 +151,9 @@ export class HomeComponent implements OnInit {
   async getSessionData(id: string, token: string = "") {
     const d = await this.accounts.curtainAPI.getSessionSettings(id)
     this.data.session = d.data
+    if (this.data.session.permanent) {
+      this.permanent = true
+    }
 
     try {
       const ownership = await this.accounts.curtainAPI.getOwnership(id)
@@ -356,25 +359,25 @@ export class HomeComponent implements OnInit {
     this.scroll.scrollToID(primaryIDs+"scrollID")
   }
 
-  saveSession() {
+  saveSession(permanent: boolean = false) {
     this.toast.show("User information", "Saving session data").then()
     console.log(this.settings.settings.conditionOrder.slice())
     if (!this.accounts.curtainAPI.user.loginStatus) {
       if (this.web.siteProperties.non_user_post) {
-        this.saving();
+        this.saving(permanent);
       } else {
         this.toast.show("User information", "Please login before saving data session").then()
       }
     } else {
       if (!this.accounts.curtainAPI.user.curtainLinkLimitExceeded ) {
-        this.saving();
+        this.saving(permanent);
       } else {
         this.toast.show("User information", "Curtain link limit exceed").then()
       }
     }
   }
 
-  private createPayload() {
+  private createPayload(permanent: boolean = false) {
     const extraData: any = {
       uniprot: {
         results: this.uniprot.results,
@@ -403,14 +406,15 @@ export class HomeComponent implements OnInit {
       settings: this.settings.settings,
       fetchUniprot: this.data.fetchUniprot,
       annotatedData: this.data.annotatedData,
-      extraData: extraData
+      extraData: extraData,
+      permanent: permanent,
     }
     console.log(data.settings.conditionOrder)
 
     return data
   }
 
-  private saving() {
+  private saving(permanent: boolean = false) {
     const data = this.createPayload()
     const encryption: CurtainEncryption = {
       encrypted: this.settings.settings.encrypted,
@@ -419,13 +423,14 @@ export class HomeComponent implements OnInit {
     }
     console.log(encryption)
 
-    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, this.onUploadProgress).then((data: any) => {
+    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, permanent, this.onUploadProgress).then((data: any) => {
       if (data.data) {
         this.toast.show("User information", `Curtain link saved with unique id ${data.data.link_id}`).then()
         this.data.session = data.data
         this.settings.settings.currentID = data.data.link_id
         console.log(this.data.session)
         this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
+        this.permanent = data.data.permanent
         this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
       }
     }).catch(err => {
@@ -651,6 +656,7 @@ export class HomeComponent implements OnInit {
           this.data.selectOperationNames = []
           this.settings.settings.rankPlotAnnotation = {}
           this.settings.settings.textAnnotation = {}
+          this.settings.settings.volcanoAdditionalShapes = []
           this.data.annotatedData = {}
           this.data.clearWatcher.next(true)
         }

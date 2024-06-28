@@ -223,6 +223,7 @@ export class DataService {
     //this.settings.settings.barchartColorMap = {}
     this.settings.settings.rankPlotAnnotation = {}
     this.settings.settings.rankPlotColorMap = {}
+    this.settings.settings.volcanoAdditionalShapes = []
     this.annotatedData = {}
     let colorPosition = 0
 
