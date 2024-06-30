@@ -66,6 +66,15 @@
     </tr>
     </tbody>
   </table>-->
+  <form [formGroup]="formAll" (ngSubmit)="submitFormAll()">
+    Apply to all annotations
+    <div class="form-group">
+      <label>Font Size</label>
+      <input type="number" class="form-control" formControlName="fontsize">
+    </div>
+    <button class="btn btn-sm btn-primary" type="submit">Apply to all</button>
+  </form>
+
   <ng-container *ngFor="let f of forms">
     <form [formGroup]="f">
       <h5>{{f.value["annotationID"]}}</h5>

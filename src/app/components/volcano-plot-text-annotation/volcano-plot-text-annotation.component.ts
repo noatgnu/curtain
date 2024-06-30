@@ -35,6 +35,10 @@ export class VolcanoPlotTextAnnotationComponent implements OnInit {
   colorMap: any = {}
 
   forms: FormGroup[] = []
+  formAll = this.fb.group({
+    fontsize: [12],
+    fontcolor: ["#000000"]
+  })
   constructor(public modal: NgbActiveModal, private fb: FormBuilder) {
 
   }
@@ -46,4 +50,10 @@ export class VolcanoPlotTextAnnotationComponent implements OnInit {
     this.forms.find((f) => f.controls["annotationID"].value === id)?.controls["fontcolor"].setValue(event)
   }
 
+  submitFormAll() {
+    for (const f of this.forms) {
+      //f.controls["fontcolor"].setValue(this.formAll.controls["fontcolor"].value)
+      f.controls["fontsize"].setValue(this.formAll.controls["fontsize"].value)
+    }
+  }
 }
