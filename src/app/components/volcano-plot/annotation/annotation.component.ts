@@ -37,7 +37,7 @@ export class AnnotationComponent {
   }
 
   formAll = this.fb.group({
-    fontsize: [12],
+    fontsize: [15],
     fontcolor: ["#000000"]
   })
 
@@ -73,5 +73,6 @@ export class AnnotationComponent {
       //f.controls["fontcolor"].setValue(this.formAll.controls["fontcolor"].value)
       f.controls["fontsize"].setValue(this.formAll.controls["fontsize"].value)
     }
+    this.updateAnnotation.emit(this.forms)
   }
 }

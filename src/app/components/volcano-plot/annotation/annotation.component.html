@@ -5,11 +5,11 @@
     Apply to all annotations
     <div class="form-group">
       <label>Font Size</label>
-      <input type="number" class="form-control" formControlName="fontsize">
+      <input type="number" class="form-control" formControlName="fontsize" style="max-width: 100px;">
     </div>
-    <button class="btn btn-sm btn-primary" type="submit">Apply to all</button>
+    <button class="btn btn-sm btn-primary mt-2" type="submit">Apply to all</button>
   </form>
-  <div class="container-fluid overflow-auto" style="max-height: 500px">
+  <div class="container-fluid overflow-auto mt-2" style="max-height: 500px">
     @for (f of forms; track f) {
 
       <ng-container>
