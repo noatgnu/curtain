@@ -35,6 +35,7 @@ export class DataSelectionManagementComponent implements OnInit {
       this.selectAllForms[s].controls["selectAll"].valueChanges.subscribe((value:boolean) => {
         for (const p in this.primaryIDForms[s]) {
           this.primaryIDForms[s][p].controls["annotate"].setValue(value)
+          this.primaryIDForms[s][p].controls["annotate"].markAsDirty()
         }
       })
     }
@@ -154,6 +155,7 @@ export class DataSelectionManagementComponent implements OnInit {
     if (annotateList.length > 0) {
       this.data.annotationService.next({id: annotateList, remove: false})
       this.data.batchAnnotateAnnoucement.next({id: annotateList, remove: false})
+      console.log(annotateList)
     }
     if (removeAnnotateList.length > 0) {
       this.data.annotationService.next({id: removeAnnotateList, remove: true})
