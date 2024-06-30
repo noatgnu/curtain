@@ -1,6 +1,14 @@
 @if (forms.length == 0) {
   <h5>No annotations available</h5>
 } @else {
+  <form [formGroup]="formAll" (ngSubmit)="submitFormAll()">
+    Apply to all annotations
+    <div class="form-group">
+      <label>Font Size</label>
+      <input type="number" class="form-control" formControlName="fontsize">
+    </div>
+    <button class="btn btn-sm btn-primary" type="submit">Apply to all</button>
+  </form>
   <div class="container-fluid overflow-auto" style="max-height: 500px">
     @for (f of forms; track f) {
 

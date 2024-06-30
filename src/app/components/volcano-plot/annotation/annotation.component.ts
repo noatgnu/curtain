@@ -36,6 +36,11 @@ export class AnnotationComponent {
 
   }
 
+  formAll = this.fb.group({
+    fontsize: [12],
+    fontcolor: ["#000000"]
+  })
+
   updateColor(event: any, id: string) {
     this.forms.find((f) => f.controls["annotationID"].value === id)?.controls["fontcolor"].setValue(event)
   }
@@ -60,6 +65,13 @@ export class AnnotationComponent {
         showannotation: [this.settings.settings.textAnnotation[i].data.showannotation],
       }))
       this.colorMap[i] = this.settings.settings.textAnnotation[i].data.font.color.slice()
+    }
+  }
+
+  submitFormAll() {
+    for (const f of this.forms) {
+      //f.controls["fontcolor"].setValue(this.formAll.controls["fontcolor"].value)
+      f.controls["fontsize"].setValue(this.formAll.controls["fontsize"].value)
     }
   }
 }
