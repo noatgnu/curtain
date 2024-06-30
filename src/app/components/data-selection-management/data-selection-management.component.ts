@@ -29,6 +29,14 @@ export class DataSelectionManagementComponent implements OnInit {
       this.selectionMap[s] = []
       this.selectionToggle[s] = false
       this.primaryIDForms[s] = {}
+      this.selectAllForms[s] = this.fb.group({
+        selectAll: [false]
+      })
+      this.selectAllForms[s].controls["selectAll"].valueChanges.subscribe((value:boolean) => {
+        for (const p in this.primaryIDForms[s]) {
+          this.primaryIDForms[s][p].controls["annotate"].setValue(value)
+        }
+      })
     }
     const textAnnotationList: string[] = []
     for (const a in this.settings.settings.textAnnotation) {
@@ -63,6 +71,8 @@ export class DataSelectionManagementComponent implements OnInit {
       }
     }
   }
+
+  selectAllForms: any = {}
 
   ngOnInit(): void {
   }
@@ -157,6 +167,10 @@ export class DataSelectionManagementComponent implements OnInit {
   }
 
   merge() {
+
+  }
+
+  selectAll(selection: string) {
 
   }
 
