@@ -536,7 +536,16 @@ export class VolcanoPlotComponent implements OnInit {
     }
     if (this.settings.settings.volcanoAdditionalShapes) {
       for (const s of this.settings.settings.volcanoAdditionalShapes) {
-        this.graphLayout.shapes.push(s)
+        if (s.editable) {
+          if (!s.label.font) {
+            s.label.font = {
+              size: null,
+              family: "Arial, sans-serif",
+              color: "#000000"
+            }
+          }
+          this.graphLayout.shapes.push(s)
+        }
       }
     }
     if (this.settings.settings.volcanoPlotLegendX) {
@@ -852,6 +861,21 @@ export class VolcanoPlotComponent implements OnInit {
     const keys = Object.keys(data)
     if (data.shapes) {
       this.settings.settings.volcanoAdditionalShapes = data.shapes
+
+      for (let i=0; i<this.settings.settings.volcanoAdditionalShapes.length; i++) {
+        if (this.settings.settings.volcanoAdditionalShapes[i].editable) {
+          this.settings.settings.volcanoAdditionalShapes[i].label = {
+            text: "",
+            texttemplate: "",
+            font: {
+              size: null,
+              family: "Arial, sans-serif",
+              color: "#000000"
+            }
+          }
+        }
+      }
+      console.log(this.settings.settings.volcanoAdditionalShapes)
     }
     if (data["legend.x"]) {
       this.settings.settings.volcanoPlotLegendX = data["legend.x"]
@@ -872,7 +896,7 @@ export class VolcanoPlotComponent implements OnInit {
       for (const k of keys) {
         const index = parseInt(keys[0].split("[")[1].split("]")[0])
         const annotationID = this.graphLayout.annotations[index].annotationID
-        console.log(annotationID)
+
         if (`annotations[${index}].ax` === k) {
           this.settings.settings.textAnnotation[annotationID].ax = data[k]
         } else if (`annotations[${index}].ay` === k) {
@@ -882,9 +906,18 @@ export class VolcanoPlotComponent implements OnInit {
         }
 
       }
-
-
     }
     console.log(data)
+  }
+
+  updateShapes(data: any[]) {
+    for (const i of data) {
+      this.settings.settings.volcanoAdditionalShapes[i.index].label = i.label
+      this.settings.settings.volcanoAdditionalShapes[i.index].fillcolor = i.fillcolor
+      this.settings.settings.volcanoAdditionalShapes[i.index].line.color = i.line.color
+      this.settings.settings.volcanoAdditionalShapes[i.index].line.width = i.line.width
+    }
+    this.drawVolcano()
+    console.log(this.graphLayout.shapes)
   }
 }

@@ -199,6 +199,12 @@
                   <app-annotation (updateAnnotation)="updateAnnotation($event)"></app-annotation>
                 </ng-template>
               </li>
+              <li [ngbNavItem]="'shapes'">
+                <button ngbNavLink>Shapes</button>
+                <ng-template ngbNavContent>
+                  <app-shapes (updateShapes)="updateShapes($event)"></app-shapes>
+                </ng-template>
+              </li>
             </ul>
             <div [ngbNavOutlet]="nav" class="mt-2"></div>
             <div ngbDropdown class="d-inline-block">

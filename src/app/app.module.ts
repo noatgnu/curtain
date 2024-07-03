@@ -72,6 +72,7 @@ import { EncryptionSettingsComponent } from './components/encryption-settings/en
 import { SubFilterComponent } from './components/sub-filter/sub-filter.component';
 import {ToastProgressbarComponent} from "./components/toast-container/toast-progressbar/toast-progressbar.component";
 import {AnnotationComponent} from "./components/volcano-plot/annotation/annotation.component";
+import {ShapesComponent} from "./components/volcano-plot/shapes/shapes.component";
 PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({
   declarations: [
@@ -148,7 +149,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
             registrationStrategy: 'registerWhenStable:30000'
         }),
         ToastProgressbarComponent,
-        AnnotationComponent
+        AnnotationComponent,
+        ShapesComponent
     ],
   providers: [HttpClient,
   ],
