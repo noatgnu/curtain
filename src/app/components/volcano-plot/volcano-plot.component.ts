@@ -876,6 +876,7 @@ export class VolcanoPlotComponent implements OnInit {
         }
       }
       console.log(this.settings.settings.volcanoAdditionalShapes)
+      this.dataService.volcanoAdditionalShapesSubject.next(true)
     }
     if (data["legend.x"]) {
       this.settings.settings.volcanoPlotLegendX = data["legend.x"]
@@ -896,7 +897,6 @@ export class VolcanoPlotComponent implements OnInit {
       for (const k of keys) {
         const index = parseInt(keys[0].split("[")[1].split("]")[0])
         const annotationID = this.graphLayout.annotations[index].annotationID
-
         if (`annotations[${index}].ax` === k) {
           this.settings.settings.textAnnotation[annotationID].ax = data[k]
         } else if (`annotations[${index}].ay` === k) {
@@ -904,10 +904,8 @@ export class VolcanoPlotComponent implements OnInit {
         } else if (`annotations[${index}].text` === k) {
           this.settings.settings.textAnnotation[annotationID].text = data[k]
         }
-
       }
     }
-    console.log(data)
   }
 
   updateShapes(data: any[]) {

@@ -20,6 +20,7 @@ export class DataService {
   bypassUniProt: boolean = false
   stringDBColorMapSubject: Subject<boolean> = new Subject<boolean>()
   interactomeDBColorMapSubject: Subject<boolean> = new Subject<boolean>()
+  volcanoAdditionalShapesSubject: Subject<boolean> = new Subject<boolean>()
 
   get colorMap(): any {
     return this._colorMap;
