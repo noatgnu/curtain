@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {CurtainLink} from "./classes/curtain-link";
 import {PlotlyService} from "angular-plotly.js";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 
 @Injectable({
   providedIn: 'root'
