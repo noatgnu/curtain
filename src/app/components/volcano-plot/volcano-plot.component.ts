@@ -206,7 +206,7 @@ export class VolcanoPlotComponent implements OnInit {
       this.graphLayout.xaxis.range[1] = this.settings.settings.volcanoAxis.maxX
     }
 
-    this.graphLayout.yaxis.range = [0, this.layoutMaxMin.yMax - this.layoutMaxMin.yMin / 2]
+    this.graphLayout.yaxis.range = [0, this.layoutMaxMin.yMax + this.layoutMaxMin.yMin / 10]
     if (this.settings.settings.volcanoAxis.minY) {
       this.graphLayout.yaxis.range[0] = this.settings.settings.volcanoAxis.minY
     }
@@ -859,6 +859,7 @@ export class VolcanoPlotComponent implements OnInit {
 
   handleLayoutChange(data: any) {
     const keys = Object.keys(data)
+    console.log(data)
     if (data.shapes) {
       this.settings.settings.volcanoAdditionalShapes = data.shapes
 
@@ -905,6 +906,21 @@ export class VolcanoPlotComponent implements OnInit {
           this.settings.settings.textAnnotation[annotationID].text = data[k]
         }
       }
+    } else if (keys[0].startsWith("shapes")) {
+      for (const k of keys) {
+        const index = parseInt(keys[0].split("[")[1].split("]")[0])
+        const shape = this.settings.settings.volcanoAdditionalShapes[index]
+        if (`shapes[${index}].x0` === k) {
+          shape.x0 = data[k]
+        } else if (`shapes[${index}].x1` === k) {
+          shape.x1 = data[k]
+        } else if (`shapes[${index}].y0` === k) {
+          shape.y0 = data[k]
+        } else if (`shapes[${index}].y1` === k) {
+          shape.y1 = data[k]
+        }
+      }
+      this.dataService.volcanoAdditionalShapesSubject.next(true)
     }
   }
 
