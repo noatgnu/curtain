@@ -1,7 +1,7 @@
 import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import * as PlotlyJS from 'plotly.js-dist-min';
-import { PlotlyModule } from 'angular-plotly.js';
+import {PlotlyModule, PlotlyViaCDNModule} from 'angular-plotly.js';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -73,7 +73,11 @@ import { SubFilterComponent } from './components/sub-filter/sub-filter.component
 import {ToastProgressbarComponent} from "./components/toast-container/toast-progressbar/toast-progressbar.component";
 import {AnnotationComponent} from "./components/volcano-plot/annotation/annotation.component";
 import {ShapesComponent} from "./components/volcano-plot/shapes/shapes.component";
-PlotlyModule.plotlyjs = PlotlyJS;
+
+PlotlyViaCDNModule.setPlotlyVersion('latest');
+PlotlyViaCDNModule.setPlotlyBundle('basic');
+
+//PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({ declarations: [
         AppComponent,
         HomeComponent,
@@ -132,7 +136,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
         AppRoutingModule,
         NgbModule,
         FormsModule,
-        PlotlyModule,
+        //PlotlyModule,
+        PlotlyViaCDNModule,
         ReactiveFormsModule,
         ColorPickerModule,
         QuillModule.forRoot(),
