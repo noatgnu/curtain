@@ -41,6 +41,8 @@ export class AppComponent implements AfterViewInit {
           }
         })
       }, 1000*60)
+    } else {
+      console.log("Service worker not enabled")
     }
   }
 
