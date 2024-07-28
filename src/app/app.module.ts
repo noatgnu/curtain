@@ -74,10 +74,10 @@ import {ToastProgressbarComponent} from "./components/toast-container/toast-prog
 import {AnnotationComponent} from "./components/volcano-plot/annotation/annotation.component";
 import {ShapesComponent} from "./components/volcano-plot/shapes/shapes.component";
 
-PlotlyViaCDNModule.setPlotlyVersion('latest');
-PlotlyViaCDNModule.setPlotlyBundle('basic');
+//PlotlyViaCDNModule.setPlotlyVersion('latest');
+//PlotlyViaCDNModule.setPlotlyBundle('basic');
 
-//PlotlyModule.plotlyjs = PlotlyJS;
+PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({ declarations: [
         AppComponent,
         HomeComponent,
@@ -136,8 +136,8 @@ PlotlyViaCDNModule.setPlotlyBundle('basic');
         AppRoutingModule,
         NgbModule,
         FormsModule,
-        //PlotlyModule,
-        PlotlyViaCDNModule,
+        PlotlyModule,
+        //PlotlyViaCDNModule,
         ReactiveFormsModule,
         ColorPickerModule,
         QuillModule.forRoot(),

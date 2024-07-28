@@ -38,9 +38,12 @@ export class AppComponent implements AfterViewInit {
         this.swUpdate.checkForUpdate().then((available) => {
           if (available) {
             this.settings.newVersionAvailable = true;
+            console.log("New version available")
+          } else {
+            console.log("No new version available")
           }
         })
-      }, 1000*60)
+      }, 1000*10)
     } else {
       console.log("Service worker not enabled")
     }
