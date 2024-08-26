@@ -73,6 +73,7 @@ import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you
 })
 export class HomeComponent implements OnInit {
   animate: boolean = false
+  canAccessSettings: boolean = false
   isRankPlotCollapse: boolean = true
   GDPR: boolean = false
   _finished: boolean = false
@@ -161,6 +162,9 @@ export class HomeComponent implements OnInit {
         this.accounts.isOwner = true
       } else {
         this.accounts.isOwner = false
+      }
+      if (this.accounts.isOwner) {
+        this.canAccessSettings = true
       }
     } catch (e) {
       this.accounts.isOwner = false
