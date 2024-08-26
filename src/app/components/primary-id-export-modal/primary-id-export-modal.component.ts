@@ -63,7 +63,7 @@ export class PrimaryIdExportModalComponent {
           }
         }
         // @ts-ignore
-        const df = this.dataService.currentDF.where(row => selectedIDs.includes(row[this.dataService.rawForm.primaryIDs])).bake().toCSV({delimiter: "\t"})
+        const df = this.dataService.currentDF.where(row => selectedIDs.includes(row[this.dataService.differentialForm.primaryIDs])).bake().toCSV({delimiter: "\t"})
         data.push(df)
       }
 
@@ -110,7 +110,7 @@ export class PrimaryIdExportModalComponent {
           }
         }
         // @ts-ignore
-        const df = this.dataService.currentDF.where(row => selectedIDs.includes(row[this.dataService.rawForm.primaryIDs])).bake().toCSV({delimiter: "\t"})
+        const df = this.dataService.currentDF.where(row => selectedIDs.includes(row[this.dataService.differentialForm.primaryIDs])).bake().toCSV({delimiter: "\t"})
         data.push(df)
       }
     }
