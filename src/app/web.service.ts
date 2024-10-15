@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {CurtainLink} from "./classes/curtain-link";
 import {PlotlyService} from "angular-plotly.js";
 import { HttpClient } from "@angular/common/http";
+import {DataCiteMetadata} from "./data-cite-metadata";
 
 @Injectable({
   providedIn: 'root'
@@ -66,6 +67,10 @@ export class WebService {
   }
   getPRIDEConstants(constantType: string) {
     return this.http.get("https://raw.githubusercontent.com/PRIDE-Archive/px-submission-tool/master/src/main/resources/cv/"+constantType+".cv", {responseType: "text", observe: "body"})
+  }
+
+  getDataCiteMetaData(doi: string) {
+    return this.http.get<DataCiteMetadata>("https://api.datacite.org/dois/"+doi, {responseType: "json", observe: "body"})
   }
 
 }

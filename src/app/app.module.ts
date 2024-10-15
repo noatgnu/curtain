@@ -73,6 +73,9 @@ import { SubFilterComponent } from './components/sub-filter/sub-filter.component
 import {ToastProgressbarComponent} from "./components/toast-container/toast-progressbar/toast-progressbar.component";
 import {AnnotationComponent} from "./components/volcano-plot/annotation/annotation.component";
 import {ShapesComponent} from "./components/volcano-plot/shapes/shapes.component";
+import {
+    DataciteMetadataDisplayComponent
+} from "./components/datacite-metadata-display/datacite-metadata-display.component";
 
 //PlotlyViaCDNModule.setPlotlyVersion('latest');
 //PlotlyViaCDNModule.setPlotlyBundle('basic');
@@ -132,7 +135,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
         EncryptionSettingsComponent,
         SubFilterComponent,
     ],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+    bootstrap: [AppComponent],
+    imports: [BrowserModule,
         AppRoutingModule,
         NgbModule,
         FormsModule,
@@ -152,5 +156,5 @@ PlotlyModule.plotlyjs = PlotlyJS;
         }),
         ToastProgressbarComponent,
         AnnotationComponent,
-        ShapesComponent], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()),] })
+        ShapesComponent, DataciteMetadataDisplayComponent], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()),] })
 export class AppModule { }

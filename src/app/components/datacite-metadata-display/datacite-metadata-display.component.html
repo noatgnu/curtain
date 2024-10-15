@@ -1,0 +1,28 @@
+@if (metadata) {
+  <div class="container d-flex flex-column gap-2 mb-2">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">{{metadata.data.attributes.titles[0].title}}</h5>
+      </div>
+      <div class="card-body">
+        <p>
+          Authors: {{authorsString}}
+        </p>
+        <p>
+          DOI Link: <a href="https://doi.org/{{metadata.data.attributes.doi}}" target="_blank">https://doi.org/{{metadata.data.attributes.doi}}</a>
+        </p>
+        <p>
+          Description: {{metadata.data.attributes.descriptions[0].description}}
+        </p>
+      </div>
+      <div class="card-footer d-flex gap-2">
+        <button class="btn btn-success" (click)="openCitation()" >Cite This Page</button>
+        <button class="btn btn-primary" (click)="clickDownload.emit('different')">Download Differential Analysis</button>
+        <button class="btn btn-primary" (click)="clickDownload.emit('searched')">Download Searched Data</button>
+        @if (mediaID) {
+          <a type="button" class="btn btn-warning" href="https://commons.datacite.org/api/download-reports/doi/related-works?id={{mediaID}}" target="_blank">Download Complete Session Data</a>
+        }
+      </div>
+    </div>
+  </div>
+}

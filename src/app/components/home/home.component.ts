@@ -65,6 +65,7 @@ import {PrimaryIdExportModalComponent} from "../primary-id-export-modal/primary-
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ApiKeyModalComponent} from "../api-key-modal/api-key-modal.component";
 import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you-sure-clear-modal.component";
+import {DataCiteMetadata} from "../../data-cite-metadata";
 
 @Component({
   selector: 'app-home',
@@ -73,6 +74,8 @@ import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you
 })
 export class HomeComponent implements OnInit {
   animate: boolean = false
+  isDOI: boolean = false
+  doiMetadata: DataCiteMetadata|undefined = undefined
   canAccessSettings: boolean = false
   isRankPlotCollapse: boolean = true
   GDPR: boolean = false
@@ -117,6 +120,25 @@ export class HomeComponent implements OnInit {
             if (params["settings"] && params["settings"].startsWith("access_token")){
               console.log(params["settings"])
             } else if (params["settings"] && params["settings"].length > 0) {
+              if (params["settings"].startsWith("doi.org/")) {
+                this.isDOI = true
+                this.toast.show("Initialization", "Fetching data from DOI").then()
+                const meta = document.createElement("meta");
+                meta.name = "DC.identifier";
+                meta.content = params["settings"];
+                meta.scheme = "DCTERMS.URI";
+                document.head.appendChild(meta);
+                const doiID = params["settings"].replace("doi.org/", "")
+                console.log(doiID)
+                this.web.getDataCiteMetaData(doiID).subscribe((data) => {
+                  console.log(data)
+                  this.doiMetadata = data
+                })
+
+                return
+              } else {
+                this.isDOI = false
+              }
               console.log(params["settings"])
               const settings = params["settings"].split("&")
               let token: string = ""
@@ -886,5 +908,16 @@ export class HomeComponent implements OnInit {
 
   openAPIKeyModal() {
     this.modal.open(ApiKeyModalComponent, {scrollable: true})
+  }
+
+  handleDataCiteClickDownload(event: string) {
+    switch (event) {
+      case "different":
+        this.web.downloadFile('different.txt', this.data.differential.originalFile)
+        break
+      case "searched":
+        this.web.downloadFile('searched.txt', this.data.raw.originalFile)
+        break
+    }
   }
 }
