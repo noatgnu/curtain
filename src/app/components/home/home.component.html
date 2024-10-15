@@ -164,8 +164,17 @@
     <label class="form-check-label"><b>I have read and accepted the GDPR statement (Enable Session Saving)</b></label>
   </div>
 </ngb-alert>
-@if (isDOI && doiMetadata) {
-  <app-datacite-metadata-display [metadata]="doiMetadata" (clickDownload)="handleDataCiteClickDownload($event)"></app-datacite-metadata-display>
+
+@if (isDOI) {
+  @if (doiMetadata) {
+    <app-datacite-metadata-display [metadata]="doiMetadata" (clickDownload)="handleDataCiteClickDownload($event)"></app-datacite-metadata-display>
+  } @else {
+    @if (isDOI && loadingDataCite) {
+      <div class="container mb-2">
+        <ngb-progressbar [animated]="true" [value]="100" [striped]="true">Retrieving MetaData</ngb-progressbar>
+      </div>
+    }
+  }
 }
 <app-pride></app-pride>
 

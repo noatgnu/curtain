@@ -79,6 +79,7 @@ export class HomeComponent implements OnInit {
   canAccessSettings: boolean = false
   isRankPlotCollapse: boolean = true
   GDPR: boolean = false
+  loadingDataCite: boolean = false
   _finished: boolean = false
   set finished(value: boolean) {
     this._finished = value
@@ -122,6 +123,7 @@ export class HomeComponent implements OnInit {
             } else if (params["settings"] && params["settings"].length > 0) {
               if (params["settings"].startsWith("doi.org/")) {
                 this.isDOI = true
+                this.loadingDataCite = true
                 this.toast.show("Initialization", "Fetching data from DOI").then()
                 const meta = document.createElement("meta");
                 meta.name = "DC.identifier";
@@ -132,6 +134,7 @@ export class HomeComponent implements OnInit {
                 console.log(doiID)
                 this.web.getDataCiteMetaData(doiID).subscribe((data) => {
                   console.log(data)
+                  this.loadingDataCite = false
                   this.doiMetadata = data
                 })
 

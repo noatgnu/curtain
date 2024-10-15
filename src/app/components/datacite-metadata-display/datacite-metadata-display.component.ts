@@ -1,13 +1,14 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {DataCiteMetadata} from "../../data-cite-metadata";
 import {DataciteCitationComponent} from "./datacite-citation/datacite-citation.component";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-datacite-metadata-display',
   standalone: true,
   imports: [
-    DataciteCitationComponent
+    DataciteCitationComponent,
+    NgbTooltip
   ],
   templateUrl: './datacite-metadata-display.component.html',
   styleUrl: './datacite-metadata-display.component.scss'

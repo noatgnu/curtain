@@ -32,6 +32,21 @@ export interface DataCiteMetadataRelatedIdentifiers {
   "relatedIdentifierType": string
 }
 
+export interface DataCiteMetadataRight {
+  "rights": string,
+  "rigtsUri": string,
+  "schemeUri": string,
+  "rightsIdentifier": string
+  "rightsIdentifierScheme": string
+}
+
+export interface DataCiteMetadataFundingReference {
+  "funderName": string,
+  "funderIdentifier": string,
+  "funderIdentifierType": string,
+  "awardNumber": string,
+}
+
 export interface DataCiteMetadataReferenceData {
   id: string,
   type: string
@@ -55,6 +70,21 @@ export interface DataCiteMetadataConstributor {
 export interface DataCiteMetadataDescription {
   "description": string,
   "descriptionType": string
+}
+
+export interface DataCiteMetadataGeoLocation {
+  "geoLocationBox": {
+    "westBoundLongitude": number,
+    "eastBoundLongitude": number,
+    "southBoundLatitude": number,
+    "northBoundLatitude": number
+  },
+  "geoLocationPlace": string,
+  "geoLocationPoint": {
+    "pointLatitude": number,
+    "pointLongitude": number
+  }
+
 }
 
 export interface DataCiteMetadata {
@@ -82,10 +112,10 @@ export interface DataCiteMetadata {
       "sizes": string[],
       "formats": string[],
       "version": null,
-      "rightsList": [],
+      "rightsList": DataCiteMetadataRight[],
       "descriptions": DataCiteMetadataDescription[],
-      "geoLocations": [],
-      "fundingReferences": [],
+      "geoLocations": DataCiteMetadataGeoLocation[],
+      "fundingReferences": DataCiteMetadataFundingReference[],
       "xml": string,
       "url": string,
       "contentUrl": string|null,

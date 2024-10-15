@@ -6,13 +6,33 @@
       </div>
       <div class="card-body">
         <p>
-          Authors: {{authorsString}}
+          @for (a of metadata.data.attributes.creators; track a) {
+            <span class="badge bg-primary" style="margin-right: 5px" [ngbTooltip]="affiliation">{{a.name}}</span>
+            <ng-template #affiliation>
+              <p>
+                @for (aff of a.affiliation; track aff) {
+                  <span>
+                    {{aff}}
+                  </span>
+                  <br>
+                }
+              </p>
+            </ng-template>
+          }
         </p>
         <p>
           DOI Link: <a href="https://doi.org/{{metadata.data.attributes.doi}}" target="_blank">https://doi.org/{{metadata.data.attributes.doi}}</a>
         </p>
+        @for (d of metadata.data.attributes.descriptions; track d) {
+            <p>
+              <b>{{d.descriptionType}}</b>: {{d.description}}
+            </p>
+        }
         <p>
-          Description: {{metadata.data.attributes.descriptions[0].description}}
+          <b>Publisher</b>: {{metadata.data.attributes.publisher}}
+        </p>
+        <p>
+          <b>Publication Year</b>: {{metadata.data.attributes.publicationYear}}
         </p>
       </div>
       <div class="card-footer d-flex gap-2">
