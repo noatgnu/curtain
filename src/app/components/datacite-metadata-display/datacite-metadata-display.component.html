@@ -21,7 +21,13 @@
           }
         </p>
         <p>
-          DOI Link: <a href="https://doi.org/{{metadata.data.attributes.doi}}" target="_blank">https://doi.org/{{metadata.data.attributes.doi}}</a>
+          DOI Link: https://doi.org/{{metadata.data.attributes.doi}}
+        </p>
+        <p>
+          <b>Right and license:</b><br>
+          @for (r of metadata.data.attributes.rightsList; track r) {
+            <a href="{{r.rigtsUri}}">{{r}}</a><br>
+          }
         </p>
         @for (d of metadata.data.attributes.descriptions; track d) {
             <p>
