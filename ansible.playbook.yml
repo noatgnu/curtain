@@ -1,0 +1,108 @@
+---
+- name: Deploy Frontend with Docker Compose and Let's Encrypt
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
+        state: present
+        update_cache: yes
+
+    - name: Add Docker's official GPG key
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
+    - name: Add Docker's APT repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker CE
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m`
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Clone the repository
+      git:
+        repo: 'https://github.com/noatgnu/curtain.git'
+        dest: /opt/curtain
+        version: main
+
+    - name: Copy docker-compose.yml to the target directory
+      copy:
+        src: /opt/curtain/docker-compose.yml
+        dest: /opt/curtain/docker-compose.yml
+
+    - name: Create necessary directories for Nginx Proxy Manager
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      with_items:
+        - /opt/curtain/npm/data
+        - /opt/curtain/npm/letsencrypt
+
+    - name: Start Docker Compose
+      docker_compose:
+        project_src: /opt/curtain
+        state: present
+        restarted: true
+
+    - name: Ensure Certbot is installed
+      apt:
+        name: certbot
+        state: present
+        update_cache: yes
+
+    - name: Obtain SSL certificates with Certbot
+      command: >
+        certbot certonly --standalone
+        --non-interactive
+        --agree-tos
+        --email your-email@example.com
+        -d your-domain.com
+      register: certbot_result
+      ignore_errors: yes
+
+    - name: Copy SSL certificates to the target directory
+      copy:
+        src: /etc/letsencrypt/live/your-domain.com/fullchain.pem
+        dest: /opt/curtain/npm/letsencrypt/live/your-domain.com/fullchain.pem
+      when: certbot_result is succeeded
+
+    - name: Copy SSL key to the target directory
+      copy:
+        src: /etc/letsencrypt/live/your-domain.com/privkey.pem
+        dest: /opt/curtain/npm/letsencrypt/live/your-domain.com/privkey.pem
+      when: certbot_result is succeeded
+
+    - name: Restart Docker Compose to apply SSL certificates
+      docker_compose:
+        project_src: /opt/curtain
+        state: present
+        restarted: true
+
+    - name: Set up cron job for automatic SSL certificate renewal
+      cron:
+        name: "Renew Let's Encrypt certificates"
+        minute: "0"
+        hour: "0"
+        day: "*"
+        month: "*"
+        weekday: "*"
+        job: "certbot renew --quiet && docker-compose -f /opt/curtain/docker-compose.yml restart"
