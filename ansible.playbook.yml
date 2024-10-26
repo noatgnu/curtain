@@ -2,6 +2,9 @@
 - name: Deploy Frontend with Docker Compose and Let's Encrypt
   hosts: all
   become: true
+  vars:
+    email: your-email@example.com
+    domain: your-domain.com
 
   tasks:
     - name: Install required packages
@@ -43,19 +46,24 @@
 
     - name: Copy docker-compose.yml to the target directory
       copy:
-        src: /opt/curtain/docker-compose.yml
-        dest: /opt/curtain/docker-compose.yml
+        content: |
+          version: "3.8"
+          services:
+            curtain:
+              image: curtain-app
+              restart: unless-stopped
+              build:
+                context: .
+                dockerfile: Dockerfile
+              ports:
+                - "80:80"
+                - "443:443"
+              networks:
+                - curtain-net
 
-    - name: Create necessary directories for Nginx Proxy Manager
-      file:
-        path: "{{ item }}"
-        state: directory
-        owner: root
-        group: root
-        mode: '0755'
-      with_items:
-        - /opt/curtain/npm/data
-        - /opt/curtain/npm/letsencrypt
+          networks:
+            curtain-net:
+        dest: /opt/curtain/docker-compose.yml
 
     - name: Start Docker Compose
       docker_compose:
@@ -74,21 +82,21 @@
         certbot certonly --standalone
         --non-interactive
         --agree-tos
-        --email your-email@example.com
-        -d your-domain.com
+        --email {{ email }}
+        -d {{ domain }}
       register: certbot_result
       ignore_errors: yes
 
     - name: Copy SSL certificates to the target directory
       copy:
-        src: /etc/letsencrypt/live/your-domain.com/fullchain.pem
-        dest: /opt/curtain/npm/letsencrypt/live/your-domain.com/fullchain.pem
+        src: /etc/letsencrypt/live/{{ domain }}/fullchain.pem
+        dest: /opt/curtain/npm/letsencrypt/live/{{ domain }}/fullchain.pem
       when: certbot_result is succeeded
 
     - name: Copy SSL key to the target directory
       copy:
-        src: /etc/letsencrypt/live/your-domain.com/privkey.pem
-        dest: /opt/curtain/npm/letsencrypt/live/your-domain.com/privkey.pem
+        src: /etc/letsencrypt/live/{{ domain }}/privkey.pem
+        dest: /opt/curtain/npm/letsencrypt/live/{{ domain }}/privkey.pem
       when: certbot_result is succeeded
 
     - name: Restart Docker Compose to apply SSL certificates
