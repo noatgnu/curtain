@@ -40,30 +40,57 @@
         curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
 
-    - name: Generate self-signed SSL certificate
-      command: >
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048
-        -keyout /opt/curtain/npm/letsencrypt/live/{{ domain }}/privkey.pem
-        -out /opt/curtain/npm/letsencrypt/live/{{ domain }}/fullchain.pem
-        -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN={{ domain }}"
+    - name: Create Certificate Directory
+      shell: mkdir -p /opt/curtain/cert/{{ domain }}
+
+    - name: Copy docker-compose.yml to the target directory
+      copy:
+        content: |
+          version: "3.8"
+          services:
+            curtain:
+              image: curtain-app
+              restart: unless-stopped
+              build:
+                context: .
+                dockerfile: Dockerfile
+              ports:
+                - "80:80"
+                - "443:443"
+              networks:
+                - curtain-net
+              volumes:
+                - curtain-certs:/etc/ssl/certs
+
+            cert-gen:
+              image: alpine:latest
+              command: >
+                /bin/sh -c "
+                apk add --no-cache openssl &&
+                mkdir -p /etc/ssl/certs &&
+                openssl req -x509 -nodes -days 365 -newkey rsa:2048
+                -keyout /etc/ssl/certs/privkey.pem
+                -out /etc/ssl/certs/fullchain.pem
+                -subj '/C=US/ST=State/L=City/O=Organization/OU=Department/CN=your-domain.com'
+                "
+              volumes:
+                - curtain-certs:/etc/ssl/certs
+              networks:
+                - curtain-net
+              deploy:
+                restart_policy:
+                  condition: on-failure
+
+          volumes:
+            curtain-certs:
+
+          networks:
+            curtain-net:
+        dest: /opt/curtain/docker-compose.yml
 
     - name: Start Docker Compose
       docker_compose:
         project_src: /opt/curtain
         state: present
         restarted: true
-
-    - name: Set up cron job for renewing self-signed SSL certificate
-      cron:
-        name: "Renew self-signed SSL certificate"
-        minute: "0"
-        hour: "0"
-        day: "1"
-        month: "*/12"
-        weekday: "*"
-        job: >
-          openssl req -x509 -nodes -days 365 -newkey rsa:2048
-          -keyout /opt/curtain/npm/letsencrypt/live/{{ domain }}/privkey.pem
-          -out /opt/curtain/npm/letsencrypt/live/{{ domain }}/fullchain.pem
-          -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN={{ domain }}"
-          && docker-compose -f /opt/curtain/docker-compose.yml restart
+        build: yes
