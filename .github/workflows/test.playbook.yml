@@ -3,7 +3,7 @@ name: Deploy with Self-Signed SSL Certificate
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
