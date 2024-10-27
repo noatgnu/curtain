@@ -93,4 +93,3 @@
         project_src: /opt/curtain
         state: present
         restarted: true
-        build: yes
