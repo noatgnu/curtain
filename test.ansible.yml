@@ -1,26 +1,9 @@
 ---
-- name: Deploy Frontend with Docker Compose and Let's Encrypt
+- name: Deploy Frontend with Docker Compose and Self-Signed SSL Certificate
   hosts: all
   become: true
   vars:
     email: your-email@example.com
-    domain: your-domain.com
-
-  tasks:
-    - name: Install required packages
-      apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-          - git
-        state: present
-        update_cache: yes
-- name: Generate a self-signed SSL certificate
-  hosts: all
-  become: true
-  vars:
     domain: your-domain.com
 
   tasks:
@@ -83,31 +66,30 @@
             curtain-net:
         dest: /opt/curtain/docker-compose.yml
 
+    - name: Generate self-signed SSL certificate
+      command: >
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048
+        -keyout /opt/curtain/npm/letsencrypt/live/{{ domain }}/privkey.pem
+        -out /opt/curtain/npm/letsencrypt/live/{{ domain }}/fullchain.pem
+        -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN={{ domain }}"
+
     - name: Start Docker Compose
       docker_compose:
         project_src: /opt/curtain
         state: present
         restarted: true
 
-    - name: Generate self-signed SSL certificate
-      command: >
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048
-        -keyout /etc/ssl/private/{{ domain }}.key
-        -out /etc/ssl/certs/{{ domain }}.crt
-        -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN={{ domain }}"
-
-    - name: Copy self-signed SSL certificates to the target directory
-      copy:
-        src: /etc/ssl/certs/{{ domain }}.crt
-        dest: /opt/curtain/npm/ssl/{{ domain }}.crt
-
-    - name: Copy SSL key to the target directory
-      copy:
-        src: /etc/ssl/private/{{ domain }}.key
-        dest: /opt/curtain/npm/ssl/{{ domain }}.key
-
-    - name: Restart Docker Compose to apply SSL certificates
-      docker_compose:
-        project_src: /opt/curtain
-        state: present
-        restarted: true
+    - name: Set up cron job for renewing self-signed SSL certificate
+      cron:
+        name: "Renew self-signed SSL certificate"
+        minute: "0"
+        hour: "0"
+        day: "1"
+        month: "*/12"
+        weekday: "*"
+        job: >
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048
+          -keyout /opt/curtain/npm/letsencrypt/live/{{ domain }}/privkey.pem
+          -out /opt/curtain/npm/letsencrypt/live/{{ domain }}/fullchain.pem
+          -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN={{ domain }}"
+          && docker-compose -f /opt/curtain/docker-compose.yml restart
