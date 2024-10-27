@@ -23,6 +23,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install ansible
 
+    - name: Create Ansible Inventory
+      run: |
+        echo "[all]" > inventory
+        echo "localhost ansible_connection=local" >> inventory
+
     - name: Run Ansible Playbook
       run: |
-        ansible-playbook test.ansible.yml --extra-vars "domain=localhost"
+        ansible-playbook test.ansible.yml -i inventory --extra-vars "domain=localhost"

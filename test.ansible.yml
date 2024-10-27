@@ -39,12 +39,6 @@
         dest: /usr/local/bin/docker-compose
         mode: '0755'
 
-    - name: Clone the repository
-      git:
-        repo: 'https://github.com/noatgnu/curtain.git'
-        dest: /opt/curtain
-        version: main
-
     - name: Copy docker-compose.yml to the target directory
       copy:
         content: |
