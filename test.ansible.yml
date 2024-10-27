@@ -36,31 +36,9 @@
         update_cache: yes
 
     - name: Install Docker Compose
-      get_url:
-        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m`
-        dest: /usr/local/bin/docker-compose
-        mode: '0755'
-
-    - name: Copy docker-compose.yml to the target directory
-      copy:
-        content: |
-          version: "3.8"
-          services:
-            curtain:
-              image: curtain-app
-              restart: unless-stopped
-              build:
-                context: .
-                dockerfile: Dockerfile
-              ports:
-                - "80:80"
-                - "443:443"
-              networks:
-                - curtain-net
-
-          networks:
-            curtain-net:
-        dest: /opt/curtain/docker-compose.yml
+      shell: |
+        curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
 
     - name: Generate self-signed SSL certificate
       command: >
