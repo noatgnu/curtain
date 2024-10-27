@@ -1,0 +1,113 @@
+---
+- name: Deploy Frontend with Docker Compose and Let's Encrypt
+  hosts: all
+  become: true
+  vars:
+    email: your-email@example.com
+    domain: your-domain.com
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
+        state: present
+        update_cache: yes
+- name: Generate a self-signed SSL certificate
+  hosts: all
+  become: true
+  vars:
+    domain: your-domain.com
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
+          - openssl
+        state: present
+        update_cache: yes
+
+    - name: Add Docker's official GPG key
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
+    - name: Add Docker's APT repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker CE
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m`
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Clone the repository
+      git:
+        repo: 'https://github.com/noatgnu/curtain.git'
+        dest: /opt/curtain
+        version: main
+
+    - name: Copy docker-compose.yml to the target directory
+      copy:
+        content: |
+          version: "3.8"
+          services:
+            curtain:
+              image: curtain-app
+              restart: unless-stopped
+              build:
+                context: .
+                dockerfile: Dockerfile
+              ports:
+                - "80:80"
+                - "443:443"
+              networks:
+                - curtain-net
+
+          networks:
+            curtain-net:
+        dest: /opt/curtain/docker-compose.yml
+
+    - name: Start Docker Compose
+      docker_compose:
+        project_src: /opt/curtain
+        state: present
+        restarted: true
+
+    - name: Generate self-signed SSL certificate
+      command: >
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048
+        -keyout /etc/ssl/private/{{ domain }}.key
+        -out /etc/ssl/certs/{{ domain }}.crt
+        -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN={{ domain }}"
+
+    - name: Copy self-signed SSL certificates to the target directory
+      copy:
+        src: /etc/ssl/certs/{{ domain }}.crt
+        dest: /opt/curtain/npm/ssl/{{ domain }}.crt
+
+    - name: Copy SSL key to the target directory
+      copy:
+        src: /etc/ssl/private/{{ domain }}.key
+        dest: /opt/curtain/npm/ssl/{{ domain }}.key
+
+    - name: Restart Docker Compose to apply SSL certificates
+      docker_compose:
+        project_src: /opt/curtain
+        state: present
+        restarted: true
