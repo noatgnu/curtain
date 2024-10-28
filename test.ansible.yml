@@ -89,11 +89,8 @@
         dest: /opt/curtain/docker-compose.yml
 
     - name: Start Docker Compose
-      shell: docker-compose -f /opt/curtain/docker-compose.yml up -d
+      shell: chdir=/opt/curtain docker-compose -f /opt/curtain/docker-compose.yml
 
     - name: Sleep for 10 seconds
       pause:
         seconds: 10
-
-    - name: Check nginx logs
-      shell: docker-compose -f /opt/curtain/docker-compose.yml logs curtain
