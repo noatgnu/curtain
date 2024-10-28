@@ -66,10 +66,7 @@
         dest: /opt/curtain/docker-compose.yml
 
     - name: Start Docker Compose
-      docker_compose:
-        project_src: /opt/curtain
-        state: present
-        restarted: true
+      shell: chdir=/opt/curtain docker-compose up -d
 
     - name: Ensure Certbot is installed
       apt:
