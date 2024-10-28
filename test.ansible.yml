@@ -89,7 +89,11 @@
         dest: /opt/curtain/docker-compose.yml
 
     - name: Start Docker Compose
-      docker_compose:
-        project_src: /opt/curtain
-        state: present
-        restarted: true
+      shell: docker-compose -f /opt/curtain/docker-compose.yml up -d
+
+    - name: Sleep for 10 seconds
+      pause:
+        seconds: 10
+
+    - name: Check nginx logs
+      shell: docker-compose -f /opt/curtain/docker-compose.yml logs curtain
