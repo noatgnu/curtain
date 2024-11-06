@@ -104,7 +104,6 @@ export class VolcanoPlotComponent implements OnInit {
   specialColorMap: any = {}
   repeat = false
   drawVolcano() {
-
     this.currentPosition = 0
     this.settings.settings.scatterPlotMarkerSize = this.markerSize
     if (!this.settings.settings.visible) {

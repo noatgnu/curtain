@@ -3,6 +3,7 @@ import {CurtainLink} from "./classes/curtain-link";
 import {PlotlyService} from "angular-plotly.js";
 import { HttpClient } from "@angular/common/http";
 import {DataCiteMetadata} from "./data-cite-metadata";
+import {OrcidPublicRecord} from "./orcid-public-record";
 
 @Injectable({
   providedIn: 'root'
@@ -71,6 +72,10 @@ export class WebService {
 
   getDataCiteMetaData(doi: string) {
     return this.http.get<DataCiteMetadata>("https://api.datacite.org/dois/"+doi, {responseType: "json", observe: "body"})
+  }
+
+  getORCIDPublicRecord(orcid: string) {
+    return this.http.get<OrcidPublicRecord>(`https://orcid.org/${orcid}/public-record.json`, {responseType: "json", observe: "body"})
   }
 
 }
