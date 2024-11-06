@@ -257,14 +257,22 @@ export class DataService {
 
   getPrimaryIDsFromGeneNames(geneNames: string) {
     const result: string[] = []
-    console.log(this.uniprot.geneNameToAcc[geneNames])
+    //console.log(this.uniprot.geneNameToAcc[geneNames])
     if (this.uniprot.geneNameToAcc[geneNames]) {
 
       for (const a in this.uniprot.geneNameToAcc[geneNames]) {
+
         if (this.primaryIDsMap[a]) {
           for (const acc in this.primaryIDsMap[a]) {
             if (!result.includes(acc)) {
-              result.push(acc)
+              console.log(acc)
+              const uni = this.uniprot.getUniprotFromPrimary(acc)
+              if (uni["Gene Names"]) {
+                if (uni["Gene Names"].includes(geneNames)) {
+                  result.push(acc)
+                }
+              }
+
             }
           }
         }
