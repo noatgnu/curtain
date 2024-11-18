@@ -4,6 +4,9 @@ import {HomeComponent} from "./components/home/home.component";
 
 const routes: Routes = [
   {
+    path: 'datacite', loadChildren: () => import('./datacite/datacite.module').then(m => m.DataciteModule)
+  },
+  {
     path: '', component: HomeComponent,
     children: [
       {
@@ -11,7 +14,7 @@ const routes: Routes = [
       },
       {
         path: "home/:settings", component: HomeComponent
-      }
+      },
     ],
 
   },

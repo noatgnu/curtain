@@ -78,4 +78,8 @@ export class WebService {
     return this.http.get<OrcidPublicRecord>(`https://orcid.org/${orcid}/public-record.json`, {responseType: "json", observe: "body"})
   }
 
+  getRandomORCID() {
+
+  }
+
 }

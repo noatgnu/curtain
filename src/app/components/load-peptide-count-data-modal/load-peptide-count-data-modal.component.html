@@ -1,0 +1,29 @@
+<div class="modal-header">
+  <h4 class="modal-title">Load Peptide Count Data</h4>
+</div>
+<div class="modal-body">
+  <input type="file" #fileInput (change)="onFileChange($event)" hidden />
+  <button class="btn btn-primary" (click)="fileInput.click()">Select File</button>
+  @if (columns.length >0) {
+    <div class="form-group">
+      <label for="primaryIDForPeptide">Primary ID column</label>
+      <select class="form-select" id="primaryIDForPeptide" [(ngModel)]="primaryIdColumn">
+        @for (c of columns; track c) {
+          <option [ngValue]="c">{{c}}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="samplePeptideCountColumns">Sample Peptide Count columns</label>
+      <select class="form-select" id="samplePeptideCountColumns" multiple [(ngModel)]="sampleColumns">
+        @for (c of columns; track c) {
+          <option [ngValue]="c">{{c}}</option>
+        }
+      </select>
+    </div>
+  }
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" (click)="onSubmit()">Load Data</button>
+  <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+</div>

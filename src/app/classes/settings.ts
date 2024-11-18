@@ -112,4 +112,5 @@ export class Settings {
   volcanoAdditionalShapes: any = []
   volcanoPlotLegendX: number|null = null
   volcanoPlotLegendY: number|null = null
+  peptideCountData: any = {}
 }

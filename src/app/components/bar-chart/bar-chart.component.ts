@@ -237,12 +237,23 @@ export class BarChartComponent implements OnInit {
               color: "black"
             },
             type: "bar",
+            hovertext: [],
             name: condition,
             showlegend: false
           }
         }
         graph[condition].x.push(s)
         graph[condition].y.push(this._data[s])
+        if (this.settings.settings.peptideCountData) {
+          if (this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]]) {
+            if (this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]][s]) {
+              const peptideCountData = this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]][s].toString()
+              graph[condition].hovertext.push(
+                `Sample:${s}<br>Value:${this._data[s]}<br>${peptideCountData} peptides`
+              )
+            }
+          }
+        }
       }
     }
     let currentSampleNumber: number = 0

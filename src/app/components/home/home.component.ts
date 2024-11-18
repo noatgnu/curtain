@@ -66,6 +66,9 @@ import {animate, style, transition, trigger} from "@angular/animations";
 import {ApiKeyModalComponent} from "../api-key-modal/api-key-modal.component";
 import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you-sure-clear-modal.component";
 import {DataCiteMetadata} from "../../data-cite-metadata";
+import {
+  LoadPeptideCountDataModalComponent
+} from "../load-peptide-count-data-modal/load-peptide-count-data-modal.component";
 
 @Component({
   selector: 'app-home',
@@ -922,5 +925,12 @@ export class HomeComponent implements OnInit {
         this.web.downloadFile('searched.txt', this.data.raw.originalFile)
         break
     }
+  }
+
+  openPeptideCountModal() {
+    const ref = this.modal.open(LoadPeptideCountDataModalComponent, {scrollable: true})
+    ref.closed.subscribe(data => {
+      this.data.redrawTrigger.next(true)
+    })
   }
 }
