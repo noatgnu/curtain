@@ -76,8 +76,6 @@ import {ShapesComponent} from "./components/volcano-plot/shapes/shapes.component
 import {
     DataciteMetadataDisplayComponent
 } from "./components/datacite-metadata-display/datacite-metadata-display.component";
-import {DataciteModule} from "./datacite/datacite.module";
-import {OrcidModule} from "./orcid/orcid.module";
 
 //PlotlyViaCDNModule.setPlotlyVersion('latest');
 //PlotlyViaCDNModule.setPlotlyBundle('basic');
@@ -156,8 +154,6 @@ PlotlyModule.plotlyjs = PlotlyJS;
             // or after 30 seconds (whichever comes first).
             registrationStrategy: 'registerWhenStable:30000'
         }),
-        DataciteModule,
-        OrcidModule,
         ToastProgressbarComponent,
         AnnotationComponent,
         ShapesComponent, DataciteMetadataDisplayComponent], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()),] })
