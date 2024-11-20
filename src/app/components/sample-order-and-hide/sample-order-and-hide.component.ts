@@ -23,8 +23,12 @@ export class SampleOrderAndHideComponent implements OnInit {
   violinPointPos: number = -2
 
   batchToggle: any = {}
+  enablePeptideCount: boolean = false
   constructor(public dataService: DataService, public modal: NgbActiveModal, private settings: SettingsService) {
     console.log(this.settings.settings.sampleMap)
+    if (this.settings.settings.viewPeptideCount) {
+      this.enablePeptideCount = true
+    }
     for (const c in this.settings.settings.columnSize) {
       if (c in this.columnSize) {
         this.columnSize[c] = this.settings.settings.columnSize[c]
@@ -89,6 +93,7 @@ export class SampleOrderAndHideComponent implements OnInit {
   }
 
   submit() {
+    this.settings.settings.viewPeptideCount = this.enablePeptideCount
     this.settings.settings.sampleVisible = this.samplesVisible
     this.settings.settings.sampleOrder = this.samples
     this.settings.settings.conditionOrder = this.condition

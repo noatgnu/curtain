@@ -215,8 +215,45 @@ export class BarChartComponent implements OnInit {
     const annotations: any[] = []
     const shapes: any[] = []
     let sampleNumber: number = 0
-    console.log(this.settings.settings.barchartColorMap)
-
+    let heatmap: any = {
+      x: [],
+      y: [],
+      z: [],
+      text: [],
+      type: "heatmap",
+      colorscale: [
+        [0, "#EE6677"],
+        [0.5, "#BBBBBB"],
+        [1,"#4477AA"]
+      ],
+      showscale: true,
+      hoverinfo: "z",
+      yaxis: "y2",
+      xaxis: "x",
+      colorbar: {
+        thickness: 10,
+        len: 0.5,
+        y: 0.5,
+        x: 1.1
+      },
+      font: {
+        color: "white",
+        family: 'Arial',
+      }
+    }
+    if (this.settings.settings.viewPeptideCount) {
+      this.graphLayout.yaxis.domain = [0.3, 0.9]
+      this.graphLayout.yaxis2 = {
+        domain: [0, 0.1]
+      }
+    } else {
+      if (this.graphLayout.yaxis2) {
+        delete this.graphLayout.yaxis2
+      }
+      if (this.graphLayout.yaxis.domain) {
+        this.graphLayout.yaxis.domain = [0, 1]
+      }
+    }
     for (const s in this.settings.settings.sampleMap) {
 
       if (this.settings.settings.sampleVisible[s]) {
@@ -244,20 +281,39 @@ export class BarChartComponent implements OnInit {
         }
         graph[condition].x.push(s)
         graph[condition].y.push(this._data[s])
-        if (this.settings.settings.peptideCountData) {
+        if (this.settings.settings.peptideCountData && this.settings.settings.viewPeptideCount) {
           if (this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]]) {
             if (this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]][s]) {
               const peptideCountData = this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]][s].toString()
               graph[condition].hovertext.push(
                 `Sample:${s}<br>Value:${this._data[s]}<br>${peptideCountData} peptides`
               )
+              heatmap.x.push(s)
+              heatmap.y.push("Peptide Count")
+              heatmap.z.push(peptideCountData)
+              heatmap.text.push(peptideCountData)
+              this.graphLayout.annotations.push(
+                {
+                  xref: "x",
+                  yref: "y2",
+                  x: s,
+                  y: "Peptide Count",
+                  text: peptideCountData,
+                  showarrow: false,
+                  font: {
+                    size: 12,
+                    color: "white"
+                  }
+                }
+              )
             }
           }
         }
       }
     }
+
     let currentSampleNumber: number = 0
-    console.log(this.settings.settings.conditionOrder)
+
     for (const g of this.settings.settings.conditionOrder) {
       if (!graph[g]) {
         continue
@@ -282,6 +338,16 @@ export class BarChartComponent implements OnInit {
         })
       }
     }
+    if (this.settings.settings.viewPeptideCount) {
+      this.graphData.push(heatmap)
+    } else {
+      this.graphLayout.annotations = this.graphLayout.annotations.filter((a:any) => {
+        return a.y !== "Peptide Count"
+      })
+    }
+
+
+
     //const combos = this.dataService.pairwise(this.dataService.conditions)
     //const comparisons = []
     // for (const c of combos) {
