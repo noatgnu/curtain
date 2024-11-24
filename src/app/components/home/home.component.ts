@@ -69,6 +69,7 @@ import {DataCiteMetadata} from "../../data-cite-metadata";
 import {
   LoadPeptideCountDataModalComponent
 } from "../load-peptide-count-data-modal/load-peptide-count-data-modal.component";
+import {DataciteComponent} from "../datacite/datacite.component";
 
 @Component({
   selector: 'app-home',
@@ -932,5 +933,10 @@ export class HomeComponent implements OnInit {
     ref.closed.subscribe(data => {
       this.data.redrawTrigger.next(true)
     })
+  }
+
+  openDataciteDOI() {
+    const ref = this.modal.open(DataciteComponent, {scrollable: true, size: "xl"})
+    ref.componentInstance.linkID = this.settings.settings.currentID
   }
 }

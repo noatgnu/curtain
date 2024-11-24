@@ -1,76 +1,530 @@
-import { Component } from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
+import {Component, Input} from '@angular/core';
+import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {AccountsService} from "../../accounts/accounts.service";
+import {WebService} from "../../web.service";
+import {OrcidPublicRecord} from "../../orcid-public-record";
+import {catchError, debounceTime, distinctUntilChanged, map, Observable, of, switchMap} from "rxjs";
+import {NgbActiveModal, NgbHighlight, NgbTypeahead} from "@ng-bootstrap/ng-bootstrap";
+import {languages} from "./languages";
+import {fosData} from "./subjects";
+import {licenses} from "./licenses";
+import {DataciteService} from "./datacite.service";
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-datacite',
   standalone: true,
   imports: [
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgbTypeahead,
+    FormsModule,
+    NgbHighlight
   ],
   templateUrl: './datacite.component.html',
   styleUrl: './datacite.component.scss'
 })
 export class DataciteComponent {
+  private _linkID: string = ""
+  private baseURL: string = environment.apiURL
+  @Input() set linkID(value: string) {
+    this._linkID = value
+    this.dataCiteForm.controls.alternateIdentifiers.at(0).controls.alternateIdentifier.setValue(`${this.baseURL}/curtain/${this._linkID}/download/token=/`)
+  }
+  get linkID(): string {
+    return this._linkID
+  }
+  nameTypes: string[] = ["Personal", "Organizational"]
+  identifierTypes: string[] =  ["ARK", "arXiv", "bibcode", "DOI", "EAN13", "EISSN", "Handle", "IGSN", "ISBN", "ISSN", "ISTC", "LISSN", "LSID", "PMID", "PURL", "UPC", "URL", "URN", "w3id"]
+  identifierRelationTypes: string[] = ["Cites", "IsCitedBy", "Compiles", "IsCompiledBy", "Continues", "IsContinuedBy", "Describes", "IsDescribedBy", "Documents", "IsDocumentedBy", "IsDerivedFrom", "IsSourceOf", "HasMetadata", "IsMetadataFor", "HasPart", "IsPartOf", "IsSupplementedBy", "IsSupplementTo", "Obsoletes", "IsObsoletedBy", "References", "IsReferencedBy", "Requires", "IsRequiredBy", "Reviews", "IsReviewedBy", "HasVersion", "IsVersionOf", "IsNewVersionOf", "IsPreviousVersionOf", "IsPublishedIn", "IsVariantFormOf", "IsOriginalFormOf", "IsIdenticalTo", "IsCollectedBy", "Collects"]
+  resourceTypes: string[] = ["Audiovisual", "Collection", "DataPaper", "Dataset", "Event", "Image", "InteractiveResource", "Model", "PhysicalObject", "Service", "Software", "Sound", "Text", "Workflow", "Other"]
+  descriptionTypes: string[] = ["Abstract", "Methods", "SeriesInformation", "TableOfContents", "TechnicalInfo", "Other"]
+  funderIdentifierTypes: string[] = ["Crossref Funder ID", "GRID", "ISNI", "ROR", "Other"]
+  informationIsTrue: boolean = false
   dataCiteForm = this.fb.group({
+    schemaVersion: ["http://datacite.org/schema/kernel-4", Validators.required],
     prefix: ['', Validators.required],
     suffix: ['', Validators.required],
     url: ['', Validators.required],
     creators: this.fb.array([
       this.fb.group({
+        givenName: ['',],
+        familyName: ['',],
         name: ['', Validators.required],
-        affiliation: ['', Validators.required],
-        orcid: ['', Validators.required]
+        nameType: ['Personal', Validators.required],
+        nameIdentifiers: this.fb.array(
+          [
+            this.fb.group({
+              schemeUri: ["https://orcid.org/"],
+              nameIdentifier: [""],
+              nameIdentifierScheme: ["ORCID"],
+            })
+          ]
+        ),
+        affiliation: this.fb.array([
+          this.fb.group({
+            name: ['', Validators.required],
+            affiliationIdentifier: [''],
+            affiliationIdentifierScheme: [""],
+            schemeUri: [""]
+          })
+        ])
       })
     ]),
-    title: this.fb.array([
+    titles: this.fb.array([
       this.fb.group({
         title: ['', Validators.required],
-        language: ['', Validators.required]
+        lang: ['en', Validators.required]
       })
     ]),
-    publisher: ['', Validators.required],
-    publisherIdentifier: ['https://ror.org/03h2bxq36', Validators.required],
-    publicationYear: [new Date().getFullYear(), Validators.required],
-    resourceType: this.fb.group({
+    publisher: this.fb.group({
+      name:  ['University of Dundee', Validators.required],
+      publisherIdentifier: ['https://ror.org/03h2bxq36', Validators.required],
+      publisherIdentifierScheme: ['ROR', Validators.required],
+      schemeUri: ['https://ror.org/', Validators.required]
+    }),
+    publicationYear: [new Date().getFullYear().toString(), Validators.required],
+    types: this.fb.group({
       resourceTypeGeneral: ['Dataset', Validators.required],
       resourceType: ['Interactive visualization of differential analysis datasets', Validators.required]
     }),
     subjects: this.fb.array([
       this.fb.group(
-        {subject: ["", Validators.required], subjectScheme: ["", Validators.required], valueURI: ["", Validators.required]}
+        {subject: ["Biological sciences", Validators.required], subjectScheme:
+            ["OECD REVISED FIELD OF SCIENCE AND TECHNOLOGY (FOS) CLASSIFICATION IN THE FRASCATI\n" +
+            "MANUAL", Validators.required],
+          valueUri: ["https://unstats.un.org/wiki/download/attachments/101354089/FOS.pdf?api=v2", Validators.required]
+        }
       ),
       ]),
     contributors: this.fb.array([
+      this.fb.group({
+        name: ["",],
+        affiliation: this.fb.array([
+          this.fb.group({
+            name: ['', Validators.required],
+            affiliationIdentifierScheme: [""],
+            affiliationIdentifier: [''],
+            schemeUri: [""]
+          })
+        ]),
+        givenName: [""],
+        familyName: [""],
+        nameIdentifiers: this.fb.array(
+          [
+            this.fb.group({
+              schemeUri: ["https://orcid.org/"],
+              nameIdentifier: [""],
+              nameIdentifierScheme: ["ORCID"],
+            })
+          ]
+        ),
+        nameType: ["Personal", Validators.required],
+
+      })
       ]),
-    description: this.fb.array([
+    descriptions: this.fb.array([
       this.fb.group({
         description: ['', Validators.required],
-        descriptionType: ['', Validators.required]
+        descriptionType: ['Abstract', Validators.required]
+      }),
+      this.fb.group({
+        description: ['', Validators.required],
+        descriptionType: ['Methods', Validators.required]
       })
     ]),
     rightsList: this.fb.array([
       this.fb.group({
-        rights: ["Creative Commons Attribution Non Commercial 4.0 International", Validators.required],
-        rigtsUri: ["https://creativecommons.org/licenses/by-nc/4.0/legalcode", Validators.required],
+        rights: ["Creative Commons Attribution 4.0 International", Validators.required],
+        rightsUri: ["https://creativecommons.org/licenses/by/4.0/legalcode", Validators.required],
       })
     ]),
     alternateIdentifiers: this.fb.array([
       this.fb.group({
         alternateIdentifier: ['', Validators.required],
-        alternateIdentifierType: ['URL', Validators.required]
+        alternateIdentifierType: ['Direct data access URL', Validators.required]
+      })
+    ]),
+    relatedIdentifiers: this.fb.array([
+      this.fb.group(
+        {
+          relatedIdentifier: ['',],
+          relatedIdentifierType: ['', ],
+          relationType: ['', ],
+          relatedMetadataScheme: ['', ],
+          schemeUri: ["",],
+          schemeType: ["",],
+          resourceTypeGeneral: ['', ],
+        }
+      )]),
+    fundingReferences: this.fb.array([
+      this.fb.group({
+        funderName: ['',],
+        funderIdentifier: ['',],
+        funderIdentifierType: ['',],
+        awardNumber: ['',],
+        awardUri: ['', ],
+        awardTitle: ['',],
       })
     ]),
   });
-  constructor(private fb: FormBuilder) {
+
+  permissionToken: string = ""
+  permissionTokenLastUpdated: Date = new Date()
+
+  get affiliations(): string[] {
+    const creators = this.dataCiteForm.controls.creators.controls.flatMap(c => c.controls.affiliation.controls.map(a => a.controls.name.value)).filter(aff => aff !== null);
+    const contributors = this.dataCiteForm.controls.contributors.controls.flatMap(c => c.controls.affiliation.controls.map(a => a.controls.name.value)).filter(aff => aff !== null);
+    return [...new Set([...creators, ...contributors])];
+  }
+
+  constructor(private modal: NgbActiveModal, private fb: FormBuilder, private accountsService: AccountsService, private web: WebService, private dataciteService: DataciteService) {
+    for (const c of this.dataCiteForm.controls.creators.controls) {
+      for (const n of c.controls.nameIdentifiers.controls) {
+        n.controls.nameIdentifier.valueChanges.subscribe((value) => {
+          if (!value) {
+            return
+          }
+          this.accountsService.curtainAPI.getDataCiteProxyOrcidPublicRecord(value).then((publicRecord: any)=> {
+            const orcidData = publicRecord.data as OrcidPublicRecord
+            c.controls.givenName.setValue(orcidData.names.givenNames.value)
+            c.controls.familyName.setValue(orcidData.names.familyName.value)
+            c.controls.name.setValue(orcidData.names.creditName.value)
+          })
+        })
+      }
+
+    }
+    for (const c of this.dataCiteForm.controls.contributors.controls) {
+      for (const n of c.controls.nameIdentifiers.controls) {
+        n.controls.nameIdentifier.valueChanges.subscribe((value) => {
+          if (!value) {
+            return
+          }
+          this.accountsService.curtainAPI.getDataCiteProxyOrcidPublicRecord(value).then((publicRecord: any)=> {
+            const orcidData = publicRecord.data as OrcidPublicRecord
+            c.controls.givenName.setValue(orcidData.names.givenNames.value)
+            c.controls.familyName.setValue(orcidData.names.familyName.value)
+            c.controls.name.setValue(orcidData.names.creditName.value)
+          })
+        })
+      }
+    }
+    for (const c of this.dataCiteForm.controls.rightsList.controls) {
+      c.controls.rights.valueChanges.subscribe((value) => {
+        if (!value) {
+          return
+        }
+        const license = this.getLicenseOptions().filter((license) => {
+          return license.name === value
+        })
+        if (license.length > 0) {
+          c.controls.rightsUri.setValue(license[0].seeAlso[0])
+        }
+      })
+    }
+    this.accountsService.curtainAPI.getRandomDataCiteSuffix().then((value) => {
+      this.dataCiteForm.controls.suffix.setValue("curtain."+value.data.suffix)
+      // update permission token
+      this.accountsService.curtainAPI.getDataCiteTimeLimitedPermissionToken("curtain."+value.data.suffix).then((value) => {
+        this.permissionToken = value.data.token
+        this.permissionTokenLastUpdated = new Date()
+      })
+      this.dataCiteForm.controls.prefix.setValue(value.data.prefix)
+      this.dataCiteForm.controls.url.setValue(location.origin+"/#/"+encodeURIComponent(`doi.org/${value.data.prefix}/curtain.${value.data.suffix}`))
+    })
+    // update permission token every 5 minutes
+    setInterval(() => {
+      if (!this.dataCiteForm.controls.suffix.value) {
+        return
+      }
+      this.accountsService.curtainAPI.getDataCiteTimeLimitedPermissionToken("curtain."+this.dataCiteForm.controls.suffix.value).then((value) => {
+        this.permissionToken = value.data.token
+        this.permissionTokenLastUpdated = new Date()
+      })
+    }, 300000)
+
   }
 
   onSubmit() {
-    if (this.dataCiteForm.valid) {
-      const dataCiteMetadata: any = this.dataCiteForm.value;
-      console.log(dataCiteMetadata);
+    if (!this.informationIsTrue) {
+      return
+    }
+    const dataCiteMetadata = this.dataCiteForm.value;
+    const payload = {
+      "token": this.permissionToken,
+      "form": dataCiteMetadata,
+      "linkID": this.linkID,
+    }
+    this.accountsService.curtainAPI.submitDataCite(payload).then((value) => {
+
+    })
+
+  }
+
+  addCreator() {
+    const form = this.fb.group({
+      givenName: ['',],
+      familyName: ['',],
+      name: ['', Validators.required],
+      affiliation: this.fb.array([
+        this.fb.group({
+          name: ['', Validators.required],
+          affiliationIdentifier: [''],
+          affiliationIdentifierScheme: [""],
+          schemeUri: [""]
+        })
+      ]),
+      nameType: ['Personal', Validators.required],
+      nameIdentifiers: this.fb.array(
+        [
+          this.fb.group({
+            schemeUri: ["https://orcid.org/"],
+            nameIdentifier: [""],
+            nameIdentifierScheme: ["ORCID"],
+          })
+        ]
+      )
+
+    })
+    form.controls.nameIdentifiers.controls[0].controls.nameIdentifier.valueChanges.subscribe((value) => {
+      if (!value) {
+        return
+      }
+      this.accountsService.curtainAPI.getDataCiteProxyOrcidPublicRecord(value).then((publicRecord: any)=> {
+        const orcidData = publicRecord.data as OrcidPublicRecord
+        form.controls.givenName.setValue(orcidData.names.givenNames.value)
+        form.controls.familyName.setValue(orcidData.names.familyName.value)
+        form.controls.name.setValue(orcidData.names.creditName.value)
+      })
+    })
+    this.dataCiteForm.controls.creators.push(form);
+  }
+
+  searchAffiliations = (text$: Observable<string>) =>
+    text$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(term =>
+        this.dataciteService.getROR(term).pipe(
+          map(response => response.items)
+        )
+      )
+    );
+
+  onAffiliationSelect(event: any, type: "creators"|"contributors", creatorIndex: number, affiliationIndex: number) {
+    const item = event.item;
+    const affiliation = this.dataCiteForm.controls[type].at(creatorIndex).controls.affiliation.at(affiliationIndex);
+    affiliation.controls.name.setValue(item.name);
+    affiliation.controls.affiliationIdentifier.setValue(item.id);
+    affiliation.controls.affiliationIdentifierScheme.setValue("ROR");
+    affiliation.controls.schemeUri.setValue("https://ror.org/");
+  }
+
+  searchFunder = (text$: Observable<string>): Observable<any[]> => {
+    return text$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(term =>
+        this.dataciteService.getFunder(term).pipe(
+          map(response => response.message.items),
+          catchError(() => of([]))
+        )
+      )
+    );
+  }
+
+  getLanguageOptions() {
+    return Object.entries(languages).map(([key, value]) => {
+      return {key: key, value: value}
+    })
+  }
+
+  getSubjectOptions() {
+    return fosData.fosFields
+  }
+
+  addSubject() {
+    this.dataCiteForm.controls.subjects.push(this.fb.group({
+      subject: ["", Validators.required],
+      subjectScheme: ["OECD REVISED FIELD OF SCIENCE AND TECHNOLOGY (FOS) CLASSIFICATION IN THE FRASCATI\n" +
+      "MANUAL", Validators.required],
+      valueUri: ["https://unstats.un.org/wiki/download/attachments/101354089/FOS.pdf?api=v2", Validators.required]
+    }))
+  }
+
+  getLicenseOptions() {
+    return licenses.filter((license) => {
+      return ["CC-BY-NC-4.0", "CC-BY-4.0", "CC-BY-NC-ND-4.0"].includes(license.licenseId)
+    })
+  }
+
+  addContributor() {
+    const form = this.fb.group({
+      name: ["",],
+      affiliation: this.fb.array([
+        this.fb.group({
+          name: ['', Validators.required],
+          affiliationIdentifierScheme: [""],
+          affiliationIdentifier: [''],
+          schemeUri: [""]
+        })
+      ]),
+      givenName: [""],
+      familyName: [""],
+      nameIdentifiers: this.fb.array(
+        [
+          this.fb.group({
+            schemeUri: ["https://orcid.org/"],
+            nameIdentifier: [""],
+            nameIdentifierScheme: ["ORCID"],
+          })
+        ]
+      ),
+      nameType: ["Personal", Validators.required],
+    })
+    form.controls.nameIdentifiers.controls[0].controls.nameIdentifier.valueChanges.subscribe((value) => {
+      if (!value) {
+        return
+      }
+      this.accountsService.curtainAPI.getDataCiteProxyOrcidPublicRecord(value).then((publicRecord: any)=> {
+        const orcidData = publicRecord.data as OrcidPublicRecord
+        form.controls.givenName.setValue(orcidData.names.givenNames.value)
+        form.controls.familyName.setValue(orcidData.names.familyName.value)
+        form.controls.name.setValue(orcidData.names.creditName.value)
+      })
+    })
+    this.dataCiteForm.controls.contributors.push(form)
+
+  }
+
+  addRelatedIdentifier(identifierSource: string) {
+    switch (identifierSource) {
+      case "PRIDE":
+        this.dataCiteForm.controls.relatedIdentifiers.push(this.fb.group({
+          relatedIdentifier: ["", Validators.required],
+          relatedIdentifierType: ["URL", Validators.required],
+          relationType: ["Is supplement to", Validators.required],
+          relatedMetadataScheme: ["",],
+          schemeUri: ["",],
+          schemeType: ["",],
+          resourceTypeGeneral: ["Dataset", Validators.required],
+        }))
+        break
+      case "SDRF-Proteomics":
+        this.dataCiteForm.controls.relatedIdentifiers.push(this.fb.group({
+          relatedIdentifier: ["", Validators.required],
+          relatedIdentifierType: ["URL", Validators.required],
+          relationType: ["HasMetadata", Validators.required],
+          relatedMetadataScheme: ["SDRF-Proteomics",],
+          schemeUri: ["https://github.com/bigbio/proteomics-sample-metadata/blob/master/sdrf-proteomics/README.adoc",],
+          schemeType: ["",],
+          resourceTypeGeneral: ["Dataset", Validators.required],
+        }))
+        break
+      default:
+        this.dataCiteForm.controls.relatedIdentifiers.push(this.fb.group({
+          relatedIdentifier: ["", Validators.required],
+          relatedIdentifierType: ["", Validators.required],
+          relationType: ["", Validators.required],
+          relatedMetadataScheme: ["",],
+          schemeUri: ["",],
+          schemeType: ["",],
+          resourceTypeGeneral: ["", Validators.required],
+        }))
     }
   }
 
+  removeRelatedIdentifier(index: number) {
+    this.dataCiteForm.controls.relatedIdentifiers.removeAt(index);
+  }
 
+  checkHasMetadataScheme(index: number) {
+    return this.dataCiteForm.controls.relatedIdentifiers.controls[index].controls.relationType.value === "HasMetadata" || this.dataCiteForm.controls.relatedIdentifiers.controls[index].controls.relationType.value === "IsMetadataFor"
+  }
 
+  removeCreator(index: number) {
+    this.dataCiteForm.controls.creators.removeAt(index);
+  }
+
+  removeContributor(index: number) {
+    this.dataCiteForm.controls.contributors.removeAt(index);
+  }
+
+  addDescription() {
+    this.dataCiteForm.controls.descriptions.push(this.fb.group({
+      description: ['', Validators.required],
+      descriptionType: ['', Validators.required]
+    }))
+  }
+
+  removeFundingReference(index: number) {
+    this.dataCiteForm.controls.fundingReferences.removeAt(index);
+  }
+
+  onFunderSelect(event: any, index: number) {
+    const item = event.item;
+    const fundingReference = this.dataCiteForm.controls.fundingReferences.at(index);
+    fundingReference.controls.funderName.setValue(item.name);
+    fundingReference.controls.funderIdentifier.setValue(item.uri);
+    fundingReference.controls.funderIdentifierType.setValue("Crossref Funder ID");
+    //fundingReference.controls.schemeUri.setValue("https://www.crossref.org/services/funder-registry/");
+  }
+
+  resultFormatter = (result: any) => result.name;
+  inputFormatter = (result: any) => result.name;
+  resultTemplate = (result: any) => result.name;
+  addFundingReference() {
+    this.dataCiteForm.controls.fundingReferences.push(this.fb.group({
+      funderName: ['',],
+      funderIdentifier: ['',],
+      funderIdentifierType: ['',],
+      awardNumber: ['',],
+      awardUri: ['', ],
+      awardTitle: ['',],
+    }))
+  }
+
+  close() {
+    this.modal.dismiss()
+  }
+
+  exportJSON() {
+    const dataCiteMetadata: any = this.dataCiteForm.value;
+    const data = JSON.stringify(dataCiteMetadata, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'datacite-doi-form.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  importJSON(event: any) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = JSON.parse(reader.result as string);
+      // patch all but prefix, suffix, url, publisher, publisherIdentifier, publicationYear, and alternateIdentifiers
+      for (const key of Object.keys(data)) {
+        if (key !== "prefix" && key !== "suffix" && key !== "url" && key !== "publisher" && key !== "publisherIdentifier" && key !== "publicationYear" && key !== "alternateIdentifiers") {
+          // @ts-ignore
+          this.dataCiteForm.controls[key].patchValue(data[key]);
+        }
+      }
+    }
+    reader.readAsText(file);
+  }
+
+  removeAffiliation(type: "creators"|"contributors", contributorIndex: number, affiliationIndex: number) {
+    this.dataCiteForm.controls[type].controls[contributorIndex].controls.affiliation.removeAt(affiliationIndex);
+  }
+  addAffiliation(type: "creators"|"contributors", contributorIndex: number) {
+    this.dataCiteForm.controls[type].controls[contributorIndex].controls.affiliation.push(this.fb.group({
+      name: ['', Validators.required],
+      affiliationIdentifier: [''],
+      affiliationIdentifierScheme: [""],
+      schemeUri: [""]
+    }))
+  }
 }

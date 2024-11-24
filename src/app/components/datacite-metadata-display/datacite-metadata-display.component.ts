@@ -15,21 +15,25 @@ import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 })
 export class DataciteMetadataDisplayComponent {
   private _metadata: DataCiteMetadata|undefined
+  contributorsString: string = ""
   @Input() set metadata(value: DataCiteMetadata|undefined) {
     this._metadata = value
     let authors: string[] = []
+    let contributors: string[] = []
     if (this._metadata) {
       if (this._metadata.data.attributes.contributors.length > 0) {
-        authors = this._metadata.data.attributes.contributors.map((a) => {
+        contributors = this._metadata.data.attributes.contributors.map((a) => {
           return a.name
         })
-      } else {
+      }
+      if (this._metadata.data.attributes.creators.length > 0) {
         authors = this._metadata.data.attributes.creators.map((a) => {
           return a.name
         })
       }
 
-      this.authorsString = authors.join("; ")
+      this.creatorsString = authors.join("; ")
+      this.contributorsString = contributors.join("; ")
       if (this._metadata.data.relationships.media.data) {
         this.mediaID = encodeURIComponent(this._metadata.data.relationships.media.data.id)
 
@@ -40,7 +44,7 @@ export class DataciteMetadataDisplayComponent {
   }
 
   @Output() clickDownload: EventEmitter<string> = new EventEmitter<string>()
-  authorsString: string = ""
+  creatorsString: string = ""
   get metadata(): DataCiteMetadata|undefined {
     return this._metadata
   }

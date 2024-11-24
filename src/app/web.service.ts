@@ -4,11 +4,13 @@ import {PlotlyService} from "angular-plotly.js";
 import { HttpClient } from "@angular/common/http";
 import {DataCiteMetadata} from "./data-cite-metadata";
 import {OrcidPublicRecord} from "./orcid-public-record";
+import {environment} from "../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebService {
+  dataciteURL: string = environment.datacite
   siteProperties: any = {
     non_user_post: true
   }
@@ -71,7 +73,7 @@ export class WebService {
   }
 
   getDataCiteMetaData(doi: string) {
-    return this.http.get<DataCiteMetadata>("https://api.datacite.org/dois/"+doi, {responseType: "json", observe: "body"})
+    return this.http.get<DataCiteMetadata>(`${this.dataciteURL}dois/`+doi, {responseType: "json", observe: "body"})
   }
 
   getORCIDPublicRecord(orcid: string) {

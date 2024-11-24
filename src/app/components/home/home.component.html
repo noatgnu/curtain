@@ -78,6 +78,7 @@
               </ng-container>
             </button>
           <div ngbDropdownMenu aria-labelledby="dropdownSession">
+            <button ngbDropdownItem (click)="openDataciteDOI()">Register DOI</button>
             <button ngbDropdownItem (click)="openAnnotation()">Project Annotation</button>
             <button ngbDropdownItem (click)="openPeptideCountModal()">Add Peptide Count Data</button>
             <ng-container *ngIf="finished">

@@ -1,7 +1,7 @@
 export interface RORQuery {
   number_of_results: number;
   time_taken: number;
-  items: [],
+  items: RORItem[],
   meta: {
     types: {id: string, title: string, count: number}[],
     countries: {id: string, title: string, count: number}[],

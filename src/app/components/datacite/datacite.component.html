@@ -1,0 +1,628 @@
+<div class="modal-header">
+  <h5 class="modal-title">DOI Registration</h5>
+</div>
+<div class="modal-body">
+  <form [formGroup]="dataCiteForm" class="container d-flex flex-column gap-2 justify-content-center">
+    <h5>
+      <b>
+        DOI Information:
+      </b>
+    </h5>
+    <p>Automatically set.</p>
+    <div class="d-flex gap-2">
+      <div>
+        <label for="prefix">DOI Prefix</label>
+        <input class="form-control" id="prefix" formControlName="prefix" required readonly>
+        <small class="text-muted">The prefix of the DOI. This number will be automatically assigned by backend.</small>
+      </div>
+      <div>
+        <label for="suffix">DOI Suffix</label>
+        <input class="form-control" id="suffix" formControlName="suffix" required readonly>
+        <small class="text-muted">The suffix of the DOI. This number will be automatically assigned by backend.</small>
+      </div>
+      <div class="flex-grow-1">
+        <label for="url">DOI Landing Page URL</label>
+        <input class="form-control" id="url" formControlName="url" required readonly>
+        <small class="text-muted">The URL of the landing page of the DOI. This URL will be automatically created using information from backend.</small>
+      </div>
+    </div>
+    <hr>
+    <section>
+      <h5>
+        <b>
+          Creators:
+        </b>
+      </h5>
+      <p>The main researchers involved in producing the data, or the authors of the publication, in priority order. ORCID is required for all creators.</p>
+      <div class="d-flex flex-column gap-2" formArrayName="creators">
+        @for (c of dataCiteForm.controls.creators.controls; track c; let index = $index) {
+          <b>Creator #{{index+1}}.</b>
+          <div [formGroupName]="index">
+            <div class="d-flex gap-2">
+              <div formArrayName="nameIdentifiers">
+                <div [formGroupName]="0">
+                  <label>
+                    ORCID
+                  </label>
+                  <input class="form-control" formControlName="nameIdentifier" required>
+                  <small class="text-muted">ORCID iD of the creator. Will also be used to automatically fill Display Name, Given Name and Family Name fields</small>
+                </div>
+              </div>
+
+              <div>
+                <label>
+                  Display Name
+                </label>
+                <input class="form-control" formControlName="name" required>
+                <small class="text-muted">The name of the creator as it should appear in the citation.</small>
+              </div>
+              <div>
+                <label>
+                  Given Name
+                </label>
+                <input class="form-control" formControlName="givenName">
+              </div>
+              <div>
+                <label>
+                  Family Name
+                </label>
+                <input class="form-control" formControlName="familyName">
+              </div>
+            </div>
+            <div>
+              <label>
+                Creator Type
+              </label>
+              <select class="form-control" formControlName="nameType" required style="width: 200px">
+                @for (o of nameTypes; track o) {
+                  <option [value]="o">{{o}}</option>
+                }
+              </select>
+              <small class="text-muted">Whether or not the creator is an individual or an organization.</small>
+            </div>
+            <div formArrayName="affiliation">
+              <b>Creator's Affiliations</b>
+              @for (a of c.controls.affiliation.controls; track a; let affIndex = $index) {
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex gap-2" [formGroupName]="affIndex">
+                      <div class="d-flex gap-2">
+                        <div>
+                          <label>
+                            Affiliation {{affIndex+1}}
+                          </label>
+                          <input type="search" class="form-control" [ngbTypeahead]="searchAffiliations"
+                                 [resultFormatter]="resultFormatter" [inputFormatter]="inputFormatter"
+                                 [resultTemplate]="rt"
+                                 (selectItem)="onAffiliationSelect($event, 'creators', index, affIndex)">
+                          <small class="text-muted">The name of the institution with which the creator is affiliated. Autocomplete information is retrieve from ROR. Please choose the most appropriate option unless your affiliation could not be found.</small>
+                        </div>
+                        <div>
+                          <label>
+                            Affiliation Identifier
+                          </label>
+                          <input class="form-control" formControlName="affiliationIdentifier">
+                          <small class="text-muted">The unique identifier of the affiliation or webpage. This field is optional.</small>
+                        </div>
+                        <div>
+                          <label>
+                            Affiliation Identifier Scheme
+                          </label>
+                          <input class="form-control" formControlName="affiliationIdentifierScheme">
+                          <small class="text-muted">If the identifier is from an aggregated source, please add the name of the resource here.</small>
+                        </div>
+                        <div>
+                          <label>
+                            Affiliation Identifier Scheme URI
+                          </label>
+                          <input class="form-control" formControlName="schemeUri">
+                          <small class="text-muted">If the identifier is from an aggregated source, please add the URI of the resource here.</small>
+                        </div>
+                      </div>
+                      @if (affIndex > 0) {
+                        <div>
+                          <button class="btn btn-danger" (click)="removeAffiliation('creators', index, affIndex)"><i class="bi bi-trash"></i> Remove Affiliation</button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+              }
+              <div class="mt-2">
+                <button type="button" class="btn btn-primary" (click)="addAffiliation('creators', index)">Add Affiliation</button>
+              </div>
+
+            </div>
+            <div class="mt-2">
+              <button class="btn btn-danger" (click)="removeCreator(index)"><i class="bi bi-trash"></i> Remove Creator</button>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="mt-2">
+        <button type="button" class="btn btn-primary" (click)="addCreator()">Add Creator</button>
+      </div>
+    </section>
+    <hr>
+    <section>
+      <h5>
+        <b>Title:</b>
+      </h5>
+      <p>A name or a title by which a resource is known.</p>
+      <div formArrayName="titles">
+        <div formGroupName="0">
+          <div>
+            <label>
+              Title
+            </label>
+            <input class="form-control" formControlName="title" required>
+          </div>
+          <div>
+            <label>
+              Title language
+            </label>
+            <select class="form-control" formControlName="lang" required>
+              @for (o of getLanguageOptions(); track o.key) {
+                <option [value]="o.key">{{o.value.nativeName}}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+    <hr>
+    <section>
+      <h5>
+        <b>Publishing Information:</b>
+      </h5>
+      <div formGroupName="publisher">
+        <div>
+          <label>
+            Publisher: The name of the entity that holds, archives, publishes prints, distributes, releases, issues, or produces the resource. For Curtain and CurtainPTM, as of current, the University of Dundee will be the publisher of the datasets.
+          </label>
+          <input class="form-control" formControlName="name" required readonly>
+        </div>
+        <div>
+          <label>
+            Publisher Identifier
+          </label>
+          <input class="form-control" formControlName="publisherIdentifier" required readonly>
+        </div>
+        <div>
+          <label>
+            Publisher Identifier Scheme
+          </label>
+          <input class="form-control" formControlName="publisherIdentifierScheme" required readonly>
+          <small class="text-muted">The name of the identifier scheme.</small>
+        </div>
+        <div>
+          <label>
+            Publisher Identifier Scheme URI
+          </label>
+          <input class="form-control" formControlName="schemeUri" required readonly>
+          <small class="text-muted">The URI of the identifier scheme.</small>
+        </div>
+      </div>
+
+      <div>
+        <label>
+          Publication Year: The year when the data was or will be made publicly available.
+        </label>
+        <input class="form-control" formControlName="publicationYear" required>
+      </div>
+    </section>
+    <hr>
+    <section>
+      <b>Related Subjects</b> of the Datasets. For Curtain and CurtainPTM, the subjects will be the FOS (Field of Science) of the OECD (Organisation for Economic Co-operation and Development) classification.
+      <div class="d-flex flex-column gap-2" formArrayName="subjects">
+        @for (s of dataCiteForm.controls.subjects.controls; track s; let index = $index) {
+          <div [formGroupName]="index">
+            <div class="d-flex">
+              <div>
+                <label>
+                  Subject
+                </label>
+                <select class="form-control" formControlName="subject" required>
+                  @for (o of getSubjectOptions(); track o.fosId) {
+                    <option [value]="o.fosLabel">{{o.fosLabel}}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+        }
+        <div>
+          <button type="button" class="btn btn-primary" (click)="addSubject()">Add Subject</button>
+        </div>
+      </div>
+    </section>
+    <hr>
+    <section>
+      <h5>
+        <b>Rights and Licensing Information</b>
+      </h5>
+      <div class="d-flex flex-column gap-2" formArrayName="rightsList">
+        @for (r of dataCiteForm.controls.rightsList.controls; track r; let index = $index) {
+          <div [formGroupName]="index">
+            <div class="d-flex gap-2">
+              <div>
+                <label>
+                  Rights
+                </label>
+                <select class="form-control" formControlName="rights" required>
+                  @for (o of getLicenseOptions(); track o.licenseId) {
+                    <option [value]="o.name">{{o.name}}</option>
+                  }
+                </select>
+                <small class="text-muted">The license of the resource. For the content of this DOI, you can choose between different flavour of CC-BY-4.0.</small>
+              </div>
+              <div>
+                <label>
+                  Rights URI
+                </label>
+                <input class="form-control" formControlName="rightsUri" required readonly>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+    <hr>
+    <section>
+      <div class="d-flex flex-column gap-2" formArrayName="contributors">
+        <h5>
+          <b>Contributors:</b>
+        </h5>
+        <p>The institution or person responsible for collecting, managing, distributing, or otherwise contributing to the development of the resource. ORCID is required for all contributors.</p>
+        @for (c of dataCiteForm.controls.contributors.controls; track c; let index = $index) {
+          <b>Contributor #{{index+1}}.</b>
+          <div [formGroupName]="index">
+            <div class="d-flex gap-2">
+              <div formArrayName="nameIdentifiers">
+                <div [formGroupName]="0">
+                  <label>
+                    ORCID
+                  </label>
+                  <input class="form-control" formControlName="nameIdentifier" required>
+                  <small class="text-muted">ORCID iD of the creator. Will also be used to automatically fill Display Name, Given Name and Family Name fields</small>
+                </div>
+              </div>
+              <div>
+                <label>
+                  Display Name
+                </label>
+                <input class="form-control" formControlName="name" required>
+                <small class="text-muted">The name of the contributor as it should appear in the citation.</small>
+              </div>
+              <div>
+                <label>
+                  Given Name
+                </label>
+                <input class="form-control" formControlName="givenName">
+              </div>
+              <div>
+                <label>
+                  Family Name
+                </label>
+                <input class="form-control" formControlName="familyName">
+              </div>
+            </div>
+            <div>
+              <label>
+                Contributor Type
+              </label>
+              <select class="form-control" formControlName="nameType" required style="width: 200px">
+                @for (o of nameTypes; track o) {
+                  <option [value]="o">{{o}}</option>
+                }
+              </select>
+              <small class="text-muted">Whether the contributor is an individual or an organization.</small>
+            </div>
+            <div formArrayName="affiliation">
+              <b>Contributors' Affiliations</b>
+              @for (a of c.controls.affiliation.controls; track a; let affIndex = $index) {
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex gap-2" [formGroupName]="affIndex">
+                      <div class="d-flex gap-2">
+                        <div>
+                          <label>
+                            Affiliation {{affIndex+1}}
+                          </label>
+                          <input type="search" class="form-control" [ngbTypeahead]="searchAffiliations"
+                                 [resultFormatter]="resultFormatter" [inputFormatter]="inputFormatter"
+                                 [resultTemplate]="rt"
+                                 (selectItem)="onAffiliationSelect($event, 'contributors', index, affIndex)">
+                          <small class="text-muted">The name of the institution with which the contributor is affiliated. Autocomplete information is retrieve from ROR. Please choose the most appropriate option unless your affiliation could not be found.</small>
+                        </div>
+                        <div>
+                          <label>
+                            Affiliation Identifier
+                          </label>
+                          <input class="form-control" formControlName="affiliationIdentifier">
+                          <small class="text-muted">The unique identifier of the affiliation or webpage. This field is optional.</small>
+                        </div>
+                        <div>
+                          <label>
+                            Affiliation Identifier Scheme
+                          </label>
+                          <input class="form-control" formControlName="affiliationIdentifierScheme">
+                          <small class="text-muted">If the identifier is from an aggregated source, please add the name of the resource here.</small>
+                        </div>
+                        <div>
+                          <label>
+                            Affiliation Identifier Scheme URI
+                          </label>
+                          <input class="form-control" formControlName="schemeUri">
+                          <small class="text-muted">If the identifier is from an aggregated source, please add the URI of the resource here.</small>
+                        </div>
+                      </div>
+
+
+                      @if (affIndex > 0) {
+                        <div>
+                          <button class="btn btn-danger" (click)="removeAffiliation('contributors', index, affIndex)"><i class="bi bi-trash"></i> Remove Affiliation</button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+              }
+              <div class="mt-2">
+                <button type="button" class="btn btn-primary" (click)="addAffiliation('contributors', index)">Add Affiliation</button>
+              </div>
+
+            </div>
+            <div class="mt-2">
+              <button class="btn btn-danger" (click)="removeContributor(index)"><i class="bi bi-trash"></i> Remove Contributor</button>
+            </div>
+
+          </div>
+        }
+        <div>
+          <button type="button" class="btn btn-primary" (click)="addContributor()">Add Contributor</button>
+        </div>
+      </div>
+    </section>
+    <hr>
+    <section>
+      <div class="d-flex flex-column gap-2" formArrayName="alternateIdentifiers">
+        <h5>
+          <b>Alternate Identifiers:</b>
+        </h5>
+        <p>Automatically set.</p>
+        @for (a of dataCiteForm.controls.alternateIdentifiers.controls; track a; let index = $index) {
+          <div [formGroupName]="index">
+            <div class="d-flex gap-2">
+              <div>
+                <label>
+                  Alternate Identifier
+                </label>
+                <input class="form-control" formControlName="alternateIdentifier" required readonly>
+              </div>
+              <div>
+                <label>
+                  Alternate Identifier Type
+                </label>
+                <input class="form-control" formControlName="alternateIdentifierType" required readonly>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+    <hr>
+    <section>
+      <div class="d-flex flex-column gap-2" formArrayName="relatedIdentifiers">
+        <h5>
+          <b>Related Identifiers:</b>
+        </h5>
+        <p>
+          Identifiers of related resources. For Curtain and CurtainPTM, the related identifiers will be the PRIDE, MassIVE, and other similar database with unique links to the raw data of the datasets.
+        </p>
+        @for (r of dataCiteForm.controls.relatedIdentifiers.controls; track r; let index = $index) {
+          <b>Resource #{{index+1}}.</b>
+          <div [formGroupName]="index">
+            <div class="d-flex flex-column gap-2">
+              <div>
+                <label>
+                  Related Identifier
+                </label>
+                <input class="form-control" formControlName="relatedIdentifier">
+                <small class="text-muted">The unique identifier of the related resource.</small>
+              </div>
+              <div>
+                <label>
+                  Related Identifier Type
+                </label>
+                <select class="form-control" formControlName="relatedIdentifierType">
+                  @for (o of identifierTypes; track o) {
+                    <option [value]="o">{{o}}</option>
+                  }
+                </select>
+                <small class="text-muted">The type of the related identifier.</small>
+              </div>
+              <div>
+                <label>
+                  Relation Type
+                </label>
+                <select class="form-control" formControlName="relationType">
+                  @for (o of identifierRelationTypes; track o) {
+                    <option [value]="o">{{o}}</option>
+                  }
+                </select>
+                <small class="text-muted">The type of relationship between this resource and the related resource.</small>
+              </div>
+              @if (checkHasMetadataScheme(index)) {
+                <div>
+                  <label>
+                    Metadata Scheme
+                  </label>
+                  <input class="form-control" formControlName="relatedMetadataScheme">
+                  <small class="text-muted">The name of the metadata scheme that the related identifier adheres to.</small>
+                </div>
+                <div>
+                  <label>
+                    Scheme URI
+                  </label>
+                  <input class="form-control" formControlName="schemeUri">
+                  <small class="text-muted">The URI of the metadata scheme that the related identifier adheres to.</small>
+                </div>
+                <div>
+                  <label>
+                    Scheme Type
+                  </label>
+                  <input class="form-control" formControlName="schemeType">
+                  <small class="text-muted">The type of the metadata scheme that the related identifier adheres to.</small>
+                </div>
+              }
+              <div>
+                <label>
+                  Resource Type General
+                </label>
+                <select class="form-control" formControlName="resourceTypeGeneral">
+                  @for (o of resourceTypes; track o) {
+                    <option [value]="o">{{o}}</option>
+                  }
+                </select>
+                <small class="text-muted">The general type of the related resource. Whether it is Audio, Video, Book, Datasets...</small>
+              </div>
+            </div>
+            <div class="mt-2">
+              <button type="button" class="btn btn-danger" (click)="removeRelatedIdentifier(index)"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        }
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-primary" (click)="addRelatedIdentifier('')">Add Related Identifier</button>
+          <button type="button" class="btn btn-primary" (click)="addRelatedIdentifier('PRIDE')">Add PRIDE, MassIVE or Other</button>
+          <button type="button" class="btn btn-primary" (click)="addRelatedIdentifier('SDRF-Proteomics')">Add SDRF Proteomics Metadata Resources</button>
+        </div>
+      </div>
+    </section>
+    <hr>
+    <section>
+      <h5>
+        <b>Descriptions</b>
+      </h5>
+      <p>A description of the resource. For Curtain and CurtainPTM, the description will be the abstract of the research as well as the methods utilized to acquire and process.</p>
+      <div class="d-flex flex-column gap-2" formArrayName="descriptions">
+        @for (d of dataCiteForm.controls.descriptions.controls; track d; let index = $index) {
+          <b>{{index+1}}.</b>
+          <div [formGroupName]="index">
+            <div class="d-flex gap-2">
+              <div>
+                <label>
+                  Description Type
+                </label>
+                <!--<select class="form-control" formControlName="descriptionType" required readonly>
+                  @for (o of descriptionTypes; track o) {
+                    <option [value]="o">{{o}}</option>
+                  }
+                </select>-->
+                <input class="form-control" formControlName="descriptionType" required readonly>
+              </div>
+              <div class="flex-grow-1">
+                <label>
+                  Description
+                </label>
+                <textarea class="form-control" formControlName="description" required></textarea>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+    <hr>
+    <section>
+      <h5>
+        <b>Funding References</b>
+      </h5>
+      <p>
+        Information about the funding that supported the research. For Curtain and CurtainPTM, the funding references will be the grants and funding bodies that supported the research.
+      </p>
+      <div class="d-flex flex-column gap-2" formArrayName="fundingReferences">
+        @for (f of dataCiteForm.controls.fundingReferences.controls; track f; let index = $index) {
+          <b>Reference #{{index+1}}.</b>
+          <div [formGroupName]="index">
+            <div class="d-flex flex-column gap-2">
+              <div>
+                <label>
+                  Funder Name
+                </label>
+                <input type="search" class="form-control" [ngbTypeahead]="searchFunder"
+                       [resultFormatter]="resultFormatter" [inputFormatter]="inputFormatter"
+                       [resultTemplate]="rt"
+                       (selectItem)="onFunderSelect($event, index)">
+                <small class="text-muted">The name of the entity that provided the funding. Autocomplete information is retrieved from CrossRef. If your organization could not be found, please manually input the data.</small>
+              </div>
+              <div>
+                <label>
+                  Funder Identifier
+                </label>
+                <input class="form-control" formControlName="funderIdentifier">
+                <small class="text-muted">The unique identifier or website of the funder</small>
+              </div>
+              <div>
+                <label>
+                  Funder Identifier Type
+                </label>
+                <select class="form-control" formControlName="funderIdentifierType">
+                  @for (o of funderIdentifierTypes; track o) {
+                    <option [value]="o">{{o}}</option>
+                  }
+                </select>
+                <small class="text-muted">If the identifier is from an aggregated source, please add the type of the funder identifier.</small>
+              </div>
+              <div>
+                <label>
+                  Award Number
+                </label>
+                <input class="form-control" formControlName="awardNumber">
+                <small class="text-muted">The number or identifier of the award or grant.</small>
+              </div>
+              <div>
+                <label>
+                  Award Title
+                </label>
+                <input class="form-control" formControlName="awardTitle">
+                <small class="text-muted">The title of the award or grant.</small>
+              </div>
+              <div>
+                <label>
+                  Award URI
+                </label>
+                <input class="form-control" formControlName="awardUri">
+                <small class="text-muted">The URI of the award or grant.</small>
+              </div>
+            </div>
+          </div>
+          <div class="mt-2">
+            <button class="btn btn-danger" (click)="removeFundingReference(index)"><i class="bi bi-trash"></i></button>
+          </div>
+        }
+        <div>
+          <button type="button" class="btn btn-primary" (click)="addFundingReference()">Add Funding Reference</button>
+        </div>
+      </div>
+    </section>
+  </form>
+  <input type="file" #importFile hidden (change)="importJSON($event)">
+</div>
+<div class="modal-footer">
+  <div class="d-flex gap-2">
+    <div class="form-check">
+      <input type="checkbox" class="form-check-input" id="informationIsTrue" [(ngModel)]="informationIsTrue">
+      <label for="informationIsTrue" class="form-check-label">I confirm that the information provided is true and accurate.</label>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="exportJSON()">Save</button>
+    <button type="button" class="btn btn-primary" (click)="importFile.click()">Load</button>
+    <button type="button" class="btn btn-primary" [disabled]="!informationIsTrue" (click)="onSubmit()">Register DOI</button>
+    <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+  </div>
+</div>
+<ng-template #rt let-r="result" let-t="term">
+  <ngb-highlight [result]="r.name" [term]="t"></ngb-highlight>
+</ng-template>

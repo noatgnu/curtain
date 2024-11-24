@@ -21,6 +21,21 @@
           }
         </p>
         <p>
+          @for (c of metadata.data.attributes.contributors; track c) {
+            <span class="badge bg-secondary" style="margin-right: 5px" [ngbTooltip]="affiliationContributor">{{c.name}}</span>
+            <ng-template #affiliationContributor>
+              <p>
+                @for (aff of c.affiliation; track aff) {
+                  <span>
+                    {{aff}}
+                  </span>
+                  <br>
+                }
+              </p>
+            </ng-template>
+          }
+        </p>
+        <p>
           DOI Link: https://doi.org/{{metadata.data.attributes.doi}}
         </p>
         <p>

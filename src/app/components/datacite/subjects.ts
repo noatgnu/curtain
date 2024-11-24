@@ -1,6 +1,6 @@
 export const fosData = {
    mappingListVersion: "1.0",
-   originalUrl: "https://www.oecd.org/science/inno/38235147.pdf",
+   originalUrl: "https://unstats.un.org/wiki/download/attachments/101354089/FOS.pdf?api=v2",
    fosFields: [{
        fosId: "1",
        fosLabel: "Natural sciences"

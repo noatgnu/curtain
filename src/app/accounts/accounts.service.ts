@@ -24,8 +24,6 @@ export class AccountsService {
             this.curtainAPI.user = new User()
           })
 
-
-          console.log(this.curtainAPI.user)
           const ref = this.modal.open(SessionExpiredModalComponent, {backdrop: 'static'})
 
         }
@@ -34,7 +32,7 @@ export class AccountsService {
           config.url === this.curtainAPI.logoutURL ||
           config.url === this.curtainAPI.userInfoURL ||
           config.url.startsWith(this.curtainAPI.baseURL + "curtain/") ||
-          config.url.startsWith(this.curtainAPI.baseURL + "data_filter_list/")) {
+          config.url.startsWith(this.curtainAPI.baseURL + "data_filter_list/") || config.url.startsWith(this.curtainAPI.baseURL + "datacite/")) {
           console.log(this.curtainAPI.user)
           if (this.curtainAPI.user.loginStatus) {
             config.headers["Authorization"] = "Bearer " + this.curtainAPI.user.access_token;
