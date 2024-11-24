@@ -250,6 +250,16 @@ export class DataciteComponent {
       return
     }
     const dataCiteMetadata = this.dataCiteForm.value;
+    if (dataCiteMetadata.relatedIdentifiers) {
+      for (let i = 0; i < dataCiteMetadata.relatedIdentifiers.length; i++) {
+        if (dataCiteMetadata.relatedIdentifiers[i].relationType !== "HasMetadata" && dataCiteMetadata.relatedIdentifiers[i].relationType !== "IsMetadataFor") {
+          delete dataCiteMetadata.relatedIdentifiers[i].relatedMetadataScheme
+          delete dataCiteMetadata.relatedIdentifiers[i].schemeUri
+          delete dataCiteMetadata.relatedIdentifiers[i].schemeType
+        }
+      }
+    }
+
     const payload = {
       "token": this.permissionToken,
       "form": dataCiteMetadata,
