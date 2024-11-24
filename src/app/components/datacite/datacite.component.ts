@@ -10,6 +10,7 @@ import {fosData} from "./subjects";
 import {licenses} from "./licenses";
 import {DataciteService} from "./datacite.service";
 import {environment} from "../../../environments/environment";
+import {ToastService} from "../../toast.service";
 
 @Component({
   selector: 'app-datacite',
@@ -177,7 +178,7 @@ export class DataciteComponent {
     return [...new Set([...creators, ...contributors])];
   }
 
-  constructor(private modal: NgbActiveModal, private fb: FormBuilder, private accountsService: AccountsService, private web: WebService, private dataciteService: DataciteService) {
+  constructor(private toastService: ToastService, private modal: NgbActiveModal, private fb: FormBuilder, private accountsService: AccountsService, private web: WebService, private dataciteService: DataciteService) {
     for (const c of this.dataCiteForm.controls.creators.controls) {
       for (const n of c.controls.nameIdentifiers.controls) {
         n.controls.nameIdentifier.valueChanges.subscribe((value) => {
@@ -250,13 +251,56 @@ export class DataciteComponent {
       return
     }
     const dataCiteMetadata = this.dataCiteForm.value;
+    if (dataCiteMetadata.creators) {
+      for (let i = 0; i < dataCiteMetadata.creators.length; i++) {
+        if (dataCiteMetadata.creators[i].name === "") {
+          this.toastService.show("DOI Form Error", "Please fill in all fields for metadata creators", 5000, "error").then()
+        }
+
+      }
+    }
+    if (dataCiteMetadata.titles) {
+      for (let i = 0; i < dataCiteMetadata.titles.length; i++) {
+        if (dataCiteMetadata.titles[i].title === "") {
+          this.toastService.show("DOI Form Error", "Please fill in all fields for metadata titles", 5000, "error").then()
+        }
+      }
+    }
+    if (dataCiteMetadata.contributors) {
+      for (let i = 0; i < dataCiteMetadata.contributors.length; i++) {
+        if (dataCiteMetadata.contributors[i].name === "") {
+          this.toastService.show("DOI Form Error", "Please fill in all fields for metadata contributors or remove them", 5000, "error").then()
+        }
+      }
+    }
+    if (dataCiteMetadata.subjects) {
+      for (let i = 0; i < dataCiteMetadata.subjects.length; i++) {
+        if (dataCiteMetadata.subjects[i].subject === "") {
+          this.toastService.show("DOI Form Error", "Please fill in all fields for metadata subjects", 5000, "error").then()
+        }
+      }
+    }
+    if (dataCiteMetadata.descriptions) {
+      for (let i = 0; i < dataCiteMetadata.descriptions.length; i++) {
+        if (dataCiteMetadata.descriptions[i].description === "") {
+          this.toastService.show("DOI Form Error", "Please fill in all fields for metadata descriptions", 5000, "error").then()
+        }
+      }
+    }
+
     if (dataCiteMetadata.relatedIdentifiers) {
       for (let i = 0; i < dataCiteMetadata.relatedIdentifiers.length; i++) {
         if (dataCiteMetadata.relatedIdentifiers[i].relationType !== "HasMetadata" && dataCiteMetadata.relatedIdentifiers[i].relationType !== "IsMetadataFor") {
           delete dataCiteMetadata.relatedIdentifiers[i].relatedMetadataScheme
           delete dataCiteMetadata.relatedIdentifiers[i].schemeUri
           delete dataCiteMetadata.relatedIdentifiers[i].schemeType
+        } else {
+          if (dataCiteMetadata.relatedIdentifiers[i].relatedMetadataScheme === "" || dataCiteMetadata.relatedIdentifiers[i].schemeUri === "" || dataCiteMetadata.relatedIdentifiers[i].schemeType === "") {
+            this.toastService.show("DOI Form Error", "Please fill in all fields for metadata related identifiers", 5000, "error").then()
+            return;
+          }
         }
+
       }
     }
 
