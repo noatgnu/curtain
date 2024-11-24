@@ -29,7 +29,7 @@ export class DataciteComponent {
   private baseURL: string = environment.apiURL
   @Input() set linkID(value: string) {
     this._linkID = value
-    this.dataCiteForm.controls.alternateIdentifiers.at(0).controls.alternateIdentifier.setValue(`${this.baseURL}/curtain/${this._linkID}/download/token=/`)
+    this.dataCiteForm.controls.alternateIdentifiers.at(0).controls.alternateIdentifier.setValue(`${this.baseURL}curtain/${this._linkID}/download/token=/`)
   }
   get linkID(): string {
     return this._linkID
@@ -310,7 +310,7 @@ export class DataciteComponent {
       "linkID": this.linkID,
     }
     this.accountsService.curtainAPI.submitDataCite(payload).then((value) => {
-
+      this.toastService.show("DOI Created", `Your ${value.data["doi"]} has been created`, 5000, "success").then()
     })
 
   }

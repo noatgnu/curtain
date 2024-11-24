@@ -140,6 +140,10 @@ export class HomeComponent implements OnInit {
                   console.log(data)
                   this.loadingDataCite = false
                   this.doiMetadata = data
+                  if (data.data.attributes.alternateIdentifiers.length > 0) {
+                    this.getDOISessionData(data.data.attributes.alternateIdentifiers[0]["alternateIdentifier"], params["settings"]).then()
+                  }
+
                 })
 
                 return
@@ -178,6 +182,21 @@ export class HomeComponent implements OnInit {
 
 
   }
+
+  async getDOISessionData(url: string, doiLink: string) {
+
+    const data =  await this.accounts.curtainAPI.postSettings("", "", this.onDownloadProgress, url)
+    if (data.data) {
+      this.restoreSettings(data.data).then(() => {
+        this.uniqueLink = location.origin + "/#/" + encodeURIComponent(doiLink)
+        this.settings.settings.currentID = doiLink
+        this.permanent = true
+        this.data.session = {permanent: true}
+        this.data.restoreTrigger.next(true)
+      })
+    }
+  }
+
   async getSessionData(id: string, token: string = "") {
     const d = await this.accounts.curtainAPI.getSessionSettings(id)
     this.data.session = d.data

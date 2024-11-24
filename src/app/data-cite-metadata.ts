@@ -96,7 +96,10 @@ export interface DataCiteMetadata {
       "prefix": string,
       "suffix": string,
       "identifiers": string[],
-      "alternateIdentifiers": string[],
+      "alternateIdentifiers": {
+        alternateIdentifier: string,
+        alternateIdentifierType: string
+      }[],
       "creators": DataCiteMetadataCreator[],
       "titles": DataCiteMetadataTitle[],
       "publisher": string,

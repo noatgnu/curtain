@@ -84,4 +84,8 @@ export class WebService {
 
   }
 
+  getDataFromDataCiteAlternateID(alternateID: string) {
+    return this.http.get(alternateID, {responseType: "json", observe: "events"})
+  }
+
 }
