@@ -73,7 +73,7 @@ export class WebService {
   }
 
   getDataCiteMetaData(doi: string) {
-    return this.http.get<DataCiteMetadata>(`${this.dataciteURL}dois/`+doi, {responseType: "json", observe: "body"})
+    return this.http.get<DataCiteMetadata>(`${this.dataciteURL}/`+doi, {responseType: "json", observe: "body"})
   }
 
   getORCIDPublicRecord(orcid: string) {

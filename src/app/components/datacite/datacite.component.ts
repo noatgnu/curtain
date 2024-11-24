@@ -238,7 +238,7 @@ export class DataciteComponent {
       if (!this.dataCiteForm.controls.suffix.value) {
         return
       }
-      this.accountsService.curtainAPI.getDataCiteTimeLimitedPermissionToken("curtain."+this.dataCiteForm.controls.suffix.value).then((value) => {
+      this.accountsService.curtainAPI.getDataCiteTimeLimitedPermissionToken(this.dataCiteForm.controls.suffix.value).then((value) => {
         this.permissionToken = value.data.token
         this.permissionTokenLastUpdated = new Date()
       })

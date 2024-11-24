@@ -78,11 +78,14 @@
               </ng-container>
             </button>
           <div ngbDropdownMenu aria-labelledby="dropdownSession">
-            <button ngbDropdownItem (click)="openDataciteDOI()">Register DOI</button>
+
             <button ngbDropdownItem (click)="openAnnotation()">Project Annotation</button>
             <button ngbDropdownItem (click)="openPeptideCountModal()">Add Peptide Count Data</button>
             <ng-container *ngIf="finished">
               @if (gdprAccepted) {
+                @if (accounts.curtainAPI.user.loginStatus) {
+                  <button ngbDropdownItem (click)="openDataciteDOI()">Register DOI (Beta)</button>
+                }
                 <button ngbDropdownItem (click)="saveSession()" [disabled]="data.tempLink===true">Save Temporary Session (remove 3 months after last access)</button>
                 <button ngbDropdownItem (click)="saveSession(true)" [disabled]="data.tempLink===true">Save Permanent Session</button>
               } @else {
