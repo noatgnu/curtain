@@ -2,6 +2,12 @@
   <h5 class="modal-title">DOI Registration</h5>
 </div>
 <div class="modal-body">
+  @if (this.accountsService.isOwner) {
+
+  } @else {
+    You are not the owner of this Curtain Session. You cannot register a DOI for it.
+  }
+  Your account has {{dataCiteMaxQuota-dataCiteQuota}} new DOI(s) registration remaining today. (refresh every 24 hours)
   <form [formGroup]="dataCiteForm" class="container d-flex flex-column gap-2 justify-content-center">
     <h5>
       <b>
@@ -89,7 +95,7 @@
                       <div class="d-flex gap-2">
                         <div>
                           <label>
-                            Affiliation {{affIndex+1}}
+                            Affiliation {{affIndex+1}} Search
                           </label>
                           <input type="search" class="form-control" [ngbTypeahead]="searchAffiliations"
                                  [resultFormatter]="resultFormatter" [inputFormatter]="inputFormatter"

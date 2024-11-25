@@ -171,13 +171,23 @@ export class DataciteComponent {
   permissionToken: string = ""
   permissionTokenLastUpdated: Date = new Date()
 
+  dataCiteQuota: number = 0
+  dataCiteMaxQuota: number = 0
+
   get affiliations(): string[] {
     const creators = this.dataCiteForm.controls.creators.controls.flatMap(c => c.controls.affiliation.controls.map(a => a.controls.name.value)).filter(aff => aff !== null);
     const contributors = this.dataCiteForm.controls.contributors.controls.flatMap(c => c.controls.affiliation.controls.map(a => a.controls.name.value)).filter(aff => aff !== null);
     return [...new Set([...creators, ...contributors])];
   }
 
-  constructor(private toastService: ToastService, private modal: NgbActiveModal, private fb: FormBuilder, private accountsService: AccountsService, private web: WebService, private dataciteService: DataciteService) {
+  constructor(private toastService: ToastService, private modal: NgbActiveModal, private fb: FormBuilder, public accountsService: AccountsService, private web: WebService, private dataciteService: DataciteService) {
+    if (!this.accountsService.isOwner) {
+      this.dataCiteForm.disable()
+    }
+    this.accountsService.curtainAPI.getDataCiteQuota().then((value) => {
+      this.dataCiteQuota = value.data.quota
+      this.dataCiteMaxQuota = value.data.max_quota
+    })
     for (const c of this.dataCiteForm.controls.creators.controls) {
       for (const n of c.controls.nameIdentifiers.controls) {
         n.controls.nameIdentifier.valueChanges.subscribe((value) => {

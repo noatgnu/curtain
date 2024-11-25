@@ -123,6 +123,7 @@ export class HomeComponent implements OnInit {
         this.route.params.subscribe(params => {
           this.isDOI = false
           this.loadingDataCite = false
+          this.accounts.isOwner = false
           console.log(params)
           if (params) {
             if (params["settings"] && params["settings"].startsWith("access_token")){
@@ -486,6 +487,7 @@ export class HomeComponent implements OnInit {
         console.log(this.data.session)
         this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
         this.permanent = data.data.permanent
+        this.accounts.isOwner = true
         this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
       }
     }).catch(err => {
