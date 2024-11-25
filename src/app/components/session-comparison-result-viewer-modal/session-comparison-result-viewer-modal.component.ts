@@ -8,9 +8,10 @@ import {FormBuilder} from "@angular/forms";
 import {WebService} from "../../web.service";
 
 @Component({
-  selector: 'app-session-comparison-result-viewer-modal',
-  templateUrl: './session-comparison-result-viewer-modal.component.html',
-  styleUrls: ['./session-comparison-result-viewer-modal.component.scss']
+    selector: 'app-session-comparison-result-viewer-modal',
+    templateUrl: './session-comparison-result-viewer-modal.component.html',
+    styleUrls: ['./session-comparison-result-viewer-modal.component.scss'],
+    standalone: false
 })
 export class SessionComparisonResultViewerModalComponent {
   private _data: any = {}

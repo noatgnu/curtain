@@ -10,9 +10,10 @@ import {CurtainEncryption} from "curtain-web-api";
 import {UniprotService} from "../../uniprot.service";
 
 @Component({
-  selector: 'app-session-settings',
-  templateUrl: './session-settings.component.html',
-  styleUrls: ['./session-settings.component.scss']
+    selector: 'app-session-settings',
+    templateUrl: './session-settings.component.html',
+    styleUrls: ['./session-settings.component.scss'],
+    standalone: false
 })
 export class SessionSettingsComponent implements OnInit {
   private _currretID: string = ""

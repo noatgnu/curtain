@@ -12,9 +12,10 @@ import {RankPlotTextAnnotationComponent} from "../rank-plot-text-annotation/rank
 import {VolcanoColorsComponent} from "../volcano-colors/volcano-colors.component";
 
 @Component({
-  selector: 'app-rank-plot',
-  templateUrl: './rank-plot.component.html',
-  styleUrls: ['./rank-plot.component.scss']
+    selector: 'app-rank-plot',
+    templateUrl: './rank-plot.component.html',
+    styleUrls: ['./rank-plot.component.scss'],
+    standalone: false
 })
 export class RankPlotComponent implements OnInit {
   _data: IDataFrame = new DataFrame()

@@ -7,9 +7,10 @@ import {WebService} from "../../web.service";
 import {SettingsService} from "../../settings.service";
 
 @Component({
-  selector: 'app-correlation-matrix',
-  templateUrl: './correlation-matrix.component.html',
-  styleUrls: ['./correlation-matrix.component.scss']
+    selector: 'app-correlation-matrix',
+    templateUrl: './correlation-matrix.component.html',
+    styleUrls: ['./correlation-matrix.component.scss'],
+    standalone: false
 })
 export class CorrelationMatrixComponent implements OnInit {
   graphData: any[] = []

@@ -7,9 +7,10 @@ import {SettingsService} from "../../settings.service";
 import {ToastService} from "../../toast.service";
 
 @Component({
-  selector: 'app-file-form',
-  templateUrl: './file-form.component.html',
-  styleUrls: ['./file-form.component.scss']
+    selector: 'app-file-form',
+    templateUrl: './file-form.component.html',
+    styleUrls: ['./file-form.component.scss'],
+    standalone: false
 })
 export class FileFormComponent implements OnInit {
   iscollapse=false;

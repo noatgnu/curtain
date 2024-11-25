@@ -2,13 +2,12 @@ import {Component, Input} from '@angular/core';
 import {NgbProgressbar} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: 'app-toast-progressbar',
-  standalone: true,
-  imports: [
-    NgbProgressbar
-  ],
-  templateUrl: './toast-progressbar.component.html',
-  styleUrl: './toast-progressbar.component.scss'
+    selector: 'app-toast-progressbar',
+    imports: [
+        NgbProgressbar
+    ],
+    templateUrl: './toast-progressbar.component.html',
+    styleUrl: './toast-progressbar.component.scss'
 })
 export class ToastProgressbarComponent {
   @Input() progress: number = 0

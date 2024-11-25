@@ -3,9 +3,10 @@ import {FormBuilder, FormGroup} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: 'app-rank-plot-text-annotation',
-  templateUrl: './rank-plot-text-annotation.component.html',
-  styleUrls: ['./rank-plot-text-annotation.component.scss']
+    selector: 'app-rank-plot-text-annotation',
+    templateUrl: './rank-plot-text-annotation.component.html',
+    styleUrls: ['./rank-plot-text-annotation.component.scss'],
+    standalone: false
 })
 export class RankPlotTextAnnotationComponent implements OnInit {
 

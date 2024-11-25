@@ -3,9 +3,10 @@ import {AccountsService} from "../../accounts/accounts.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: 'app-curtain-stats-summary',
-  templateUrl: './curtain-stats-summary.component.html',
-  styleUrls: ['./curtain-stats-summary.component.scss']
+    selector: 'app-curtain-stats-summary',
+    templateUrl: './curtain-stats-summary.component.html',
+    styleUrls: ['./curtain-stats-summary.component.scss'],
+    standalone: false
 })
 export class CurtainStatsSummaryComponent {
   graphDataDownload: any[] = []

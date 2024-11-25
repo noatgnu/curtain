@@ -9,9 +9,10 @@ import {Subscription} from "rxjs";
 import {ToastService} from "../../toast.service";
 
 @Component({
-  selector: 'app-comparison-against-other-prompt',
-  templateUrl: './comparison-against-other-prompt.component.html',
-  styleUrls: ['./comparison-against-other-prompt.component.scss']
+    selector: 'app-comparison-against-other-prompt',
+    templateUrl: './comparison-against-other-prompt.component.html',
+    styleUrls: ['./comparison-against-other-prompt.component.scss'],
+    standalone: false
 })
 export class ComparisonAgainstOtherPromptComponent implements OnDestroy{
 

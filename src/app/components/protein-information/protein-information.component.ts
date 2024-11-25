@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-protein-information',
-  templateUrl: './protein-information.component.html',
-  styleUrls: ['./protein-information.component.scss']
+    selector: 'app-protein-information',
+    templateUrl: './protein-information.component.html',
+    styleUrls: ['./protein-information.component.scss'],
+    standalone: false
 })
 export class ProteinInformationComponent implements OnInit {
   _data: any = {}

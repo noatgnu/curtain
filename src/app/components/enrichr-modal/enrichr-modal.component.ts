@@ -6,9 +6,10 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {UniprotService} from "../../uniprot.service";
 
 @Component({
-  selector: 'app-enrichr-modal',
-  templateUrl: './enrichr-modal.component.html',
-  styleUrls: ['./enrichr-modal.component.scss']
+    selector: 'app-enrichr-modal',
+    templateUrl: './enrichr-modal.component.html',
+    styleUrls: ['./enrichr-modal.component.scss'],
+    standalone: false
 })
 export class EnrichrModalComponent implements OnInit {
   enrichr: Enrichr = new Enrichr()

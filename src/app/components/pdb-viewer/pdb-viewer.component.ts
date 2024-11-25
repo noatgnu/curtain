@@ -7,9 +7,10 @@ import {getEBIAlpha} from "curtain-web-api"
 
 declare const PDBeMolstarPlugin: any;
 @Component({
-  selector: 'app-pdb-viewer',
-  templateUrl: './pdb-viewer.component.html',
-  styleUrls: ['./pdb-viewer.component.scss']
+    selector: 'app-pdb-viewer',
+    templateUrl: './pdb-viewer.component.html',
+    styleUrls: ['./pdb-viewer.component.scss'],
+    standalone: false
 })
 export class PdbViewerComponent implements OnInit, AfterContentInit {
 

@@ -5,9 +5,10 @@ import {DataService} from "../../data.service";
 import {UniprotService} from "../../uniprot.service";
 
 @Component({
-  selector: 'app-sub-filter',
-  templateUrl: './sub-filter.component.html',
-  styleUrls: ['./sub-filter.component.scss']
+    selector: 'app-sub-filter',
+    templateUrl: './sub-filter.component.html',
+    styleUrls: ['./sub-filter.component.scss'],
+    standalone: false
 })
 export class SubFilterComponent {
   private _data: IDataFrame<number, any> = new DataFrame()

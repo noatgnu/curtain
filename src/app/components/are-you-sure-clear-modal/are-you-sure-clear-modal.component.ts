@@ -3,13 +3,12 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 
 @Component({
-  selector: 'app-are-you-sure-clear-modal',
-  standalone: true,
-  imports: [
-    FormsModule
-  ],
-  templateUrl: './are-you-sure-clear-modal.component.html',
-  styleUrl: './are-you-sure-clear-modal.component.scss'
+    selector: 'app-are-you-sure-clear-modal',
+    imports: [
+        FormsModule
+    ],
+    templateUrl: './are-you-sure-clear-modal.component.html',
+    styleUrl: './are-you-sure-clear-modal.component.scss'
 })
 export class AreYouSureClearModalComponent {
   remember = false

@@ -5,15 +5,14 @@ import {WebService} from "../../web.service";
 import {AccountsService} from "../../accounts/accounts.service";
 
 @Component({
-  selector: 'app-api-key-modal',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    FormsModule,
-    NgbAlert
-  ],
-  templateUrl: './api-key-modal.component.html',
-  styleUrl: './api-key-modal.component.scss'
+    selector: 'app-api-key-modal',
+    imports: [
+        ReactiveFormsModule,
+        FormsModule,
+        NgbAlert
+    ],
+    templateUrl: './api-key-modal.component.html',
+    styleUrl: './api-key-modal.component.scss'
 })
 export class ApiKeyModalComponent {
   form = this.fb.group({

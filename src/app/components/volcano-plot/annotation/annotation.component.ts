@@ -7,14 +7,13 @@ import {SettingsService} from "../../../settings.service";
 import {DataService} from "../../../data.service";
 
 @Component({
-  selector: 'app-annotation',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ColorPickerModule
-  ],
-  templateUrl: './annotation.component.html',
-  styleUrl: './annotation.component.scss'
+    selector: 'app-annotation',
+    imports: [
+        ReactiveFormsModule,
+        ColorPickerModule
+    ],
+    templateUrl: './annotation.component.html',
+    styleUrl: './annotation.component.scss'
 })
 export class AnnotationComponent {
   colorMap: any = {}

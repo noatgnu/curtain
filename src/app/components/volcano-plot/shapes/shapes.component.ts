@@ -5,14 +5,13 @@ import {ColorPickerModule} from "ngx-color-picker";
 import {DataService} from "../../../data.service";
 
 @Component({
-  selector: 'app-shapes',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ColorPickerModule
-  ],
-  templateUrl: './shapes.component.html',
-  styleUrl: './shapes.component.scss'
+    selector: 'app-shapes',
+    imports: [
+        ReactiveFormsModule,
+        ColorPickerModule
+    ],
+    templateUrl: './shapes.component.html',
+    styleUrl: './shapes.component.scss'
 })
 export class ShapesComponent {
   colorMapFill: any = {}

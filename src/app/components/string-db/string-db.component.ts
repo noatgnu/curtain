@@ -8,9 +8,10 @@ import {IDataFrame} from "data-forge";
 import {FormBuilder, FormGroup} from "@angular/forms";
 declare const getSTRING: any;
 @Component({
-  selector: 'app-string-db',
-  templateUrl: './string-db.component.html',
-  styleUrls: ['./string-db.component.scss']
+    selector: 'app-string-db',
+    templateUrl: './string-db.component.html',
+    styleUrls: ['./string-db.component.scss'],
+    standalone: false
 })
 export class StringDbComponent implements OnInit {
   get uniProtData(): any {

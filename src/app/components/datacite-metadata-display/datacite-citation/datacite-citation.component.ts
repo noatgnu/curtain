@@ -11,13 +11,12 @@ import {FormsModule} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: 'app-datacite-citation',
-  standalone: true,
-  imports: [
-    FormsModule
-  ],
-  templateUrl: './datacite-citation.component.html',
-  styleUrl: './datacite-citation.component.scss'
+    selector: 'app-datacite-citation',
+    imports: [
+        FormsModule
+    ],
+    templateUrl: './datacite-citation.component.html',
+    styleUrl: './datacite-citation.component.scss'
 })
 export class DataciteCitationComponent implements OnInit {
   private _doi: string = ""

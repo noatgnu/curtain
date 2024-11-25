@@ -6,9 +6,10 @@ import {getProteomicsData} from "curtain-web-api";
 import {SettingsService} from "../../settings.service";
 
 @Component({
-  selector: 'app-proteomics-db',
-  templateUrl: './proteomics-db.component.html',
-  styleUrls: ['./proteomics-db.component.scss']
+    selector: 'app-proteomics-db',
+    templateUrl: './proteomics-db.component.html',
+    styleUrls: ['./proteomics-db.component.scss'],
+    standalone: false
 })
 export class ProteomicsDbComponent implements OnInit {
   _uniprotID = ""

@@ -13,16 +13,15 @@ import {environment} from "../../../environments/environment";
 import {ToastService} from "../../toast.service";
 
 @Component({
-  selector: 'app-datacite',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    NgbTypeahead,
-    FormsModule,
-    NgbHighlight
-  ],
-  templateUrl: './datacite.component.html',
-  styleUrl: './datacite.component.scss'
+    selector: 'app-datacite',
+    imports: [
+        ReactiveFormsModule,
+        NgbTypeahead,
+        FormsModule,
+        NgbHighlight
+    ],
+    templateUrl: './datacite.component.html',
+    styleUrl: './datacite.component.scss'
 })
 export class DataciteComponent {
   private _linkID: string = ""

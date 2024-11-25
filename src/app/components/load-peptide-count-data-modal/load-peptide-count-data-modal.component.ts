@@ -5,13 +5,12 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {DataFrame, fromCSV, IDataFrame} from "data-forge";
 
 @Component({
-  selector: 'app-load-peptide-count-data-modal',
-  standalone: true,
-  imports: [
-    FormsModule
-  ],
-  templateUrl: './load-peptide-count-data-modal.component.html',
-  styleUrl: './load-peptide-count-data-modal.component.scss'
+    selector: 'app-load-peptide-count-data-modal',
+    imports: [
+        FormsModule
+    ],
+    templateUrl: './load-peptide-count-data-modal.component.html',
+    styleUrl: './load-peptide-count-data-modal.component.scss'
 })
 export class LoadPeptideCountDataModalComponent {
   fileContent: string = '';

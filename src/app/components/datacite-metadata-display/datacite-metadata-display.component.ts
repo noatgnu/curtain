@@ -4,14 +4,13 @@ import {DataciteCitationComponent} from "./datacite-citation/datacite-citation.c
 import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: 'app-datacite-metadata-display',
-  standalone: true,
-  imports: [
-    DataciteCitationComponent,
-    NgbTooltip
-  ],
-  templateUrl: './datacite-metadata-display.component.html',
-  styleUrl: './datacite-metadata-display.component.scss'
+    selector: 'app-datacite-metadata-display',
+    imports: [
+        DataciteCitationComponent,
+        NgbTooltip
+    ],
+    templateUrl: './datacite-metadata-display.component.html',
+    styleUrl: './datacite-metadata-display.component.scss'
 })
 export class DataciteMetadataDisplayComponent {
   private _metadata: DataCiteMetadata|undefined

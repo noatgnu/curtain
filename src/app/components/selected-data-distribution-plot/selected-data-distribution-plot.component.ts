@@ -4,9 +4,10 @@ import {SettingsService} from "../../settings.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: 'app-selected-data-distribution-plot',
-  templateUrl: './selected-data-distribution-plot.component.html',
-  styleUrls: ['./selected-data-distribution-plot.component.scss']
+    selector: 'app-selected-data-distribution-plot',
+    templateUrl: './selected-data-distribution-plot.component.html',
+    styleUrls: ['./selected-data-distribution-plot.component.scss'],
+    standalone: false
 })
 export class SelectedDataDistributionPlotComponent implements OnInit {
   graphData: any[] = []

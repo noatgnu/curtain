@@ -11,9 +11,10 @@ import {AccountsService} from "../../accounts/accounts.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
 
 @Component({
-  selector: 'app-interactome-atlas',
-  templateUrl: './interactome-atlas.component.html',
-  styleUrls: ['./interactome-atlas.component.scss']
+    selector: 'app-interactome-atlas',
+    templateUrl: './interactome-atlas.component.html',
+    styleUrls: ['./interactome-atlas.component.scss'],
+    standalone: false
 })
 export class InteractomeAtlasComponent implements OnInit {
   @ViewChild("cytoplot") cytoplot: CytoplotComponent | undefined

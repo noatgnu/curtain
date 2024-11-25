@@ -16,9 +16,10 @@ import {FormBuilder} from "@angular/forms";
 import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you-sure-clear-modal.component";
 
 @Component({
-  selector: 'app-volcano-plot',
-  templateUrl: './volcano-plot.component.html',
-  styleUrls: ['./volcano-plot.component.scss']
+    selector: 'app-volcano-plot',
+    templateUrl: './volcano-plot.component.html',
+    styleUrls: ['./volcano-plot.component.scss'],
+    standalone: false
 })
 export class VolcanoPlotComponent implements OnInit {
   editMode: boolean = false

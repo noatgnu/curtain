@@ -9,9 +9,10 @@ import {SettingsService} from "../../settings.service";
 import {ToastService} from "../../toast.service";
 
 @Component({
-  selector: 'app-raw-data-viewer',
-  templateUrl: './raw-data-viewer.component.html',
-  styleUrls: ['./raw-data-viewer.component.scss']
+    selector: 'app-raw-data-viewer',
+    templateUrl: './raw-data-viewer.component.html',
+    styleUrls: ['./raw-data-viewer.component.scss'],
+    standalone: false
 })
 export class RawDataViewerComponent implements OnInit {
   _data: IDataFrame = new DataFrame()

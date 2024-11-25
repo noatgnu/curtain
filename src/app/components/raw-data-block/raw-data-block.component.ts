@@ -9,9 +9,10 @@ import {Subject, Subscription} from "rxjs";
 import {FormBuilder} from "@angular/forms";
 
 @Component({
-  selector: 'app-raw-data-block',
-  templateUrl: './raw-data-block.component.html',
-  styleUrls: ['./raw-data-block.component.scss']
+    selector: 'app-raw-data-block',
+    templateUrl: './raw-data-block.component.html',
+    styleUrls: ['./raw-data-block.component.scss'],
+    standalone: false
 })
 export class RawDataBlockComponent implements OnInit, OnDestroy {
   _data: any = {}

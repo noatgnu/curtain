@@ -6,9 +6,10 @@ import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {UniprotService} from "../../uniprot.service";
 
 @Component({
-  selector: 'app-data-selection-management',
-  templateUrl: './data-selection-management.component.html',
-  styleUrls: ['./data-selection-management.component.scss']
+    selector: 'app-data-selection-management',
+    templateUrl: './data-selection-management.component.html',
+    styleUrls: ['./data-selection-management.component.scss'],
+    standalone: false
 })
 export class DataSelectionManagementComponent implements OnInit {
   selectionForms: {[key: string]: FormGroup} = {}

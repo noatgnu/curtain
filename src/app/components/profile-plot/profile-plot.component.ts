@@ -7,9 +7,10 @@ import {SettingsService} from "../../settings.service";
 import {WebService} from "../../web.service";
 
 @Component({
-  selector: 'app-profile-plot',
-  templateUrl: './profile-plot.component.html',
-  styleUrls: ['./profile-plot.component.scss']
+    selector: 'app-profile-plot',
+    templateUrl: './profile-plot.component.html',
+    styleUrls: ['./profile-plot.component.scss'],
+    standalone: false
 })
 export class ProfilePlotComponent implements OnInit {
   @Input() divId = "profile"

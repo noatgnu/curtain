@@ -17,9 +17,10 @@ import {
 } from "rxjs";
 
 @Component({
-  selector: 'app-batch-search',
-  templateUrl: './batch-search.component.html',
-  styleUrls: ['./batch-search.component.scss']
+    selector: 'app-batch-search',
+    templateUrl: './batch-search.component.html',
+    styleUrls: ['./batch-search.component.scss'],
+    standalone: false
 })
 export class BatchSearchComponent implements OnInit {
   @ViewChild('instance', { static: true }) instance: NgbTypeahead | undefined;
