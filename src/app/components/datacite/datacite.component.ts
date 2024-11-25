@@ -235,7 +235,7 @@ export class DataciteComponent {
     this.accountsService.curtainAPI.getRandomDataCiteSuffix().then((value) => {
       this.dataCiteForm.controls.suffix.setValue("curtain."+value.data.suffix)
       // update permission token
-      this.accountsService.curtainAPI.getDataCiteTimeLimitedPermissionToken("curtain."+value.data.suffix).then((value) => {
+      this.accountsService.curtainAPI.getDataCiteTimeLimitedPermissionToken(value.data.suffix).then((value) => {
         this.permissionToken = value.data.token
         this.permissionTokenLastUpdated = new Date()
       })

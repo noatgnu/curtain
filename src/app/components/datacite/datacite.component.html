@@ -7,7 +7,7 @@
   } @else {
     You are not the owner of this Curtain Session. You cannot register a DOI for it.
   }
-  Your account has {{dataCiteMaxQuota-dataCiteQuota}} new DOI(s) registration remaining today. (refresh every 24 hours)
+  Your account has {{dataCiteQuota}} new DOI(s) registration remaining today. (refresh every 24 hours)
   <form [formGroup]="dataCiteForm" class="container d-flex flex-column gap-2 justify-content-center">
     <h5>
       <b>
@@ -102,6 +102,12 @@
                                  [resultTemplate]="rt"
                                  (selectItem)="onAffiliationSelect($event, 'creators', index, affIndex)">
                           <small class="text-muted">The name of the institution with which the creator is affiliated. Autocomplete information is retrieve from ROR. Please choose the most appropriate option unless your affiliation could not be found.</small>
+                        </div>
+                        <div>
+                          <label>
+                            Affiliation name
+                          </label>
+                          <input class="form-control" formControlName="name">
                         </div>
                         <div>
                           <label>
@@ -334,13 +340,19 @@
                       <div class="d-flex gap-2">
                         <div>
                           <label>
-                            Affiliation {{affIndex+1}}
+                            Affiliation {{affIndex+1}} Search
                           </label>
                           <input type="search" class="form-control" [ngbTypeahead]="searchAffiliations"
                                  [resultFormatter]="resultFormatter" [inputFormatter]="inputFormatter"
                                  [resultTemplate]="rt"
                                  (selectItem)="onAffiliationSelect($event, 'contributors', index, affIndex)">
                           <small class="text-muted">The name of the institution with which the contributor is affiliated. Autocomplete information is retrieve from ROR. Please choose the most appropriate option unless your affiliation could not be found.</small>
+                        </div>
+                        <div>
+                          <label>
+                            Affiliation name
+                          </label>
+                          <input class="form-control" formControlName="name">
                         </div>
                         <div>
                           <label>
@@ -556,13 +568,19 @@
             <div class="d-flex flex-column gap-2">
               <div>
                 <label>
-                  Funder Name
+                  Funder Search
                 </label>
                 <input type="search" class="form-control" [ngbTypeahead]="searchFunder"
                        [resultFormatter]="resultFormatter" [inputFormatter]="inputFormatter"
                        [resultTemplate]="rt"
                        (selectItem)="onFunderSelect($event, index)">
                 <small class="text-muted">The name of the entity that provided the funding. Autocomplete information is retrieved from CrossRef. If your organization could not be found, please manually input the data.</small>
+              </div>
+              <div>
+                <label>
+                  Funder Name
+                </label>
+                <input class="form-control" formControlName="funderName" required>
               </div>
               <div>
                 <label>
