@@ -256,6 +256,9 @@ export class DataciteComponent {
   }
 
   onSubmit() {
+    if (!this.accountsService.isOwner) {
+      return
+    }
     if (!this.informationIsTrue) {
       return
     }
