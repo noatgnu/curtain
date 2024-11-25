@@ -58,8 +58,8 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.2.7",
-    "@angular/cli": "^18.2.7",
+    "@angular-devkit/build-angular": "^19.0.1",
+    "@angular/cli": "^19.0.1",
     "@angular/compiler-cli": "^19.0.0",
     "@types/chroma-js": "^2.1.3",
     "@types/cytoscape-cxtmenu": "^3.4.0",

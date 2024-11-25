@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1732543989480,
+  "timestamp": 1732545856540,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -11,16 +11,16 @@
         "ignoreVary": true
       },
       "urls": [
-        "/17.f9651401034dc9a3.js",
-        "/55.7063ba82ffafcfc6.js",
+        "/chunk-6DCVN2GH.js",
+        "/chunk-KT2VBPDM.js",
         "/favicon.ico",
         "/index.html",
-        "/main.28785c478f4dcce9.js",
+        "/main-VSNWETEJ.js",
         "/manifest.webmanifest",
-        "/polyfills.54ceafa6c8d51deb.js",
-        "/runtime.04dda3f52c76e240.js",
-        "/scripts.dfd002a3f97f1569.js",
-        "/styles.6ac70248e4f9ba93.css"
+        "/polyfills-LQM4VRV3.js",
+        "/scripts-TSGU23AO.js",
+        "/styles-7HBUJEVF.css",
+        "/worker-CWJU4YXQ.js"
       ],
       "patterns": []
     },
@@ -32,7 +32,6 @@
         "ignoreVary": true
       },
       "urls": [
-        "/3rdpartylicenses.txt",
         "/assets/combined_embedded_network_v2.0.3.js",
         "/assets/favicon.128x128.png",
         "/assets/favicon.512x512.png",
@@ -73,18 +72,13 @@
         "/assets/proteinLists/pd.gwas.txt",
         "/assets/proteinLists/pd.txt",
         "/assets/proteinLists/phosphatases.txt",
-        "/assets/proteinLists/pink1.txt",
-        "/bootstrap-icons.70a9dee9e5ab72aa.woff",
-        "/bootstrap-icons.bfa90bda92a84a6a.woff2"
+        "/assets/proteinLists/pink1.txt"
       ],
       "patterns": []
     }
   ],
   "dataGroups": [],
   "hashTable": {
-    "/17.f9651401034dc9a3.js": "e1151d0cd3095cd825396b1c44dbe94b5c59359c",
-    "/3rdpartylicenses.txt": "0586e99603f70f7544b16dc94d24d5b0d81aaaae",
-    "/55.7063ba82ffafcfc6.js": "a43933f6e41bdfc28fc563525502a8569772feec",
     "/assets/combined_embedded_network_v2.0.3.js": "473daba41712901180a48ad0fbab58d35d92a23d",
     "/assets/favicon.128x128.png": "ac922b4dc97e23fd8cdf6c9787dddb1e12edc1bc",
     "/assets/favicon.512x512.png": "734a5decf2c0e9f8d19b1d1b37709b4498446a37",
@@ -126,16 +120,16 @@
     "/assets/proteinLists/pd.txt": "915c4a708c5dc7227d0b8fdc5eb51b17b2342746",
     "/assets/proteinLists/phosphatases.txt": "c350ec4656fee8be08c7dead8fdd42a0cd20e350",
     "/assets/proteinLists/pink1.txt": "6b73c270d0407981851903bae49a622c0c22e0f8",
-    "/bootstrap-icons.70a9dee9e5ab72aa.woff": "d5831fd39baf13aff7626e483b9a089730f18604",
-    "/bootstrap-icons.bfa90bda92a84a6a.woff2": "020c3c6f9280a315e8425d7f92e15bcd0cdda1b2",
+    "/chunk-6DCVN2GH.js": "066732cf764f113fdd1354b5d694386dde1aa957",
+    "/chunk-KT2VBPDM.js": "513f86e4667b74dc3cbfe0b7141fe6921312b216",
     "/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/index.html": "3bfb124bb72b27aac65645aee1c00fdd631995dd",
-    "/main.28785c478f4dcce9.js": "fb62b9b3236f3eca54666bb4751738f41d031f2f",
+    "/index.html": "61a663122eb94584facc2082a926a3c3b83853f1",
+    "/main-VSNWETEJ.js": "ad84b67c7d19b92b7a03054076e579a5024d719f",
     "/manifest.webmanifest": "0f6d8f1c753e9f503daf4cd303ebecc6b0b0a04b",
-    "/polyfills.54ceafa6c8d51deb.js": "bf3ba7612b763789aaac4865ae3671d83d77f8fb",
-    "/runtime.04dda3f52c76e240.js": "0bac40a792503167829a4ee004a113c9d1587b1b",
-    "/scripts.dfd002a3f97f1569.js": "501268a3f4d8c853caa3861c482a51405f69c7cc",
-    "/styles.6ac70248e4f9ba93.css": "9778d77822b9d28eb18dbb40ff05d193336668c4"
+    "/polyfills-LQM4VRV3.js": "86507a9fae516c507974df2133f98fd48b561462",
+    "/scripts-TSGU23AO.js": "e172440274ca0257fbf1b7e414f5bd41b03b202f",
+    "/styles-7HBUJEVF.css": "df873a9beb54f093f2a87c17c706c987a6902d22",
+    "/worker-CWJU4YXQ.js": "d8379c05dbb062889b190cff8e310edf98404290"
   },
   "navigationUrls": [
     {
