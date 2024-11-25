@@ -10,7 +10,11 @@
           @if (!permanent) {
             <span class="badge bg-danger">Temporary</span>
           } @else {
-            <span class="badge bg-success">Permanent</span>
+            @if (isDOI) {
+              <span class="badge bg-success">DOI Permanent Link</span>
+            } @else {
+              <span class="badge bg-success">Permanent</span>
+            }
           }
         </div>
         <div class="p-2">

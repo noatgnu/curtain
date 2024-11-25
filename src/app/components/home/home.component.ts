@@ -120,6 +120,8 @@ export class HomeComponent implements OnInit {
     this.initialize().then(
       () => {
         this.route.params.subscribe(params => {
+          this.isDOI = false
+          this.loadingDataCite = false
           console.log(params)
           if (params) {
             if (params["settings"] && params["settings"].startsWith("access_token")){
@@ -957,5 +959,14 @@ export class HomeComponent implements OnInit {
   openDataciteDOI() {
     const ref = this.modal.open(DataciteComponent, {scrollable: true, size: "xl"})
     ref.componentInstance.linkID = this.settings.settings.currentID
+    ref.closed.subscribe((data) => {
+      if (data) {
+        this.uniqueLink = location.origin + "/#/" + encodeURIComponent(`doi.org/${data}`)
+        this.settings.settings.currentID = `doi.org/${data}`
+        this.permanent = true
+        this.isDOI = true
+        this.data.session = {permanent: true}
+      }
+    })
   }
 }

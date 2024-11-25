@@ -311,6 +311,7 @@ export class DataciteComponent {
     }
     this.accountsService.curtainAPI.submitDataCite(payload).then((value) => {
       this.toastService.show("DOI Created", `Your ${value.data["doi"]} has been created`, 5000, "success").then()
+      this.modal.close(value.data["doi"])
     })
 
   }
