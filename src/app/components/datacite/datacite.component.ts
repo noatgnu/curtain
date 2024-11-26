@@ -413,8 +413,7 @@ export class DataciteComponent {
   addSubject() {
     this.dataCiteForm.controls.subjects.push(this.fb.group({
       subject: ["", Validators.required],
-      subjectScheme: ["OECD REVISED FIELD OF SCIENCE AND TECHNOLOGY (FOS) CLASSIFICATION IN THE FRASCATI\n" +
-      "MANUAL", Validators.required],
+      subjectScheme: ["OECD REVISED FIELD OF SCIENCE AND TECHNOLOGY (FOS) CLASSIFICATION IN THE FRASCATI MANUAL", Validators.required],
       valueUri: ["https://unstats.un.org/wiki/download/attachments/101354089/FOS.pdf?api=v2", Validators.required]
     }))
   }
