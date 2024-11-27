@@ -14,6 +14,7 @@ import {
 import {ToastService} from "../../toast.service";
 import {FormBuilder} from "@angular/forms";
 import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you-sure-clear-modal.component";
+import {ColorByCategoryModalComponent} from "./color-by-category-modal/color-by-category-modal.component";
 
 @Component({
     selector: 'app-volcano-plot',
@@ -104,6 +105,7 @@ export class VolcanoPlotComponent implements OnInit {
   markerSize: number = 10
   specialColorMap: any = {}
   repeat = false
+
   drawVolcano() {
     this.currentPosition = 0
     this.settings.settings.scatterPlotMarkerSize = this.markerSize
@@ -955,4 +957,33 @@ export class VolcanoPlotComponent implements OnInit {
     this.drawVolcano()
     console.log(this.graphLayout.shapes)
   }
+
+  openColorByCategoryModal() {
+    const ref = this.modal.open(ColorByCategoryModalComponent, {scrollable: true})
+    ref.componentInstance.data = this.dataService.currentDF
+    ref.componentInstance.primaryIDColumn = this.dataService.differentialForm.primaryIDs
+    ref.componentInstance.comparisonCol = this.dataService.differentialForm.comparison
+    ref.closed.subscribe((data: {column: string, categoryMap: {[key: string]: {count: number, color: string, primaryIDs: string[], comparison: string}}}) => {
+      if (data) {
+        console.log(data)
+        for (const c in data.categoryMap) {
+          if (!this.dataService.selectOperationNames.includes(c)) {
+            this.dataService.selectOperationNames.push(c)
+          }
+          this.settings.settings.colorMap[c] = data.categoryMap[c].color
+          for (const p of data.categoryMap[c].primaryIDs) {
+            if (!this.dataService.selectedMap[p]) {
+              this.dataService.selectedMap[p] = {}
+            }
+            this.dataService.selectedMap[p][c] = true
+
+          }
+          console.log(this.dataService.selectedMap)
+        }
+
+        this.drawVolcano()
+      }
+    })
+  }
+
 }

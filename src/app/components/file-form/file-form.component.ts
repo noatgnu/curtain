@@ -39,7 +39,6 @@ export class FileFormComponent implements OnInit {
   startWork() {
     this.finished.emit(false)
     if (typeof Worker !== 'undefined') {
-      console.log("start worker")
       // Create a new
       const worker = new Worker(new URL('./data.worker', import.meta.url));
       worker.onmessage = (data: MessageEvent<any>) => {
