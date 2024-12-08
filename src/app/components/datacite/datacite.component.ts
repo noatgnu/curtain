@@ -287,8 +287,9 @@ export class DataciteComponent {
     }
     if (dataCiteMetadata.contributors) {
       for (let i = 0; i < dataCiteMetadata.contributors.length; i++) {
-        if (dataCiteMetadata.contributors[i].name === "") {
+        if (dataCiteMetadata.contributors[i].name === "" && dataCiteMetadata.contributors.length > 1) {
           this.toastService.show("DOI Form Error", "Please fill in all fields for metadata contributors or remove them", 5000, "error").then()
+          return;
         }
         const affiliation = dataCiteMetadata.contributors[i].affiliation
         if (affiliation) {
