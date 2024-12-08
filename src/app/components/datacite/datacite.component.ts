@@ -62,10 +62,10 @@ export class DataciteComponent {
         ),
         affiliation: this.fb.array([
           this.fb.group({
-            name: ['', Validators.required],
-            affiliationIdentifier: [''],
-            affiliationIdentifierScheme: [""],
-            schemeUri: [""]
+            name: [{disabled: true, value: ''}, Validators.required],
+            affiliationIdentifier: [{disabled: true, value: ''},],
+            affiliationIdentifierScheme: [{disabled: true, value: ''},],
+            schemeUri: [{disabled: true, value: ''},]
           })
         ])
       })
@@ -101,10 +101,10 @@ export class DataciteComponent {
         name: ["",],
         affiliation: this.fb.array([
           this.fb.group({
-            name: ['', Validators.required],
-            affiliationIdentifierScheme: [""],
-            affiliationIdentifier: [''],
-            schemeUri: [""]
+            name: [{disabled: true, value: ''}, Validators.required,],
+            affiliationIdentifierScheme: [{disabled: true, value: ''}, ],
+            affiliationIdentifier: [{disabled: true, value: ''}, ],
+            schemeUri: [{disabled: true, value: ''}, ]
           })
         ]),
         givenName: [""],
@@ -158,12 +158,12 @@ export class DataciteComponent {
       )]),
     fundingReferences: this.fb.array([
       this.fb.group({
-        funderName: ['',],
-        funderIdentifier: ['',],
-        funderIdentifierType: ['',],
-        awardNumber: ['',],
-        awardUri: ['', ],
-        awardTitle: ['',],
+        funderName: [{disabled: true, value: ''},],
+        funderIdentifier: [{disabled: true, value: ''},],
+        funderIdentifierType: [{disabled: true, value: ''},],
+        awardNumber: [{disabled: true, value: ''},],
+        awardUri: [{disabled: true, value: ''}, ],
+        awardTitle: [{disabled: true, value: ''},],
       })
     ]),
   });
@@ -268,6 +268,13 @@ export class DataciteComponent {
         if (dataCiteMetadata.creators[i].name === "") {
           this.toastService.show("DOI Form Error", "Please fill in all fields for metadata creators", 5000, "error").then()
         }
+        const affiliation = dataCiteMetadata.creators[i].affiliation
+        if (affiliation) {
+          const checkedAffiliation = affiliation.filter((aff) => aff.name !== "")
+          if (checkedAffiliation.length === 0) {
+            delete dataCiteMetadata.creators[i].affiliation
+          }
+        }
 
       }
     }
@@ -283,6 +290,13 @@ export class DataciteComponent {
         if (dataCiteMetadata.contributors[i].name === "") {
           this.toastService.show("DOI Form Error", "Please fill in all fields for metadata contributors or remove them", 5000, "error").then()
         }
+        const affiliation = dataCiteMetadata.contributors[i].affiliation
+        if (affiliation) {
+          const checkedAffiliation = affiliation.filter((aff) => aff.name !== "")
+          if (checkedAffiliation.length === 0) {
+            delete dataCiteMetadata.contributors[i].affiliation
+          }
+        }
       }
     }
     if (dataCiteMetadata.subjects) {
@@ -297,6 +311,12 @@ export class DataciteComponent {
         if (dataCiteMetadata.descriptions[i].description === "") {
           this.toastService.show("DOI Form Error", "Please fill in all fields for metadata descriptions", 5000, "error").then()
         }
+      }
+    }
+    if (dataCiteMetadata.fundingReferences) {
+      const checkedFundingReferences = dataCiteMetadata.fundingReferences.filter((fundingReference) => fundingReference.funderName !== "")
+      if (checkedFundingReferences.length === 0) {
+        delete dataCiteMetadata.fundingReferences
       }
     }
 
@@ -335,10 +355,10 @@ export class DataciteComponent {
       name: ['', Validators.required],
       affiliation: this.fb.array([
         this.fb.group({
-          name: ['', Validators.required],
-          affiliationIdentifier: [''],
-          affiliationIdentifierScheme: [""],
-          schemeUri: [""]
+          name: [{disabled: true, value: ''}, Validators.required,],
+          affiliationIdentifier: [{disabled: true, value: ''}, ],
+          affiliationIdentifierScheme: [{disabled: true, value: ''}, ],
+          schemeUri: [{disabled: true, value: ''},]
         })
       ]),
       nameType: ['Personal', Validators.required],
@@ -429,10 +449,10 @@ export class DataciteComponent {
       name: ["",],
       affiliation: this.fb.array([
         this.fb.group({
-          name: ['', Validators.required],
-          affiliationIdentifierScheme: [""],
-          affiliationIdentifier: [''],
-          schemeUri: [""]
+          name: [{disabled: true, value: ''}, Validators.required, ],
+          affiliationIdentifierScheme: [{disabled: true, value: ''},],
+          affiliationIdentifier: [{disabled: true, value: ''}, ],
+          schemeUri: [{disabled: true, value: ''},]
         })
       ]),
       givenName: [""],
@@ -541,12 +561,12 @@ export class DataciteComponent {
   resultTemplate = (result: any) => result.name;
   addFundingReference() {
     this.dataCiteForm.controls.fundingReferences.push(this.fb.group({
-      funderName: ['',],
-      funderIdentifier: ['',],
-      funderIdentifierType: ['',],
-      awardNumber: ['',],
-      awardUri: ['', ],
-      awardTitle: ['',],
+      funderName: [{disabled: true, value: ''},],
+      funderIdentifier: [{disabled: true, value: ''}, ],
+      funderIdentifierType: [{disabled: true, value: ''}, ],
+      awardNumber: [{disabled: true, value: ''}, ],
+      awardUri: [{disabled: true, value: ''},],
+      awardTitle: [{disabled: true, value: ''}, ],
     }))
   }
 
@@ -587,10 +607,10 @@ export class DataciteComponent {
   }
   addAffiliation(type: "creators"|"contributors", contributorIndex: number) {
     this.dataCiteForm.controls[type].controls[contributorIndex].controls.affiliation.push(this.fb.group({
-      name: ['', Validators.required],
-      affiliationIdentifier: [''],
-      affiliationIdentifierScheme: [""],
-      schemeUri: [""]
+      name: [{disabled: true, value: ''}, Validators.required,],
+      affiliationIdentifier: [{disabled: true, value: ''},],
+      affiliationIdentifierScheme: [{disabled: true, value: ''},],
+      schemeUri: [{disabled: true, value: ''},]
     }))
   }
 }

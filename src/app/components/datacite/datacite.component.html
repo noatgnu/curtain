@@ -100,7 +100,7 @@
                 <div class="card">
                   <div class="card-body">
                     <div class="d-flex gap-2" [formGroupName]="affIndex">
-                      <div class="d-flex gap-2">
+                      <div class="d-flex flex-column gap-2">
                         <div>
                           <label>
                             Affiliation {{affIndex+1}} Search
@@ -111,37 +111,44 @@
                                  (selectItem)="onAffiliationSelect($event, 'creators', index, affIndex)">
                           <small class="text-muted">The name of the institution with which the creator is affiliated. Autocomplete information is retrieve from ROR. Please choose the most appropriate option unless your affiliation could not be found.</small>
                         </div>
-                        <div>
-                          <label>
-                            Affiliation name
-                          </label>
-                          <input class="form-control" formControlName="name">
+                        <div class="d-flex flex-wrap gap-2">
+                          <div>
+                            <label>
+                              Affiliation name
+                            </label>
+                            <input class="form-control" formControlName="name">
+                          </div>
+                          <div>
+                            <label>
+                              Affiliation Identifier
+                            </label>
+                            <input class="form-control" formControlName="affiliationIdentifier">
+                            <small class="text-muted">The unique identifier of the affiliation or webpage. This field is optional.</small>
+                          </div>
+                          <div>
+                            <label>
+                              Affiliation Identifier Scheme
+                            </label>
+                            <input class="form-control" formControlName="affiliationIdentifierScheme">
+                            <small class="text-muted">If the identifier is from an aggregated source, please add the name of the resource here.</small>
+                          </div>
+                          <div>
+                            <label>
+                              Affiliation Identifier Scheme URI
+                            </label>
+                            <input class="form-control" formControlName="schemeUri">
+                            <small class="text-muted">If the identifier is from an aggregated source, please add the URI of the resource here.</small>
+                          </div>
+
                         </div>
                         <div>
-                          <label>
-                            Affiliation Identifier
-                          </label>
-                          <input class="form-control" formControlName="affiliationIdentifier">
-                          <small class="text-muted">The unique identifier of the affiliation or webpage. This field is optional.</small>
-                        </div>
-                        <div>
-                          <label>
-                            Affiliation Identifier Scheme
-                          </label>
-                          <input class="form-control" formControlName="affiliationIdentifierScheme">
-                          <small class="text-muted">If the identifier is from an aggregated source, please add the name of the resource here.</small>
-                        </div>
-                        <div>
-                          <label>
-                            Affiliation Identifier Scheme URI
-                          </label>
-                          <input class="form-control" formControlName="schemeUri">
-                          <small class="text-muted">If the identifier is from an aggregated source, please add the URI of the resource here.</small>
+                          <button class="btn btn-danger" (click)="a.reset()">Reset</button>
                         </div>
                       </div>
                       @if (affIndex > 0) {
                         <div>
                           <button class="btn btn-danger" (click)="removeAffiliation('creators', index, affIndex)"><i class="bi bi-trash"></i> Remove Affiliation</button>
+
                         </div>
                       }
                     </div>
@@ -345,7 +352,7 @@
                 <div class="card">
                   <div class="card-body">
                     <div class="d-flex gap-2" [formGroupName]="affIndex">
-                      <div class="d-flex gap-2">
+                      <div class="d-flex flex-column gap-2">
                         <div>
                           <label>
                             Affiliation {{affIndex+1}} Search
@@ -356,35 +363,40 @@
                                  (selectItem)="onAffiliationSelect($event, 'contributors', index, affIndex)">
                           <small class="text-muted">The name of the institution with which the contributor is affiliated. Autocomplete information is retrieve from ROR. Please choose the most appropriate option unless your affiliation could not be found.</small>
                         </div>
-                        <div>
-                          <label>
-                            Affiliation name
-                          </label>
-                          <input class="form-control" formControlName="name">
+                        <div class="d-flex flex-wrap gap-2">
+                          <div>
+                            <label>
+                              Affiliation name
+                            </label>
+                            <input class="form-control" formControlName="name">
+                          </div>
+                          <div>
+                            <label>
+                              Affiliation Identifier
+                            </label>
+                            <input class="form-control" formControlName="affiliationIdentifier">
+                            <small class="text-muted">The unique identifier of the affiliation or webpage. This field is optional.</small>
+                          </div>
+                          <div>
+                            <label>
+                              Affiliation Identifier Scheme
+                            </label>
+                            <input class="form-control" formControlName="affiliationIdentifierScheme">
+                            <small class="text-muted">If the identifier is from an aggregated source, please add the name of the resource here.</small>
+                          </div>
+                          <div>
+                            <label>
+                              Affiliation Identifier Scheme URI
+                            </label>
+                            <input class="form-control" formControlName="schemeUri">
+                            <small class="text-muted">If the identifier is from an aggregated source, please add the URI of the resource here.</small>
+                          </div>
                         </div>
-                        <div>
-                          <label>
-                            Affiliation Identifier
-                          </label>
-                          <input class="form-control" formControlName="affiliationIdentifier">
-                          <small class="text-muted">The unique identifier of the affiliation or webpage. This field is optional.</small>
-                        </div>
-                        <div>
-                          <label>
-                            Affiliation Identifier Scheme
-                          </label>
-                          <input class="form-control" formControlName="affiliationIdentifierScheme">
-                          <small class="text-muted">If the identifier is from an aggregated source, please add the name of the resource here.</small>
-                        </div>
-                        <div>
-                          <label>
-                            Affiliation Identifier Scheme URI
-                          </label>
-                          <input class="form-control" formControlName="schemeUri">
-                          <small class="text-muted">If the identifier is from an aggregated source, please add the URI of the resource here.</small>
-                        </div>
-                      </div>
 
+                      </div>
+                      <div>
+                        <button class="btn btn-danger" (click)="a.reset()">Reset</button>
+                      </div>
 
                       @if (affIndex > 0) {
                         <div>
@@ -631,7 +643,8 @@
               </div>
             </div>
           </div>
-          <div class="mt-2">
+          <div class="d-flex mt-2 gap-2">
+            <button class="btn btn-danger" (click)="f.reset()">Reset</button>
             <button class="btn btn-danger" (click)="removeFundingReference(index)"><i class="bi bi-trash"></i></button>
           </div>
         }
