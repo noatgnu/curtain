@@ -550,7 +550,7 @@
         @for (d of dataCiteForm.controls.descriptions.controls; track d; let index = $index) {
           <b>{{index+1}}.</b>
           <div [formGroupName]="index">
-            <div class="d-flex gap-2">
+            <div class="d-flex flex-column gap-2">
               <div>
                 <label>
                   Description Type
@@ -566,8 +566,9 @@
                 <label>
                   Description
                 </label>
-                <textarea class="form-control" formControlName="description" required></textarea>
+                <quill-editor formControlName="description"></quill-editor>
               </div>
+
             </div>
           </div>
         }
@@ -654,14 +655,34 @@
       </div>
     </section>
   </form>
+  <hr>
+  <b>Additional data</b>
+  <form [formGroup]="form_additional_data">
+    <div class="form-group">
+      <label for="pii_statement">
+        PII Statement
+      </label>
+      <textarea class="form-control" id="pii_statement" formControlName="pii_statement" required></textarea>
+    </div>
+    <div class="form-group">
+      <label for="contact_email">
+        Contact Email
+      </label>
+      <input type="email" class="form-control" id="contact_email" formControlName="contact_email" required>
+    </div>
+  </form>
   <input type="file" #importFile hidden (change)="importJSON($event)">
 </div>
 <div class="modal-footer">
   <div class="d-flex gap-2">
-    <div class="form-check">
-      <input type="checkbox" class="form-check-input" id="informationIsTrue" [(ngModel)]="informationIsTrue" [disabled]="!accountsService.isOwner">
-      <label for="informationIsTrue" class="form-check-label">I confirm that the information provided is true and accurate.</label>
-    </div>
+    @if (accountsService.isOwner) {
+      <form [formGroup]="form_additional_data">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="informationIsTrue" formControlName="informationIsTrue">
+          <label for="informationIsTrue" class="form-check-label">I confirm that the information provided is true and accurate.</label>
+        </div>
+      </form>
+    }
     <button type="button" class="btn btn-primary" (click)="exportJSON()">Save</button>
     <button type="button" class="btn btn-primary" (click)="importFile.click()">Load</button>
     <button type="button" class="btn btn-primary" [disabled]="!informationIsTrue" (click)="onSubmit()">Register DOI</button>

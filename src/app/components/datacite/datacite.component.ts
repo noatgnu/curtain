@@ -11,15 +11,17 @@ import {licenses} from "./licenses";
 import {DataciteService} from "./datacite.service";
 import {environment} from "../../../environments/environment";
 import {ToastService} from "../../toast.service";
+import {QuillModule} from "ngx-quill";
 
 @Component({
     selector: 'app-datacite',
-    imports: [
-        ReactiveFormsModule,
-        NgbTypeahead,
-        FormsModule,
-        NgbHighlight
-    ],
+  imports: [
+    ReactiveFormsModule,
+    NgbTypeahead,
+    FormsModule,
+    NgbHighlight,
+    QuillModule
+  ],
     templateUrl: './datacite.component.html',
     styleUrl: './datacite.component.scss'
 })
@@ -173,6 +175,12 @@ export class DataciteComponent {
 
   dataCiteQuota: number = 0
   dataCiteMaxQuota: number = 0
+
+  form_additional_data = this.fb.group({
+    pii_statement: ['', Validators.required],
+    informationIsTrue: [false, Validators.requiredTrue],
+    contact_email: ['', [Validators.email, Validators.required]],
+  })
 
   get affiliations(): string[] {
     const creators = this.dataCiteForm.controls.creators.controls.flatMap(c => c.controls.affiliation.controls.map(a => a.controls.name.value)).filter(aff => aff !== null);
@@ -342,11 +350,16 @@ export class DataciteComponent {
 
       }
     }
-
+    if (this.form_additional_data.invalid) {
+      this.toastService.show("DOI Form Error", "Please fill in all fields for additional data", 5000, "error").then()
+      return;
+    }
     const payload = {
       "token": this.permissionToken,
       "form": dataCiteMetadata,
       "linkID": this.linkID,
+      "pii_statement": this.form_additional_data.controls.pii_statement.value,
+      "contact_email": this.form_additional_data.controls.contact_email.value
     }
     this.accountsService.curtainAPI.submitDataCite(payload).then((value) => {
       this.toastService.show("DOI Created", `Your ${value.data["doi"]} has been created`, 5000, "success").then()
