@@ -267,7 +267,7 @@ export class DataciteComponent {
     if (!this.accountsService.isOwner) {
       return
     }
-    if (!this.informationIsTrue) {
+    if (!this.form_additional_data.value.informationIsTrue) {
       return
     }
     const dataCiteMetadata = this.dataCiteForm.value;
