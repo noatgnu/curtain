@@ -11,11 +11,22 @@
             <span class="badge bg-danger">Temporary</span>
           } @else {
             @if (isDOI) {
-              <span class="badge bg-success">DOI Permanent Link</span>
+              @if (data.session) {
+                @if (data.session.data_cite) {
+                  @if (data.session.data_cite.status === "draft") {
+                    <span class="badge bg-warning">DOI Draft</span>
+                  } @else if (data.session.data_cite.status === "published") {
+                    <span class="badge bg-success">DOI Permanent</span>
+                  } @else {
+                    <span class="badge bg-danger">DOI Pending</span>
+                  }
+                }
+              }
             } @else {
               <span class="badge bg-success">Permanent</span>
             }
           }
+
         </div>
         <div class="p-2">
           <span class="badge bg-info" (click)="copyToClipboard(uniqueLink)"><i class="bi bi-clipboard"></i></span>
@@ -88,7 +99,13 @@
             <ng-container *ngIf="finished">
               @if (gdprAccepted) {
                 @if (accounts.curtainAPI.user.loginStatus) {
-                  <button ngbDropdownItem (click)="openDataciteDOI()">Register DOI (Beta)</button>
+                  @if (data.session) {
+                    @if (data.session.data_cite) {
+                      <button ngbDropdownItem (click)="openDataciteDOI()">View DOI Form</button>
+                    } @else {
+                      <button ngbDropdownItem (click)="openDataciteDOI()">Register DOI (Beta)</button>
+                    }
+                  }
                 }
                 <button ngbDropdownItem (click)="saveSession()" [disabled]="data.tempLink===true">Save Temporary Session (remove 3 months after last access)</button>
                 <button ngbDropdownItem (click)="saveSession(true)" [disabled]="data.tempLink===true">Save Permanent Session</button>

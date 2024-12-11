@@ -65,7 +65,7 @@ import {PrimaryIdExportModalComponent} from "../primary-id-export-modal/primary-
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ApiKeyModalComponent} from "../api-key-modal/api-key-modal.component";
 import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you-sure-clear-modal.component";
-import {DataCiteMetadata} from "../../data-cite-metadata";
+import {DataCiteCurtain, DataCiteMetadata} from "../../data-cite-metadata";
 import {
   LoadPeptideCountDataModalComponent
 } from "../load-peptide-count-data-modal/load-peptide-count-data-modal.component";
@@ -195,7 +195,9 @@ export class HomeComponent implements OnInit {
         this.uniqueLink = location.origin + "/#/" + encodeURIComponent(doiLink)
         this.settings.settings.currentID = doiLink
         this.permanent = true
-        this.data.session = {permanent: true}
+        if (this.data.session) {
+          this.data.session.permanent = true
+        }
         this.data.restoreTrigger.next(true)
       })
     }
@@ -204,9 +206,14 @@ export class HomeComponent implements OnInit {
   async getSessionData(id: string, token: string = "") {
     const d = await this.accounts.curtainAPI.getSessionSettings(id)
     this.data.session = d.data
-    if (this.data.session.permanent) {
-      this.permanent = true
+    if (this.data.session) {
+      if (this.data.session.permanent) {
+        this.permanent = true
+      }
     }
+
+
+
 
     try {
       const ownership = await this.accounts.curtainAPI.getOwnership(id)
@@ -962,13 +969,16 @@ export class HomeComponent implements OnInit {
   openDataciteDOI() {
     const ref = this.modal.open(DataciteComponent, {scrollable: true, size: "xl"})
     ref.componentInstance.linkID = this.settings.settings.currentID
-    ref.closed.subscribe((data) => {
+    ref.closed.subscribe((data: DataCiteCurtain) => {
       if (data) {
-        this.uniqueLink = location.origin + "/#/" + encodeURIComponent(`doi.org/${data}`)
-        this.settings.settings.currentID = `doi.org/${data}`
+        this.uniqueLink = location.origin + "/#/" + encodeURIComponent(`doi.org/${data.doi}`)
+        this.settings.settings.currentID = `doi.org/${data.doi}`
         this.permanent = true
         this.isDOI = true
-        this.data.session = {permanent: true}
+        if (this.data.session) {
+          this.data.session.permanent = true
+          this.data.session.data_cite = data
+        }
       }
     })
   }

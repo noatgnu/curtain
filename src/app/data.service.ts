@@ -7,6 +7,7 @@ import {SettingsService} from "./settings.service";
 import {DataFrame, IDataFrame} from "data-forge";
 import {BehaviorSubject, debounceTime, distinctUntilChanged, map, Observable, OperatorFunction, Subject} from "rxjs";
 import {loadFromLocalStorage} from "curtain-web-api";
+import {CurtainSession} from "./curtain-session";
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class DataService {
   instructorMode: boolean = false
   loadDataTrigger: Subject<boolean> = new Subject<boolean>()
   externalBarChartDownloadTrigger: Subject<boolean> = new Subject<boolean>()
-  session: any = {}
+  session?: CurtainSession
   tempLink: boolean = false
   bypassUniProt: boolean = false
   stringDBColorMapSubject: Subject<boolean> = new Subject<boolean>()

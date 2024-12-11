@@ -184,3 +184,16 @@ export interface DataCiteMetadata {
     }
   }
 }
+ export interface DataCiteCurtain {
+  id: number,
+   updated: Date,
+   created: Date,
+   curtain: number,
+   doi: string,
+   status: string,
+   user: number,
+   title: string,
+   form_data: any,
+   contact_email: string,
+   pii_statement: string,
+ }
