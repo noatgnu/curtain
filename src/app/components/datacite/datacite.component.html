@@ -685,7 +685,7 @@
     }
     <button type="button" class="btn btn-primary" (click)="exportJSON()">Save</button>
     <button type="button" class="btn btn-primary" (click)="importFile.click()">Load</button>
-    <button type="button" class="btn btn-primary" [disabled]="!informationIsTrue" (click)="onSubmit()">Register DOI</button>
+    <button type="button" class="btn btn-primary" [disabled]="!form_additional_data.value.informationIsTrue" (click)="onSubmit()">Register DOI</button>
     <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
   </div>
 </div>

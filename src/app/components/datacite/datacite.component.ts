@@ -362,7 +362,7 @@ export class DataciteComponent {
       "contact_email": this.form_additional_data.controls.contact_email.value
     }
     this.accountsService.curtainAPI.submitDataCite(payload).then((value) => {
-      this.toastService.show("DOI Created", `Your ${value.data["doi"]} has been created`, 5000, "success").then()
+      this.toastService.show("DOI Created", `Your ${value.data["doi"]} has been created in drafting status before approval`, 5000, "success").then()
       this.modal.close(value.data["doi"])
     })
 
