@@ -1,8 +1,27 @@
 <div class="modal-header">
-  <h5 class="modal-title">DOI Registration</h5>
+  <h5 class="modal-title">DOI Registration @if(lock){<i class="bi bi-lock"></i>}</h5>
 </div>
 <div class="modal-body">
   <div class="container gap-2">
+    @if (dataCiteMetadata) {
+      @if (dataCiteMetadata.status === "published") {
+        <div class="alert alert-success">
+          The DOI registration has been published. @if(lock){You can still view the information but you cannot edit it.} <br>
+          DOI: <a href="https://doi.org/{{dataCiteMetadata.doi}}" target="_blank">https://doi.org/{{dataCiteMetadata.doi}}</a>
+        </div>
+      } @else if (dataCiteMetadata.status === "rejected") {
+        <div class="alert alert-danger">
+          The DOI registration has been rejected. Please contact us for more details.<br>
+        </div>
+      } @else {
+        <div class="alert alert-info">
+          The DOI registration is locked during processing. @if(lock) {You can still view the information but you cannot edit it.} <br>
+          Destination DOI after approval: <a href="https://doi.org/{{dataCiteMetadata.doi}}" target="_blank">https://doi.org/{{dataCiteMetadata.doi}}</a>
+        </div>
+      }
+
+    }
+
     @if (this.accountsService.isOwner) {
 
     } @else {
@@ -105,7 +124,7 @@
                           <label>
                             Affiliation {{affIndex+1}} Search
                           </label>
-                          <input type="search" class="form-control" [ngbTypeahead]="searchAffiliations"
+                          <input [disabled]="lock" type="search" class="form-control" [ngbTypeahead]="searchAffiliations"
                                  [resultFormatter]="resultFormatter" [inputFormatter]="inputFormatter"
                                  [resultTemplate]="rt"
                                  (selectItem)="onAffiliationSelect($event, 'creators', index, affIndex)">
@@ -357,7 +376,7 @@
                           <label>
                             Affiliation {{affIndex+1}} Search
                           </label>
-                          <input type="search" class="form-control" [ngbTypeahead]="searchAffiliations"
+                          <input [disabled]="lock" type="search" class="form-control" [ngbTypeahead]="searchAffiliations"
                                  [resultFormatter]="resultFormatter" [inputFormatter]="inputFormatter"
                                  [resultTemplate]="rt"
                                  (selectItem)="onAffiliationSelect($event, 'contributors', index, affIndex)">
@@ -591,7 +610,7 @@
                 <label>
                   Funder Search
                 </label>
-                <input type="search" class="form-control" [ngbTypeahead]="searchFunder"
+                <input [disabled]="lock" type="search" class="form-control" [ngbTypeahead]="searchFunder"
                        [resultFormatter]="resultFormatter" [inputFormatter]="inputFormatter"
                        [resultTemplate]="rt"
                        (selectItem)="onFunderSelect($event, index)">
@@ -683,6 +702,20 @@
         </div>
       </form>
     }
+    @if (accountsService.curtainAPI.user.isStaff) {
+      @if (dataCiteMetadata) {
+        @if (lock) {
+          <button type="button" class="btn btn-warning" (click)="unlockForm()">Unlock</button>
+        } @else {
+          <button type="button" class="btn btn-warning" (click)="lockForm()">Lock</button>
+        }
+        @if (dataCiteMetadata.status === "draft") {
+          <button type="button" class="btn btn-success" (click)="approveDOI()">Approve</button>
+          <button type="button" class="btn btn-danger" (click)="rejectDOI()">Reject</button>
+        }
+      }
+    }
+
     <button type="button" class="btn btn-primary" (click)="exportJSON()">Save</button>
     <button type="button" class="btn btn-primary" (click)="importFile.click()">Load</button>
     <button type="button" class="btn btn-primary" [disabled]="!form_additional_data.value.informationIsTrue" (click)="onSubmit()">Register DOI</button>

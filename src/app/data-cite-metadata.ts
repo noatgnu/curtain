@@ -188,7 +188,7 @@ export interface DataCiteMetadata {
   id: number,
    updated: Date,
    created: Date,
-   curtain: number,
+   curtain: string,
    doi: string,
    status: string,
    user: number,
@@ -196,4 +196,5 @@ export interface DataCiteMetadata {
    form_data: any,
    contact_email: string,
    pii_statement: string,
+   lock: boolean
  }

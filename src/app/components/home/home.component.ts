@@ -70,6 +70,7 @@ import {
   LoadPeptideCountDataModalComponent
 } from "../load-peptide-count-data-modal/load-peptide-count-data-modal.component";
 import {DataciteComponent} from "../datacite/datacite.component";
+import {DataciteAdminManagementComponent} from "../datacite-admin-management/datacite-admin-management.component";
 
 @Component({
     selector: 'app-home',
@@ -311,6 +312,10 @@ export class HomeComponent implements OnInit {
     console.log(this.data.public_key)
     await this.accounts.curtainAPI.getSiteProperties()
     await this.accounts.curtainAPI.user.loadFromDB()
+    if (this.accounts.curtainAPI.user.loginStatus && this.accounts.curtainAPI.user.isStaff) {
+      const draft = await this.accounts.curtainAPI.getDataCites(undefined, undefined, "draft", 10, 0, true)
+      this.data.draftDataCiteCount = draft.data.count
+    }
     if (this.subscription) {
       this.subscription.unsubscribe()
     }
@@ -969,17 +974,29 @@ export class HomeComponent implements OnInit {
   openDataciteDOI() {
     const ref = this.modal.open(DataciteComponent, {scrollable: true, size: "xl"})
     ref.componentInstance.linkID = this.settings.settings.currentID
+    if (this.data.session) {
+      if (this.data.session.data_cite) {
+        ref.componentInstance.dataCiteMetadata = this.data.session.data_cite
+        ref.componentInstance.lock = this.data.session.data_cite.lock
+      }
+    }
+
     ref.closed.subscribe((data: DataCiteCurtain) => {
       if (data) {
-        this.uniqueLink = location.origin + "/#/" + encodeURIComponent(`doi.org/${data.doi}`)
-        this.settings.settings.currentID = `doi.org/${data.doi}`
-        this.permanent = true
-        this.isDOI = true
+        //this.uniqueLink = location.origin + "/#/" + encodeURIComponent(`doi.org/${data.doi}`)
+        //this.settings.settings.currentID = `doi.org/${data.doi}`
+        //this.permanent = true
+        //this.isDOI = true
         if (this.data.session) {
-          this.data.session.permanent = true
+          //this.data.session.permanent = true
           this.data.session.data_cite = data
         }
       }
     })
+  }
+
+  openDataciteAdminManagement() {
+    const ref = this.modal.open(DataciteAdminManagementComponent, {scrollable: true, size: "xl"})
+
   }
 }

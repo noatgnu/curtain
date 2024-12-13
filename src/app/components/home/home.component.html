@@ -47,6 +47,29 @@
       <div class="p-2" *ngIf="settings.settings.encrypted" (click)="testEncryptSave()">
         <span class="badge bg-danger">Encryption Enabled</span>
       </div>
+      @if (accounts.curtainAPI.user.loginStatus) {
+        <div class="p-2">
+          <div display="dynamic" ngbDropdown class="d-inline-block">
+            <button class="btn btn-outline-primary ml-2" id="doiManagement" ngbDropdownToggle>DOI Management
+            </button>
+            <div ngbDropdownMenu aria-labelledby="localState">
+              <button ngbDropdownItem (click)="openDataciteAdminManagement()">Submitted DOI @if (data.draftDataCiteCount >0) {<span class="badge bg-danger">{{data.draftDataCiteCount}}</span>}</button>
+              @if (finished) {
+                @if (gdprAccepted) {
+                  @if (data.session) {
+                    @if (data.session.data_cite) {
+                      <button ngbDropdownItem (click)="openDataciteDOI()">View DOI Form</button>
+                    } @else {
+                      <button ngbDropdownItem (click)="openDataciteDOI()">Register DOI (Beta)</button>
+                    }
+                  }
+                }
+              }
+            </div>
+          </div>
+        </div>
+
+      }
       <div class="p-2" *ngIf="finished">
         <div display="dynamic" ngbDropdown class="d-inline-block">
           <button class="btn btn-outline-primary ml-2" id="localState" ngbDropdownToggle> State
@@ -96,9 +119,10 @@
 
             <button ngbDropdownItem (click)="openAnnotation()">Project Annotation</button>
             <button ngbDropdownItem (click)="openPeptideCountModal()">Add Peptide Count Data</button>
-            <ng-container *ngIf="finished">
+            @if (finished) {
               @if (gdprAccepted) {
                 @if (accounts.curtainAPI.user.loginStatus) {
+
                   @if (data.session) {
                     @if (data.session.data_cite) {
                       <button ngbDropdownItem (click)="openDataciteDOI()">View DOI Form</button>
@@ -116,11 +140,11 @@
               <button ngbDropdownItem (click)="web.downloadFile('different.txt', data.differential.originalFile)">Download Differential Analysis File</button>
               <button ngbDropdownItem (click)="web.downloadFile('raw.txt', data.raw.originalFile)">Download Raw File</button>
               <button ngbDropdownItem (click)="openEnrichrModal()">Enrichr</button>
-<!--              <button ngbDropdownItem (click)="openQRCode()" *ngIf="settings.settings.currentID !== ''">Session QR Code</button>-->
+              <!--              <button ngbDropdownItem (click)="openQRCode()" *ngIf="settings.settings.currentID !== ''">Session QR Code</button>-->
 
-              <!--<button ngbDropdownItem (click)="downloadAll()">
-                Download all Bar Charts and Violin Plots
-              </button>-->
+                <!--<button ngbDropdownItem (click)="downloadAll()">
+                  Download all Bar Charts and Violin Plots
+                </button>-->
 
               <button ngbDropdownItem (click)="selectionManagementModal()">
                 Data Selection Management
@@ -131,7 +155,7 @@
               <button ngbDropdownItem (click)="openCompareSessionModal()" *ngIf="settings.settings.currentID !== ''">
                 Compare Sessions
               </button>
-            </ng-container>
+            }
             <button ngbDropdownItem (click)="openLoginModal()" *ngIf="accounts.curtainAPI.user.loginStatus===false">
               Account Login
             </button>

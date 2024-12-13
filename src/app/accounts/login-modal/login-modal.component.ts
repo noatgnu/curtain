@@ -6,6 +6,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {Subject, Subscription} from "rxjs";
 import {ToastService} from "../../toast.service";
 import {environment} from "../../../environments/environment";
+import {DataService} from "../../data.service";
 
 
 
@@ -27,7 +28,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
 
   loginStatus: Subject<boolean> = new Subject<boolean>()
   loginWatcher: NodeJS.Timeout|undefined
-  constructor(private modal: NgbActiveModal, private fb: UntypedFormBuilder, private accounts: AccountsService, private web: WebService, private toast: ToastService) {
+  constructor(private dataService: DataService, private modal: NgbActiveModal, private fb: UntypedFormBuilder, private accounts: AccountsService, private web: WebService, private toast: ToastService) {
 
   }
 
@@ -60,6 +61,11 @@ export class LoginModalComponent implements OnInit, OnDestroy {
       this.accounts.reload().then(() => {
         if (this.accounts.curtainAPI.user.access_token && this.accounts.curtainAPI.user.access_token.length > 0) {
           console.log("ORCID LOGIN SUCCESSFUL")
+          if (this.accounts.curtainAPI.user.isStaff) {
+            this.accounts.curtainAPI.getDataCites(undefined, undefined, "draft", 10, 0, true).then((data: any) => {
+              this.dataService.draftDataCiteCount = data.data.count
+            })
+          }
           this.modal.dismiss()
           clearInterval(this.loginWatcher)
         }

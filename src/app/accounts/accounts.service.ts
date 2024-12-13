@@ -73,6 +73,7 @@ export class AccountsService {
 
   reload() {
     return this.curtainAPI.user.loadFromDB().then((data: any) => {
+
       return data;
     })
   }

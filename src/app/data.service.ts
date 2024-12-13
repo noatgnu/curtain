@@ -22,6 +22,7 @@ export class DataService {
   stringDBColorMapSubject: Subject<boolean> = new Subject<boolean>()
   interactomeDBColorMapSubject: Subject<boolean> = new Subject<boolean>()
   volcanoAdditionalShapesSubject: Subject<boolean> = new Subject<boolean>()
+  draftDataCiteCount: number = 0
 
   get colorMap(): any {
     return this._colorMap;

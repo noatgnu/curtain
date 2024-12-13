@@ -12,6 +12,7 @@ import {DataciteService} from "./datacite.service";
 import {environment} from "../../../environments/environment";
 import {ToastService} from "../../toast.service";
 import {QuillModule} from "ngx-quill";
+import {DataCiteCurtain} from "../../data-cite-metadata";
 
 @Component({
     selector: 'app-datacite',
@@ -35,6 +36,52 @@ export class DataciteComponent {
   get linkID(): string {
     return this._linkID
   }
+  private _dataCiteMetadata?: DataCiteCurtain
+  @Input() set dataCiteMetadata(value: DataCiteCurtain) {
+    if (this.dataCiteForm.controls.alternateIdentifiers) {
+      if (this.dataCiteForm.controls.alternateIdentifiers.at(0)) {
+        if (this.dataCiteForm.controls.alternateIdentifiers.at(0).controls.alternateIdentifier.value) {
+          // @ts-ignore
+          if (this.dataCiteForm.controls.alternateIdentifiers.at(0).controls.alternateIdentifier.value.includes(this._linkID)) {
+            console.log(value)
+            this.dataCiteForm.patchValue(value.form_data)
+            this._dataCiteMetadata = value
+            this.adminForm.controls.status.setValue(value.status)
+          }
+        }
+      }
+    }
+  }
+
+  get dataCiteMetadata(): DataCiteCurtain {
+    return this._dataCiteMetadata!
+  }
+
+  private _lock: boolean = false
+  @Input() set lock(value: boolean) {
+    if (this.dataCiteForm.controls.alternateIdentifiers) {
+      if (this.dataCiteForm.controls.alternateIdentifiers.at(0)) {
+        if (this.dataCiteForm.controls.alternateIdentifiers.at(0).controls.alternateIdentifier.value) {
+          // @ts-ignore
+          if (this.dataCiteForm.controls.alternateIdentifiers.at(0).controls.alternateIdentifier.value.includes(this._linkID)) {
+            this._lock = value
+            if (this._lock) {
+              this.disableForm()
+            } else {
+              this.enableForm()
+            }
+            this.adminForm.controls.lock.setValue(value)
+          }
+        }
+      }
+    }
+
+  }
+
+  get lock(): boolean {
+    return this._lock
+  }
+
   nameTypes: string[] = ["Personal", "Organizational"]
   identifierTypes: string[] =  ["ARK", "arXiv", "bibcode", "DOI", "EAN13", "EISSN", "Handle", "IGSN", "ISBN", "ISSN", "ISTC", "LISSN", "LSID", "PMID", "PURL", "UPC", "URL", "URN", "w3id"]
   identifierRelationTypes: string[] = ["Cites", "IsCitedBy", "Compiles", "IsCompiledBy", "Continues", "IsContinuedBy", "Describes", "IsDescribedBy", "Documents", "IsDocumentedBy", "IsDerivedFrom", "IsSourceOf", "HasMetadata", "IsMetadataFor", "HasPart", "IsPartOf", "IsSupplementedBy", "IsSupplementTo", "Obsoletes", "IsObsoletedBy", "References", "IsReferencedBy", "Requires", "IsRequiredBy", "Reviews", "IsReviewedBy", "HasVersion", "IsVersionOf", "IsNewVersionOf", "IsPreviousVersionOf", "IsPublishedIn", "IsVariantFormOf", "IsOriginalFormOf", "IsIdenticalTo", "IsCollectedBy", "Collects"]
@@ -182,6 +229,11 @@ export class DataciteComponent {
     contact_email: ['', [Validators.email, Validators.required]],
   })
 
+  adminForm = this.fb.group({
+    "status": ["pending", Validators.required],
+    "lock": [true, Validators.required],
+  })
+
   get affiliations(): string[] {
     const creators = this.dataCiteForm.controls.creators.controls.flatMap(c => c.controls.affiliation.controls.map(a => a.controls.name.value)).filter(aff => aff !== null);
     const contributors = this.dataCiteForm.controls.contributors.controls.flatMap(c => c.controls.affiliation.controls.map(a => a.controls.name.value)).filter(aff => aff !== null);
@@ -263,7 +315,7 @@ export class DataciteComponent {
 
   }
 
-  onSubmit() {
+  onSubmit(mode: "create"| "update" = "create") {
     if (!this.accountsService.isOwner) {
       return
     }
@@ -361,10 +413,26 @@ export class DataciteComponent {
       "pii_statement": this.form_additional_data.controls.pii_statement.value,
       "contact_email": this.form_additional_data.controls.contact_email.value
     }
-    this.accountsService.curtainAPI.submitDataCite(payload).then((value) => {
-      this.toastService.show("DOI Created", `Your ${value.data["doi"]} has been created in drafting status before approval`, 5000, "success").then()
-      this.modal.close(value.data)
-    })
+    if (mode === "create") {
+      this.accountsService.curtainAPI.submitDataCite(payload).then((value) => {
+        this.toastService.show("DOI Created", `Your ${value.data["doi"]} has been created in drafting status before approval`, 5000, "success").then()
+        this.modal.close(value.data)
+
+      }).catch((error) => {
+        this.toastService.show("DOI Error", "There is an error submitting data to the server", 5000, "error").then()
+      })
+    } else {
+      if (this.dataCiteMetadata) {
+        this.accountsService.curtainAPI.updateDataCite(this.dataCiteMetadata.id, payload).then((value) => {
+          this.dataCiteMetadata = value.data
+          this.toastService.show("DOI Updated", `Your ${value.data["doi"]} has been updated`, 5000, "success").then()
+        }).catch((error) => {
+          this.toastService.show("DOI Error", "There is an error submitting data to the server", 5000, "error").then()
+        })
+      }
+
+    }
+
 
   }
 
@@ -632,5 +700,40 @@ export class DataciteComponent {
       affiliationIdentifierScheme: [{disabled: true, value: ''},],
       schemeUri: [{disabled: true, value: ''},]
     }))
+  }
+
+  disableForm() {
+    this.form_additional_data.disable()
+  }
+
+  enableForm() {
+    this.form_additional_data.enable()
+  }
+
+  lockForm() {
+    this.accountsService.curtainAPI.lockDataCite(this.dataCiteMetadata.id, true).then((value) => {
+      this.lock = true
+      this.form_additional_data.controls.informationIsTrue.setValue(false)
+      this.form_additional_data.disable()
+    })
+  }
+
+  unlockForm() {
+    this.accountsService.curtainAPI.lockDataCite(this.dataCiteMetadata.id, false).then((value) => {
+      this.lock = false
+      this.form_additional_data.enable()
+    })
+  }
+
+  approveDOI() {
+    this.accountsService.curtainAPI.changeDataCiteStatus(this.dataCiteMetadata.id, "published").then((value) => {
+      this.dataCiteMetadata.status = "published"
+    })
+  }
+
+  rejectDOI() {
+    this.accountsService.curtainAPI.changeDataCiteStatus(this.dataCiteMetadata.id, "rejected").then((value) => {
+      this.dataCiteMetadata.status = "rejected"
+    })
   }
 }
