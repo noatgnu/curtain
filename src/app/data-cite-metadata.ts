@@ -189,6 +189,7 @@ export interface DataCiteMetadata {
    updated: Date,
    created: Date,
    curtain: string,
+   curtain_type: string,
    doi: string,
    status: string,
    user: number,

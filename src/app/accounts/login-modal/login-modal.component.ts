@@ -62,7 +62,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
         if (this.accounts.curtainAPI.user.access_token && this.accounts.curtainAPI.user.access_token.length > 0) {
           console.log("ORCID LOGIN SUCCESSFUL")
           if (this.accounts.curtainAPI.user.isStaff) {
-            this.accounts.curtainAPI.getDataCites(undefined, undefined, "draft", 10, 0, true).then((data: any) => {
+            this.accounts.curtainAPI.getDataCites(undefined, undefined, "draft", 10, 0, true, "TP").then((data: any) => {
               this.dataService.draftDataCiteCount = data.data.count
             })
           }

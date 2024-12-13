@@ -42,7 +42,7 @@ export class DataciteAdminManagementComponent {
   })
 
   constructor(public activeModal: NgbActiveModal, public accountService: AccountsService, private fb: FormBuilder) {
-    this.accountService.curtainAPI.getDataCites(undefined, undefined, undefined, this.pageSize, this.page-1, false).then(
+    this.accountService.curtainAPI.getDataCites(undefined, undefined, undefined, this.pageSize, this.page-1, false, "TP").then(
       (data) => {
         this.dataCiteDraftQuery = data.data
       }
@@ -116,13 +116,13 @@ export class DataciteAdminManagementComponent {
     }
     if (event === "admin") {
       if (this.searchForm.value.searchTerm) {
-        this.accountService.curtainAPI.getDataCites(undefined, term, "draft", this.pageSize, this.page-1, true).then(
+        this.accountService.curtainAPI.getDataCites(undefined, term, "draft", this.pageSize, this.page-1, true, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
           }
         )
       } else {
-        this.accountService.curtainAPI.getDataCites(undefined, undefined, "draft", this.pageSize, this.page-1, true).then(
+        this.accountService.curtainAPI.getDataCites(undefined, undefined, "draft", this.pageSize, this.page-1, true, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
           }
@@ -130,13 +130,13 @@ export class DataciteAdminManagementComponent {
       }
     } else {
       if (this.searchForm.value.searchTerm) {
-        this.accountService.curtainAPI.getDataCites(undefined, term, undefined, this.pageSize, this.page-1, false).then(
+        this.accountService.curtainAPI.getDataCites(undefined, term, undefined, this.pageSize, this.page-1, false, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
           }
         )
       } else {
-        this.accountService.curtainAPI.getDataCites(undefined, undefined, undefined, this.pageSize, this.page-1, false).then(
+        this.accountService.curtainAPI.getDataCites(undefined, undefined, undefined, this.pageSize, this.page-1, false, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
           }

@@ -313,7 +313,7 @@ export class HomeComponent implements OnInit {
     await this.accounts.curtainAPI.getSiteProperties()
     await this.accounts.curtainAPI.user.loadFromDB()
     if (this.accounts.curtainAPI.user.loginStatus && this.accounts.curtainAPI.user.isStaff) {
-      const draft = await this.accounts.curtainAPI.getDataCites(undefined, undefined, "draft", 10, 0, true)
+      const draft = await this.accounts.curtainAPI.getDataCites(undefined, undefined, "draft", 10, 0, true, "TP")
       this.data.draftDataCiteCount = draft.data.count
     }
     if (this.subscription) {
