@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {ToastService} from "../../toast.service";
+import {DataService} from "../../data.service";
 
 @Component({
     selector: 'app-toast-container',
@@ -9,7 +10,7 @@ import {ToastService} from "../../toast.service";
 })
 export class ToastContainerComponent implements OnInit {
 
-  constructor(public toastService: ToastService) { }
+  constructor(public toastService: ToastService, public data: DataService) { }
 
   ngOnInit(): void {
   }

@@ -189,19 +189,26 @@ export class HomeComponent implements OnInit {
   }
 
   async getDOISessionData(url: string, doiLink: string) {
-
-    const data =  await this.accounts.curtainAPI.postSettings("", "", this.onDownloadProgress, url)
-    if (data.data) {
-      this.restoreSettings(data.data).then(() => {
-        this.uniqueLink = location.origin + "/#/" + encodeURIComponent(doiLink)
-        this.settings.settings.currentID = doiLink
-        this.permanent = true
-        if (this.data.session) {
-          this.data.session.permanent = true
-        }
-        this.data.restoreTrigger.next(true)
-      })
+    this.toast.show("Initialization", "Downloading data from DOI link", undefined, undefined, "download").then()
+    try {
+      const data =  await this.accounts.curtainAPI.postSettings("", "", this.onDownloadProgress, url)
+      if (data.data) {
+        this.restoreSettings(data.data).then(() => {
+          this.uniqueLink = location.origin + "/#/" + encodeURIComponent(doiLink)
+          this.settings.settings.currentID = doiLink
+          this.permanent = true
+          if (this.data.session) {
+            this.data.session.permanent = true
+          }
+          this.data.restoreTrigger.next(true)
+        })
+      }
+    } catch (e) {
+      console.log(e)
+      this.toast.show("Initialization", "Error: DOI link is not valid").then()
+      this.data.downloadProgress.next(100)
     }
+
   }
 
   async getSessionData(id: string, token: string = "") {
@@ -212,10 +219,6 @@ export class HomeComponent implements OnInit {
         this.permanent = true
       }
     }
-
-
-
-
     try {
       const ownership = await this.accounts.curtainAPI.getOwnership(id)
       if (ownership.data.ownership) {
@@ -229,6 +232,7 @@ export class HomeComponent implements OnInit {
     } catch (e) {
       this.accounts.isOwner = false
     }
+    this.toast.show("Initialization", "Downloading data from session " + id, undefined, undefined, "download").then()
     try {
       const data = await this.accounts.curtainAPI.postSettings(id, token, this.onDownloadProgress)
       if (data.data) {
@@ -296,6 +300,7 @@ export class HomeComponent implements OnInit {
       }
     } catch (error: any) {
       console.log(error)
+      this.data.downloadProgress.next(100)
       if (error.status === 400) {
         this.toast.show("Credential Error", "Login Information Required").then()
         const login = this.openLoginModal()
@@ -304,6 +309,7 @@ export class HomeComponent implements OnInit {
             location.reload()
           }
         })
+
       }
     }
   }
@@ -490,7 +496,7 @@ export class HomeComponent implements OnInit {
       publicKey: this.data.public_key,
     }
     console.log(encryption)
-
+    this.toast.show("User information", "Uploading session data", undefined, undefined, "upload").then()
     this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, permanent, this.onUploadProgress).then((data: any) => {
       if (data.data) {
         this.toast.show("User information", `Curtain link saved with unique id ${data.data.link_id}`).then()
@@ -504,12 +510,15 @@ export class HomeComponent implements OnInit {
       }
     }).catch(err => {
       console.log(err)
+      this.data.uploadProgress.next(100)
       this.toast.show("User information", "Curtain link cannot be saved").then()
+
     })
   }
 
   onUploadProgress = (progressEvent: any) => {
     this.uniprot.uniprotProgressBar.next({value: progressEvent.progress * 100, text: "Uploading session data at " + Math.round(progressEvent.progress *100) + "%"})
+    this.data.uploadProgress.next(progressEvent.progress * 100)
   }
 
   async restoreSettings(object: any) {
@@ -832,10 +841,11 @@ export class HomeComponent implements OnInit {
   onDownloadProgress = (progressEvent: any) => {
     if (progressEvent.progress) {
       this.uniprot.uniprotProgressBar.next({value: progressEvent.progress *100, text: "Downloading session data at " + Math.round(progressEvent.progress * 100) + "%"})
-
+      this.data.downloadProgress.next(progressEvent.progress*100)
     } else {
       const sizeDownloaded = (progressEvent.loaded / (1024*1024)).toFixed(2)
       this.uniprot.uniprotProgressBar.next({value: 100, text: "Downloading session data at " + sizeDownloaded + " MB"})
+      this.data.downloadProgress.next(100)
     }
 
   }

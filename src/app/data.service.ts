@@ -23,6 +23,9 @@ export class DataService {
   interactomeDBColorMapSubject: Subject<boolean> = new Subject<boolean>()
   volcanoAdditionalShapesSubject: Subject<boolean> = new Subject<boolean>()
   draftDataCiteCount: number = 0
+  downloadProgress: Subject<number> = new Subject<number>()
+  uploadProgress: Subject<number> = new Subject<number>()
+
 
   get colorMap(): any {
     return this._colorMap;
