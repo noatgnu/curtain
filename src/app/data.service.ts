@@ -272,12 +272,13 @@ export class DataService {
             if (!result.includes(acc)) {
               console.log(acc)
               const uni = this.uniprot.getUniprotFromPrimary(acc)
-              if (uni["Gene Names"]) {
-                if (uni["Gene Names"].includes(geneNames)) {
-                  result.push(acc)
+              if (uni) {
+                if (uni["Gene Names"]) {
+                  if (uni["Gene Names"].includes(geneNames)) {
+                    result.push(acc)
+                  }
                 }
               }
-
             }
           }
         }
