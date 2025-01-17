@@ -3,7 +3,8 @@
 </div>
 <div class="modal-body">
   <div class="d-flex justify-content-center">
-    <ngx-qrcode-styling [config]="config" *ngIf="config.data !== ''"></ngx-qrcode-styling>
+<!--    <ngx-qrcode-styling [config]="config" *ngIf="config.data !== ''"></ngx-qrcode-styling>-->
+    <div id="canvas"></div>
   </div>
 
   <div class="alert alert-info">
@@ -17,4 +18,5 @@
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+  <button type="button" class="btn btn-primary" (click)="download()">Download</button>
 </div>

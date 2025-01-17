@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1736969636215,
+  "timestamp": 1737135832417,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -11,15 +11,15 @@
         "ignoreVary": true
       },
       "urls": [
-        "/chunk-6DCVN2GH.js",
-        "/chunk-KT2VBPDM.js",
+        "/chunk-JEL3XU2C.js",
+        "/chunk-N57AJHA5.js",
         "/favicon.ico",
         "/index.html",
-        "/main-X4BKIVHQ.js",
+        "/main-AM3EQ3GU.js",
         "/manifest.webmanifest",
         "/polyfills-LQM4VRV3.js",
         "/scripts-TSGU23AO.js",
-        "/styles-7HBUJEVF.css",
+        "/styles-UJ6O4KDI.css",
         "/worker-CWJU4YXQ.js"
       ],
       "patterns": []
@@ -120,15 +120,15 @@
     "/assets/proteinLists/pd.txt": "915c4a708c5dc7227d0b8fdc5eb51b17b2342746",
     "/assets/proteinLists/phosphatases.txt": "c350ec4656fee8be08c7dead8fdd42a0cd20e350",
     "/assets/proteinLists/pink1.txt": "6b73c270d0407981851903bae49a622c0c22e0f8",
-    "/chunk-6DCVN2GH.js": "066732cf764f113fdd1354b5d694386dde1aa957",
-    "/chunk-KT2VBPDM.js": "513f86e4667b74dc3cbfe0b7141fe6921312b216",
+    "/chunk-JEL3XU2C.js": "3f81b075477c91e02b3968f4186dcec52f687506",
+    "/chunk-N57AJHA5.js": "0596171feebf974cc1f5eeeef7f1e75616da8bca",
     "/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/index.html": "9bd60048e02ea982757c8ddec62c7407d6591a60",
-    "/main-X4BKIVHQ.js": "0b8dceb424cc758e31a7d7052da2c830a18fec22",
+    "/index.html": "f7a81fd8ad9cd2f024172847cb2a38bc8eb36848",
+    "/main-AM3EQ3GU.js": "f4ac2fc0c3754793f6b4b0fa81be4e8f34a360c3",
     "/manifest.webmanifest": "0f6d8f1c753e9f503daf4cd303ebecc6b0b0a04b",
     "/polyfills-LQM4VRV3.js": "86507a9fae516c507974df2133f98fd48b561462",
     "/scripts-TSGU23AO.js": "e172440274ca0257fbf1b7e414f5bd41b03b202f",
-    "/styles-7HBUJEVF.css": "df873a9beb54f093f2a87c17c706c987a6902d22",
+    "/styles-UJ6O4KDI.css": "64405c125e616f889ecb7e1ca6ac7c9133afd2cd",
     "/worker-CWJU4YXQ.js": "d8379c05dbb062889b190cff8e310edf98404290"
   },
   "navigationUrls": [

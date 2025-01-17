@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {WebsocketService} from "../../websocket.service";
 import {FormBuilder, FormControl} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {SettingsService} from "../../settings.service";
 import {ToastService} from "../../toast.service";
-import {Options} from "ngx-qrcode-styling";
+import QRCodeStyling, {Options} from "qr-code-styling";
 
 @Component({
     selector: 'app-collaborate-modal',
@@ -12,7 +12,7 @@ import {Options} from "ngx-qrcode-styling";
     styleUrls: ['./collaborate-modal.component.scss'],
     standalone: false
 })
-export class CollaborateModalComponent implements OnInit {
+export class CollaborateModalComponent implements OnInit, AfterViewInit {
   form = this.fb.group({
     sessionID: [""],
     displayName: ['']
@@ -45,6 +45,13 @@ export class CollaborateModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+  ngAfterViewInit() {
+    const qrCode = new QRCodeStyling(this.config);
+    const canvas = document.getElementById("canvas")
+    if (canvas) {
+      qrCode.append(canvas)
+    }
   }
 
   submit() {
