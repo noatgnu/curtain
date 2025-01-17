@@ -46,6 +46,7 @@ export class QrcodeModalComponent implements OnInit, AfterViewInit {
     if (canvas) {
       qrCode.append(canvas)
     }
+    this.qrCode = qrCode
   }
 
   close() {
