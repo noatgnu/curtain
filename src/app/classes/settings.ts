@@ -9,6 +9,7 @@ export class Settings {
   pCutoff: number = 0.05
   log2FCCutoff: number = 0.6
   description: string = ""
+  dataAnalysisContact: string = ""
   uniprot: boolean = true
   colorMap: any = {}
   academic: boolean = true
