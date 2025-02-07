@@ -154,12 +154,24 @@ export class UniprotService {
           for (const a of d) {
             const query = a.replace(",", ";")
             for (const q of query.split(";")) {
-              this.dataMap.set(q, r["Entry"])
-              if (r["Gene Names"] !== "") {
-                if (!this.geneNameToAcc[r["Gene Names"]]) {
-                  this.geneNameToAcc[r["Gene Names"]] = {}
+              if (!this.dataMap.has(q)) {
+                this.dataMap.set(q, r["Entry"])
+                if (r["Gene Names"] !== "") {
+                  if (!this.geneNameToAcc[r["Gene Names"]]) {
+                    this.geneNameToAcc[r["Gene Names"]] = {}
+                  }
+                  this.geneNameToAcc[r["Gene Names"]][q] = true
                 }
-                this.geneNameToAcc[r["Gene Names"]][q] = true
+              } else {
+                if (q === r["Entry"]) {
+                  this.dataMap.set(q, r["Entry"])
+                  if (r["Gene Names"] !== "") {
+                    if (!this.geneNameToAcc[r["Gene Names"]]) {
+                      this.geneNameToAcc[r["Gene Names"]] = {}
+                    }
+                    this.geneNameToAcc[r["Gene Names"]][q] = true
+                  }
+                }
               }
             }
           }
@@ -170,15 +182,19 @@ export class UniprotService {
 
 
   getUniprotFromPrimary(accession_id: string) {
+    console.log(accession_id)
     if (this.db.has(accession_id)) {
+      console.log(this.db.get(accession_id))
       return this.db.get(accession_id)
     }
     if (this.accMap.has(accession_id)) {
       const d = this.accMap.get(accession_id)
+      console.log(d)
       if (d) {
         for (const a of d) {
           if (this.dataMap.has(a)) {
             const ac = this.dataMap.get(a)
+            console.log(ac)
             if (ac) {
               return this.db.get(ac)
             }
