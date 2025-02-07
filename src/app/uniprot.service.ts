@@ -171,6 +171,19 @@ export class UniprotService {
                     }
                     this.geneNameToAcc[r["Gene Names"]][q] = true
                   }
+                } else {
+                  const qSplitted = q.split("-")
+                  if (qSplitted.length === 2) {
+                    if (qSplitted[0] === r["Entry"]) {
+                      this.dataMap.set(q, r["Entry"])
+                      if (r["Gene Names"] !== "") {
+                        if (!this.geneNameToAcc[r["Gene Names"]]) {
+                          this.geneNameToAcc[r["Gene Names"]] = {}
+                        }
+                        this.geneNameToAcc[r["Gene Names"]][qSplitted[0]] = true
+                      }
+                    }
+                  }
                 }
               }
             }
