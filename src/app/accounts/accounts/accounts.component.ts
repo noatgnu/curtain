@@ -42,7 +42,7 @@ export class AccountsComponent implements OnInit {
 
   submit(page: number = 0) {
     // @ts-ignore
-    this.accounts.curtainAPI.getCurtainLinks(this.accounts.curtainAPI.user.username, this.form.value["sessionDescription"], page*20).then((data: any) => {
+    this.accounts.curtainAPI.getCurtainLinks(this.accounts.curtainAPI.user.username, this.form.value["sessionDescription"], (page-1)*20).then((data: any) => {
       console.log(data)
       this.updateShowingLink(data);
     }).catch((err) => {
@@ -54,7 +54,7 @@ export class AccountsComponent implements OnInit {
   }
 
   private updateShowingLink(data: any) {
-    console.log(data)
+
     data.data.results = data.data.results.map((a: any) => {
       if (!(a.link_id in this.descriptionTrigger)) {
         this.descriptionTrigger[a.link_id] = false
@@ -64,8 +64,11 @@ export class AccountsComponent implements OnInit {
       return a
     })
     this.totalItems = data.data.count
-    this.pageNumber = this.totalItems / 20
+    this.pageNumber = Math.ceil(this.totalItems / 20)
     this.data = data.data
+    console.log(this.data)
+    console.log(this.totalItems)
+    console.log(this.pageNumber)
   }
 
   deleteLink(link_id: string) {
