@@ -119,6 +119,11 @@
 
             <button ngbDropdownItem (click)="openAnnotation()">Project Annotation</button>
             <button ngbDropdownItem (click)="openPeptideCountModal()">Add Peptide Count Data</button>
+            <button ngbDropdownItem (click)="openLogFileModal()">Log File</button>
+
+            @if (accounts.curtainAPI.user.loginStatus && accounts.curtainAPI.user.isStaff) {
+              <button ngbDropdownItem (click)="openBatchSessionCreator()">Batch Session Creation</button>
+            }
             @if (finished) {
               @if (gdprAccepted) {
                 @if (accounts.curtainAPI.user.loginStatus) {

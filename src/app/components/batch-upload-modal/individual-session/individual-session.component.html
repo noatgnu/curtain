@@ -1,0 +1,193 @@
+@if (session) {
+  <div class="card mt-2">
+    <div class="card-body">
+      <form [formGroup]="session.form">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.permanent">
+          <label class="form-check-label">Permanent Session</label>
+        </div>
+        <div class="form-group">
+          <label>Differential Analysis</label>
+          <select class="form-select" formControlName="differential">
+            @for (f of differentialFiles; track f) {
+              <option [ngValue]="f">{{ f.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="row">
+          <div class="col-3">
+            <label>Select Primary IDs</label>
+            <select class="form-select" aria-label="Select Primary IDs" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.primaryIDs">
+              @for (c of session.differentialColumns; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+            <small class="text-muted">Unique and should contain UniProt Accession ID for Curtain to obtain extra metadata.</small>
+          </div>
+          @if (session.data.fetchUniprot === false) {
+            <div class="col-3">
+              <label>Select Gene Names</label>
+              <select class="form-select" aria-label="Select Gene Names" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.geneNames">
+                @for (c of session.differentialColumns; track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select>
+            </div>
+          }
+
+          <div class="col-3">
+            <label>Select Fold Change</label>
+            <select class="form-select" aria-label="Select Fold Change" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.foldChange">
+              @for (c of session.differentialColumns; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.transformFC">
+              <label>Perform log2 Transformation</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.reverseFoldChange">
+              <label class="form-check-label">Reverse fold change value</label>
+            </div>
+          </div>
+          <div class="col-3">
+            <label>Select Significant</label>
+            <select class="form-select" aria-label="Select Significant" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.significant">
+              @for (c of session.differentialColumns; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.transformSignificant">
+              <label>Perform -log10 Transformation</label>
+            </div>
+          </div>
+          <div class="col-3">
+            <label>Comparison</label>
+            <select class="form-select" aria-label="Comparison" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.comparison" (ngModelChange)="getComparisonColumnUnique(session, $event)">
+              @for (c of session.differentialColumns; track c) {
+                <option [value]="c" (click)="getComparisonColumnUnique(session, c)">{{ c }}</option>
+              }
+            </select>
+          </div>
+          @if (session.uniqueComparisons) {
+            <div class="col-6">
+              <label>Select Comparison</label>
+              <select class="form-select" aria-label="ComparisonSelect" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.comparisonSelect" multiple>
+                @for (c of session.uniqueComparisons; track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+        <hr>
+        <div class="form-group">
+          <label>Raw Data</label>
+          <select class="form-select" formControlName="raw">
+            @for (f of rawFiles; track f) {
+              <option [ngValue]="f">{{ f.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="row">
+          <div class="col-3">
+            <label>Select Primary IDs</label>
+            <select class="form-select" aria-label="Select Primary IDs Raw" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.rawForm.primaryIDs">
+              @for (c of session.rawColumns; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+            <small class="text-muted">Unique and should be the same as differential analysis primary ID column</small>
+          </div>
+          <div class="col-5">
+            <div class="form-group">
+              <label>Select Samples</label>
+              <select multiple class="form-select" aria-label="Select Samples" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.rawForm.samples">
+                @for (c of session.rawColumns; track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.rawForm.log2">
+              <label class="form-check-label">Data was log2 transformed</label>
+            </div>
+            <small class="text-muted">Sample column names in format "condition"."replicate" for automated experimental condition parsing</small>
+          </div>
+        </div>
+        <div class="form-group mb-2 mt-2">
+          <label><b>Session Description</b></label>
+          <quill-editor [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.settings.description"></quill-editor>
+        </div>
+        <div class="form-group mb-2">
+          <label>Data Analysis Contact</label>
+          <input type="text" class="form-control" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.settings.dataAnalysisContact">
+        </div>
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.fetchUniprot">
+          <label class="form-check-label">Fetch UniProt Accession ID</label>
+        </div>
+      </form>
+      @if (session.data.rawForm.samples.length >0 && extraFiles.length > 0) {
+        <hr>
+        <form [formGroup]="session.peptideFileForm">
+          <div class="form-group">
+            <label>Select Peptide Data File</label>
+            <select class="form-select" formControlName="peptideFile">
+              @for (f of extraFiles; track f) {
+                <option [ngValue]="f">{{ f.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="row">
+            <div class="form-group col-3">
+              <label>Select Primary ID column</label>
+              <select class="form-select" formControlName="primaryIdColumn">
+                @for (c of session.peptideFileColumns; track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group col-3">
+              <label>Select Sample columns</label>
+              <select class="form-select" formControlName="sampleColumns" multiple>
+                @for (c of session.peptideFileColumns; track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </form>
+        <button class="btn btn-primary" (click)="addLogFile()">+ Extra File</button>
+        @for (e of session.extraFiles; track e; let index = $index) {
+          <div class="row">
+            <div class="col-3">
+              <label>Select Extra File #{{index+1}}</label>
+              <select class="form-select" [(ngModel)]="session.extraFiles[index].file">
+                @for (f of extraFiles; track f) {
+                  <option [ngValue]="f">{{ f.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-3">
+              <label>Select File Type</label>
+              <select class="form-select" [(ngModel)]="session.extraFiles[index].type">
+                <option value="log">Log</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+        }
+      }
+
+
+      <div class="mt-2">
+        <ngb-progressbar type="info" [value]="progressBar.value">
+          {{progressBar.text}}
+        </ngb-progressbar>
+      </div>
+    </div>
+  </div>
+}

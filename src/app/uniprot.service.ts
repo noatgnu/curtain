@@ -217,4 +217,16 @@ export class UniprotService {
     }
     return null
   }
+
+  reset() {
+    this.run = 0;
+    this.results = new Map<string, any>();
+    this.dataMap = new Map<string, any>();
+    this.db = new Map<string, any>();
+    this.organism = "";
+    this.uniprotParseStatus = new BehaviorSubject<boolean>(false);
+    this.uniprotProgressBar = new Subject<any>();
+    this.accMap = new Map<string, string[]>();
+    this.geneNameToAcc = {};
+  }
 }

@@ -369,4 +369,58 @@ export class DataService {
       this.settings.settings.colorMap[newSearchOperationName] = this.defaultColorList[0]
     }
   }
+
+  reset() {
+    this.instructorMode = false;
+    this.loadDataTrigger = new Subject<boolean>();
+    this.externalBarChartDownloadTrigger = new Subject<boolean>();
+    this.session = undefined;
+    this.tempLink = false;
+    this.bypassUniProt = false;
+    this.stringDBColorMapSubject = new Subject<boolean>();
+    this.interactomeDBColorMapSubject = new Subject<boolean>();
+    this.volcanoAdditionalShapesSubject = new Subject<boolean>();
+    this.draftDataCiteCount = 0;
+    this.downloadProgress = new Subject<number>();
+    this.uploadProgress = new Subject<number>();
+    this.finishedProcessingData = new BehaviorSubject<boolean>(false);
+    this.selectionUpdateTrigger = new Subject<boolean>();
+    this.dataMap = new Map<string, string>();
+    this.sampleMap = {};
+    this.currentDF = new DataFrame();
+    this.genesMap = {};
+    this.primaryIDsMap = {};
+    this.batchAnnotateAnnoucement = new Subject<any>();
+    this.selectedComparison = [];
+    this.conditions = [];
+    this.clearWatcher = new Subject<boolean>();
+    this.redrawTrigger = new Subject();
+    this.annotatedData = {};
+    this.private_key = undefined;
+    this.public_key = undefined;
+    this._colorMap = {};
+    this.fetchUniprot = true;
+    this.differentialForm = new Differential();
+    this.rawForm = new Raw();
+    this._allGenes = [];
+    this._raw = new InputFile();
+    this._differential = new InputFile();
+    this.selectedMap = {};
+    this.selected = [];
+    this.selectOperationNames = [];
+    this.primaryIDsList = [];
+    this.restoreTrigger = new Subject<boolean>();
+    this.annotationService = new Subject<any>();
+    this.annotationVisualUpdated = new Subject<boolean>();
+    this.searchCommandService = new Subject<any>();
+    this.resetVolcanoColor = new Subject<boolean>();
+    this.minMax = {
+      fcMin: 0,
+      fcMax: 0,
+      pMin: 0,
+      pMax: 0
+    };
+    this.page = 1;
+    this.pageSize = 5;
+  }
 }

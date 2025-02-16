@@ -242,6 +242,7 @@ export class BarChartComponent implements OnInit {
         family: 'Arial',
       }
     }
+    console.log(this.settings.settings.peptideCountData)
     if (this.settings.settings.viewPeptideCount) {
       this.graphLayout.yaxis.domain = [0.3, 0.9]
       this.graphLayout.yaxis2 = {

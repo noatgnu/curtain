@@ -115,4 +115,5 @@ export class Settings {
   volcanoPlotLegendY: number|null = null
   peptideCountData: any = {}
   viewPeptideCount: boolean = false
+  extraData: {name: string, content: string, type: string}[] = []
 }

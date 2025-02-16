@@ -71,6 +71,8 @@ import {
 } from "../load-peptide-count-data-modal/load-peptide-count-data-modal.component";
 import {DataciteComponent} from "../datacite/datacite.component";
 import {DataciteAdminManagementComponent} from "../datacite-admin-management/datacite-admin-management.component";
+import {BatchUploadModalComponent} from "../batch-upload-modal/batch-upload-modal.component";
+import {LogFileModalComponent} from "../log-file-modal/log-file-modal.component";
 
 @Component({
     selector: 'app-home',
@@ -1006,7 +1008,17 @@ export class HomeComponent implements OnInit {
   }
 
   openDataciteAdminManagement() {
-    const ref = this.modal.open(DataciteAdminManagementComponent, {scrollable: true, size: "xl"})
+    const ref = this.modal.open(DataciteAdminManagementComponent, {scrollable: true, size: "xl", backdrop: "static"})
 
   }
+
+  openBatchSessionCreator() {
+    const ref = this.modal.open(BatchUploadModalComponent, {scrollable: true, size: "xl", backdrop: "static"})
+  }
+
+  openLogFileModal() {
+    const ref = this.modal.open(LogFileModalComponent, {scrollable: true, size: "xl", backdrop: "static"})
+  }
+
+
 }
