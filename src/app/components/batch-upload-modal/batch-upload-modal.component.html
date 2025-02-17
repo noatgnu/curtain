@@ -7,9 +7,9 @@
     <button class="btn btn-primary" (click)="rFiles.click()">Select Raw Files @if (rawFiles.length >0) {({{rawFiles.length}} selected)}</button>
     <button class="btn btn-primary" (click)="eFiles.click()">Select Extra Files @if (extraFiles.length >0) {({{extraFiles.length}} selected)}</button>
   </div>
-  <input type="file" hidden (change)="handleDifferentialAnalysisFiles($event)" #differentialAnalysisFiles>
-  <input type="file" hidden (change)="handleRawFiles($event)" #rFiles>
-  <input type="file" hidden (change)="handleExtraFiles($event)" #eFiles>
+  <input type="file" hidden (change)="handleDifferentialAnalysisFiles($event)" #differentialAnalysisFiles multiple>
+  <input type="file" hidden (change)="handleRawFiles($event)" #rFiles multiple>
+  <input type="file" hidden (change)="handleExtraFiles($event)" #eFiles multiple>
 
   <button class="btn btn-primary mt-2" (click)="addSession()">+ Session</button>
   @if (sessions.length > 0) {
