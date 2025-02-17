@@ -68,6 +68,7 @@ export class IndividualSessionComponent implements OnChanges{
     colorCategoryForms: FormGroup[],
     colorCategoryColumn: string,
     colorCategoryPrimaryIdColumn: string,
+    private: boolean,
   }|undefined = undefined;
   @Input() differentialFiles: File[] = [];
   @Input() rawFiles: File[] = [];
@@ -78,8 +79,6 @@ export class IndividualSessionComponent implements OnChanges{
   payload: any = {}
   isVolcanoPlotSettingsClosed = true
   isVolcanoPlotCategoryColorClosed = true
-  categoryMap: any = {}
-  categories: string[] = []
   constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private batchService: BatchUploadServiceService, private data: DataService, private uniprot: UniprotService, private cd: ChangeDetectorRef, private settings: SettingsService) {
     this.batchService.taskStartAnnouncer.subscribe((taskId: number) => {
       if (taskId === this.sessionId) {
@@ -118,45 +117,40 @@ export class IndividualSessionComponent implements OnChanges{
     }
   }
 
-  readRawFile() {
-    if (this.session) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target) {
-          const loadedFile = e.target.result;
-          this.data.raw.df = fromCSV(<string>loadedFile)
-          this.data.raw.originalFile = <string>loadedFile
-        }
-      }
+  async readRawFile() {
+    if (this.session && this.session.rawFile) {
       // @ts-ignore
-      reader.readAsText(this.session.rawFile)
+      const file = await this.readFileAsync(this.session.rawFile)
+      const df = fromCSV(file)
+      this.data.raw.df = df
+      this.data.raw.originalFile = file
     }
   }
 
-  readDifferentialFile() {
-    if (this.session) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target) {
-          const loadedFile = e.target.result;
-          this.data.differential.df = fromCSV(<string>loadedFile)
-          this.data.differential.originalFile = <string>loadedFile
-        }
-      }
+  async readDifferentialFile() {
+    if (this.session && this.session.differentialFile) {
       // @ts-ignore
-      reader.readAsText(this.session.differentialFile)
+      const file = await this.readFileAsync(this.session.differentialFile)
+      const df = fromCSV(file)
+      this.data.differential.df = df
+      this.data.differential.originalFile = file
     }
   }
 
-  startWork() {
+  async startWork() {
     if (!this.session) {
       return
     }
 
     this.data.fetchUniprot = this.session.data.fetchUniprot
-    this.readDifferentialFile()
-    this.readRawFile()
-    this.data.differentialForm = this.session.data.differentialForm
+    await this.readDifferentialFile()
+    await this.readRawFile()
+    for (const d in this.session.data.differentialForm) {
+      if (this.session.data.differentialForm.hasOwnProperty(d)) {
+        // @ts-ignore
+        this.data.differentialForm[d] = this.session.data.differentialForm[d]
+      }
+    }
     this.data.rawForm = this.session.data.rawForm
 
 
@@ -229,15 +223,20 @@ export class IndividualSessionComponent implements OnChanges{
               }
               this.data.conditions = data.data.conditions
               this.copySessionSettings()
+              console.log(this.settings.settings)
               this.loadPeptideData().then(() => {
-                this.loadLogFiles().then(
-                  () => {
-                    this.processUniProt()
-                    worker.terminate()
-                  }
+                  this.loadLogFiles().then(() => {
+                    this.addColorCategoryToSettings().then(() => {
+                      this.processUniProt()
+                      worker.terminate()
+                    })
+                  })
+                }
                 )
 
-              })
+
+
+
             } else if (data.data.type === "resultDifferentialCompleted") {
 
             }
@@ -254,7 +253,7 @@ export class IndividualSessionComponent implements OnChanges{
       });
       this.data.differential.df = new DataFrame()
     } else {
-      this.processFiles().then()
+      await this.processFiles()
     }
   }
 
@@ -514,6 +513,7 @@ export class IndividualSessionComponent implements OnChanges{
       }
     }
     this.copySessionSettings()
+    await this.addColorCategoryToSettings()
     await this.loadPeptideData()
     await this.loadLogFiles()
     this.processUniProt()
@@ -603,7 +603,7 @@ export class IndividualSessionComponent implements OnChanges{
       publicKey: this.data.public_key,
     }
     this.toast.show("User information", `Curtain link #${this.sessionId+1} is being submitted`).then()
-    this.accounts.curtainAPI.putSettings(this.payload, !this.accounts.curtainAPI.user.loginStatus, this.payload.settings.description, "TP", encryption, this.session.data.permanent, this.onUploadProgress).then((data: any) => {
+    this.accounts.curtainAPI.putSettings(this.payload, this.session.private, this.payload.settings.description, "TP", encryption, this.session.data.permanent, this.onUploadProgress).then((data: any) => {
       console.log(data.data)
       if (data.data) {
         this.finished.emit(data.data.link_id)
@@ -724,6 +724,7 @@ export class IndividualSessionComponent implements OnChanges{
     if (this.session && this.session.differentialFile && this.session.data && this.session.colorCategoryPrimaryIdColumn !== "") {
       const file = this.readFileAsync(this.session.differentialFile)
       const df = fromCSV(await file)
+
       df.forEach((row) => {
         if (this.session && this.session.data) {
           const primaryID = row[this.session.colorCategoryPrimaryIdColumn]
@@ -736,7 +737,7 @@ export class IndividualSessionComponent implements OnChanges{
           if (!categoryMap[title]) {
             categoryMap[title] = {
               count: 1,
-              color: "",
+              color: "#a4a2a2",
               comparison: comparison,
               primaryIDs: [primaryID],
               value: category
@@ -754,6 +755,7 @@ export class IndividualSessionComponent implements OnChanges{
           category: [column],
           value: [categoryMap[c].value],
           comparison: [categoryMap[c].comparison],
+          label: ['']
         })
         this.session.colorCategoryForms.push(form)
       }
@@ -764,5 +766,49 @@ export class IndividualSessionComponent implements OnChanges{
     if (this.session) {
       this.session.colorCategoryForms.splice(index, 1)
     }
+  }
+
+  async addColorCategoryToSettings() {
+    if (this.session && this.session.colorCategoryForms.length>0 && this.session.differentialFile && this.data.currentDF.count() > 0) {
+      console.log(this.data.currentDF.count())
+      const df = this.data.currentDF
+      console.log(df.toArray())
+      for (const c of this.session.colorCategoryForms) {
+        if (this.session) {
+          let comparison = this.session.data.differentialForm.comparison
+          let filtered: IDataFrame = new DataFrame()
+          if (comparison === ""|| comparison === null) {
+            filtered = df.where(r => r[c.value.category] === c.value.value).bake()
+          } else {
+            filtered = df.where(r => r[c.value.category] === c.value.value && r[comparison] === c.value.comparison
+            ).bake()
+          }
+          console.log(df)
+          const primaryIds = filtered.getSeries(this.session.colorCategoryPrimaryIdColumn).distinct().toArray()
+          console.log(primaryIds)
+          if (primaryIds.length > 0) {
+            let operationName = `${c.value.value} [${c.value.category}] (${c.value.comparison})`
+            if (c.value.label) {
+              operationName = `${c.value.label} (${c.value.comparison})`
+            }
+            if (!this.data.selectOperationNames.includes(operationName)) {
+              this.data.selectOperationNames.push(operationName)
+            }
+            this.settings.settings.colorMap[operationName] = c.value.color
+            for (const p of primaryIds) {
+              if (!this.data.selectedMap[p]) {
+                this.data.selectedMap[p] = {}
+              }
+              this.data.selectedMap[p][operationName] = true
+            }
+          }
+        }
+      }
+    }
+  }
+
+  test(event: any) {
+    console.log(event)
+    console.log(this.session)
   }
 }

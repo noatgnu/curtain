@@ -3,12 +3,16 @@
     <div class="card-body">
       <form [formGroup]="session.form">
         <div class="form-check">
-          <input type="checkbox" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.permanent">
-          <label class="form-check-label">Permanent Session</label>
+          <input type="checkbox" id="permanent-session-{{sessionId}}" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.permanent">
+          <label class="form-check-label" for="permanent-session-{{sessionId}}">Permanent Session</label>
         </div>
         <div class="form-check">
-          <input type="checkbox" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.fetchUniprot">
-          <label class="form-check-label">Fetch UniProt Accession ID</label>
+          <input type="checkbox" id="fetch-uniprot-{{sessionId}}" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.fetchUniprot">
+          <label class="form-check-label" for="fetch-uniprot-{{sessionId}}">Fetch UniProt Accession ID</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" id="private-session-{{sessionId}}" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.private">
+          <label class="form-check-label" for="private-session-{{sessionId}}">Private Session</label>
         </div>
         <div class="form-group">
           <label>Differential Analysis</label>
@@ -394,18 +398,19 @@
               <div class="accordion-body">
                 <h5 class="mt-2">Volcano Plot Color By Category</h5>
                 <div class="row">
-                  <div class="form-group col-3" [(ngModel)]="session.colorCategoryPrimaryIdColumn" [ngModelOptions]="{standalone: true}" (ngModelChange)="updateColorCategories($event)">
-                    <label>Select Category Column</label>
-                    <select class="form-select">
+                  <div class="form-group col-3">
+                    <label>Select Primary ID Column</label>
+                    <select class="form-select" [(ngModel)]="session.colorCategoryPrimaryIdColumn" (ngModelChange)="test($event)">
+                      <option value="">None</option>
                       @for (col of session.differentialColumns; track col) {
                         <option [value]="col">{{col}}</option>
                       }
                     </select>
                   </div>
-                  @if (session.colorCategoryPrimaryIdColumn !== '') {
-                    <div class="form-group col-3" [(ngModel)]="session.colorCategoryColumn" [ngModelOptions]="{standalone: true}" (ngModelChange)="updateColorCategories($event)">
+                  @if (session.colorCategoryPrimaryIdColumn !== '' && session.colorCategoryPrimaryIdColumn !== undefined && session.colorCategoryPrimaryIdColumn !== null) {
+                    <div class="form-group col-3">
                       <label>Select Category Column</label>
-                      <select class="form-select">
+                      <select class="form-select" [(ngModel)]="session.colorCategoryColumn" (ngModelChange)="updateColorCategories($event)">
                         @for (col of session.differentialColumns; track col) {
                           <option [value]="col">{{col}}</option>
                         }
@@ -415,18 +420,39 @@
                 </div>
                 <div class="row">
                   @for (c of session.colorCategoryForms; track c; let index = $index) {
-                    <form [formGroup]="c">
+                    <form [formGroup]="c" class="mt-2">
                       <div class="d-flex gap-2">
                         <div class="form-group">
                           <label>Color</label>
                           <input style="width: 200px" placeholder="Select a color" formControlName="color" [(colorPicker)]="c.value.color" class="form-control" [style.background-color]="c.value.color">
                         </div>
+
+                        <div class="form-group">
+                          <label>Custom Volcano Plot Label</label>
+                          <input class="form-control" formControlName="label">
+                          <small class="text-muted">
+                            By default the label will be the same as the `category` and appear as `category category-column (comparison)`. Edit this field to change the label and it will be shown as `custom-label (comparison)`.
+                          </small>
+                        </div>
+
                         <div class="form-group">
                           <label>Category</label>
-                          <input class="form-control" formControlName="value">
+                          <input class="form-control" formControlName="value" readonly>
+                        </div>
+                        <div class="form-group">
+                          <label>Comparison</label>
+                          <input class="form-control" formControlName="comparison" readonly>
+                        </div>
+                        <div class="form-group">
+                          <label>Column</label>
+                          <input class="form-control" formControlName="category" readonly>
                         </div>
                       </div>
                     </form>
+                    <div class="mt-2">
+                      <button class="btn btn-sm btn-danger" (click)="removeFromColorCategories(index)"><i class="bi bi-trash"></i></button>
+                    </div>
+                    <hr>
                   }
                 </div>
               </div>

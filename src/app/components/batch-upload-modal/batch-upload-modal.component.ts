@@ -70,6 +70,7 @@ export class BatchUploadModalComponent {
     colorCategoryForms: FormGroup[],
     colorCategoryColumn: string,
     colorCategoryPrimaryIdColumn: string,
+    private: boolean
   }[] = [];
   allTasksFinished = false
   constructor(private toasts: ToastService, private fb: FormBuilder, private dialogRef: NgbActiveModal, private batchService: BatchUploadServiceService) {
@@ -148,7 +149,8 @@ export class BatchUploadModalComponent {
       extraFiles: [],
       colorCategoryForms: [],
       colorCategoryColumn: "",
-      colorCategoryPrimaryIdColumn: ""
+      colorCategoryPrimaryIdColumn: "",
+      private: true
     }
     peptideFileForm.controls.peptideFile.valueChanges.subscribe((value) => {
       if (value) {
@@ -253,16 +255,19 @@ export class BatchUploadModalComponent {
       colorCategoryForms: [],
       colorCategoryColumn: "",
       colorCategoryPrimaryIdColumn: "",
+      private: true
     }
     // copy the data
     data.colorCategoryColumn = selectedSession.colorCategoryColumn.slice()
     data.colorCategoryPrimaryIdColumn = selectedSession.colorCategoryPrimaryIdColumn.slice()
+    data.private = selectedSession.private
     for (const c of selectedSession.colorCategoryForms) {
       const colorForm = this.fb.group({
         color: [c.value.color],
         category: [c.value.category],
         value: [c.value.value],
-        comparison: [c.value.comparison]
+        comparison: [c.value.comparison],
+        label: [c.value.label]
       })
       // @ts-ignore
       data.colorCategoryForms.push(colorForm)
