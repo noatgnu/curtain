@@ -9,11 +9,12 @@ import {UniprotService} from "../../../uniprot.service";
 import {DataService} from "../../../data.service";
 import {SettingsService} from "../../../settings.service";
 import {BatchUploadServiceService} from "../batch-upload-service.service";
-import {NgbProgressbar} from "@ng-bootstrap/ng-bootstrap";
+import {NgbCollapse, NgbProgressbar} from "@ng-bootstrap/ng-bootstrap";
 import {CurtainEncryption} from "curtain-web-api";
 import {AccountsService} from "../../../accounts/accounts.service";
 import {ToastService} from "../../../toast.service";
 import {QuillEditorComponent} from "ngx-quill";
+import {NgClass, NgForOf} from "@angular/common";
 
 @Component({
   selector: 'app-individual-session',
@@ -21,7 +22,10 @@ import {QuillEditorComponent} from "ngx-quill";
     FormsModule,
     ReactiveFormsModule,
     NgbProgressbar,
-    QuillEditorComponent
+    QuillEditorComponent,
+    NgForOf,
+    NgClass,
+    NgbCollapse
   ],
   templateUrl: './individual-session.component.html',
   styleUrl: './individual-session.component.scss',
@@ -56,7 +60,7 @@ export class IndividualSessionComponent implements OnChanges{
   @Output() finished: EventEmitter<string> = new EventEmitter<string>();
   progressBar: any = {value: 0, text: ""}
   payload: any = {}
-
+  isVolcanoPlotSettingsClosed = true
   constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private batchService: BatchUploadServiceService, private data: DataService, private uniprot: UniprotService, private cd: ChangeDetectorRef, private settings: SettingsService) {
     this.batchService.taskStartAnnouncer.subscribe((taskId: number) => {
       if (taskId === this.sessionId) {
@@ -209,11 +213,7 @@ export class IndividualSessionComponent implements OnChanges{
               }
               this.data.conditions = data.data.conditions
               console.log(this.settings.settings)
-              if (this.session) {
-                this.settings.settings.description = this.session.data.settings.description
-                this.settings.settings.dataAnalysisContact = this.session.data.settings.dataAnalysisContact
-                this.settings.settings.fetchUniprot = this.session.data.fetchUniprot
-              }
+              this.copySessionSettings()
               this.loadPeptideData().then(() => {
                 this.loadLogFiles().then(
                   () => {
@@ -500,11 +500,7 @@ export class IndividualSessionComponent implements OnChanges{
         this.data.primaryIDsMap[n][p] = true
       }
     }
-    if (this.session) {
-      this.settings.settings.description = this.session.data.settings.description
-      this.settings.settings.dataAnalysisContact = this.session.data.settings.dataAnalysisContact
-      this.settings.settings.fetchUniprot = this.session.data.fetchUniprot
-    }
+    this.copySessionSettings()
     await this.loadPeptideData()
     await this.loadLogFiles()
     this.processUniProt()
@@ -677,5 +673,35 @@ export class IndividualSessionComponent implements OnChanges{
     // @ts-ignore
     this.session.extraFiles.push({file: null, type: "log"})
     this.session.extraFiles = [...this.session.extraFiles]
+  }
+
+  removeLogFile(index: number) {
+    if (!this.session) {
+      return
+    }
+    // @ts-ignore
+    this.session.extraFiles.splice(index, 1)
+    this.session.extraFiles = [...this.session.extraFiles]
+  }
+
+  copySessionSettings() {
+    if (this.session) {
+      this.settings.settings.description = this.session.data.settings.description
+      this.settings.settings.dataAnalysisContact = this.session.data.settings.dataAnalysisContact
+      this.settings.settings.fetchUniprot = this.session.data.fetchUniprot
+      this.settings.settings.volcanoAxis = this.session.data.settings.volcanoAxis
+      this.settings.settings.volcanoPlotGrid = this.session.data.settings.volcanoPlotGrid
+      this.settings.settings.volcanoPlotDimension = this.session.data.settings.volcanoPlotDimension
+      this.settings.settings.volcanoAdditionalShapes = this.session.data.settings.volcanoAdditionalShapes
+      this.settings.settings.volcanoPlotTitle = this.session.data.settings.volcanoPlotTitle
+      this.settings.settings.volcanoPlotLegendX = this.session.data.settings.volcanoPlotLegendX
+      this.settings.settings.volcanoPlotLegendY = this.session.data.settings.volcanoPlotLegendY
+      this.settings.settings.volcanoPlotYaxisPosition = this.session.data.settings.volcanoPlotYaxisPosition
+      this.settings.settings.customVolcanoTextCol = this.session.data.settings.customVolcanoTextCol
+      this.settings.settings.defaultColorList = this.session.data.settings.defaultColorList
+      this.settings.settings.pCutoff = this.session.data.settings.pCutoff
+      this.settings.settings.log2FCCutoff = this.session.data.settings.log2FCCutoff
+
+    }
   }
 }

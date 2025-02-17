@@ -29,14 +29,22 @@ export class BarChartComponent implements OnInit {
   @Input() set data(value: any) {
     this._data = value
     this.title = "<b>" + this._data[this.dataService.rawForm.primaryIDs] + "</b>"
+    if (this.dataService.fetchUniprot) {
+      this.uni = this.uniprot.getUniprotFromPrimary(this._data[this.dataService.rawForm.primaryIDs])
 
-    this.uni = this.uniprot.getUniprotFromPrimary(this._data[this.dataService.rawForm.primaryIDs])
-
-    if (this.uni) {
-      if (this.uni["Gene Names"] !== "") {
-        this.title = "<b>" + this.uni["Gene Names"] + "(" + this._data[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
+      if (this.uni) {
+        if (this.uni["Gene Names"] !== "") {
+          this.title = "<b>" + this.uni["Gene Names"] + "(" + this._data[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
+        }
+      }
+    } else {
+      if (this.dataService.differentialForm.geneNames !== "") {
+        this.title = "<b>" + this._data[this.dataService.differentialForm.geneNames] + "(" + this._data[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
+      } else {
+        this.title = "<b>" + this._data[this.dataService.rawForm.primaryIDs] + "</b>"
       }
     }
+
     this.drawBarChart()
     this.graphLayout["title"] = this.title
     this.graphLayoutAverage["title"] = this.title
