@@ -209,6 +209,18 @@
     </div>
   </div>
 </nav>
+@if (showAlert) {
+  <ngb-alert type="warning">
+    <strong>Important Temporary Notice!</strong><br>
+    <p>
+      UniProt is currently undergoing maintenance of their ID Mapping API. To avoid any issues, please uncheck option `Fetch Uniprot Data Using Primary Ids` and manually assigning `Gene Names` column in differential analysis file parameters.
+    </p>
+    <p>
+      The work is expected to be completed by 2025-02-20.
+    </p>
+  </ngb-alert>
+}
+
 
 <ngb-alert type="warning" (closed)="closeGDPR()">
   <strong>GDPR Statement</strong><br>

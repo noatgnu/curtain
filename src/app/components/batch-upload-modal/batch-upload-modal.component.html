@@ -45,6 +45,7 @@
 <div class="modal-footer">
   @if (allTasksFinished) {
     <button class="btn btn-success" (click)="downloadLinkDocument()">Download Link Documents</button>
+    <button class="btn btn-secondary" (click)="openAllLinks()">Open All Links</button>
   }
   <button class="btn btn-primary" (click)="submit()">Create Batch Session</button>
   <button class="btn btn-secondary" (click)="close()">Close</button>

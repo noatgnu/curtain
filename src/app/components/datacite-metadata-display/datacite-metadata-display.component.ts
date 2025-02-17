@@ -6,7 +6,6 @@ import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 @Component({
     selector: 'app-datacite-metadata-display',
     imports: [
-        DataciteCitationComponent,
         NgbTooltip
     ],
     templateUrl: './datacite-metadata-display.component.html',

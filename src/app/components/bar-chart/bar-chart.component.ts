@@ -38,8 +38,15 @@ export class BarChartComponent implements OnInit {
         }
       }
     } else {
+      console.log(this._data)
       if (this.dataService.differentialForm.geneNames !== "") {
-        this.title = "<b>" + this._data[this.dataService.differentialForm.geneNames] + "(" + this._data[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
+        const result = this.dataService.currentDF.where(row => row[this.dataService.differentialForm.primaryIDs] === this._data[this.dataService.rawForm.primaryIDs]).toArray()
+        if (result.length > 0) {
+          const diffData = result[0]
+          this.title = "<b>" + diffData[this.dataService.differentialForm.geneNames] + "(" + this._data[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
+        }
+
+
       } else {
         this.title = "<b>" + this._data[this.dataService.rawForm.primaryIDs] + "</b>"
       }

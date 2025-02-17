@@ -382,6 +382,58 @@
           </div>
         </div>
       </div>
+      @if (session.differentialColumns.length > 0) {
+        <div class="accordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button [ngClass]="{'accordion-button': true, 'collapsed': isVolcanoPlotCategoryColorClosed}" type="button" (click)=" isVolcanoPlotCategoryColorClosed=!isVolcanoPlotCategoryColorClosed">
+                Volcano Plot Color By Category
+              </button>
+            </h2>
+            <div [ngbCollapse]="isVolcanoPlotCategoryColorClosed">
+              <div class="accordion-body">
+                <h5 class="mt-2">Volcano Plot Color By Category</h5>
+                <div class="row">
+                  <div class="form-group col-3" [(ngModel)]="session.colorCategoryPrimaryIdColumn" [ngModelOptions]="{standalone: true}" (ngModelChange)="updateColorCategories($event)">
+                    <label>Select Category Column</label>
+                    <select class="form-select">
+                      @for (col of session.differentialColumns; track col) {
+                        <option [value]="col">{{col}}</option>
+                      }
+                    </select>
+                  </div>
+                  @if (session.colorCategoryPrimaryIdColumn !== '') {
+                    <div class="form-group col-3" [(ngModel)]="session.colorCategoryColumn" [ngModelOptions]="{standalone: true}" (ngModelChange)="updateColorCategories($event)">
+                      <label>Select Category Column</label>
+                      <select class="form-select">
+                        @for (col of session.differentialColumns; track col) {
+                          <option [value]="col">{{col}}</option>
+                        }
+                      </select>
+                    </div>
+                  }
+                </div>
+                <div class="row">
+                  @for (c of session.colorCategoryForms; track c; let index = $index) {
+                    <form [formGroup]="c">
+                      <div class="d-flex gap-2">
+                        <div class="form-group">
+                          <label>Color</label>
+                          <input style="width: 200px" placeholder="Select a color" formControlName="color" [(colorPicker)]="c.value.color" class="form-control" [style.background-color]="c.value.color">
+                        </div>
+                        <div class="form-group">
+                          <label>Category</label>
+                          <input class="form-control" formControlName="value">
+                        </div>
+                      </div>
+                    </form>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
 
 
       <div class="mt-2">

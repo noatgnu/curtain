@@ -107,6 +107,7 @@ export class VolcanoPlotComponent implements OnInit {
   repeat = false
 
   drawVolcano() {
+    console.log(this.dataService.selected)
     this.currentPosition = 0
     this.settings.settings.scatterPlotMarkerSize = this.markerSize
     if (!this.settings.settings.visible) {
@@ -183,7 +184,6 @@ export class VolcanoPlotComponent implements OnInit {
           this.currentPosition = 0
         }
       }
-      console.log(this.currentPosition)
       temp[s] = {
         x: [],
         y: [],
@@ -228,8 +228,6 @@ export class VolcanoPlotComponent implements OnInit {
     if (this.settings.settings.volcanoAxis.y) {
       this.graphLayout.yaxis.title = `<b>${this.settings.settings.volcanoAxis.y}</b>`
     }
-    console.log(this.graphLayout.xaxis.range)
-    console.log(this.graphLayout.yaxis.range)
 
     temp["Background"] = {
       x:[],
@@ -587,6 +585,7 @@ export class VolcanoPlotComponent implements OnInit {
     this.revision ++
     this.messageService.show("Volcano Plot", "Finished drawing volcano plot")
     //this.removeAnnotatedDataPoints([])
+    console.log(this.graphData)
   }
 
   constructor(private fb: FormBuilder, private web: WebService, public dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService) {

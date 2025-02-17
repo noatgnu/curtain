@@ -264,26 +264,32 @@ export class DataService {
     const result: string[] = []
     //console.log(this.uniprot.geneNameToAcc[geneNames])
     if (this.uniprot.geneNameToAcc[geneNames]) {
-
+      console.log(this.uniprot.geneNameToAcc[geneNames])
       for (const a in this.uniprot.geneNameToAcc[geneNames]) {
 
         if (this.primaryIDsMap[a]) {
           for (const acc in this.primaryIDsMap[a]) {
             if (!result.includes(acc)) {
               console.log(acc)
-              const uni = this.uniprot.getUniprotFromPrimary(acc)
-              if (uni) {
-                if (uni["Gene Names"]) {
-                  if (uni["Gene Names"].includes(geneNames)) {
-                    result.push(acc)
+              if (this.fetchUniprot) {
+                const uni = this.uniprot.getUniprotFromPrimary(acc)
+                if (uni) {
+                  if (uni["Gene Names"]) {
+                    if (uni["Gene Names"].includes(geneNames)) {
+                      result.push(acc)
+                    }
                   }
                 }
+              } else {
+                result.push(acc)
               }
+
             }
           }
         }
       }
     }
+
     return result
   }
 

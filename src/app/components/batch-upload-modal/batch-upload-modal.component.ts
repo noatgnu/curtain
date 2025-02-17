@@ -22,8 +22,6 @@ import {ToastService} from "../../toast.service";
   selector: 'app-batch-upload-modal',
   imports: [
     ReactiveFormsModule,
-    NgForOf,
-    NgIf,
     FormsModule,
     IndividualSessionComponent,
     NgbTooltip,
@@ -57,7 +55,22 @@ export class BatchUploadModalComponent {
       extraData: any,
       permanent: boolean,
       uniqueComparisons: string[]
-    }, form: FormGroup, peptideFileForm: FormGroup, rawColumns: string[], differentialColumns: string[], peptideFileColumns: string[], rawFile: null|File, differentialFile: null|File, peptideFile: null|File, uniqueComparisons: string[], linkId: string|undefined|null, extraFiles: {file: File, type: string}[]}[] = [];
+    },
+    form: FormGroup,
+    peptideFileForm: FormGroup,
+    rawColumns: string[],
+    differentialColumns: string[],
+    peptideFileColumns: string[],
+    rawFile: null|File,
+    differentialFile: null|File,
+    peptideFile: null|File,
+    uniqueComparisons: string[],
+    linkId: string|undefined|null,
+    extraFiles: {file: File, type: string}[],
+    colorCategoryForms: FormGroup[],
+    colorCategoryColumn: string,
+    colorCategoryPrimaryIdColumn: string,
+  }[] = [];
   allTasksFinished = false
   constructor(private toasts: ToastService, private fb: FormBuilder, private dialogRef: NgbActiveModal, private batchService: BatchUploadServiceService) {
     this.batchService.taskStartAnnouncer.subscribe((index) => {
@@ -121,10 +134,24 @@ export class BatchUploadModalComponent {
       annotatedData: null,
       extraData: null,
       permanent: false,
-    }, form, peptideFileForm, rawColumns: [], differentialColumns: [], peptideFileColumns: [], rawFile: null, differentialFile: null, peptideFile: null, uniqueComparisons: [], linkId: null, extraFiles: []}
+    },
+      form,
+      peptideFileForm,
+      rawColumns: [],
+      differentialColumns: [],
+      peptideFileColumns: [],
+      rawFile: null,
+      differentialFile: null,
+      peptideFile: null,
+      uniqueComparisons: [],
+      linkId: null,
+      extraFiles: [],
+      colorCategoryForms: [],
+      colorCategoryColumn: "",
+      colorCategoryPrimaryIdColumn: ""
+    }
     peptideFileForm.controls.peptideFile.valueChanges.subscribe((value) => {
       if (value) {
-
         const reader = new FileReader();
         reader.onload = (e) => {
           if (e.target) {
@@ -213,9 +240,33 @@ export class BatchUploadModalComponent {
       peptideFile: [null],
       primaryIdColumn: [""],
       sampleColumns: [[]]
-      }), rawColumns: [], differentialColumns: [], peptideFileColumns: [], rawFile: null, differentialFile: null, peptideFile: null, uniqueComparisons: [], linkId: null, extraFiles: []}
+      }),
+      rawColumns: [],
+      differentialColumns: [],
+      peptideFileColumns: [],
+      rawFile: null,
+      differentialFile: null,
+      peptideFile: null,
+      uniqueComparisons: [],
+      linkId: null,
+      extraFiles: [],
+      colorCategoryForms: [],
+      colorCategoryColumn: "",
+      colorCategoryPrimaryIdColumn: "",
+    }
     // copy the data
-
+    data.colorCategoryColumn = selectedSession.colorCategoryColumn.slice()
+    data.colorCategoryPrimaryIdColumn = selectedSession.colorCategoryPrimaryIdColumn.slice()
+    for (const c of selectedSession.colorCategoryForms) {
+      const colorForm = this.fb.group({
+        color: [c.value.color],
+        category: [c.value.category],
+        value: [c.value.value],
+        comparison: [c.value.comparison]
+      })
+      // @ts-ignore
+      data.colorCategoryForms.push(colorForm)
+    }
     for (const key in selectedSession.data) {
       // @ts-ignore
       console.log(key, selectedSession.data[key])
@@ -365,5 +416,13 @@ export class BatchUploadModalComponent {
     a.download = 'links.csv';
     a.click();
     window.URL.revokeObjectURL(url);
+  }
+
+  openAllLinks() {
+    for (const session of this.sessions) {
+      if (session.linkId) {
+        window.open(session.linkId, "_blank")
+      }
+    }
   }
 }

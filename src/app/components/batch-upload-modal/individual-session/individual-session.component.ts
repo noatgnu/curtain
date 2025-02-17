@@ -15,6 +15,7 @@ import {AccountsService} from "../../../accounts/accounts.service";
 import {ToastService} from "../../../toast.service";
 import {QuillEditorComponent} from "ngx-quill";
 import {NgClass, NgForOf} from "@angular/common";
+import {ColorPickerModule} from "ngx-color-picker";
 
 @Component({
   selector: 'app-individual-session',
@@ -23,9 +24,9 @@ import {NgClass, NgForOf} from "@angular/common";
     ReactiveFormsModule,
     NgbProgressbar,
     QuillEditorComponent,
-    NgForOf,
     NgClass,
-    NgbCollapse
+    NgbCollapse,
+    ColorPickerModule
   ],
   templateUrl: './individual-session.component.html',
   styleUrl: './individual-session.component.scss',
@@ -52,7 +53,22 @@ export class IndividualSessionComponent implements OnChanges{
       extraData: any,
       permanent: boolean,
       uniqueComparisons: string[]
-    }, form: FormGroup, peptideFileForm: FormGroup, rawColumns: string[], differentialColumns: string[], peptideFileColumns: string[], rawFile: null|File, differentialFile: null|File, peptideFile: null|File, uniqueComparisons: string[], linkId: string|undefined|null, extraFiles: {file: File, type: string}[]}|undefined = undefined;
+    },
+    form: FormGroup,
+    peptideFileForm: FormGroup,
+    rawColumns: string[],
+    differentialColumns: string[],
+    peptideFileColumns: string[],
+    rawFile: null|File,
+    differentialFile: null|File,
+    peptideFile: null|File,
+    uniqueComparisons: string[],
+    linkId: string|undefined|null,
+    extraFiles: {file: File, type: string}[],
+    colorCategoryForms: FormGroup[],
+    colorCategoryColumn: string,
+    colorCategoryPrimaryIdColumn: string,
+  }|undefined = undefined;
   @Input() differentialFiles: File[] = [];
   @Input() rawFiles: File[] = [];
   @Input() extraFiles: File[] = [];
@@ -61,6 +77,9 @@ export class IndividualSessionComponent implements OnChanges{
   progressBar: any = {value: 0, text: ""}
   payload: any = {}
   isVolcanoPlotSettingsClosed = true
+  isVolcanoPlotCategoryColorClosed = true
+  categoryMap: any = {}
+  categories: string[] = []
   constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private batchService: BatchUploadServiceService, private data: DataService, private uniprot: UniprotService, private cd: ChangeDetectorRef, private settings: SettingsService) {
     this.batchService.taskStartAnnouncer.subscribe((taskId: number) => {
       if (taskId === this.sessionId) {
@@ -80,7 +99,6 @@ export class IndividualSessionComponent implements OnChanges{
   }
 
   getComparisonColumnUnique(session: any, columnComp: string) {
-    console.log(columnComp, session.differentialFile)
     if (session.differentialFile) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -200,10 +218,8 @@ export class IndividualSessionComponent implements OnChanges{
               })
               this.data.raw.df = new DataFrame()
             } else if (data.data.type === "resultRaw") {
-              console.log(data.data.settings.currentID)
-              console.log(data.data.raw)
+
               this.data.raw.df = fromJSON(data.data.raw)
-              console.log(data.data.settings)
               for (const s in this.settings.settings) {
 
                 if (this.settings.settings.hasOwnProperty(s)) {
@@ -212,7 +228,6 @@ export class IndividualSessionComponent implements OnChanges{
                 }
               }
               this.data.conditions = data.data.conditions
-              console.log(this.settings.settings)
               this.copySessionSettings()
               this.loadPeptideData().then(() => {
                 this.loadLogFiles().then(
@@ -244,7 +259,6 @@ export class IndividualSessionComponent implements OnChanges{
   }
 
   processUniProt(){
-    console.log(this.data.fetchUniprot)
     if (!this.session) {
       return
     }
@@ -258,7 +272,6 @@ export class IndividualSessionComponent implements OnChanges{
         this.data.genesMap = {}
         this.uniprot.accMap = new Map<string, string[]>()
         this.uniprot.dataMap = new Map<string, any>()
-        console.log(this.data.raw.df)
         for (const r of this.data.raw.df) {
           const a = r[this.data.rawForm.primaryIDs]
 
@@ -702,6 +715,54 @@ export class IndividualSessionComponent implements OnChanges{
       this.settings.settings.pCutoff = this.session.data.settings.pCutoff
       this.settings.settings.log2FCCutoff = this.session.data.settings.log2FCCutoff
 
+    }
+  }
+
+  async updateColorCategories(column: string) {
+    let categories: string[] = []
+    const categoryMap: any = {}
+    if (this.session && this.session.differentialFile && this.session.data && this.session.colorCategoryPrimaryIdColumn !== "") {
+      const file = this.readFileAsync(this.session.differentialFile)
+      const df = fromCSV(await file)
+      df.forEach((row) => {
+        if (this.session && this.session.data) {
+          const primaryID = row[this.session.colorCategoryPrimaryIdColumn]
+          let comparison = "1"
+          if (row[this.session.data.differentialForm.comparison]) {
+            comparison = row[this.session.data.differentialForm.comparison]
+          }
+          const category = row[column]
+          const title = `${column} ${category} (${comparison})`
+          if (!categoryMap[title]) {
+            categoryMap[title] = {
+              count: 1,
+              color: "",
+              comparison: comparison,
+              primaryIDs: [primaryID],
+              value: category
+            }
+          } else {
+            categoryMap[title].count++
+            categoryMap[title].primaryIDs.push(primaryID)
+          }
+        }
+      })
+      categories = Object.keys(categoryMap)
+      for (const c of categories) {
+        const form = this.fb.group({
+          color: [categoryMap[c].color],
+          category: [column],
+          value: [categoryMap[c].value],
+          comparison: [categoryMap[c].comparison],
+        })
+        this.session.colorCategoryForms.push(form)
+      }
+    }
+  }
+
+  removeFromColorCategories(index: number) {
+    if (this.session) {
+      this.session.colorCategoryForms.splice(index, 1)
     }
   }
 }
