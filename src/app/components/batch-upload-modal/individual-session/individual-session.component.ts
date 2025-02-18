@@ -9,7 +9,7 @@ import {UniprotService} from "../../../uniprot.service";
 import {DataService} from "../../../data.service";
 import {SettingsService} from "../../../settings.service";
 import {BatchUploadServiceService} from "../batch-upload-service.service";
-import {NgbCollapse, NgbProgressbar} from "@ng-bootstrap/ng-bootstrap";
+import {NgbAlert, NgbCollapse, NgbProgressbar} from "@ng-bootstrap/ng-bootstrap";
 import {CurtainEncryption} from "curtain-web-api";
 import {AccountsService} from "../../../accounts/accounts.service";
 import {ToastService} from "../../../toast.service";
@@ -26,7 +26,8 @@ import {ColorPickerModule} from "ngx-color-picker";
     QuillEditorComponent,
     NgClass,
     NgbCollapse,
-    ColorPickerModule
+    ColorPickerModule,
+    NgbAlert
   ],
   templateUrl: './individual-session.component.html',
   styleUrl: './individual-session.component.scss',
@@ -714,7 +715,6 @@ export class IndividualSessionComponent implements OnChanges{
       this.settings.settings.defaultColorList = this.session.data.settings.defaultColorList
       this.settings.settings.pCutoff = this.session.data.settings.pCutoff
       this.settings.settings.log2FCCutoff = this.session.data.settings.log2FCCutoff
-
     }
   }
 
@@ -749,6 +749,7 @@ export class IndividualSessionComponent implements OnChanges{
         }
       })
       categories = Object.keys(categoryMap)
+      const forms: FormGroup[] = []
       for (const c of categories) {
         const form = this.fb.group({
           color: [categoryMap[c].color],
@@ -757,8 +758,9 @@ export class IndividualSessionComponent implements OnChanges{
           comparison: [categoryMap[c].comparison],
           label: ['']
         })
-        this.session.colorCategoryForms.push(form)
+        forms.push(form)
       }
+      this.session.colorCategoryForms = forms
     }
   }
 
@@ -820,7 +822,11 @@ export class IndividualSessionComponent implements OnChanges{
     // assign colors to each group
     let currentPosition = 0
     for (const g of groups) {
-
+      if (currentPosition >= this.settings.settings.defaultColorList.length) {
+        currentPosition = 0
+      }
+      this.settings.settings.colorMap[g] = this.settings.settings.defaultColorList[currentPosition]
+      currentPosition++
     }
   }
 
