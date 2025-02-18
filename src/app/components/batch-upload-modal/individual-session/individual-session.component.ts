@@ -807,6 +807,23 @@ export class IndividualSessionComponent implements OnChanges{
     }
   }
 
+  defaultColorQuadrant() {
+    const pConditions = ["P-value > ", "P-value <="]
+    const fcConditions = ["FC > ", "FC <="]
+    const groups = []
+    for (const p of pConditions) {
+      for (const f of fcConditions) {
+        const combined: string[] = [`${p}${this.settings.settings.pCutoff}`, `${f}${this.settings.settings.log2FCCutoff}`]
+        groups.push(combined.join(" ;"))
+      }
+    }
+    // assign colors to each group
+    let currentPosition = 0
+    for (const g of groups) {
+
+    }
+  }
+
   test(event: any) {
     console.log(event)
     console.log(this.session)
