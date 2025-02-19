@@ -891,11 +891,6 @@ export class IndividualSessionComponent implements OnChanges{
     }
   }
 
-  test(event: any) {
-    console.log(event)
-    console.log(this.session)
-  }
-
   updateDefaultPalette(palette: string) {
     if (this.session) {
       this.session.data.settings.defaultColorList = [...this.data.palette[palette]]
