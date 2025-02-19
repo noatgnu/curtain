@@ -193,6 +193,34 @@
       <div class="accordion">
         <div class="accordion-item">
           <h2 class="accordion-header">
+            <button [ngClass]="{'accordion-button': true, 'collapsed': isColorPaletteClosed}" type="button" (click)=" isColorPaletteClosed=!isColorPaletteClosed">
+              Default Color Palette
+            </button>
+          </h2>
+          <div [ngbCollapse]="isColorPaletteClosed">
+            <div class="accordion-body">
+              <h5 class="mt-2">Color Palette Selection</h5>
+              <div class="form-group" style="width: 200px">
+                <select class="form-control" [(ngModel)]="session.colorPalette" (ngModelChange)="updateDefaultPalette($event)">
+                  @for (c of colorPalletes; track c) {
+                    <option [value]="c">{{ c }}</option>
+                  }
+                </select>
+              </div>
+              <div class="d-flex gap-2 flex-column">
+                @for (c of session.data.settings.defaultColorList; track c) {
+                  <div class="form-group">
+                    <input class="form-control" style="width: 200px" [style.background-color]="c">
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
             <button [ngClass]="{'accordion-button': true, 'collapsed': isVolcanoPlotSettingsClosed}" type="button" (click)=" isVolcanoPlotSettingsClosed=!isVolcanoPlotSettingsClosed">
               Volcano Plot Settings
             </button>
@@ -381,7 +409,21 @@
                   </select>
                 </div>
               </div>
-
+              <div>
+                <div>
+                  <b>Default Color</b>
+                </div>
+                @for (p of ["P-value > ", "P-value <= "]; track p) {
+                  @for (f of ["FC > ", "FC <= "]; track f) {
+                    @if (session.volcanoColors[p+f]) {
+                      <div class="d-flex gap-2">
+                        <input style="width: 200px" placeholder="Select a color" [(ngModel)]="session.volcanoColors[p+f].color" [(colorPicker)]="session.volcanoColors[p+f].color" class="form-control" [style.background-color]="session.volcanoColors[p+f].color">
+                        <span>{{[p+session.data.settings.pCutoff,f+session.data.settings.log2FCCutoff].join(";")}}</span>
+                      </div>
+                    }
+                  }
+                }
+              </div>
             </div>
           </div>
         </div>

@@ -39,7 +39,42 @@ import {ColorPickerModule} from "ngx-color-picker";
 })
 export class IndividualSessionComponent implements OnChanges{
   @Input() sessionId: number = -1;
-  @Input() session: {data: {
+  private _session: {data: {
+    raw: InputFile,
+    rawForm: Raw,
+    differentialForm: Differential,
+    processed: InputFile,
+    password: string,
+    selections: [],
+    selectionsMap: any,
+    selectionsName: [],
+    settings: Settings,
+    fetchUniprot: boolean,
+    annotatedData: any,
+    extraData: any,
+    permanent: boolean,
+    uniqueComparisons: string[]
+  },
+  form: FormGroup,
+  peptideFileForm: FormGroup,
+  rawColumns: string[],
+  differentialColumns: string[],
+  peptideFileColumns: string[],
+  rawFile: null|File,
+  differentialFile: null|File,
+  peptideFile: null|File,
+  uniqueComparisons: string[],
+  linkId: string|undefined|null,
+  extraFiles: {file: File, type: string}[],
+  colorCategoryForms: FormGroup[],
+  colorCategoryColumn: string,
+  colorCategoryPrimaryIdColumn: string,
+  private: boolean,
+  volcanoColors: any,
+    colorPalette: string,
+  }|undefined = undefined;
+  colorPalletes: string[] = []
+  @Input() set session(value: {data: {
       raw: InputFile,
       rawForm: Raw,
       differentialForm: Differential,
@@ -70,7 +105,17 @@ export class IndividualSessionComponent implements OnChanges{
     colorCategoryColumn: string,
     colorCategoryPrimaryIdColumn: string,
     private: boolean,
-  }|undefined = undefined;
+    volcanoColors: any,
+    colorPalette: string,
+  }|undefined) {
+    this._session = value
+    this.defaultVolcanoColors()
+  }
+
+  get session() {
+    return this._session
+  }
+
   @Input() differentialFiles: File[] = [];
   @Input() rawFiles: File[] = [];
   @Input() extraFiles: File[] = [];
@@ -80,10 +125,11 @@ export class IndividualSessionComponent implements OnChanges{
   payload: any = {}
   isVolcanoPlotSettingsClosed = true
   isVolcanoPlotCategoryColorClosed = true
+  isColorPaletteClosed = true
   constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private batchService: BatchUploadServiceService, private data: DataService, private uniprot: UniprotService, private cd: ChangeDetectorRef, private settings: SettingsService) {
     this.batchService.taskStartAnnouncer.subscribe((taskId: number) => {
       if (taskId === this.sessionId) {
-        this.startWork()
+        this.startWork().then()
       }
     })
     this.batchService.resetAnnouncer.subscribe((taskId: number) => {
@@ -92,6 +138,7 @@ export class IndividualSessionComponent implements OnChanges{
         this.uniprot.reset()
       }
     })
+    this.colorPalletes = Object.keys(this.data.palette)
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -223,6 +270,8 @@ export class IndividualSessionComponent implements OnChanges{
                 }
               }
               this.data.conditions = data.data.conditions
+              this.addDefaultColors();
+
               this.copySessionSettings()
               console.log(this.settings.settings)
               this.loadPeptideData().then(() => {
@@ -234,10 +283,6 @@ export class IndividualSessionComponent implements OnChanges{
                   })
                 }
                 )
-
-
-
-
             } else if (data.data.type === "resultDifferentialCompleted") {
 
             }
@@ -255,6 +300,17 @@ export class IndividualSessionComponent implements OnChanges{
       this.data.differential.df = new DataFrame()
     } else {
       await this.processFiles()
+    }
+  }
+
+  private addDefaultColors() {
+    if (this.session) {
+      for (const c in this.session.volcanoColors) {
+        for (const s of this.data.differentialForm.comparisonSelect) {
+          const colorName = `${this.session.volcanoColors[c].p}${this.settings.settings.pCutoff};${this.session.volcanoColors[c].fc}${this.settings.settings.log2FCCutoff} (${s})`
+          this.settings.settings.colorMap[colorName] = this.session.volcanoColors[c].color
+        }
+      }
     }
   }
 
@@ -515,6 +571,7 @@ export class IndividualSessionComponent implements OnChanges{
     }
     this.copySessionSettings()
     await this.addColorCategoryToSettings()
+    this.addDefaultColors();
     await this.loadPeptideData()
     await this.loadLogFiles()
     this.processUniProt()
@@ -809,29 +866,39 @@ export class IndividualSessionComponent implements OnChanges{
     }
   }
 
-  defaultColorQuadrant() {
-    const pConditions = ["P-value > ", "P-value <="]
-    const fcConditions = ["FC > ", "FC <="]
-    const groups = []
-    for (const p of pConditions) {
-      for (const f of fcConditions) {
-        const combined: string[] = [`${p}${this.settings.settings.pCutoff}`, `${f}${this.settings.settings.log2FCCutoff}`]
-        groups.push(combined.join(" ;"))
+  defaultVolcanoColors() {
+    if (this.session) {
+      let currentPosition = 0
+      const pConditions = ["P-value > ", "P-value <= "]
+      const fcConditions = ["FC > ", "FC <= "]
+
+      const groups = []
+      for (const p of pConditions) {
+        for (const f of fcConditions) {
+          if (currentPosition >= this.settings.settings.defaultColorList.length) {
+            currentPosition = 0
+          }
+          if (!this.session.volcanoColors[p+f]) {
+            this.session.volcanoColors[p+f] = {
+              p: p,
+              fc: f,
+              color: this.settings.settings.defaultColorList[currentPosition]
+            }
+          }
+          currentPosition ++
+        }
       }
-    }
-    // assign colors to each group
-    let currentPosition = 0
-    for (const g of groups) {
-      if (currentPosition >= this.settings.settings.defaultColorList.length) {
-        currentPosition = 0
-      }
-      this.settings.settings.colorMap[g] = this.settings.settings.defaultColorList[currentPosition]
-      currentPosition++
     }
   }
 
   test(event: any) {
     console.log(event)
     console.log(this.session)
+  }
+
+  updateDefaultPalette(palette: string) {
+    if (this.session) {
+      this.session.data.settings.defaultColorList = [...this.data.palette[palette]]
+    }
   }
 }

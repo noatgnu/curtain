@@ -115,13 +115,10 @@ export class VolcanoPlotComponent implements OnInit {
     }
     this.graphLayout.title.text = this.settings.settings.volcanoPlotTitle
     let currentColors: string[] = []
-    console.log(this.settings.settings.colorMap)
     if (this.settings.settings.colorMap) {
       for (const s in this.settings.settings.colorMap) {
-        console.log(s)
         if (!this.dataService.conditions.includes(s)) {
           if (this.settings.settings.colorMap[s]) {
-            console.log(this.settings.settings.colorMap[s])
             if (this.settings.settings.defaultColorList.includes(this.settings.settings.colorMap[s])) {
               currentColors.push(this.settings.settings.colorMap[s])
             }

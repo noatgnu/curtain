@@ -70,7 +70,9 @@ export class BatchUploadModalComponent {
     colorCategoryForms: FormGroup[],
     colorCategoryColumn: string,
     colorCategoryPrimaryIdColumn: string,
-    private: boolean
+    private: boolean,
+    volcanoColors: any,
+    colorPalette: string
   }[] = [];
   allTasksFinished = false
   constructor(private toasts: ToastService, private fb: FormBuilder, private dialogRef: NgbActiveModal, private batchService: BatchUploadServiceService) {
@@ -150,7 +152,9 @@ export class BatchUploadModalComponent {
       colorCategoryForms: [],
       colorCategoryColumn: "",
       colorCategoryPrimaryIdColumn: "",
-      private: true
+      private: true,
+      volcanoColors: {},
+      colorPalette: "pastel"
     }
     peptideFileForm.controls.peptideFile.valueChanges.subscribe((value) => {
       if (value) {
@@ -255,8 +259,12 @@ export class BatchUploadModalComponent {
       colorCategoryForms: [],
       colorCategoryColumn: "",
       colorCategoryPrimaryIdColumn: "",
-      private: true
+      private: true,
+      volcanoColors: {},
+      colorPalette: "pastel"
     }
+    data.colorPalette = selectedSession.colorPalette.slice()
+    data.volcanoColors = JSON.parse(JSON.stringify(selectedSession.volcanoColors))
     // copy the data
     data.colorCategoryColumn = selectedSession.colorCategoryColumn.slice()
     data.colorCategoryPrimaryIdColumn = selectedSession.colorCategoryPrimaryIdColumn.slice()
