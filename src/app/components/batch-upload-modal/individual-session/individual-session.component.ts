@@ -307,7 +307,7 @@ export class IndividualSessionComponent implements OnChanges{
     if (this.session) {
       for (const c in this.session.volcanoColors) {
         for (const s of this.data.differentialForm.comparisonSelect) {
-          const colorName = `${this.session.volcanoColors[c].p}${this.settings.settings.pCutoff};${this.session.volcanoColors[c].fc}${this.settings.settings.log2FCCutoff} (${s})`
+          const colorName = `${this.session.volcanoColors[c].p}${this.session.data.settings.pCutoff};${this.session.volcanoColors[c].fc}${this.session.data.settings.log2FCCutoff} (${s})`
           this.settings.settings.colorMap[colorName] = this.session.volcanoColors[c].color
         }
       }
