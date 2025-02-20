@@ -1,6 +1,11 @@
 @if (session) {
   <div class="card mt-2">
     <div class="card-body">
+      <div class="mt-2">
+        <ngb-progressbar type="info" [value]="progressBar.value">
+          {{progressBar.text}}
+        </ngb-progressbar>
+      </div>
       <form [formGroup]="session.form">
         <div class="form-check">
           <input type="checkbox" id="permanent-session-{{sessionId}}" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.permanent">
@@ -423,7 +428,7 @@
                   @for (f of ["FC > ", "FC <= "]; track f) {
                     @if (session.volcanoColors[p+f]) {
                       <div class="d-flex gap-2">
-                        <input style="width: 200px" placeholder="Select a color" [(ngModel)]="session.volcanoColors[p+f].color" [(colorPicker)]="session.volcanoColors[p+f].color" class="form-control" [style.background-color]="session.volcanoColors[p+f].color">
+                        <input style="width: 200px" placeholder="Select a color" [(colorPicker)]="session.volcanoColors[p+f].color" class="form-control" [style.background-color]="session.volcanoColors[p+f].color">
                         <span>{{[p+session.data.settings.pCutoff,f+session.data.settings.log2FCCutoff].join(";")}}</span>
                       </div>
                     }

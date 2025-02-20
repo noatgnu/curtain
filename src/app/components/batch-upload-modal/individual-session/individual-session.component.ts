@@ -897,4 +897,12 @@ export class IndividualSessionComponent implements OnChanges{
       this.session.data.settings.defaultColorList = [...this.data.palette[palette]]
     }
   }
+
+  outputTest(s: string) {
+    console.log(s)
+  }
+
+  exportAllSettingsButFiles() {
+
+  }
 }
