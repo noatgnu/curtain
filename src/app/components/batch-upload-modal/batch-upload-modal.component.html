@@ -26,7 +26,14 @@
               <button class="btn btn-sm btn-outline-danger" ngbTooltip="Delete Session From Workflow" (click)="deleteSession(index)">
                 <i class="bi bi-trash"></i>
               </button>
+              <button class="btn btn-sm btn-outline-info" ngbTooltip="Export Settings Template" (click)="exportSettingsButFiles(index)">
+                <i class="bi bi-download"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-info" ngbTooltip="Import Settings Template" (click)="templateFile.click()">
+                <i class="bi bi-upload"></i>
+              </button>
             </div>
+            <input type="file" hidden (change)="importSettingsButFiles($event, index)" #templateFile>
             @if (s.linkId) {
               <div class="alert alert-link">
                 <a href="{{s.linkId}}" target="_blank">{{s.linkId}}</a>

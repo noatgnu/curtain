@@ -438,4 +438,117 @@ export class BatchUploadModalComponent {
       }
     }
   }
+
+  exportSettingsButFiles(index: number) {
+    const currentSession = this.sessions[index]
+    if (currentSession) {
+      const session = {
+        data: {
+          raw: null,
+          rawForm: JSON.parse(JSON.stringify(currentSession.data.rawForm)),
+          differentialForm: JSON.parse(JSON.stringify(currentSession.data.differentialForm)),
+          processed: null,
+          password: "",
+          selections: [],
+          selectionsMap: {},
+          selectionsName: [],
+          settings: JSON.parse(JSON.stringify(currentSession.data.settings)),
+          fetchUniprot: currentSession.data.fetchUniprot,
+          annotatedData: {},
+          extraData: JSON.parse(JSON.stringify(currentSession.data.extraData)),
+          permanent: currentSession.data.permanent,
+
+        },
+        extraFiles: [],
+        colorCategoryForms: [],
+        colorCategoryColumn: currentSession.colorCategoryColumn,
+        colorCategoryPrimaryIdColumn: currentSession.colorCategoryPrimaryIdColumn,
+        private: currentSession.private,
+        volcanoColors: JSON.parse(JSON.stringify(currentSession.volcanoColors)),
+        colorPalette: currentSession.colorPalette,
+      }
+      for (const ef of currentSession.extraFiles) {
+        // @ts-ignore
+        session.extraFiles.push({name: ef.file.name, type: ef.type})
+      }
+      const a = document.createElement("a");
+      const file = new Blob([JSON.stringify(session, null, 2)], {type: 'application/json'});
+      a.href = URL.createObjectURL(file);
+      a.download = 'curtain_batch_settings.json';
+      a.click();
+    }
+  }
+
+  importSettingsButFiles(event: any, index: number) {
+
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target) {
+        const contents = e.target.result;
+        if (contents) {
+          const currentSession = this.sessions[index]
+          if (currentSession) {
+            const session = JSON.parse(<string>contents)
+            if (currentSession) {
+              for (const r in currentSession.data.rawForm) {
+                if (session.data.rawForm[r]) {
+                  if (currentSession.rawColumns.includes(session.data.rawForm[r])) {
+                    // @ts-ignore
+                    currentSession.data.rawForm[r] = session.data.rawForm[r]
+                  }
+                }
+              }
+              for (const r in currentSession.data.differentialForm) {
+                if (session.data.differentialForm[r]) {
+                  if (typeof session.data.differentialForm[r] === "string") {
+                    if (currentSession.differentialColumns.includes(session.data.differentialForm[r])) {
+                      // @ts-ignore
+                      currentSession.data.differentialForm[r] = session.data.differentialForm[r]
+                    }
+                  } else if (r === "comparisonSelect") {
+                    for (const c of session.data.differentialForm.comparisonSelect) {
+                      if (currentSession.uniqueComparisons.includes(c)) {
+                        currentSession.data.differentialForm.comparisonSelect.push(c)
+                      }
+                    }
+                  }
+                }
+              }
+
+              for (const i in currentSession.data.settings) {
+                if (session.data.settings[i]) {
+                  // @ts-ignore
+                  currentSession.data.settings[i] = session.data.settings[i]
+                }
+              }
+              currentSession.data.fetchUniprot = session.data.fetchUniprot
+              currentSession.data.extraData = session.data.extraData
+              currentSession.data.permanent = session.data.permanent
+              currentSession.volcanoColors = session.volcanoColors
+              currentSession.colorPalette = session.colorPalette
+              currentSession.colorCategoryColumn = session.colorCategoryColumn
+              currentSession.colorCategoryPrimaryIdColumn = session.colorCategoryPrimaryIdColumn
+              currentSession.colorCategoryForms = session.colorCategoryForms
+              currentSession.private = session.private
+              if (session.extraFiles.length > 0) {
+                for (const f of session.extraFiles) {
+                  for (const ef of this.extraFiles) {
+                    if (ef.name === f.name) {
+                      currentSession.extraFiles.push({
+                        file: ef,
+                        type: f.type
+                      })
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+        }
+      }
+    }
+    reader.readAsText(file)
+  }
 }
