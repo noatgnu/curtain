@@ -299,13 +299,13 @@
                   <label for="significant">
                     Significant Cutoff
                   </label>
-                  <input id="significant" type="number" class="form-control" [(ngModel)]="session.data.settings.pCutoff">
+                  <input id="significant" type="number" class="form-control" [(ngModel)]="session.data.settings.pCutoff" (ngModelChange)="updateDefaultVolcanoColorP($event)">
                 </div>
                 <div class="p-2">
                   <label for="foldchange">
                     Log2 Fold Change Cutoff
                   </label>
-                  <input id="foldchange" type="number" class="form-control" [(ngModel)]="session.data.settings.log2FCCutoff">
+                  <input id="foldchange" type="number" class="form-control" [(ngModel)]="session.data.settings.log2FCCutoff" (ngModelChange)="updateDefaultVolcanoColorFC($event)">
                 </div>
               </div>
               <div class="d-flex">

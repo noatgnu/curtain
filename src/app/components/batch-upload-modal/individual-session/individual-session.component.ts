@@ -902,7 +902,113 @@ export class IndividualSessionComponent implements OnChanges{
     console.log(s)
   }
 
-  exportAllSettingsButFiles() {
+  updateDefaultVolcanoColorP(value:number) {
+    if (this.session) {
+      for (const c in this.session.volcanoColors) {
+        this.session.volcanoColors[c].p = value
+      }
+    }
+  }
 
+  updateDefaultVolcanoColorFC(value:number) {
+    if (this.session) {
+      for (const c in this.session.volcanoColors) {
+        this.session.volcanoColors[c].fc = value
+      }
+    }
+  }
+
+  exportSettingsButFiles() {
+    if (this.session) {
+      const session = {
+        data: {
+          raw: null,
+          rawForm: JSON.parse(JSON.stringify(this.session.data.rawForm)),
+          differentialForm: JSON.parse(JSON.stringify(this.session.data.differentialForm)),
+          processed: null,
+          password: "",
+          selections: [],
+          selectionsMap: {},
+          selectionsName: [],
+          settings: JSON.parse(JSON.stringify(this.session.data.settings)),
+          fetchUniprot: this.session.data.fetchUniprot,
+          annotatedData: {},
+          extraData: JSON.parse(JSON.stringify(this.session.data.extraData)),
+          permanent: this.session.data.permanent,
+          uniqueComparisons: JSON.parse(JSON.stringify(this.session.data.uniqueComparisons))
+        },
+        extraFiles: [],
+        colorCategoryForms: [],
+        colorCategoryColumn: this.session.colorCategoryColumn,
+        colorCategoryPrimaryIdColumn: this.session.colorCategoryPrimaryIdColumn,
+        private: this.session.private,
+        volcanoColors: JSON.parse(JSON.stringify(this.session.volcanoColors)),
+        colorPalette: this.session.colorPalette,
+      }
+      const a = document.createElement("a");
+      const file = new Blob([JSON.stringify(session, null, 2)], {type: 'application/json'});
+      a.href = URL.createObjectURL(file);
+      a.download = 'curtain_batch_settings.json';
+      a.click();
+    }
+  }
+
+  importSettingsButFiles(event: any) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target) {
+        const contents = e.target.result;
+        if (contents) {
+          const session = JSON.parse(<string>contents)
+          if (this.session) {
+            for (const r in this.session.data.rawForm) {
+              if (session.data.rawForm[r]) {
+                if (this.session.rawColumns.includes(session.data.rawForm[r])) {
+                  // @ts-ignore
+                  this.session.data.rawForm[r] = session.data.rawForm[r]
+                }
+              }
+            }
+            for (const r in this.session.data.differentialForm) {
+              if (session.data.differentialForm[r]) {
+                if (typeof session.data.differentialForm[r] === "string") {
+                  if (this.session.differentialColumns.includes(session.data.differentialForm[r])) {
+                    // @ts-ignore
+                    this.session.data.differentialForm[r] = session.data.differentialForm[r]
+                  }
+                } else if (r === "comparisonSelect") {
+                  for (const c of session.data.differentialForm.comparisonSelect) {
+                    if (this.session.uniqueComparisons.includes(c)) {
+                      this.session.data.differentialForm.comparisonSelect.push(c)
+                    }
+                  }
+                }
+              }
+            }
+
+            for (const i in this.session.data.settings) {
+              if (session.data.settings[i]) {
+                // @ts-ignore
+                this.session.data.settings[i] = session.data.settings[i]
+              }
+            }
+            this.session.data.fetchUniprot = session.data.fetchUniprot
+            this.session.data.extraData = session.data.extraData
+            this.session.data.permanent = session.data.permanent
+            this.session.data.uniqueComparisons = session.data.uniqueComparisons
+            this.session.volcanoColors = session.volcanoColors
+            this.session.colorPalette = session.colorPalette
+            this.session.colorCategoryColumn = session.colorCategoryColumn
+            this.session.colorCategoryPrimaryIdColumn = session.colorCategoryPrimaryIdColumn
+            this.session.colorCategoryForms = session.colorCategoryForms
+            this.session.private = session.private
+
+            this.cd.detectChanges()
+          }
+        }
+      }
+    }
+    reader.readAsText(file)
   }
 }
