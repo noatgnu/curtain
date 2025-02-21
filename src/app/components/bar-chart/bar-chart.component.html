@@ -14,6 +14,12 @@
 </div>
 <div class="card">
   <div class="card-body">
+    @if (hasImputation) {
+      <div class="form-check">
+        <input id="enableImputation" type="checkbox" class="form-check-input" [(ngModel)]="enableImputation" (ngModelChange)="changeImputation()">
+        <label for="enableImputation" class="form-check-label">Enable Imputation</label>
+      </div>
+    }
     <div class="d-flex justify-content-center overflow-auto">
       <plotly-plot [config]="config" [divId]="_data[dataService.rawForm.primaryIDs]+'bar'" [data]="graphData" [layout]="graphLayout" [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
     </div>
@@ -23,6 +29,7 @@
   <div class="col-6">
     <div class="card">
       <div class="card-body">
+
         <div class="d-flex justify-content-center overflow-auto">
           <plotly-plot [config]="configAverage" [divId]="_data[dataService.rawForm.primaryIDs]+'average'" [data]="graphDataAverage" [layout]="graphLayoutAverage" [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
         </div>

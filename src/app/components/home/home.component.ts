@@ -73,6 +73,9 @@ import {DataciteComponent} from "../datacite/datacite.component";
 import {DataciteAdminManagementComponent} from "../datacite-admin-management/datacite-admin-management.component";
 import {BatchUploadModalComponent} from "../batch-upload-modal/batch-upload-modal.component";
 import {LogFileModalComponent} from "../log-file-modal/log-file-modal.component";
+import {
+  AddRawDataImputationMapModalComponent
+} from "../add-raw-data-imputation-map-modal/add-raw-data-imputation-map-modal.component";
 
 @Component({
     selector: 'app-home',
@@ -1024,5 +1027,46 @@ export class HomeComponent implements OnInit {
     const ref = this.modal.open(LogFileModalComponent, {scrollable: true, size: "xl", backdrop: "static"})
   }
 
+  openAddRawDataImputationMap() {
+    const ref = this.modal.open(AddRawDataImputationMapModalComponent, {scrollable: true, backdrop: "static"})
+    ref.closed.subscribe((data: {form: any, data: IDataFrame<number,any>}) => {
+      if (data) {
+        if (data.form && data.data) {
+          const result = this.data.raw.df.join(data.data, a => a[this.data.rawForm.primaryIDs], b => b[data.form.indexCol], (a, b) => {
+            const v: any = {...b}
+            v[this.data.rawForm.primaryIDs] = a[this.data.rawForm.primaryIDs]
+            return v
+          }).bake()
+
+          result.forEach((r: any) => {
+            this.settings.settings.imputationMap[r[this.data.rawForm.primaryIDs]] = {}
+            for (let i = 0; i < this.data.rawForm.samples.length; i++) {
+              const sampleNameB = data.form.sampleCols[i]
+              const sampleNameA = this.data.rawForm.samples[i]
+              if (r[sampleNameB] !== "") {
+                if (r[sampleNameB] === undefined || r[sampleNameB] === null) {
+                  this.settings.settings.imputationMap[r[this.data.rawForm.primaryIDs]][sampleNameA] = true
+                } else {
+                  try {
+                    const cellB = parseFloat(r[sampleNameB])
+                    if (isNaN(cellB)) {
+                      this.settings.settings.imputationMap[r[this.data.rawForm.primaryIDs]][sampleNameA] = true
+                    }
+                  } catch (e) {
+                    this.settings.settings.imputationMap[r[this.data.rawForm.primaryIDs]][sampleNameA] = true
+                  }
+                }
+              } else {
+                this.settings.settings.imputationMap[r[this.data.rawForm.primaryIDs]][sampleNameA] = true
+              }
+            }
+          })
+          console.log(this.settings.settings.imputationMap)
+          this.toast.show("Imputation", "Imputation map has been created").then()
+          this.data.redrawTrigger.next(true)
+        }
+      }
+    })
+  }
 
 }

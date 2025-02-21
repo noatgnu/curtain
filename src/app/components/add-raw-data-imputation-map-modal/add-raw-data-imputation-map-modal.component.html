@@ -1,0 +1,30 @@
+<div class="modal-header">
+  <h5 class="modal-title">Add Raw Data Imputation Map</h5>
+</div>
+<div class="modal-body d-flex flex-column gap-2">
+  <button class="btn btn-primary" (click)="fileInput.click()">Select File</button>
+  <input type="file" #fileInput (change)="onFileChange($event)" hidden />
+  <form [formGroup]="form" class="d-flex gap-2 flex-column">
+    <div class="form-group">
+      <label>Select Index Column</label>
+      <select class="form-select" formControlName="indexCol">
+        @for (c of columns; track c) {
+          <option [ngValue]="c">{{c}}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Select Sample Columns With Imputed Data</label>
+      <select class="form-select" formControlName="sampleCols" multiple>
+        @for (c of columns; track c) {
+          <option [ngValue]="c">{{c}}</option>
+        }
+      </select>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-danger" (click)="removeImputationMap()">Remove Imputation</button>
+  <button type="button" class="btn btn-primary" (click)="submit()">Add</button>
+  <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+</div>

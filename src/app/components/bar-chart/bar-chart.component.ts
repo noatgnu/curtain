@@ -162,7 +162,17 @@ export class BarChartComponent implements OnInit {
     }
   }
 
+  hasImputation: boolean = false
+  imputationCount: any = {}
+  imputationMap: any = {}
+  enableImputation: boolean = false
+
   constructor(private stats: StatsService, private web: WebService, public dataService: DataService, private uniprot: UniprotService, private settings: SettingsService) {
+    if (this.settings.settings.enableImputation) {
+      this.enableImputation = true
+    } else {
+      this.enableImputation = false
+    }
     this.dataService.externalBarChartDownloadTrigger.asObservable().subscribe(trigger => {
       if (trigger) {
         for (const i of ["bar", "average", "violin"]) {
@@ -200,6 +210,11 @@ export class BarChartComponent implements OnInit {
     })
     this.dataService.redrawTrigger.subscribe(data => {
       if (data) {
+        if (this.settings.settings.enableImputation) {
+          this.enableImputation = true
+        } else {
+          this.enableImputation = false
+        }
         this.drawBarChart()
         this.drawAverageBarChart()
       }
@@ -223,7 +238,8 @@ export class BarChartComponent implements OnInit {
     const tickvals: string[] = []
     const ticktext: string[] = []
     const graph: any = {}
-
+    this.imputationMap = {}
+    this.imputationCount = {}
     this.graphData = []
     const annotations: any[] = []
     const shapes: any[] = []
@@ -271,7 +287,7 @@ export class BarChartComponent implements OnInit {
     for (const s in this.settings.settings.sampleMap) {
 
       if (this.settings.settings.sampleVisible[s]) {
-        sampleNumber ++
+
         const condition = this.settings.settings.sampleMap[s].condition
         let color = this.settings.settings.colorMap[condition]
         if (this.settings.settings.barchartColorMap[condition]) {
@@ -290,9 +306,26 @@ export class BarChartComponent implements OnInit {
             type: "bar",
             hovertext: [],
             name: condition,
-            showlegend: false
+            showlegend: false,
           }
         }
+        let canImpute = false
+        if (this.settings.settings.imputationMap[this._data[this.dataService.rawForm.primaryIDs]]) {
+          if (this.settings.settings.imputationMap[this._data[this.dataService.rawForm.primaryIDs]][s]) {
+            if (!this.imputationCount[condition]) {
+              this.imputationCount[condition] = 0
+              this.imputationMap[condition] = []
+            }
+            this.imputationCount[condition] = this.imputationCount[condition] + 1
+            this.imputationMap[condition].push(s)
+            canImpute = true
+          }
+        }
+        if (this.enableImputation && canImpute) {
+          continue
+        }
+        sampleNumber ++
+
         graph[condition].x.push(s)
         graph[condition].y.push(this._data[s])
         if (this.settings.settings.peptideCountData && this.settings.settings.viewPeptideCount) {
@@ -332,11 +365,19 @@ export class BarChartComponent implements OnInit {
       if (!graph[g]) {
         continue
       }
-      const annotationsPosition = currentSampleNumber +  graph[g].x.length/2
-      currentSampleNumber = currentSampleNumber + graph[g].x.length
+      //const annotationsPosition = currentSampleNumber +  graph[g].x.length/2
+      let sampleCount = graph[g].x.length
+      //if (this.imputationCount[g] >0) {
+      //  sampleCount = sampleCount - this.imputationCount[g]
+      //}
+      currentSampleNumber = currentSampleNumber + sampleCount
       this.graphData.push(graph[g])
-      tickvals.push(graph[g].x[Math.round(graph[g].x.length/2)-1])
-      ticktext.push(g)
+      tickvals.push(graph[g].x[Math.round(sampleCount/2)-1])
+      if (this.imputationCount[g] > 0) {
+        ticktext.push(`${g} (${this.imputationCount[g]} imputed)`)
+      } else {
+        ticktext.push(g)
+      }
       if (sampleNumber !== currentSampleNumber) {
         shapes.push({
           type: "line",
@@ -379,6 +420,16 @@ export class BarChartComponent implements OnInit {
     }
     this.graphLayout.xaxis.tickvals = tickvals
     this.graphLayout.xaxis.ticktext = ticktext
+    for (const c in this.imputationCount) {
+      if (this.imputationCount[c] > 0) {
+        this.hasImputation = true
+      }
+    }
+  }
+
+  changeImputation() {
+    this.drawBarChart()
+    this.drawAverageBarChart()
   }
 
   drawAverageBarChart() {
@@ -390,13 +441,22 @@ export class BarChartComponent implements OnInit {
     let sampleNumber: number = 0
     for (const s in this.settings.settings.sampleMap) {
       if (this.settings.settings.sampleVisible[s]) {
-        sampleNumber ++
+
         const condition = this.settings.settings.sampleMap[s].condition
         if (!graph[condition]) {
           graph[condition] = []
         }
+        if (this.enableImputation) {
+          if (this.imputationMap[condition]) {
+            if (this.imputationMap[condition].includes(s)) {
+              continue
+            }
+          }
+        }
         graph[condition].push(this._data[s])
+        sampleNumber ++
       }
+
     }
 
     for (const g of this.settings.settings.conditionOrder) {

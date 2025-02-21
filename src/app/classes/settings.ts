@@ -116,4 +116,6 @@ export class Settings {
   peptideCountData: any = {}
   viewPeptideCount: boolean = false
   extraData: {name: string, content: string, type: string}[] = []
+  imputationMap: any = {}
+  enableImputation: boolean = false
 }

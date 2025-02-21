@@ -13,6 +13,7 @@ export class SampleOrderAndHideComponent implements OnInit {
   samples: any = {}
   samplesVisible: any = {}
   condition: string[] = []
+  enableImputation: boolean = false
 
   colorMap: any = {}
 
@@ -26,6 +27,7 @@ export class SampleOrderAndHideComponent implements OnInit {
   batchToggle: any = {}
   enablePeptideCount: boolean = false
   constructor(public dataService: DataService, public modal: NgbActiveModal, private settings: SettingsService) {
+    this.enableImputation = this.settings.settings.enableImputation
     console.log(this.settings.settings.sampleMap)
     if (this.settings.settings.viewPeptideCount) {
       this.enablePeptideCount = true
@@ -99,6 +101,7 @@ export class SampleOrderAndHideComponent implements OnInit {
     this.settings.settings.sampleOrder = this.samples
     this.settings.settings.conditionOrder = this.condition
     this.settings.settings.violinPointPos = this.violinPointPos
+    this.settings.settings.enableImputation = this.enableImputation
     for (const c in this.columnSize) {
       this.settings.settings.columnSize[c] = this.columnSize[c]
     }
@@ -147,4 +150,5 @@ export class SampleOrderAndHideComponent implements OnInit {
       this.samplesVisible[s] = this.batchToggle[condition]
     }
   }
+
 }
