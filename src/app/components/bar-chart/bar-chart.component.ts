@@ -298,7 +298,10 @@ export class BarChartComponent implements OnInit {
             x: [],
             y: [],
             marker: {
-              "color": color
+              pattern: {
+                shape: []
+              },
+              "color": color,
             },
             line: {
               color: "black"
@@ -328,6 +331,12 @@ export class BarChartComponent implements OnInit {
 
         graph[condition].x.push(s)
         graph[condition].y.push(this._data[s])
+        if (canImpute) {
+          graph[condition].marker.pattern.shape.push("/")
+
+        } else {
+          graph[condition].marker.pattern.shape.push("")
+        }
         if (this.settings.settings.peptideCountData && this.settings.settings.viewPeptideCount) {
           if (this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]]) {
             if (this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]][s]) {
@@ -439,21 +448,38 @@ export class BarChartComponent implements OnInit {
     const graphViolin: any[] = []
     const graph: any = {}
     let sampleNumber: number = 0
+    let boxDotInnerColor: any = {}
+    let selectedPoints: any = {}
+
     for (const s in this.settings.settings.sampleMap) {
       if (this.settings.settings.sampleVisible[s]) {
 
         const condition = this.settings.settings.sampleMap[s].condition
         if (!graph[condition]) {
           graph[condition] = []
+          boxDotInnerColor[condition] = []
+          selectedPoints[condition] = []
         }
-        if (this.enableImputation) {
-          if (this.imputationMap[condition]) {
-            if (this.imputationMap[condition].includes(s)) {
+
+        if (this.imputationMap[condition]) {
+          if (this.imputationMap[condition].includes(s)) {
+            if (this.enableImputation) {
               continue
             }
+            boxDotInnerColor[condition].push("rgba(0,0,0,0)")
+
+          } else {
+            boxDotInnerColor[condition].push("#654949")
           }
+        } else {
+          boxDotInnerColor[condition].push("#654949")
         }
         graph[condition].push(this._data[s])
+        if (this.imputationMap[condition]) {
+          if (this.imputationMap[condition].includes(s)) {
+            selectedPoints[condition].push(graph[condition].length-1)
+          }
+        }
         sampleNumber ++
       }
 
@@ -467,7 +493,11 @@ export class BarChartComponent implements OnInit {
       if (this.settings.settings.barchartColorMap[g]) {
         color = this.settings.settings.barchartColorMap[g]
       }
-      const box = {
+
+
+
+
+      const box: any = {
         x: g, y: graph[g].filter((d: number) => !isNaN(d)),
         type: 'box',
         boxpoints: 'all',
@@ -482,10 +512,17 @@ export class BarChartComponent implements OnInit {
           color: "#654949",
           opacity: 0.8,
         },
+        selectedpoints: selectedPoints[g],
+        selected: {
+          marker: {
+            color: '#e61010'
+          }
+        },
         name: g,
         //visible: visible,
         showlegend: false
       }
+      console.log(box)
       const violinX: any[] = graph[g].map(() => g)
 
       const violin = {
@@ -508,7 +545,13 @@ export class BarChartComponent implements OnInit {
         ,
         name: g,
         showlegend: false,
-        spanmode: 'soft'
+        spanmode: 'soft',
+        selectedpoints: selectedPoints[g],
+        selected: {
+          marker: {
+            color: '#e61010'
+          }
+        }
       }
       graphViolin.push(violin)
       const s = new Series(graph[g].filter((d: number) => !isNaN(d)))
@@ -541,7 +584,7 @@ export class BarChartComponent implements OnInit {
           visible: true
         },
         marker: {
-          "color": color
+          "color": color,
         },
         line: {
           color: "black"

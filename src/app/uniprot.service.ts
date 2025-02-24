@@ -195,19 +195,15 @@ export class UniprotService {
 
 
   getUniprotFromPrimary(accession_id: string) {
-    console.log(accession_id)
     if (this.db.has(accession_id)) {
-      console.log(this.db.get(accession_id))
       return this.db.get(accession_id)
     }
     if (this.accMap.has(accession_id)) {
       const d = this.accMap.get(accession_id)
-      console.log(d)
       if (d) {
         for (const a of d) {
           if (this.dataMap.has(a)) {
             const ac = this.dataMap.get(a)
-            console.log(ac)
             if (ac) {
               return this.db.get(ac)
             }

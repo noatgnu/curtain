@@ -2,6 +2,10 @@
   <h5 class="modal-title">Selected Data Fold Change Distribution</h5>
 </div>
 <div class="modal-body">
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" [(ngModel)]="enableDotPlot" (click)="drawPlot()">
+    <label class="form-check-label">Show Scatter Plot</label>
+  </div>
   <plotly-plot [data]="graphData" [layout]="graphLayoutViolin" [config]="config" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
 </div>
 <div class="modal-footer">

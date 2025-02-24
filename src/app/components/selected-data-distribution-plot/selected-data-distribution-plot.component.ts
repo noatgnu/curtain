@@ -30,6 +30,7 @@ export class SelectedDataDistributionPlotComponent implements OnInit {
     },
     margin: {r: 40, l: 40, b: 120, t: 100}
   }
+  enableDotPlot: boolean = true
   constructor(private data: DataService, private settings: SettingsService, private modal: NgbActiveModal) {
     this.drawPlot()
   }
@@ -73,6 +74,9 @@ export class SelectedDataDistributionPlotComponent implements OnInit {
             }
             temp[s].x.push(s)
             temp[s].y.push(r[this.data.differentialForm.foldChange])
+            if (!this.enableDotPlot) {
+              temp[s].points = null
+            }
           }
         }
       }
