@@ -162,10 +162,12 @@
                 Compare Sessions
               </button>
             }
-            <button ngbDropdownItem (click)="openLoginModal()" *ngIf="accounts.curtainAPI.user.loginStatus===false">
-              Account Login
-            </button>
-            <button ngbDropdownItem (click)="openSessionSettings()" [disabled]="!accounts.getSessionPermission()">
+            @if (accounts.curtainAPI.user.loginStatus===false) {
+              <button ngbDropdownItem (click)="openLoginModal()">
+                Account Login
+              </button>
+            }
+            <button ngbDropdownItem (click)="openSessionSettings()" [disabled]="!accounts.isOwner&&!accounts.curtainAPI.user.isStaff">
               Session Settings
             </button>
             <button ngbDropdownItem (click)="openCollaborateModal()">
