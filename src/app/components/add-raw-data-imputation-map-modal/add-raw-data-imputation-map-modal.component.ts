@@ -41,12 +41,19 @@ export class AddRawDataImputationMapModalComponent {
   onFileChange(event: any) {
     if (event.target) {
       if (event.target.files) {
-        const file = event.target.files[0];
+        const file: File = event.target.files[0];
         const reader = new FileReader();
         reader.onload = (e: any) => {
           const data = e.target.result as string;
-          // @ts-ignore
-          this.data = fromCSV(data, {delimiter: "\t"});
+          console.log(file.name)
+          if (file.name.endsWith(".csv")) {
+            // @ts-ignore
+            this.data = fromCSV(data);
+          } else {
+            // @ts-ignore
+            this.data = fromCSV(data, {delimiter: "\t"});
+          }
+
           this.columns = this.data.getColumnNames();
           // this.data = fromCSV(<string>e.target.result);
           // this.columns = this.data.getColumnNames();
