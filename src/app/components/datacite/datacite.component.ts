@@ -4,7 +4,7 @@ import {AccountsService} from "../../accounts/accounts.service";
 import {WebService} from "../../web.service";
 import {OrcidPublicRecord} from "../../orcid-public-record";
 import {catchError, debounceTime, distinctUntilChanged, map, Observable, of, switchMap} from "rxjs";
-import {NgbActiveModal, NgbHighlight, NgbTypeahead} from "@ng-bootstrap/ng-bootstrap";
+import {NgbActiveModal, NgbCollapse, NgbHighlight, NgbTypeahead} from "@ng-bootstrap/ng-bootstrap";
 import {languages} from "./languages";
 import {fosData} from "./subjects";
 import {licenses} from "./licenses";
@@ -13,6 +13,7 @@ import {environment} from "../../../environments/environment";
 import {ToastService} from "../../toast.service";
 import {QuillModule} from "ngx-quill";
 import {DataCiteCurtain} from "../../data-cite-metadata";
+import {NgClass} from "@angular/common";
 
 @Component({
     selector: 'app-datacite',
@@ -21,12 +22,26 @@ import {DataCiteCurtain} from "../../data-cite-metadata";
     NgbTypeahead,
     FormsModule,
     NgbHighlight,
-    QuillModule
+    QuillModule,
+    NgbCollapse,
+    NgClass
   ],
     templateUrl: './datacite.component.html',
     styleUrl: './datacite.component.scss'
 })
 export class DataciteComponent {
+  isCollapsedFunding = true;
+  isCollapsedAdditionalData = false;
+  isCollapsedDescriptions = true;
+  isCollapsedRelatedIds = true;
+  isCollapsedAlternateIds = true;
+  isCollapsedContributors = true;
+  isCollapsedSubjects = true;
+  isCollapsedRights = true;
+  isCollapsedInfo = false;
+  isCollapsedCreators = true;
+  isCollapsedTitle = true;
+  isCollapsedPublishing = true;
   private _linkID: string = ""
   private baseURL: string = environment.apiURL
   @Input() set linkID(value: string) {
@@ -225,6 +240,7 @@ export class DataciteComponent {
 
   form_additional_data = this.fb.group({
     pii_statement: ['', Validators.required],
+    publicationRights: [false, Validators.requiredTrue],
     informationIsTrue: [false, Validators.requiredTrue],
     contact_email: ['', [Validators.email, Validators.required]],
   })
@@ -735,5 +751,13 @@ export class DataciteComponent {
     this.accountsService.curtainAPI.changeDataCiteStatus(this.dataCiteMetadata.id, "rejected").then((value) => {
       this.dataCiteMetadata.status = "rejected"
     })
+  }
+
+  removeSubject(index: number) {
+    this.dataCiteForm.controls.subjects.removeAt(index);
+  }
+
+  removeDescription(index: number) {
+    this.dataCiteForm.controls.descriptions.removeAt(index);
   }
 }
