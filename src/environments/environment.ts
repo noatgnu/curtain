@@ -9,7 +9,7 @@ export const environment = {
   //apiURL: "http://127.0.0.1:8000/",
   //apiURL: "https://celsus-nopersistent.cap.erymonite.com/",
   orcid: "APP-5RXLC3W1MS2MOW0F",
-  datacite: "https://api.test.datacite.org/"
+  datacite: "https://api.datacite.org/"
 };
 
 /*

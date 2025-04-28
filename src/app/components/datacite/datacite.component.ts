@@ -410,7 +410,7 @@ export class DataciteComponent {
           delete dataCiteMetadata.relatedIdentifiers[i].schemeUri
           delete dataCiteMetadata.relatedIdentifiers[i].schemeType
         } else {
-          if (dataCiteMetadata.relatedIdentifiers[i].relatedMetadataScheme === "" || dataCiteMetadata.relatedIdentifiers[i].schemeUri === "" || dataCiteMetadata.relatedIdentifiers[i].schemeType === "") {
+          if (dataCiteMetadata.relatedIdentifiers[i].relatedMetadataScheme === "" || dataCiteMetadata.relatedIdentifiers[i].schemeUri === "" || dataCiteMetadata.relatedIdentifiers[i].schemeType === "" || dataCiteMetadata.relatedIdentifiers[i].relatedIdentifier === "") {
             this.toastService.show("DOI Form Error", "Please fill in all fields for metadata related identifiers", 5000, "error").then()
             return;
           }
