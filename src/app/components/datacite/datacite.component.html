@@ -835,6 +835,10 @@
               <label for="informationIsTrue" class="form-check-label">I confirm that the information provided is true and accurate.</label>
             </div>
             <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="asapPolicy" formControlName="asapPolicy">
+              <label for="asapPolicy" class="form-check-label">I agree to comply with <a href="https://parkinsonsroadmap.org/open-science-policy/" target="_blank">ASAP's Open Science Policy</a> for data sharing and publication.</label>
+            </div>
+            <div class="form-check">
               <input type="checkbox" class="form-check-input" id="publicationRights" formControlName="publicationRights">
               <label for="publicationRights" class="form-check-label">I confirm that I have the right to publish this dataset and doing so does not violate any third-party rights.</label>
             </div>
@@ -885,13 +889,13 @@
 
         @if (dataCiteMetadata) {
           <button type="button" class="btn btn-primary"
-                  [disabled]="!form_additional_data.value.informationIsTrue || !form_additional_data.value.publicationRights"
+                  [disabled]="!form_additional_data.value.informationIsTrue || !form_additional_data.value.publicationRights || !form_additional_data.value.asapPolicy"
                   (click)="onSubmit('update')">
             <i class="bi bi-arrow-repeat me-1"></i>Update DOI
           </button>
         } @else {
           <button type="button" class="btn btn-primary"
-                  [disabled]="!form_additional_data.value.informationIsTrue || !form_additional_data.value.publicationRights"
+                  [disabled]="!form_additional_data.value.informationIsTrue || !form_additional_data.value.publicationRights || !form_additional_data.value.asapPolicy"
                   (click)="onSubmit('create')">
             <i class="bi bi-plus-circle me-1"></i>Register DOI
           </button>

@@ -243,6 +243,7 @@ export class DataciteComponent {
     publicationRights: [false, Validators.requiredTrue],
     informationIsTrue: [false, Validators.requiredTrue],
     contact_email: ['', [Validators.email, Validators.required]],
+    asapPolicy: [false, Validators.requiredTrue],
   })
 
   adminForm = this.fb.group({
