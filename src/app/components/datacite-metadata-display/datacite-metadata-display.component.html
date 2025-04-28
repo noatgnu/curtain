@@ -46,7 +46,7 @@
         </p>
         @for (d of metadata.data.attributes.descriptions; track d) {
             <p>
-              <b>{{d.descriptionType}}</b>: {{d.description}}
+              <b>{{d.descriptionType}}</b>: <quill-view [content]="d.description"></quill-view>
             </p>
         }
         <p>

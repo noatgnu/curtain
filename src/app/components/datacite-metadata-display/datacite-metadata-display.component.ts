@@ -2,12 +2,14 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {DataCiteMetadata} from "../../data-cite-metadata";
 import {DataciteCitationComponent} from "./datacite-citation/datacite-citation.component";
 import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {QuillViewComponent} from "ngx-quill";
 
 @Component({
     selector: 'app-datacite-metadata-display',
-    imports: [
-        NgbTooltip
-    ],
+  imports: [
+    NgbTooltip,
+    QuillViewComponent
+  ],
     templateUrl: './datacite-metadata-display.component.html',
     styleUrl: './datacite-metadata-display.component.scss'
 })
