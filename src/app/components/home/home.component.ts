@@ -162,6 +162,7 @@ export class HomeComponent implements OnInit {
                 this.isDOI = false
               }
               console.log(params["settings"])
+              console.log(params["settings"])
               const settings = params["settings"].split("&")
               let token: string = ""
               if (settings.length > 1) {
