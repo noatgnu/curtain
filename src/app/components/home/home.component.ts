@@ -84,7 +84,7 @@ import {
     standalone: false
 })
 export class HomeComponent implements OnInit {
-  showAlert: boolean = false;
+  showAlert: boolean = true;
   animate: boolean = false
   isDOI: boolean = false
   doiMetadata: DataCiteMetadata|undefined = undefined
@@ -340,7 +340,6 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     const currentDate = new Date();
     const hideDate = new Date(currentDate.getFullYear(), 1, 20); // February is month 1 (0-indexed)
-    this.showAlert = currentDate <= hideDate;
     this.data.loadDataTrigger.asObservable().subscribe((data: boolean) => {
       if (data) {
         this.handleFinish(data)

@@ -1,448 +1,712 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {InputFile} from "../../classes/input-file";
-import {DataService} from "../../data.service";
-import {DataFrame, fromJSON, IDataFrame, Series} from "data-forge";
-import {UniprotService} from "../../uniprot.service";
-import {SettingsService} from "../../settings.service";
-import {ToastService} from "../../toast.service";
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { InputFile } from "../../classes/input-file";
+import { DataService } from "../../data.service";
+import { DataFrame, fromJSON, IDataFrame, Series } from "data-forge";
+import { UniprotService } from "../../uniprot.service";
+import { SettingsService } from "../../settings.service";
+import { ToastService } from "../../toast.service";
+
+interface ProgressBarState {
+  value: number;
+  text: string;
+}
 
 @Component({
-    selector: 'app-file-form',
-    templateUrl: './file-form.component.html',
-    styleUrls: ['./file-form.component.scss'],
-    standalone: false
+  selector: 'app-file-form',
+  templateUrl: './file-form.component.html',
+  styleUrls: ['./file-form.component.scss'],
+  standalone: false
 })
 export class FileFormComponent implements OnInit {
-  iscollapse=false;
-  progressBar: any = {value: 0, text: ""}
-  transformedFC: boolean = false
-  transformedP: boolean = false
-  clicked: boolean = false
-  @Output() finished: EventEmitter<boolean> = new EventEmitter<boolean>()
-  constructor(public data: DataService, private uniprot: UniprotService, public settings: SettingsService, private toast: ToastService) {
+  iscollapse = false;
+  progressBar: ProgressBarState = { value: 0, text: "" };
+  transformedFC = false;
+  transformedP = false;
+  clicked = false;
+
+  @Output() finished: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+  constructor(
+    public data: DataService,
+    private uniprot: UniprotService,
+    public settings: SettingsService,
+    private toast: ToastService
+  ) {
     this.uniprot.uniprotProgressBar.subscribe(data => {
-      this.progressBar.value = data.value
-      this.progressBar.text = data.text
-    })
+      this.progressBar.value = data.value;
+      this.progressBar.text = data.text;
+    });
+
     this.data.restoreTrigger.asObservable().subscribe(data => {
       if (data) {
-        this.updateProgressBar(100, "Restoring session...")
+        this.updateProgressBar(100, "Restoring session...");
         if (!this.clicked) {
-          this.clicked = true
-          this.finished.emit(false)
+          this.clicked = true;
+          this.finished.emit(false);
         }
-        this.startWork()
+        this.startWork();
       }
-    })
+    });
   }
 
-  startWork() {
-    this.finished.emit(false)
+  ngOnInit(): void {
+    // Component initialization logic
+  }
+
+  /**
+   * Starts the data processing workflow, either using a Worker or direct processing
+   */
+  startWork(): void {
+    this.finished.emit(false);
+
     if (typeof Worker !== 'undefined') {
-      // Create a new
+      // Use Web Worker for better performance
       const worker = new Worker(new URL('./data.worker', import.meta.url));
-      worker.onmessage = (data: MessageEvent<any>) => {
-        if (data.data) {
-          if (data.data.type === "progress") {
-            this.updateProgressBar(data.data.value, data.data.text)
-          } else {
-            if (data.data.type === "resultDifferential") {
-              this.data.differential.df = fromJSON(data.data.differential)
-              for (const i in this.data.differentialForm) {
-                if (this.data.differentialForm.hasOwnProperty(i)) {
-                  if (i in data.data.differentialForm) {
-                    // @ts-ignore
-                    this.data.differentialForm[i] = data.data.differentialForm[i]
-                  }
-                }
-              }
-              let currentDF = this.data.differential.df.where(r => this.data.differentialForm.comparisonSelect.includes(r[this.data.differentialForm.comparison])).bake()
 
-              const d: string[] = []
-              for (const r of currentDF) {
-                d.push(r[this.data.differentialForm.primaryIDs] + "("+r[this.data.differentialForm.comparison]+")")
-              }
-
-              currentDF = currentDF.withSeries("UniquePrimaryIDs", new Series(d)).bake()
-              const fc = currentDF.getSeries(this.data.differentialForm.foldChange).where(i => !isNaN(i)).bake()
-              const sign = currentDF.getSeries(this.data.differentialForm.significant).where(i => !isNaN(i)).bake()
-
-              this.data.minMax = {
-                fcMin: fc.min(),
-                fcMax: fc.max(),
-                pMin: sign.min(),
-                pMax: sign.max()
-              }
-              this.data.currentDF = currentDF
-              this.data.primaryIDsList = this.data.currentDF.getSeries(this.data.differentialForm.primaryIDs).bake().distinct().toArray()
-              for (const p of this.data.primaryIDsList) {
-                if (!this.data.primaryIDsMap[p])  {
-                  this.data.primaryIDsMap[p] = {}
-                  this.data.primaryIDsMap[p][p] = true
-                }
-                for (const n of p.split(";")) {
-                  if (!this.data.primaryIDsMap[n]) {
-                    this.data.primaryIDsMap[n] = {}
-                  }
-                  this.data.primaryIDsMap[n][p] = true
-                }
-              }
-
-              worker.postMessage({
-                task: 'processRawFile',
-                rawForm: this.data.rawForm,
-                raw: this.data.raw.originalFile,
-                settings: Object.assign({}, this.settings.settings)
-              })
-              this.data.raw.df = new DataFrame()
-            } else if (data.data.type === "resultRaw") {
-              console.log(data.data.settings.currentID)
-              console.log(data.data.raw)
-              this.data.raw.df = fromJSON(data.data.raw)
-              console.log(data.data.settings)
-              for (const s in this.settings.settings) {
-
-                if (this.settings.settings.hasOwnProperty(s)) {
-                  // @ts-ignore
-                  this.settings.settings[s] = data.data.settings[s]
-                }
-              }
-              this.data.conditions = data.data.conditions
-              console.log(this.settings.settings)
-              this.processUniProt()
-              worker.terminate()
-            } else if (data.data.type === "resultDifferentialCompleted") {
-
-            }
-          }
-        } else {
-          worker.terminate()
+      worker.onmessage = (event: MessageEvent<any>) => {
+        const data = event.data;
+        if (!data) {
+          worker.terminate();
+          return;
         }
 
+        switch (data.type) {
+          case "progress":
+            this.updateProgressBar(data.value, data.text);
+            break;
+
+          case "resultDifferential":
+            this.processDifferentialResult(data, worker);
+            break;
+
+          case "resultRaw":
+            this.processRawResult(data);
+            worker.terminate();
+            break;
+
+          case "resultDifferentialCompleted":
+            // Handle completion if needed
+            break;
+        }
       };
+
+      // Start differential file processing
       worker.postMessage({
         task: 'processDifferentialFile',
         differential: this.data.differential.originalFile,
         differentialForm: this.data.differentialForm
       });
-      this.data.differential.df = new DataFrame()
+
+      this.data.differential.df = new DataFrame();
     } else {
-      this.processFiles().then()
+      // Fallback to direct processing when Workers aren't available
+      this.processFiles().catch(error => {
+        console.error("Error processing files:", error);
+        this.toast.show("Error", "Failed to process files. See console for details.");
+      });
     }
   }
 
-  ngOnInit(): void {
+  /**
+   * Process differential result data from worker
+   */
+  private processDifferentialResult(data: any, worker: Worker): void {
+    this.data.differential.df = fromJSON(data.differential);
+
+    // Update differential form with values from worker
+    for (const key in this.data.differentialForm) {
+      if (this.data.differentialForm.hasOwnProperty(key) && key in data.differentialForm) {
+        // @ts-ignore - property access is dynamic
+        this.data.differentialForm[key] = data.differentialForm[key];
+      }
+    }
+
+    // Filter dataframe by selected comparisons
+    let currentDF = this.data.differential.df
+      .where(r => this.data.differentialForm.comparisonSelect.includes(r[this.data.differentialForm.comparison]))
+      .bake();
+
+    // Create unique IDs for each entry
+    const uniqueIds: string[] = [];
+    for (const row of currentDF) {
+      uniqueIds.push(`${row[this.data.differentialForm.primaryIDs]}(${row[this.data.differentialForm.comparison]})`);
+    }
+
+    // Add unique IDs to dataframe
+    currentDF = currentDF.withSeries("UniquePrimaryIDs", new Series(uniqueIds)).bake();
+
+    // Calculate min/max values for fc and significance
+    const fc = currentDF.getSeries(this.data.differentialForm.foldChange).where(i => !isNaN(i)).bake();
+    const sign = currentDF.getSeries(this.data.differentialForm.significant).where(i => !isNaN(i)).bake();
+
+    this.data.minMax = {
+      fcMin: fc.min(),
+      fcMax: fc.max(),
+      pMin: sign.min(),
+      pMax: sign.max()
+    };
+
+    this.data.currentDF = currentDF;
+    this.data.primaryIDsList = this.data.currentDF.getSeries(this.data.differentialForm.primaryIDs).bake().distinct().toArray();
+
+    // Build primary IDs mapping
+    this.buildPrimaryIdsMap();
+
+    // Start raw file processing
+    worker.postMessage({
+      task: 'processRawFile',
+      rawForm: this.data.rawForm,
+      raw: this.data.raw.originalFile,
+      settings: Object.assign({}, this.settings.settings)
+    });
+
+    this.data.raw.df = new DataFrame();
   }
 
-  handleFile(e: InputFile, raw: boolean) {
-    if (raw) {
-      this.data.raw = e
-    } else {
-      this.data.differential = e
+  /**
+   * Process raw result data from worker
+   */
+  private processRawResult(data: any): void {
+    console.log(data.settings.currentID);
+    console.log(data.raw);
+
+    this.data.raw.df = fromJSON(data.raw);
+
+    // Update settings from worker result
+    for (const settingKey in this.settings.settings) {
+      if (this.settings.settings.hasOwnProperty(settingKey)) {
+        // @ts-ignore - property access is dynamic
+        this.settings.settings[settingKey] = data.settings[settingKey];
+      }
+    }
+
+    this.data.conditions = data.conditions;
+    console.log(this.settings.settings);
+
+    this.processUniProt();
+  }
+
+  /**
+   * Builds mapping of primary IDs for faster lookup
+   */
+  private buildPrimaryIdsMap(): void {
+    for (const primaryId of this.data.primaryIDsList) {
+      if (!this.data.primaryIDsMap[primaryId]) {
+        this.data.primaryIDsMap[primaryId] = {};
+        this.data.primaryIDsMap[primaryId][primaryId] = true;
+      }
+
+      for (const splitId of primaryId.split(";")) {
+        if (!this.data.primaryIDsMap[splitId]) {
+          this.data.primaryIDsMap[splitId] = {};
+        }
+        this.data.primaryIDsMap[splitId][primaryId] = true;
+      }
     }
   }
 
-  updateProgressBar(value: number, text: string) {
-    this.progressBar.value = value
-    this.progressBar.text = text
+  /**
+   * Handle file import events
+   */
+  handleFile(e: InputFile, isRawFile: boolean): void {
+    if (isRawFile) {
+      this.data.raw = e;
+    } else {
+      this.data.differential = e;
+    }
   }
-  async processFiles(e: any = null) {
+
+  /**
+   * Update the progress bar state
+   */
+  updateProgressBar(value: number, text: string): void {
+    this.progressBar.value = value;
+    this.progressBar.text = text;
+  }
+
+  /**
+   * Process input files directly (fallback when Web Workers aren't available)
+   */
+  async processFiles(e: Event | null = null): Promise<void> {
     if (e) {
-      e.preventDefault()
+      e.preventDefault();
     }
-    if (!this.clicked) {
-      this.clicked = true
-      this.finished.emit(false)
+
+    if (this.clicked) {
+      return; // Prevent duplicate processing
+    }
+
+    this.clicked = true;
+    this.finished.emit(false);
+
+    try {
+      // Set default comparison if not specified
       if (!this.data.differentialForm.comparison || this.data.differentialForm.comparison === "" || this.data.differentialForm.comparison === "CurtainSetComparison") {
-        this.data.differentialForm.comparison = "CurtainSetComparison"
-        this.data.differentialForm.comparisonSelect = ["1"]
-
-        this.data.differential.df = this.data.differential.df.withSeries("CurtainSetComparison", new Series(Array(this.data.differential.df.count()).fill("1"))).bake()
-      }
-      if (!this.data.differentialForm.comparisonSelect) {
-        this.data.differentialForm.comparisonSelect = [this.data.differential.df.first()[this.data.differentialForm.comparison]]
-      } else if (this.data.differentialForm.comparisonSelect.length === 0) {
-        this.data.differentialForm.comparisonSelect = [this.data.differential.df.first()[this.data.differentialForm.comparison]]
-      }
-      const totalSampleNumber = this.data.rawForm.samples.length
-      let sampleNumber = 0
-      let samples: string[] = []
-      const conditionOrder = this.settings.settings.conditionOrder.slice()
-      if (conditionOrder.length > 0) {
-        for (const c of conditionOrder) {
-          for (const s of this.settings.settings.sampleOrder[c]) {
-            samples.push(s)
-          }
-        }
-      } else {
-        samples = this.data.rawForm.samples.slice()
-      }
-      const conditions: string[] = []
-      for (const s of samples) {
-        const condition_replicate = s.split(".")
-        const replicate = condition_replicate[condition_replicate.length-1]
-        const condition = condition_replicate.slice(0, condition_replicate.length-1).join(".")
-        if (!conditions.includes(condition)) {
-          conditions.push(condition)
-        }
-        this.settings.settings.sampleMap[s] = {replicate: replicate, condition: condition, name: s}
-        if (!this.settings.settings.sampleOrder[condition]) {
-          this.settings.settings.sampleOrder[condition] = []
-        }
-        if (!this.settings.settings.sampleOrder[condition].includes(s)) {
-          this.settings.settings.sampleOrder[condition].push(s)
-        }
-
-        if (!(s in this.settings.settings.sampleVisible)) {
-          this.settings.settings.sampleVisible[s] = true
-        }
-        this.data.raw.df = this.data.raw.df.withSeries(s, new Series(this.convertToNumber(this.data.raw.df.getSeries(s).toArray()))).bake()
-        sampleNumber ++
-        this.updateProgressBar(sampleNumber*100/totalSampleNumber, "Processed "+s+" sample data")
-      }
-      if (this.settings.settings.conditionOrder.length === 0) {
-        this.settings.settings.conditionOrder = conditions
-      }
-      let colorPosition = 0
-      const colorMap: any = {}
-      for (const c of conditions) {
-        if (colorPosition >= this.settings.settings.defaultColorList.length) {
-          colorPosition = 0
-        }
-        colorMap[c] = this.settings.settings.defaultColorList[colorPosition]
-        //this.settings.settings.barchartColorMap[c] = null
-        colorPosition++
-      }
-      this.settings.settings.colorMap = colorMap
-      this.data.conditions = conditions
-      this.data.differential.df = this.toUpperCaseColumn(this.data.differentialForm.primaryIDs, this.data.differential.df)
-      this.data.raw.df = this.toUpperCaseColumn(this.data.rawForm.primaryIDs, this.data.raw.df)
-      this.data.differential.df = this.data.differential.df.withSeries(this.data.differentialForm.foldChange, new Series(this.convertToNumber(this.data.differential.df.getSeries(this.data.differentialForm.foldChange).toArray()))).bake()
-      if (this.data.differentialForm.transformFC) {
-        if (!this.transformedFC) {
-          this.data.differential.df = this.data.differential.df.withSeries(this.data.differentialForm.foldChange, new Series(this.log2Convert(this.data.differential.df.getSeries(this.data.differentialForm.foldChange).toArray()))).bake()
-          this.transformedFC = true
-        }
+        this.data.differentialForm.comparison = "CurtainSetComparison";
+        this.data.differentialForm.comparisonSelect = ["1"];
+        this.data.differential.df = this.data.differential.df
+          .withSeries("CurtainSetComparison", new Series(Array(this.data.differential.df.count()).fill("1")))
+          .bake();
       }
 
-      this.updateProgressBar(50, "Processed fold change")
-      this.data.differential.df = this.data.differential.df.withSeries(this.data.differentialForm.significant, new Series(this.convertToNumber(this.data.differential.df.getSeries(this.data.differentialForm.significant).toArray()))).bake()
-      if (this.data.differentialForm.transformSignificant) {
-        if (!this.transformedP) {
-          this.data.differential.df = this.data.differential.df.withSeries(this.data.differentialForm.significant, new Series(this.log10Convert(this.data.differential.df.getSeries(this.data.differentialForm.significant).toArray()))).bake()
-          this.transformedP = true
-        }
-      }
-      this.updateProgressBar(100, "Processed significant")
-      const currentDF = this.data.differential.df.where(r => this.data.differentialForm.comparisonSelect.includes(r[this.data.differentialForm.comparison]))
-      const fc = currentDF.getSeries(this.data.differentialForm.foldChange).where(i => !isNaN(i)).bake()
-      const sign = currentDF.getSeries(this.data.differentialForm.significant).where(i => !isNaN(i)).bake()
-      this.data.minMax = {
-        fcMin: fc.min(),
-        fcMax: fc.max(),
-        pMin: sign.min(),
-        pMax: sign.max()
+      // Set default comparison selection if not specified
+      if (!this.data.differentialForm.comparisonSelect || this.data.differentialForm.comparisonSelect.length === 0) {
+        this.data.differentialForm.comparisonSelect = [this.data.differential.df.first()[this.data.differentialForm.comparison]];
       }
 
-      this.data.currentDF = this.data.differential.df.where(r => this.data.differentialForm.comparisonSelect.includes(r[this.data.differentialForm.comparison]))
-      const d: string[] = []
-      for (const r of this.data.currentDF) {
-        d.push(r[this.data.differentialForm.primaryIDs] + "("+r[this.data.differentialForm.comparison]+")")
-      }
+      await this.processSamples();
+      await this.processDataFrames();
 
-      this.data.currentDF = this.data.currentDF.withSeries("UniquePrimaryIDs", new Series(d)).bake()
-      this.data.primaryIDsList = this.data.currentDF.getSeries(this.data.differentialForm.primaryIDs).distinct().toArray()
-      for (const p of this.data.primaryIDsList) {
-        if (!this.data.primaryIDsMap[p])  {
-          this.data.primaryIDsMap[p] = {}
-          this.data.primaryIDsMap[p][p] = true
-        }
-        for (const n of p.split(";")) {
-          if (!this.data.primaryIDsMap[n]) {
-            this.data.primaryIDsMap[n] = {}
-          }
-          this.data.primaryIDsMap[n][p] = true
+      // Process current differential dataframe
+      const currentDF = this.data.differential.df.where(r =>
+        this.data.differentialForm.comparisonSelect.includes(r[this.data.differentialForm.comparison])
+      );
+
+      this.calculateMinMax(currentDF);
+      this.createUniqueIds(currentDF);
+      this.buildPrimaryIdsMap();
+
+      await this.processUniProt();
+
+    } catch (error) {
+      console.error("Error in processFiles:", error);
+      this.toast.show("Error", "Failed to process files. See console for details.");
+    }
+  }
+
+  /**
+   * Process samples and build sample mapping
+   */
+  private async processSamples(): Promise<void> {
+    const totalSampleNumber = this.data.rawForm.samples.length;
+    let sampleNumber = 0;
+
+    // Determine sample order
+    let samples: string[] = [];
+    const conditionOrder = this.settings.settings.conditionOrder.slice();
+
+    if (conditionOrder.length > 0) {
+      for (const condition of conditionOrder) {
+        for (const sample of this.settings.settings.sampleOrder[condition]) {
+          samples.push(sample);
         }
       }
-      this.processUniProt()
+    } else {
+      samples = this.data.rawForm.samples.slice();
     }
 
+    // Process samples and build condition list
+    const conditions: string[] = [];
+    for (const sample of samples) {
+      const condition_replicate = sample.split(".");
+      const replicate = condition_replicate[condition_replicate.length-1];
+      const condition = condition_replicate.slice(0, condition_replicate.length-1).join(".");
+
+      if (!conditions.includes(condition)) {
+        conditions.push(condition);
+      }
+
+      // Update sample mapping
+      this.settings.settings.sampleMap[sample] = {
+        replicate: replicate,
+        condition: condition,
+        name: sample
+      };
+
+      // Update sample order
+      if (!this.settings.settings.sampleOrder[condition]) {
+        this.settings.settings.sampleOrder[condition] = [];
+      }
+      if (!this.settings.settings.sampleOrder[condition].includes(sample)) {
+        this.settings.settings.sampleOrder[condition].push(sample);
+      }
+
+      // Set sample visibility
+      if (!(sample in this.settings.settings.sampleVisible)) {
+        this.settings.settings.sampleVisible[sample] = true;
+      }
+
+      // Convert sample data to number
+      this.data.raw.df = this.data.raw.df
+        .withSeries(sample, new Series(this.convertToNumber(this.data.raw.df.getSeries(sample).toArray())))
+        .bake();
+
+      sampleNumber++;
+      this.updateProgressBar(sampleNumber * 100 / totalSampleNumber, `Processed ${sample} sample data`);
+    }
+
+    // Set condition order if not already set
+    if (this.settings.settings.conditionOrder.length === 0) {
+      this.settings.settings.conditionOrder = conditions;
+    }
+
+    // Set color map for conditions
+    this.updateColorMap(conditions);
+    this.data.conditions = conditions;
   }
 
-  toUpperCaseColumn(col: string, df: IDataFrame) {
-    const d = df.getSeries(col).bake().toArray()
-    return df.withSeries(col, new Series(d.map(v => v.toUpperCase()))).bake()
+  /**
+   * Update color mapping for conditions
+   */
+  private updateColorMap(conditions: string[]): void {
+    let colorPosition = 0;
+    const colorMap: {[key: string]: string} = {};
+
+    for (const condition of conditions) {
+      if (colorPosition >= this.settings.settings.defaultColorList.length) {
+        colorPosition = 0;
+      }
+      colorMap[condition] = this.settings.settings.defaultColorList[colorPosition];
+      colorPosition++;
+    }
+
+    this.settings.settings.colorMap = colorMap;
   }
 
-  convertToNumber(arr: string[]) {
-    const newCol = arr.map(Number)
-    return newCol
+  /**
+   * Process dataframes (differential and raw)
+   */
+  private async processDataFrames(): Promise<void> {
+    // Convert primary IDs to uppercase
+    this.data.differential.df = this.toUpperCaseColumn(this.data.differentialForm.primaryIDs, this.data.differential.df);
+    this.data.raw.df = this.toUpperCaseColumn(this.data.rawForm.primaryIDs, this.data.raw.df);
+
+    // Process fold change values
+    this.data.differential.df = this.data.differential.df
+      .withSeries(
+        this.data.differentialForm.foldChange,
+        new Series(this.convertToNumber(this.data.differential.df.getSeries(this.data.differentialForm.foldChange).toArray()))
+      )
+      .bake();
+
+    if (this.data.differentialForm.transformFC && !this.transformedFC) {
+      this.data.differential.df = this.data.differential.df
+        .withSeries(
+          this.data.differentialForm.foldChange,
+          new Series(this.log2Convert(this.data.differential.df.getSeries(this.data.differentialForm.foldChange).toArray()))
+        )
+        .bake();
+      this.transformedFC = true;
+    }
+
+    this.updateProgressBar(50, "Processed fold change");
+
+    // Process significance values
+    this.data.differential.df = this.data.differential.df
+      .withSeries(
+        this.data.differentialForm.significant,
+        new Series(this.convertToNumber(this.data.differential.df.getSeries(this.data.differentialForm.significant).toArray()))
+      )
+      .bake();
+
+    if (this.data.differentialForm.transformSignificant && !this.transformedP) {
+      this.data.differential.df = this.data.differential.df
+        .withSeries(
+          this.data.differentialForm.significant,
+          new Series(this.log10Convert(this.data.differential.df.getSeries(this.data.differentialForm.significant).toArray()))
+        )
+        .bake();
+      this.transformedP = true;
+    }
+
+    this.updateProgressBar(100, "Processed significant");
   }
 
-  log2Convert(arr: number[]) {
-    const newCol = arr.map(a => this.log2Stuff(a))
-    return newCol
+  /**
+   * Calculate min/max values for fold change and significance
+   */
+  private calculateMinMax(currentDF: IDataFrame): void {
+    const fc = currentDF
+      .getSeries(this.data.differentialForm.foldChange)
+      .where(i => !isNaN(i))
+      .bake();
+
+    const sign = currentDF
+      .getSeries(this.data.differentialForm.significant)
+      .where(i => !isNaN(i))
+      .bake();
+
+    this.data.minMax = {
+      fcMin: fc.min(),
+      fcMax: fc.max(),
+      pMin: sign.min(),
+      pMax: sign.max()
+    };
   }
 
-  log2Stuff(data: number) {
+  /**
+   * Create unique IDs for dataframe entries
+   */
+  private createUniqueIds(currentDF: IDataFrame): void {
+    this.data.currentDF = currentDF;
+
+    const uniqueIds: string[] = [];
+    for (const row of this.data.currentDF) {
+      uniqueIds.push(`${row[this.data.differentialForm.primaryIDs]}(${row[this.data.differentialForm.comparison]})`);
+    }
+
+    this.data.currentDF = this.data.currentDF
+      .withSeries("UniquePrimaryIDs", new Series(uniqueIds))
+      .bake();
+
+    this.data.primaryIDsList = this.data.currentDF
+      .getSeries(this.data.differentialForm.primaryIDs)
+      .distinct()
+      .toArray();
+  }
+
+  /**
+   * Convert column values to uppercase
+   */
+  toUpperCaseColumn(columnName: string, dataFrame: IDataFrame): IDataFrame {
+    const values = dataFrame.getSeries(columnName).bake().toArray();
+    return dataFrame
+      .withSeries(columnName, new Series(values.map(v => v.toUpperCase())))
+      .bake();
+  }
+
+  /**
+   * Convert array of strings to array of numbers
+   */
+  convertToNumber(arr: string[]): number[] {
+    return arr.map(Number);
+  }
+
+  /**
+   * Convert values to log2
+   */
+  log2Convert(arr: number[]): number[] {
+    return arr.map(value => this.log2Stuff(value));
+  }
+
+  /**
+   * Calculate log2 of a value, handling negative numbers
+   */
+  log2Stuff(data: number): number {
     if (data > 0) {
-      return Math.log2(data)
+      return Math.log2(data);
     } else if (data < 0) {
-      return Math.log2(Math.abs(data))
+      return Math.log2(Math.abs(data));
     } else {
-      return 0
+      return 0;
     }
   }
 
-  log10Convert(arr: number[]) {
-    const newCol = arr.map(a => -Math.log10(a))
-    return newCol
+  /**
+   * Convert values to -log10
+   */
+  log10Convert(arr: number[]): number[] {
+    return arr.map(value => -Math.log10(value));
   }
 
-  processUniProt(){
-    console.log(this.data.fetchUniprot)
+  /**
+   * Process UniProt data if needed
+   */
+  async processUniProt(): Promise<void> {
+    console.log(this.data.fetchUniprot);
+
     if (this.data.fetchUniprot) {
-
       if (!this.data.bypassUniProt) {
-        this.uniprot.geneNameToAcc = {}
-        this.uniprot.uniprotParseStatus.next(false)
-        const accList: string[] = []
-        this.data.dataMap = new Map<string, string>()
-        this.data.genesMap = {}
-        this.uniprot.accMap = new Map<string, string[]>()
-        this.uniprot.dataMap = new Map<string, any>()
-        console.log(this.data.raw.df)
-        for (const r of this.data.raw.df) {
-          const a = r[this.data.rawForm.primaryIDs]
+        try {
+          this.resetUniProtData();
+          const accList = await this.buildAccessionList();
 
-          this.data.dataMap.set(a, r[this.data.rawForm.primaryIDs])
-          this.data.dataMap.set(r[this.data.rawForm.primaryIDs], a)
-          const d = a.split(";")
-          const accession = this.uniprot.Re.exec(d[0])
-          if (accession) {
-            if (this.uniprot.accMap.has(a)) {
-              const al = this.uniprot.accMap.get(a)
-              if (al) {
-                if (!al.includes(accession[1])) {
-                  al.push(accession[1])
-                  this.uniprot.accMap.set(a, al)
-                }
-              }
-            } else {
-              this.uniprot.accMap.set(a, [accession[1]])
-            }
-            if (this.uniprot.accMap.has(accession[1])) {
-              const al = this.uniprot.accMap.get(accession[1])
-              if (al) {
-                if (!al.includes(a)) {
-                  al.push(a)
-                  this.uniprot.accMap.set(accession[1], al)
-                }
-              }
-            } else {
-              this.uniprot.accMap.set(accession[1], [a])
-            }
+          if (accList.length > 0) {
+            await this.toast.show("UniProt", "Building local UniProt database. This may take a few minutes.");
+            this.uniprot.db = new Map<string, any>();
 
-            if (!this.uniprot.dataMap.has(accession[1])) {
-              accList.push(accession[1])
-            }
+            const allGenes = await this.createUniprotDatabase(accList);
+            await this.toast.show(
+              "UniProt",
+              `Finished building local UniProt database. ${allGenes.length} genes found.`
+            );
+
+            this.data.allGenes = allGenes;
+            this.completeProcessing();
+          } else {
+            this.completeProcessing();
           }
-        }
-        console.log(accList)
-        if (accList.length > 0) {
-          this.toast.show("UniProt", "Building local UniProt database. This may take a few minutes.").then(() => {
-            this.uniprot.db = new Map<string, any>()
-            this.createUniprotDatabase(accList).then((allGenes) => {
-              this.toast.show("UniProt", "Finished building local UniProt database. " + allGenes.length + " genes found.")
-              this.data.allGenes = allGenes
-              this.finished.emit(true)
-              this.clicked = false
-              this.uniprot.uniprotParseStatus.next(false)
-              this.updateProgressBar(100, "Finished")
-            });
-          })
-        } else {
-          this.finished.emit(true)
-          this.clicked = false
-          this.updateProgressBar(100, "Finished")
+        } catch (error) {
+          console.error("Error in UniProt processing:", error);
+          this.toast.show("Error", "Failed to process UniProt data. See console for details.");
+          this.completeProcessing();
         }
       } else {
-        this.finished.emit(true)
-        this.clicked = false
-        this.data.bypassUniProt = false
-        this.updateProgressBar(100, "Finished")
+        this.data.bypassUniProt = false;
+        this.completeProcessing();
       }
-
     } else {
-      this.uniprot.geneNameToAcc = {}
-      if (this.data.differentialForm.geneNames !== "") {
-        for (const r of this.data.currentDF) {
-          if (r[this.data.differentialForm.geneNames]) {
-            const g = r[this.data.differentialForm.geneNames]
-            if (!this.data.genesMap[g])  {
-              this.data.genesMap[g] = {}
-              this.data.genesMap[g][g] = true
-            }
-            for (const n of g.split(";")) {
-              if (!this.data.genesMap[n]) {
-                this.data.genesMap[n] = {}
-              }
-              this.data.genesMap[n][g] = true
-            }
-            if (!this.data.allGenes.includes(g)) {
-              this.data.allGenes.push(g)
-            }
-            if (!this.uniprot.geneNameToAcc[g]) {
-              this.uniprot.geneNameToAcc[g] = {}
-            }
-            this.uniprot.geneNameToAcc[g][r[this.data.differentialForm.primaryIDs]] = true
-          }
-        }
-        this.data.allGenes = this.data.currentDF.getSeries(this.data.differentialForm.geneNames).distinct().toArray().filter(v => v !== "")
-      }
-      this.finished.emit(true)
-      this.clicked = false
-      this.updateProgressBar(100, "Finished")
+      // Process gene names without UniProt
+      this.processGeneNamesWithoutUniProt();
+      this.completeProcessing();
     }
   }
 
-  private async createUniprotDatabase(accList: string[]) {
-    await this.uniprot.UniprotParserJS(accList)
-    const allGenes: string[] = []
-    for (const p of this.data.primaryIDsList) {
+  /**
+   * Reset UniProt data structures
+   */
+  private resetUniProtData(): void {
+    this.uniprot.geneNameToAcc = {};
+    this.uniprot.uniprotParseStatus.next(false);
+    this.data.dataMap = new Map<string, string>();
+    this.data.genesMap = {};
+    this.uniprot.accMap = new Map<string, string[]>();
+    this.uniprot.dataMap = new Map<string, any>();
+  }
+
+  /**
+   * Build accession list from raw data
+   */
+  private async buildAccessionList(): Promise<string[]> {
+    const accList: string[] = [];
+
+    for (const row of this.data.raw.df) {
+      const primaryId = row[this.data.rawForm.primaryIDs];
+
+      this.data.dataMap.set(primaryId, primaryId);
+      this.data.dataMap.set(row[this.data.rawForm.primaryIDs], primaryId);
+
+      const idParts = primaryId.split(";");
+      const accession = this.uniprot.Re.exec(idParts[0]);
+
+      if (accession) {
+        this.updateAccessionMapping(primaryId, accession[1]);
+
+        if (!this.uniprot.dataMap.has(accession[1])) {
+          accList.push(accession[1]);
+        }
+      }
+    }
+
+    return accList;
+  }
+
+  /**
+   * Update accession mapping
+   */
+  private updateAccessionMapping(primaryId: string, accessionId: string): void {
+    // Update primaryId -> accessionId mapping
+    if (this.uniprot.accMap.has(primaryId)) {
+      const accList = this.uniprot.accMap.get(primaryId);
+      if (accList && !accList.includes(accessionId)) {
+        accList.push(accessionId);
+        this.uniprot.accMap.set(primaryId, accList);
+      }
+    } else {
+      this.uniprot.accMap.set(primaryId, [accessionId]);
+    }
+
+    // Update accessionId -> primaryId mapping
+    if (this.uniprot.accMap.has(accessionId)) {
+      const accList = this.uniprot.accMap.get(accessionId);
+      if (accList && !accList.includes(primaryId)) {
+        accList.push(primaryId);
+        this.uniprot.accMap.set(accessionId, accList);
+      }
+    } else {
+      this.uniprot.accMap.set(accessionId, [primaryId]);
+    }
+  }
+
+  /**
+   * Process gene names without UniProt
+   */
+  private processGeneNamesWithoutUniProt(): void {
+    this.uniprot.geneNameToAcc = {};
+
+    if (this.data.differentialForm.geneNames !== "") {
+      for (const row of this.data.currentDF) {
+        const geneName = row[this.data.differentialForm.geneNames];
+
+        if (geneName) {
+          this.updateGeneNameMapping(geneName, row[this.data.differentialForm.primaryIDs]);
+        }
+      }
+
+      // Get unique gene names
+      this.data.allGenes = this.data.currentDF
+        .getSeries(this.data.differentialForm.geneNames)
+        .distinct()
+        .toArray()
+        .filter(v => v !== "");
+    }
+  }
+
+  /**
+   * Update gene name mapping
+   */
+  private updateGeneNameMapping(geneName: string, primaryId: string): void {
+    // Add to genes map
+    if (!this.data.genesMap[geneName]) {
+      this.data.genesMap[geneName] = {};
+      this.data.genesMap[geneName][geneName] = true;
+    }
+
+    // Process split gene names
+    for (const namePart of geneName.split(";")) {
+      if (!this.data.genesMap[namePart]) {
+        this.data.genesMap[namePart] = {};
+      }
+      this.data.genesMap[namePart][geneName] = true;
+    }
+
+    // Add to allGenes if needed
+    if (!this.data.allGenes.includes(geneName)) {
+      this.data.allGenes.push(geneName);
+    }
+
+    // Update accession mapping
+    if (!this.uniprot.geneNameToAcc[geneName]) {
+      this.uniprot.geneNameToAcc[geneName] = {};
+    }
+    this.uniprot.geneNameToAcc[geneName][primaryId] = true;
+  }
+
+  /**
+   * Create UniProt database from accession list
+   */
+  private async createUniprotDatabase(accList: string[]): Promise<string[]> {
+    await this.uniprot.UniprotParserJS(accList);
+    const allGenes: string[] = [];
+
+    for (const primaryId of this.data.primaryIDsList) {
       try {
-        const uni: any = this.uniprot.getUniprotFromPrimary(p)
-        if (uni) {
-          if (uni["Gene Names"]) {
-            if (uni["Gene Names"] !== "") {
-              if (!allGenes.includes(uni["Gene Names"])) {
-                allGenes.push(uni["Gene Names"])
-                if (!this.data.genesMap[uni["Gene Names"]]) {
-                  this.data.genesMap[uni["Gene Names"]] = {}
-                  this.data.genesMap[uni["Gene Names"]][uni["Gene Names"]] = true
-                }
-                for (const n of uni["Gene Names"].split(";")) {
-                  if (!this.data.genesMap[n]) {
-                    this.data.genesMap[n] = {}
-                  }
-                  this.data.genesMap[n][uni["Gene Names"]] = true
-                }
-              }
-            }
+        const uniprotEntry = this.uniprot.getUniprotFromPrimary(primaryId);
+
+        if (uniprotEntry && uniprotEntry["Gene Names"] && uniprotEntry["Gene Names"] !== "") {
+          const geneName = uniprotEntry["Gene Names"];
+
+          if (!allGenes.includes(geneName)) {
+            allGenes.push(geneName);
+            this.updateGeneNameMapping(geneName, primaryId);
           }
         }
-      } catch (e) {
-        console.log(e)
+      } catch (error) {
+        console.log(error);
       }
     }
-    return allGenes
+
+    return allGenes;
   }
 
-  handleFileLoadingProgress(progress:number, fileType: string) {
+  /**
+   * Complete the processing workflow
+   */
+  private completeProcessing(): void {
+    this.finished.emit(true);
+    this.clicked = false;
+    this.uniprot.uniprotParseStatus.next(false);
+    this.updateProgressBar(100, "Finished");
+  }
+
+  /**
+   * Handle file loading progress updates
+   */
+  handleFileLoadingProgress(progress: number, fileType: string): void {
     if (progress === 100) {
-      this.updateProgressBar(progress, "Finished loading "+fileType)
+      this.updateProgressBar(progress, `Finished loading ${fileType}`);
     } else {
-      this.updateProgressBar(progress, "Loading "+fileType)
+      this.updateProgressBar(progress, `Loading ${fileType}`);
     }
   }
 }

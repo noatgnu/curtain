@@ -1,141 +1,205 @@
-<div class="d-grid gap-2 d-md-flex justify-content-md-end mt-2">
-  <button class="btn btn-primary" *ngIf="cytoplot" (click)="cytoplot.download()">Download PNG</button>
-  <app-comparison-selections (selection)="handleSelection($event)"></app-comparison-selections>
-</div>
-<div class="row mt-2 ml-2 mr-2">
-  <div class="col-8">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-center">
-          <div class="p-2">
-            <app-cytoplot *ngIf="hasError === false" #cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)"></app-cytoplot>
-            <div class="card bg-danger" *ngIf="hasError===true">
-              <div class="card-body">
-                <p class="text-danger">No data found</p>
+<div class="container-fluid p-0">
+  <!-- Header actions -->
+  <div class="d-flex justify-content-end gap-2 mb-3">
+    @if (cytoplot) {
+      <button class="btn btn-primary btn-sm" (click)="cytoplot.download()">
+        <i class="bi bi-download me-1"></i>Download PNG
+      </button>
+    }
+    <app-comparison-selections (selection)="handleSelection($event)"></app-comparison-selections>
+  </div>
+
+  <div class="row g-3">
+    <!-- Main visualization area -->
+    <div class="col-md-8 d-flex flex-column">
+      <div class="card border-primary mb-3 flex-grow-0 w-100">
+        <div class="card-header bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Interactome Atlas Visualization</h5>
+          @if (!hasError) {
+            <span class="badge bg-info">Drag to reposition • Scroll to zoom</span>
+          }
+        </div>
+        <div class="card-body p-2">
+          <div class="cytoplot-container">
+            @if (!hasError) {
+              <app-cytoplot #cytoplot [drawData]="drawData" (clickedID)="viewEvidences($event)" class="w-100 h-100"></app-cytoplot>
+            } @else {
+              <div class="alert alert-danger w-100 text-center">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span>No interaction data found for this protein</span>
               </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Evidence table -->
+      @if (selected) {
+        <div class="card mb-3 evidence-card w-100">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title h6 mb-0">Evidence Details</h5>
+            <span class="badge bg-secondary">{{selected.length}} items</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="evidence-table-container">
+              <table class="table table-striped table-hover mb-0">
+                <thead class="table-light sticky-top">
+                <tr>
+                  <th scope="col" class="text-center" style="width: 40px">#</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Author</th>
+                  <th scope="col">Year</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Reference</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (s of selected; track s.name; let i = $index) {
+                    <tr>
+                      <th scope="row" class="text-center">{{ i + 1 }}</th>
+                      <td>{{s["name"]}}</td>
+                      <td>{{s["dataset_author"]}}</td>
+                      <td>{{s["year"]}}</td>
+                      <td>{{s["description"]}}</td>
+                      <td>{{s["interaction_status"]}}</td>
+                      <td>{{s["dataset_reference"]}}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-
-
-      </div>
+      }
     </div>
-    <div class="card mt-2 mb-2" *ngIf="selected">
-      <div class="card-body">
-        <table class="table table-striped">
-          <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Author</th>
-            <th scope="col">Year</th>
-            <th scope="col">Description</th>
-            <th scope="col">Status</th>
-            <th scope="col">Reference</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let s of selected; index as i">
-            <th scope="row">{{ i + 1 }}</th>
-            <td>{{s["name"]}}</td>
-            <td>{{s["dataset_author"]}}</td>
-            <td>{{s["year"]}}</td>
-            <td>{{s["description"]}}</td>
-            <td>{{s["interaction_status"]}}</td>
-            <td>{{s["dataset_reference"]}}</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <div class="col-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="form-check">
-          <input type="checkbox" id="interactomFilter" class="form-check-input" [(ngModel)]="enableFilter">
-          <label class="form-check-label" for="interactomFilter">Enable Filter</label>
+
+    <!-- Control panel area -->
+    <div class="col-md-4">
+      <!-- Filter settings -->
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title h6 mb-0">Filter Settings</h5>
         </div>
-        <div class="form-group">
-          <label>Score cutoff:</label>
-          <input type="number" class="form-control" [(ngModel)]="cutoff" [disabled]="enableFilter === false">
+        <div class="card-body">
+          <div class="form-check mb-3">
+            <input type="checkbox" id="interactomFilter" class="form-check-input" [(ngModel)]="enableFilter">
+            <label class="form-check-label" for="interactomFilter">Enable Filtering</label>
+          </div>
+          <div class="mb-3">
+            <label for="scoreCutoff" class="form-label">Score Cutoff:</label>
+            <div class="input-group">
+              <input
+                type="number"
+                id="scoreCutoff"
+                class="form-control"
+                [(ngModel)]="cutoff"
+                [disabled]="!enableFilter"
+                aria-describedby="cutoffHelp">
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                [disabled]="!enableFilter"
+                (click)="cutoff = cutoff === 0 ? 0.5 : 0">
+                {{cutoff > 0 ? 'Reset' : 'Suggest'}}
+              </button>
+            </div>
+            <div id="cutoffHelp" class="form-text">Higher values show only stronger interactions</div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="card mt-2">
-      <div class="card-body">
-        <form [formGroup]="form">
-          <table>
-            <thead>
-            <tr>
-              <th scope="col">Nodes color</th>
-              <th scope="col">Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td>
-                <input formControlName="Increase" (colorPickerChange)="updateColor($event, 'Increase')" class="form-control" [(colorPicker)]="colorMap['Increase']" [style.background]="colorMap['Increase']">
-              </td>
-              <td>Increased abundance</td>
-            </tr>
-            <tr>
-              <td>
-                <input formControlName="Decrease" (colorPickerChange)="updateColor($event, 'Decrease')" class="form-control" [(colorPicker)]="colorMap['Decrease']" [style.background]="colorMap['Decrease']">
-              </td>
-              <td>Decreased abundance</td>
-            </tr>
-            <tr>
-              <td>
-                <input formControlName="No change" (colorPickerChange)="updateColor($event, 'Increase')" class="form-control" [(colorPicker)]="colorMap['No change']" [style.background]="colorMap['No change']">
-              </td>
-              <td>Protein found in data set but was not changed according to volcano plot settings</td>
-            </tr>
-            <tr>
-              <td>
-                <input formControlName="Not found" (colorPickerChange)="updateColor($event, 'Not found')" class="form-control" [(colorPicker)]="colorMap['Not found']" [style.background]="colorMap['Not found']">
-              </td>
-              <td>Protein not found in data set</td>
-            </tr>
-          </table>
-        </form>
-      </div>
-    </div>
-    <div class="card mt-2">
-      <div class="card-body">
-        <form [formGroup]="form">
-          <table>
-            <thead>
-            <tr>
-              <th scope="col">Edges color</th>
-              <th scope="col">Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td>
-                <input formControlName="HI-Union" (colorPickerChange)="updateColor($event, 'HI-Union')" class="form-control" [(colorPicker)]="colorMap['HI-Union']" [style.background]="colorMap['HI-Union']">
-              </td>
-              <td>HI-Union</td>
-            </tr>
-            <tr>
-              <td>
-                <input formControlName="Literature" (colorPickerChange)="updateColor($event, 'Literature')" class="form-control" [(colorPicker)]="colorMap['Literature']" [style.background]="colorMap['Literature']">
-              </td>
-              <td>Literature</td>
-            </tr>
-            <tr>
-              <td>
-                <input formControlName="HI-Union and Literature" (colorPickerChange)="updateColor($event, 'HI-Union and Literature')" class="form-control" [(colorPicker)]="colorMap['HI-Union and Literature']" [style.background]="colorMap['HI-Union and Literature']">
-              </td>
-              <td>HI-Union and Literature</td>
-          </table>
-        </form>
-      </div>
-    </div>
 
-    <div class="mt-2">
-      <button class="btn btn-primary" (click)="reformatInteraction()">Update</button>
+      <!-- Node color settings -->
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title h6 mb-0">Node Color Settings</h5>
+        </div>
+        <div class="card-body p-0">
+          <form [formGroup]="form">
+            <table class="table table-bordered table-sm mb-0">
+              <thead class="table-light">
+              <tr>
+                <th scope="col" style="width: 100px">Color</th>
+                <th scope="col">Description</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (item of ['Increase', 'Decrease', 'No change', 'Not found']; track item) {
+                  <tr>
+                    <td>
+                      <input
+                        [formControlName]="item"
+                        (colorPickerChange)="updateColor($event, item)"
+                        class="form-control form-control-sm color-input"
+                        [(colorPicker)]="colorMap[item]"
+                        [style.background]="colorMap[item]"
+                        [attr.aria-label]="'Set color for ' + item">
+                    </td>
+                    <td class="small">
+                      @switch (item) {
+                        @case ('Increase') {
+                          Increased abundance
+                        }
+                        @case ('Decrease') {
+                          Decreased abundance
+                        }
+                        @case ('No change') {
+                          Protein found in dataset without significant change
+                        }
+                        @case ('Not found') {
+                          Protein not found in dataset
+                        }
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </form>
+        </div>
+      </div>
+
+      <!-- Edge color settings -->
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title h6 mb-0">Edge Color Settings</h5>
+        </div>
+        <div class="card-body p-0">
+          <form [formGroup]="form">
+            <table class="table table-bordered table-sm mb-0">
+              <thead class="table-light">
+              <tr>
+                <th scope="col" style="width: 100px">Color</th>
+                <th scope="col">Description</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (item of ['HI-Union', 'Literature', 'HI-Union and Literature']; track item) {
+                  <tr>
+                    <td>
+                      <input
+                        [formControlName]="item"
+                        (colorPickerChange)="updateColor($event, item)"
+                        class="form-control form-control-sm color-input"
+                        [(colorPicker)]="colorMap[item]"
+                        [style.background]="colorMap[item]"
+                        [attr.aria-label]="'Set color for ' + item">
+                    </td>
+                    <td class="small">{{item}}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </form>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="d-grid gap-2">
+        <button class="btn btn-primary" (click)="reformatInteraction()">
+          <i class="bi bi-arrow-repeat me-1"></i>Apply Changes
+        </button>
+      </div>
     </div>
   </div>
 </div>

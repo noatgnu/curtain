@@ -1,245 +1,246 @@
-<div class="d-flex justify-content-around">
-  <div class="d-flex justify-content-center align-items-center flex-grow-1">
+<div class="row">
+  <div class="col-lg-8 mb-3">
     <div class="d-flex flex-column">
       @if (config.editable) {
-        <div class="alert alert-info">
-          <p>Edit mode is currently activated</p>
-          <ul>
+        <div class="alert alert-info mb-3">
+          <h5><i class="bi bi-info-circle me-2"></i>Edit mode is currently activated</h5>
+          <ul class="mb-0">
             <li>Click on the plot title or axis title to edit them directly</li>
             <li>Data point annotations can now be freely dragged</li>
             <li>Legends can now also be freely dragged</li>
           </ul>
         </div>
       }
-      <plotly-plot
-        [divId]="'volcanoPlot'"
-        [data]="graphData"
-        [layout]="graphLayout"
-        [config]="config"
-        [updateOnLayoutChange]="true"
-        [revision]="revision"
 
-        (plotlyClick)="selectData($event)"
-        (selected)="selectData($event)"
-        (legendClick)="legendClickHandler($event)"
-        (relayout)="handleLayoutChange($event)"
-      ></plotly-plot>
+      <div class="plotly-container">
+        <plotly-plot
+          [divId]="'volcanoPlot'"
+          [data]="graphData"
+          [layout]="graphLayout"
+          [config]="config"
+          [updateOnLayoutChange]="true"
+          [revision]="revision"
+          (plotlyClick)="selectData($event)"
+          (selected)="selectData($event)"
+          (legendClick)="legendClickHandler($event)"
+          (relayout)="handleLayoutChange($event)"
+        ></plotly-plot>
+      </div>
     </div>
-
   </div>
-  <div class="flex-grow-0" style="max-width: 500px">
+
+  <div class="col-lg-4">
     <div class="accordion">
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button [ngClass]="{'accordion-button': true, 'collapsed': isVolcanoParameterCollapsed}" type="button" (click)="isVolcanoParameterCollapsed=!isVolcanoParameterCollapsed">
+          <button [ngClass]="{'accordion-button': true, 'collapsed': isVolcanoParameterCollapsed}"
+                  type="button"
+                  (click)="isVolcanoParameterCollapsed=!isVolcanoParameterCollapsed"
+                  aria-controls="volcano-settings-panel">
             Volcano Plot Settings
           </button>
         </h2>
-        <div #collapse="ngbCollapse" [(ngbCollapse)]="isVolcanoParameterCollapsed">
+        <div #collapse="ngbCollapse" [(ngbCollapse)]="isVolcanoParameterCollapsed" id="volcano-settings-panel">
           <div class="accordion-body">
             <ul #nav="ngbNav" ngbNav [(activeId)]="settingsNav" class="nav-tabs">
               <li [ngbNavItem]="'parameters'">
                 <button ngbNavLink>Plot Parameters</button>
                 <ng-template ngbNavContent>
-                  <div class="form-check">
-                    <input type="checkbox" class="form-check-input" [(ngModel)]="editMode">
-                    <label class="form-check-label">Editable Mode (enable free movement and editing of text and other element of the plot)</label>
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <label for="width">
-                        Plot Width
-                      </label>
-                      <input id="width" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.width">
-                    </div>
-                    <div class="p-2">
-                      <label for="height">
-                        Plot Height
-                      </label>
-                      <input id="height" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.height">
-                    </div>
-                  </div>
-                  <div>
-                    <label for="xTitle">
-                      X-axis Title
+                  <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="editMode" [(ngModel)]="editMode">
+                    <label class="form-check-label" for="editMode">
+                      Enable edit mode (free movement and text editing)
                     </label>
-                    <input id="xTitle" type="text" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.x">
                   </div>
-                  <div>
-                    <label for="yTitle">
-                      Y-axis Title
-                    </label>
-                    <input id="yTitle" type="text" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.y">
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <label for="marginTop">
-                        Margin Top
-                      </label>
-                      <input id="marginTop" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.margin.t">
-                    </div>
-                    <div class="p-2">
-                      <label for="marginBottom">
-                        Margin Bottom
-                      </label>
-                      <input id="marginBottom" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.margin.b">
-                    </div>
 
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <label for="marginRight">
-                        Margin Right
-                      </label>
-                      <input id="marginRight" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.margin.r">
-                    </div>
-                    <div class="p-2">
-                      <label for="marginLeft">
-                        Margin Left
-                      </label>
-                      <input id="marginLeft" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.margin.l">
-                    </div>
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <label for="significant">
-                        Significant Cutoff
-                      </label>
-                      <input id="significant" type="number" class="form-control" [(ngModel)]="settings.settings.pCutoff">
-                    </div>
-                    <div class="p-2">
-                      <label for="foldchange">
-                        Log2 Fold Change Cutoff
-                      </label>
-                      <input id="foldchange" type="number" class="form-control" [(ngModel)]="settings.settings.log2FCCutoff">
+                  <div class="card mb-3">
+                    <div class="card-header bg-light">Plot Dimensions</div>
+                    <div class="card-body">
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <label for="width" class="form-label">Plot Width</label>
+                          <input id="width" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.width">
+                        </div>
+                        <div class="col-6">
+                          <label for="height" class="form-label">Plot Height</label>
+                          <input id="height" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.height">
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <label for="maxX">
-                        Max X-axis
-                      </label>
-                      <input id="maxX" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.maxX">
-                    </div>
-                    <div class="p-2">
-                      <label for="minX">
-                        Min X-axis
-                      </label>
-                      <input id="minX" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.minX">
-                    </div>
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <label for="dtickX">
-                        X-axis Tick Interval
-                      </label>
-                      <input id="dtickX" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.dtickX">
-                    </div>
-                    <div class="p-2">
-                      <label for="ticklenX">
-                        X-axis Tick Length
-                      </label>
-                      <input id="ticklenX" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.ticklenX">
-                    </div>
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <label for="maxY">
-                        Max Y-axis
-                      </label>
-                      <input id="maxY" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.maxY">
-                    </div>
-                    <div class="p-2">
-                      <label for="minY">
-                        Min Y-axis
-                      </label>
-                      <input id="minY" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.minY">
-                    </div>
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <label for="dtickY">
-                        Y-axis Tick Interval
-                      </label>
-                      <input id="dtickY" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.dtickY">
-                    </div>
-                    <div class="p-2">
-                      <label for="ticklenY">
-                        Y-axis Tick Length
-                      </label>
-                      <input id="ticklenY" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.ticklenY">
-                    </div>
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <label for="plotTitle">
-                        Plot Title
-                      </label>
-                      <input id="plotTitle" type="text" class="form-control" [(ngModel)]="settings.settings.volcanoPlotTitle">
-                    </div>
-                    <div class="p-2">
-                      <label for="markerSize">Marker Size</label>
-                      <input id="markerSize" type="number" class="form-control" [(ngModel)]="markerSize">
-                    </div>
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <div class="form-group">
 
-                        <label class="form-check-label" for="custom-volcano-text-col">Custom Popup Label Column</label>
-                        <select id="custom-volcano-text-col" [(ngModel)]="settings.settings.customVolcanoTextCol" class="form-control">
+                  <div class="card mb-3">
+                    <div class="card-header bg-light">Axis Settings</div>
+                    <div class="card-body">
+                      <div class="mb-2">
+                        <label for="xTitle" class="form-label">X-axis Title</label>
+                        <input id="xTitle" type="text" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.x">
+                      </div>
+                      <div class="mb-3">
+                        <label for="yTitle" class="form-label">Y-axis Title</label>
+                        <input id="yTitle" type="text" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.y">
+                      </div>
+
+                      <div class="row g-2 mb-2">
+                        <div class="col-6">
+                          <label for="maxX" class="form-label">Max X-axis</label>
+                          <input id="maxX" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.maxX">
+                        </div>
+                        <div class="col-6">
+                          <label for="minX" class="form-label">Min X-axis</label>
+                          <input id="minX" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.minX">
+                        </div>
+                      </div>
+
+                      <div class="row g-2 mb-2">
+                        <div class="col-6">
+                          <label for="dtickX" class="form-label">X-axis Tick Interval</label>
+                          <input id="dtickX" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.dtickX">
+                        </div>
+                        <div class="col-6">
+                          <label for="ticklenX" class="form-label">X-axis Tick Length</label>
+                          <input id="ticklenX" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.ticklenX">
+                        </div>
+                      </div>
+
+                      <div class="row g-2 mb-2">
+                        <div class="col-6">
+                          <label for="maxY" class="form-label">Max Y-axis</label>
+                          <input id="maxY" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.maxY">
+                        </div>
+                        <div class="col-6">
+                          <label for="minY" class="form-label">Min Y-axis</label>
+                          <input id="minY" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.minY">
+                        </div>
+                      </div>
+
+                      <div class="row g-2 mb-2">
+                        <div class="col-6">
+                          <label for="dtickY" class="form-label">Y-axis Tick Interval</label>
+                          <input id="dtickY" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.dtickY">
+                        </div>
+                        <div class="col-6">
+                          <label for="ticklenY" class="form-label">Y-axis Tick Length</label>
+                          <input id="ticklenY" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoAxis.ticklenY">
+                        </div>
+                      </div>
+
+                      <div class="mb-2">
+                        <label for="yaxisPosition" class="form-label">Y-axis position</label>
+                        <select id="yaxisPosition" class="form-select" multiple [(ngModel)]="settings.settings.volcanoPlotYaxisPosition">
+                          <option value="left">Left</option>
+                          <option value="middle">Zero</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-3">
+                    <div class="card-header bg-light">Margins</div>
+                    <div class="card-body">
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <label for="marginTop" class="form-label">Top</label>
+                          <input id="marginTop" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.margin.t">
+                        </div>
+                        <div class="col-6">
+                          <label for="marginBottom" class="form-label">Bottom</label>
+                          <input id="marginBottom" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.margin.b">
+                        </div>
+                      </div>
+                      <div class="row g-2 mt-2">
+                        <div class="col-6">
+                          <label for="marginRight" class="form-label">Right</label>
+                          <input id="marginRight" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.margin.r">
+                        </div>
+                        <div class="col-6">
+                          <label for="marginLeft" class="form-label">Left</label>
+                          <input id="marginLeft" type="number" class="form-control" [(ngModel)]="settings.settings.volcanoPlotDimension.margin.l">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-3">
+                    <div class="card-header bg-light">Plot Thresholds</div>
+                    <div class="card-body">
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <label for="significant" class="form-label">Significant Cutoff</label>
+                          <input id="significant" type="number" class="form-control" [(ngModel)]="settings.settings.pCutoff">
+                        </div>
+                        <div class="col-6">
+                          <label for="foldchange" class="form-label">Log2 FC Cutoff</label>
+                          <input id="foldchange" type="number" class="form-control" [(ngModel)]="settings.settings.log2FCCutoff">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-3">
+                    <div class="card-header bg-light">Visual Settings</div>
+                    <div class="card-body">
+                      <div class="row g-2 mb-3">
+                        <div class="col-6">
+                          <label for="plotTitle" class="form-label">Plot Title</label>
+                          <input id="plotTitle" type="text" class="form-control" [(ngModel)]="settings.settings.volcanoPlotTitle">
+                        </div>
+                        <div class="col-6">
+                          <label for="markerSize" class="form-label">Marker Size</label>
+                          <input id="markerSize" type="number" class="form-control" [(ngModel)]="markerSize">
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label" for="custom-volcano-text-col">Custom Popup Label Column</label>
+                        <select id="custom-volcano-text-col" [(ngModel)]="settings.settings.customVolcanoTextCol" class="form-select">
                           <option [value]="''">Default</option>
                           <option *ngFor="let col of dataService.differential.df.getColumnNames()" [value]="col">{{col}}</option>
                         </select>
                         <small class="text-muted">Changes here will only affect newly added annotation ids.</small>
                       </div>
-                    </div>
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <div class="form-check">
-                        <input type="checkbox" id="backgroundGrey" class="form-check-input" [(ngModel)]="settings.settings.backGroundColorGrey">
-                        <label class="form-check-label" for="backgroundGrey">Set Background Data Points Grey</label>
+
+                      <div class="row g-2 mb-3">
+                        <div class="col-6">
+                          <div class="form-check">
+                            <input type="checkbox" id="backgroundGrey" class="form-check-input" [(ngModel)]="settings.settings.backGroundColorGrey">
+                            <label class="form-check-label" for="backgroundGrey">Grey Background Points</label>
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <div class="form-check">
+                            <input type="checkbox" id="scattergl" class="form-check-input" [(ngModel)]="scattergl">
+                            <label class="form-check-label" for="scattergl">Use scattergl</label>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div class="p-2">
-                      <div class="form-check">
-                        <input type="checkbox" id="scattergl" class="form-check-input" [(ngModel)]="scattergl">
-                        <label class="form-check-label" for="scattergl">scattergl backend</label>
+
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <div class="form-check">
+                            <input type="checkbox" id="showVerticalGrid" class="form-check-input" [(ngModel)]="settings.settings.volcanoPlotGrid.x">
+                            <label class="form-check-label" for="showVerticalGrid">Vertical Grid</label>
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <div class="form-check">
+                            <input type="checkbox" id="showHorizontalGrid" class="form-check-input" [(ngModel)]="settings.settings.volcanoPlotGrid.y">
+                            <label class="form-check-label" for="showHorizontalGrid">Horizontal Grid</label>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <div class="form-check">
-                        <input type="checkbox" id="showVerticalGrid" class="form-check-input" [(ngModel)]="settings.settings.volcanoPlotGrid.x">
-                        <label class="form-check-label" for="showVerticalGrid">Show Vertical Grid</label>
-                      </div>
-                    </div>
-                    <div class="p-2">
-                      <div class="form-check">
-                        <input type="checkbox" id="showHorizontalGrid" class="form-check-input" [(ngModel)]="settings.settings.volcanoPlotGrid.y">
-                        <label class="form-check-label" for="showHorizontalGrid">Show Horizontal Grid</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="d-flex">
-                    <div class="p-2">
-                      <label for="yaxisPosition">Y-axis position</label>
-                      <select id="yaxisPosition" class="form-control" multiple [(ngModel)]="settings.settings.volcanoPlotYaxisPosition">
-                        <option value="left">Left</option>
-                        <option value="middle">Zero</option>
-                      </select>
                     </div>
                   </div>
                 </ng-template>
               </li>
+
               <li [ngbNavItem]="'annotation'">
                 <button ngbNavLink>Annotation</button>
                 <ng-template ngbNavContent>
                   <app-annotation (updateAnnotation)="updateAnnotation($event)"></app-annotation>
                 </ng-template>
               </li>
+
               <li [ngbNavItem]="'shapes'">
                 <button ngbNavLink>Shapes</button>
                 <ng-template ngbNavContent>
@@ -247,20 +248,34 @@
                 </ng-template>
               </li>
             </ul>
-            <div [ngbNavOutlet]="nav" class="mt-2"></div>
-            <div ngbDropdown class="d-inline-block">
-              <button type="button" class="btn btn-primary" id="volcanoAction" ngbDropdownToggle>
-                Volcano Plot Actions
-              </button>
-              <div ngbDropdownMenu aria-labelledby="volcanoAction">
-                <button ngbDropdownItem (click)="drawVolcano()">Redraw Plot</button>
-                <button ngbDropdownItem (click)="FDRCurveSettings()">Custom FDR Curve</button>
-                <button ngbDropdownItem (click)="openCustomColor()">Custom Legend Color</button>
-                <button ngbDropdownItem (click)="openTextEditor()">Annotation Text Editor</button>
-                <button ngbDropdownItem (click)="openColorByCategoryModal()">Color By Category Column</button>
-                <button ngbDropdownItem (click)="clear()">Clear Selections</button>
-                <!--<button ngbDropdownItem (click)="download()">Download SVG</button>
-              -->
+
+            <div [ngbNavOutlet]="nav" class="mt-3 mb-3"></div>
+
+            <div class="d-grid">
+              <div ngbDropdown>
+                <button type="button" class="btn btn-primary w-100" id="volcanoAction" ngbDropdownToggle>
+                  Volcano Plot Actions
+                </button>
+                <div ngbDropdownMenu aria-labelledby="volcanoAction" class="w-100">
+                  <button ngbDropdownItem (click)="drawVolcano()">
+                    <i class="bi bi-arrow-repeat me-2"></i>Redraw Plot
+                  </button>
+                  <button ngbDropdownItem (click)="FDRCurveSettings()">
+                    <i class="bi bi-graph-up me-2"></i>Custom FDR Curve
+                  </button>
+                  <button ngbDropdownItem (click)="openCustomColor()">
+                    <i class="bi bi-palette me-2"></i>Custom Legend Color
+                  </button>
+                  <button ngbDropdownItem (click)="openTextEditor()">
+                    <i class="bi bi-pencil me-2"></i>Annotation Text Editor
+                  </button>
+                  <button ngbDropdownItem (click)="openColorByCategoryModal()">
+                    <i class="bi bi-tags me-2"></i>Color By Category Column
+                  </button>
+                  <button ngbDropdownItem (click)="clear()">
+                    <i class="bi bi-x-circle me-2"></i>Clear Selections
+                  </button>
+                </div>
               </div>
             </div>
           </div>

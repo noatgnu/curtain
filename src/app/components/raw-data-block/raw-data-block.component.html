@@ -1,59 +1,84 @@
-<div class="row" id="{{primaryID}}scrollID">
-  <div class="col-3">
-    <div class="card border-primary">
-      <div class="card-body">
-        <h3 class="card-title" draggable="true" (dragstart)="handleDragProtein($event)">
-          <p class="text-success">{{title}}</p>
+<div class="row g-3 mb-4" id="{{primaryID}}scrollID">
+  <div class="col-md-4 col-lg-3">
+    <div class="card h-100 border-primary">
+      <div class="card-header bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
+        <h3 class="card-title h5 mb-0" draggable="true" (dragstart)="handleDragProtein($event)">
+          <span class="text-success">{{title}}</span>
         </h3>
-        <ul>
-          <b>Found in searches:</b>
-          <li *ngFor="let s of foundIn"><app-draggable-element [label]="s"></app-draggable-element></li>
-        </ul>
-        <p>
-          <b>Primary ID:</b> {{primaryID}}<br>
-        </p>
-        <ng-container *ngIf="dataService.fetchUniprot && uni">
-          <p>
-            <b>UniProt Accession:</b> {{uni["Entry"]}}<br>
-          </p>
-          <p>
-            <b>Protein names:</b> {{uni["Protein names"]}}<br>
-          </p>
-          <ul *ngIf="uni['Subcellular location [CC]']">
-            <b>Subcellular location:</b>
-            <li *ngFor="let subCell of uni['Subcellular location [CC]']">{{subCell}}</li>
+        <span class="badge bg-primary">{{primaryID}}</span>
+      </div>
+
+      <div class="card-body">
+        <div class="mb-3">
+          <h6 class="fw-bold mb-2">Found in searches:</h6>
+          <ul class="list-unstyled ps-2">
+            <li class="mb-1" *ngFor="let s of foundIn">
+              <app-draggable-element [label]="s"></app-draggable-element>
+            </li>
           </ul>
-          <div *ngIf="enrichrRunNameList.length > 0">
-            Enrichr runs:
-            <div *ngFor="let e of enrichrRunNameList">
-              <b>{{e}}</b> <br>
-              <ng-container *ngFor="let t of enrichrTermList.slice(0,5)">
-                <span class="badge bg-info" *ngIf="enrichrData[e][t]" [ngbTooltip]="'Adjusted p-value :' + enrichrData[e][t].adjustedpValue">
-                  {{enrichrData[e][t].rank}} {{t}}
-                </span>
-              </ng-container>
+        </div>
+
+        <ng-container *ngIf="dataService.fetchUniprot && uni">
+          <div class="mb-3">
+            <h6 class="fw-bold mb-1">UniProt Details</h6>
+            <div class="ms-2">
+              <div class="mb-1"><span class="text-secondary">Accession:</span> {{uni["Entry"]}}</div>
+              <div class="mb-2"><span class="text-secondary">Protein names:</span> {{uni["Protein names"]}}</div>
+
+              <div *ngIf="uni['Subcellular location [CC]']" class="mb-2">
+                <div class="text-secondary">Subcellular location:</div>
+                <ul class="ps-3 mb-0 small">
+                  <li *ngFor="let subCell of uni['Subcellular location [CC]']">{{subCell}}</li>
+                </ul>
+              </div>
             </div>
           </div>
 
+          <div *ngIf="enrichrRunNameList.length > 0" class="mb-3">
+            <h6 class="fw-bold mb-1">Enrichr runs:</h6>
+            <div class="ms-2" *ngFor="let e of enrichrRunNameList">
+              <div class="text-secondary mb-1">{{e}}</div>
+              <div class="d-flex flex-wrap gap-1 mb-2">
+                <ng-container *ngFor="let t of enrichrTermList.slice(0,5)">
+                  <span class="badge bg-info text-dark" *ngIf="enrichrData[e][t]"
+                        [ngbTooltip]="'Adjusted p-value: ' + enrichrData[e][t].adjustedpValue">
+                    {{enrichrData[e][t].rank}} {{t}}
+                  </span>
+                </ng-container>
+              </div>
+            </div>
+          </div>
         </ng-container>
-        <form [formGroup]="form">
-          <div class="form-check">
-            <input type="checkbox" formControlName="profilePlot" (change)="profileCompare()" class="form-check-input">
-            <label class="form-check-label">Include in profile comparison</label>
+
+        <form [formGroup]="form" class="mt-3">
+          <div class="form-check mb-2">
+            <input type="checkbox" id="profile-{{primaryID}}" formControlName="profilePlot"
+                   (change)="profileCompare()" class="form-check-input">
+            <label class="form-check-label" for="profile-{{primaryID}}">
+              Include in profile comparison
+            </label>
           </div>
           <div class="form-check">
-            <input type="checkbox" formControlName="annotate" (change)="annotate()" class="form-check-input">
-            <label class="form-check-label">Annotate on volcano plot</label>
+            <input type="checkbox" id="annotate-{{primaryID}}" formControlName="annotate"
+                   (change)="annotate()" class="form-check-input">
+            <label class="form-check-label" for="annotate-{{primaryID}}">
+              Annotate on volcano plot
+            </label>
           </div>
         </form>
       </div>
+
       <div class="card-footer">
-        <button class="btn btn-sm btn-primary" (click)="openAlphaFold()">AlphaFold Structure</button>
+        <button class="btn btn-sm btn-primary w-100" (click)="openAlphaFold()"
+                aria-label="View AlphaFold Structure">
+          <i class="bi bi-box-fill me-1"></i> AlphaFold Structure
+        </button>
       </div>
     </div>
   </div>
-  <div class="col-9">
-    <div class="card border-dark">
+
+  <div class="col-md-8 col-lg-9">
+    <div class="card h-100 border-dark">
       <div class="card-body">
         <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
           <li [ngbNavItem]="1" *ngIf="uni">
@@ -87,10 +112,12 @@
             </ng-template>
           </li>
         </ul>
-        <div [ngbNavOutlet]="nav" class="mt-2"></div>
+        <div [ngbNavOutlet]="nav" class="mt-3"></div>
       </div>
-      <div class="card-footer">
-        <button class="btn btn-secondary" (click)="goToTop()">Go to top</button>
+      <div class="card-footer text-end">
+        <button class="btn btn-secondary" (click)="goToTop()" aria-label="Go to top">
+          <i class="bi bi-arrow-up me-1"></i> Go to top
+        </button>
       </div>
     </div>
   </div>

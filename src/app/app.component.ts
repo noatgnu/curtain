@@ -9,6 +9,7 @@ import {CurtainStatsSummaryComponent} from "./components/curtain-stats-summary/c
 import {loadFromLocalStorage} from "curtain-web-api";
 import {DataService} from "./data.service";
 import {environment} from "../environments/environment";
+import {CitationComponent} from "./components/citation/citation.component";
 
 @Component({
     selector: 'app-root',
@@ -52,6 +53,10 @@ export class AppComponent implements AfterViewInit {
 
   openStatsSummary() {
     this.modal.open(CurtainStatsSummaryComponent, {size: "xl"})
+  }
+
+  openResourceCitation() {
+    this.modal.open(CitationComponent)
   }
 
 

@@ -1,99 +1,102 @@
-<div class="d-grid gap-2 d-md-flex justify-content-md-end mt-2">
-  <button class="btn btn-primary" (click)="downloadSVG()">Download as SVG</button>
-  <app-comparison-selections (selection)="handleSelection($event)"></app-comparison-selections>
-</div>
-<div class="row mt-2">
-  <div class="col-9">
-    <div #stringElement [id]="'stringEmbedded'+selected"></div>
+<div class="container-fluid p-0">
+  <div class="d-flex justify-content-end gap-2 mb-3">
+    <button class="btn btn-primary btn-sm" (click)="downloadSVG()">
+      <i class="bi bi-download me-1"></i>Download as SVG
+    </button>
+    <app-comparison-selections (selection)="handleSelection($event)"></app-comparison-selections>
   </div>
-  <div class="col-3">
-    <form [formGroup]="form">
-      <table class="table table-bordered">
-        <thead>
-        <tr>
-          <th scope="col">
-            Node Label Color
-          </th>
-          <th scope="col">
-            Description
-          </th>
-        </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <input formControlName="Increase" (colorPickerChange)="updateColor($event, 'Increase')" class="form-control" [(colorPicker)]="colorMap['Increase']" [style.background]="colorMap['Increase']">
-            </td>
-            <td>
-              Increase
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <input formControlName="Decrease" (colorPickerChange)="updateColor($event, 'Decrease')" class="form-control" [(colorPicker)]="colorMap['Decrease']" [style.background]="colorMap['Decrease']">
-            </td>
-            <td>
-              Decrease
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <input formControlName="In dataset" (colorPickerChange)="updateColor($event, 'In dataset')" class="form-control" [(colorPicker)]="colorMap['In dataset']" [style.background]="colorMap['In dataset']">
-            </td>
-            <td>
-              In dataset
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <input formControlName="Not in dataset" (colorPickerChange)="updateColor($event, 'Not in dataset')" class="form-control" [(colorPicker)]="colorMap['Not in dataset']" [style.background]="colorMap['Not in dataset']">
-            </td>
-            <td>
-              Not in dataset
-            </td>
-          </tr>
 
-        </tbody>
-      </table>
-    </form>
-    <div class="card">
-      <div class="card-body">
-        <div class="row">
-          <div class="col">
-            <label for="string{{selected}}">Minimum Required Score (Max = 1000)</label>
-            <input class="form-control" [id]="'string'+selected" type="number" [(ngModel)]="requiredScore">
-          </div>
+  <div class="row g-3">
+    <div class="col-md-9">
+      <div class="card border-primary h-100">
+        <div class="card-header bg-primary bg-opacity-10">
+          <h5 class="mb-0">STRING Interaction Network</h5>
         </div>
-        <div class="row">
-          <div class="col">
-            <label for="stringNT{{selected}}">Network Type</label>
-            <select class="form-control" [id]="'stringNT'+selected" type="number" [(ngModel)]="networkType">
-              <option value="functional">
-                Functional
-              </option>
-              <option value="physical">
-                Physical
-              </option>
-            </select>
-          </div>
-          <div class="col">
-            <label for="stringNF{{selected}}">Network Flavor</label>
-            <select class="form-control" [id]="'stringNF'+selected" type="number" [(ngModel)]="networkFlavor">
-              <option value="evidence">
-                Evidence
-              </option>
-              <option value="confidence">
-                Confidence
-              </option>
-              <option value="actions">
-                Actions
-              </option>
-            </select>
-          </div>
+        <div class="card-body p-0">
+          <div #stringElement [id]="'stringEmbedded'+selected" class="w-100 h-100 min-height-400"></div>
         </div>
       </div>
-      <div class="card-footer">
-        <button type="button" class="btn btn-primary" (click)="getString()">Redraw</button>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="h6 mb-0">Node Color Legend</h5>
+        </div>
+        <div class="card-body p-0">
+          <form [formGroup]="form">
+            <table class="table table-bordered table-sm mb-0">
+              <thead class="table-light">
+              <tr>
+                <th scope="col">Color</th>
+                <th scope="col">Description</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (item of ['Increase', 'Decrease', 'In dataset', 'Not in dataset']; track item) {
+                  <tr>
+                    <td>
+                      <input
+                        [formControlName]="item"
+                        (colorPickerChange)="updateColor($event, item)"
+                        class="form-control form-control-sm color-input"
+                        [(colorPicker)]="colorMap[item]"
+                        [style.background]="colorMap[item]"
+                        [attr.aria-label]="'Set color for ' + item">
+                    </td>
+                    <td class="align-middle">{{item}}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="h6 mb-0">Network Settings</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="string{{selected}}" class="form-label">Minimum Required Score</label>
+            <div class="input-group">
+              <input
+                class="form-control"
+                [id]="'string'+selected"
+                type="number"
+                [(ngModel)]="requiredScore"
+                min="1"
+                max="1000"
+                aria-describedby="scoreHelp">
+              <span class="input-group-text">/ 1000</span>
+            </div>
+            <small id="scoreHelp" class="form-text text-muted">Higher values mean more stringent connections</small>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12 col-sm-6">
+              <label for="stringNT{{selected}}" class="form-label">Network Type</label>
+              <select class="form-select" [id]="'stringNT'+selected" [(ngModel)]="networkType">
+                <option value="functional">Functional</option>
+                <option value="physical">Physical</option>
+              </select>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label for="stringNF{{selected}}" class="form-label">Network Flavor</label>
+              <select class="form-select" [id]="'stringNF'+selected" [(ngModel)]="networkFlavor">
+                <option value="evidence">Evidence</option>
+                <option value="confidence">Confidence</option>
+                <option value="actions">Actions</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer text-end">
+          <button type="button" class="btn btn-primary" (click)="getString()">
+            <i class="bi bi-arrow-repeat me-1"></i>Redraw Network
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -1,0 +1,54 @@
+.color-input {
+  height: 28px;
+  cursor: pointer;
+}
+
+.cytoplot-container {
+  height: 400px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.evidence-card {
+  display: flex;
+  flex-direction: column;
+  max-height: 350px;
+  overflow: hidden;
+}
+
+.evidence-table-container {
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: 300px;
+}
+
+.table-responsive {
+  min-width: 100%;
+  margin-bottom: 0;
+}
+
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f8f9fa;
+}
+
+@media (max-height: 900px) {
+  .cytoplot-container {
+    height: 300px;
+  }
+
+  .evidence-card {
+    max-height: 300px;
+  }
+
+  .evidence-table-container {
+    max-height: 250px;
+  }
+}
+

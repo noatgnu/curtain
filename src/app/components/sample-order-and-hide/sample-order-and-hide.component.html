@@ -1,121 +1,169 @@
 <div class="modal-header">
-  Sample Settings
+  <h5 class="modal-title">Sample Settings</h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modal.close()"></button>
 </div>
+
 <div class="modal-body">
-  <div>
-    <div class="form-check">
-      <input type="checkbox" class="form-check-input" [(ngModel)]="enablePeptideCount">
-      <label class="form-check-label">Enable Peptide Count</label>
-    </div>
-    <div class="form-check">
-      <input type="checkbox" class="form-check-input" [(ngModel)]="enableImputation">
-      <label class="form-check-label">Enable Imputation</label>
-    </div>
-    <div class="form-group" style="width: 200px">
-      <label for="barChartColumnSize">Bar Chart Column Width</label>
-      <input type="number" class="form-control" [(ngModel)]="columnSize.barChart" id="barChartColumnSize">
-    </div>
-    <div class="form-group" style="width: 300px">
-      <label for="averageBarChartColumnSize">Average Bar Chart Column Width</label>
-      <input type="number" class="form-control" [(ngModel)]="columnSize.averageBarChart" id="averageBarChartColumnSize">
-    </div>
-    <div class="form-group" style="width: 200px">
-      <label for="violinPlotColumnSize">Violin Plot Width</label>
-      <input type="number" class="form-control" [(ngModel)]="columnSize.violinPlot" id="violinPlotColumnSize">
-    </div>
-    <div class="form-group" style="width: 300px">
-      <label for="pointPos">
-        Dot Position in relative to violin plot
-      </label>
-      <input type="number" class="form-control" id="pointPos" min="-2" max="2" [(ngModel)]="violinPointPos">
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-4">
-      <b>Sample Order</b>
-    </div>
-    <div class="col-3">
-      <button class="btn btn-sm btn-outline-primary" (click)="check(true)">Check All</button>
-    </div>
-    <div class="col-3">
-      <button class="btn btn-sm btn-outline-primary" (click)="check(false)">Uncheck All</button>
+  <div class="card mb-3">
+    <div class="card-header bg-light">General Settings</div>
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" id="enablePeptideCount" [(ngModel)]="enablePeptideCount">
+            <label class="form-check-label" for="enablePeptideCount">Enable Peptide Count</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="enableImputation" [(ngModel)]="enableImputation">
+            <label class="form-check-label" for="enableImputation">Enable Imputation</label>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <ng-container *ngFor="let c of condition">
-    <div>
-      <div class="row mt-2">
-        <div class="col-4">
-          <b>{{c}}</b>
+  <div class="card mb-3">
+    <div class="card-header bg-light">Plot Size Settings</div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="barChartColumnSize" class="form-label">Bar Chart Column Width</label>
+            <input type="number" class="form-control" [(ngModel)]="columnSize.barChart" id="barChartColumnSize">
+          </div>
         </div>
-        <div class="col-1" style="padding-right: 2px">
-          <button class="btn btn-sm btn-outline-primary" (click)="moveUpCondition(c)" id="move-condition-upward-button-for-{{c}}">
-            ↑
-          </button>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="averageBarChartColumnSize" class="form-label">Average Bar Chart Column Width</label>
+            <input type="number" class="form-control" [(ngModel)]="columnSize.averageBarChart" id="averageBarChartColumnSize">
+          </div>
         </div>
-        <div class="col-1" style="padding-right: 2px">
-          <button class="btn btn-sm btn-outline-primary" (click)="moveDownCondition(c)" id="move-condition-downward-button-for-{{c}}">
-            ↓
-          </button>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="violinPlotColumnSize" class="form-label">Violin Plot Width</label>
+            <input type="number" class="form-control" [(ngModel)]="columnSize.violinPlot" id="violinPlotColumnSize">
+          </div>
         </div>
-        <div class="col">
-          <input
-            class="col-3 form-control"
-            [(colorPicker)]="colorMap[c]"
-            [style.background]="colorMap[c]"
-            id="color-settings-for-{{c}}">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="pointPos" class="form-label">Dot Position Relative to Violin Plot</label>
+            <input type="number" class="form-control" id="pointPos" min="-2" max="2" [(ngModel)]="violinPointPos">
+          </div>
         </div>
       </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">
-              Sample name
-            </th>
-            <th scope="col">
-              Move
-            </th>
-            <th scope="col">
-              <input class="form-check-input" type="checkbox" [(ngModel)]="batchToggle[c]" (change)="batchToggleSamples(c)">
-              Visibility
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-        <ng-container *ngFor="let s of samples[c]">
-          <tr>
-            <td>{{s}}</td>
-            <td>
-              <div class="row">
-                <div class="col">
-                  <button class="btn btn-sm btn-outline-primary" (click)="moveUp(s, c)" id="move-sample-upward-within-condition-button-for-{{s}}">
-                    ↑
-                  </button>
-                </div>
-                <div class="col">
-                  <button class="btn btn-sm btn-outline-primary" (click)="moveDown(s, c)" id="move-sample-downward-within-condition-button-for-{{s}}">
-                    ↓
-                  </button>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="form-check">
-                <input type="checkbox" class="form-check-input" [(ngModel)]="samplesVisible[s]" id="visibility-toggle-for-{{s}}">
-              </div>
-            </td>
-          </tr>
-        </ng-container>
-        </tbody>
-      </table>
     </div>
-  </ng-container>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header bg-light">
+      <div class="d-flex justify-content-between align-items-center">
+        <span>Sample Order</span>
+        <div>
+          <button class="btn btn-sm btn-outline-primary me-2" (click)="check(true)">Check All</button>
+          <button class="btn btn-sm btn-outline-primary" (click)="check(false)">Uncheck All</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="accordion" id="conditionAccordion">
+        <ng-container *ngFor="let c of condition; let i = index">
+          <div class="accordion-item">
+            <div class="accordion-header d-flex align-items-center p-2 bg-light">
+              <div class="row w-100 align-items-center">
+                <div class="col-5">
+                  <span class="fw-bold">{{c}}</span>
+                </div>
+                <div class="col-3">
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary"
+                            (click)="moveUpCondition(c)"
+                            aria-label="Move condition up"
+                            title="Move up">
+                      <i class="bi bi-arrow-up"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary"
+                            (click)="moveDownCondition(c)"
+                            aria-label="Move condition down"
+                            title="Move down">
+                      <i class="bi bi-arrow-down"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <input
+                    class="form-control form-control-sm"
+                    [(colorPicker)]="colorMap[c]"
+                    [style.background]="colorMap[c]"
+                    [attr.aria-label]="'Color for ' + c"
+                    title="Choose condition color">
+                </div>
+              </div>
+            </div>
+            <div class="accordion-body p-0">
+              <table class="table table-sm mb-0">
+                <thead>
+                <tr>
+                  <th scope="col">Sample name</th>
+                  <th scope="col" class="text-center">Move</th>
+                  <th scope="col">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox"
+                             id="toggle-all-{{i}}"
+                             [(ngModel)]="batchToggle[c]"
+                             (change)="batchToggleSamples(c)">
+                      <label class="form-check-label" for="toggle-all-{{i}}">Visibility</label>
+                    </div>
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <ng-container *ngFor="let s of samples[c]; let j = index">
+                  <tr>
+                    <td>{{s}}</td>
+                    <td class="text-center">
+                      <div class="btn-group btn-group-sm">
+                        <button class="btn btn-sm btn-outline-primary"
+                                (click)="moveUp(s, c)"
+                                aria-label="Move sample up"
+                                title="Move up">
+                          <i class="bi bi-arrow-up"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary"
+                                (click)="moveDown(s, c)"
+                                aria-label="Move sample down"
+                                title="Move down">
+                          <i class="bi bi-arrow-down"></i>
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-check">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               id="visibility-{{i}}-{{j}}"
+                               [(ngModel)]="samplesVisible[s]">
+                        <label class="form-check-label visually-hidden" for="visibility-{{i}}-{{j}}">
+                          Toggle visibility for {{s}}
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
 </div>
+
 <div class="modal-footer">
   <button class="btn btn-primary" (click)="submit()">
-    Submit
+    Apply Changes
   </button>
   <button class="btn btn-secondary" (click)="modal.close()">
-    Close
+    Cancel
   </button>
 </div>

@@ -1,121 +1,131 @@
-<hr>
-<form [formGroup]="form" class="mb-2">
-  <div class="d-flex">
-    <div class="p-2">
-      <input type="search" class="form-control" formControlName="filterTerm" placeholder="Filter selected results">
-    </div>
-    <div class="p-2">
-      <div class="form-group">
-        <select formControlName="filterType" class="form-control">
-          <option value="Gene Names">
-            Gene Names
-          </option>
-          <option value="Primary IDs">
-            Primary IDs
-          </option>
-          <option value="Diseases">
-            Involvement in Diseases (UniProt)
-          </option>
-        </select>
+<div class="container-fluid raw-data-viewer">
+  <section class="filter-section mb-3">
+    <h5 class="text-muted small mb-2">Filter Options</h5>
+    <form [formGroup]="form" class="mb-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="search" class="form-control" formControlName="filterTerm"
+                   placeholder="Filter selected results" aria-label="Filter term">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <select formControlName="filterType" class="form-control" aria-label="Filter type">
+            <option value="Gene Names">Gene Names</option>
+            <option value="Primary IDs">Primary IDs</option>
+            <option value="Diseases">Involvement in Diseases (UniProt)</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <select formControlName="filterSearchOperation" class="form-control" aria-label="Filter operation">
+            <option value="All selected">All selected</option>
+            <option *ngFor="let o of dataService.selectOperationNames" [value]="o">{{o}}</option>
+          </select>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section class="sort-section mb-4">
+    <h5 class="text-muted small mb-2">Sort Options</h5>
+    <form [formGroup]="sortForm" class="bg-light p-3 rounded">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-3">
+          <label for="sortKey" class="form-label small">Sort by</label>
+          <select id="sortKey" formControlName="key" class="form-control" aria-label="Sort key">
+            <option value="Gene Names">Gene Names</option>
+            <option value="Primary IDs">Primary IDs</option>
+            <option value="Fold Change">Fold Change</option>
+            <option value="P-Value">P-Value</option>
+            <option *ngIf="settings.settings.enrichrRunList.length > 0" value="Enrichr">Enrichr</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="sortOrder" class="form-label small">Order</label>
+          <select id="sortOrder" formControlName="order" class="form-control" aria-label="Sort order">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </div>
+        <div class="col-md-3" *ngIf="sortForm.value['key']==='Enrichr'">
+          <label for="enrichrRun" class="form-label small">Enrichr Run</label>
+          <select id="enrichrRun" formControlName="enrichrRun" class="form-control" aria-label="Enrichr run">
+            <option *ngFor="let run of settings.settings.enrichrRunList" [value]="run">{{run}}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <div class="d-flex flex-column h-100">
+            <label class="form-label small invisible" style="height: 19px;">Action</label>
+            <div class="d-flex align-items-center flex-grow-1">
+              <button class="btn btn-sm btn-primary" (click)="sort()" aria-label="Apply sorting">
+                <i class="bi bi-sort-down me-1"></i> Apply Sort
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <hr>
+
+  <section class="results-section">
+    <div *ngIf="ready; else notready">
+      <div *ngIf="displayDF.count() > 0; else noData" class="data-results">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <ngb-pagination
+            [(page)]="dataService.page"
+            [boundaryLinks]="true"
+            [maxSize]="10"
+            [rotate]="true"
+            [pageSize]="dataService.pageSize"
+            [collectionSize]="displayDF.count()"
+            aria-label="Page navigation">
+          </ngb-pagination>
+          <span class="badge bg-secondary">
+            Showing {{((dataService.page-1) * dataService.pageSize) + 1}} -
+            {{Math.min(dataService.page * dataService.pageSize, displayDF.count())}} of {{displayDF.count()}}
+          </span>
+        </div>
+
+        <div class="data-list mb-3">
+          <ng-container *ngFor="let r of displayDF.toArray()|slice: (dataService.page-1) * dataService.pageSize: dataService.page* dataService.pageSize; let i = index">
+            <app-raw-data-block class="mb-2" [data]="r" [attr.data-index]="i"></app-raw-data-block>
+          </ng-container>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <ngb-pagination
+            [(page)]="dataService.page"
+            [boundaryLinks]="true"
+            [maxSize]="10"
+            [rotate]="true"
+            [pageSize]="dataService.pageSize"
+            [collectionSize]="displayDF.count()"
+            aria-label="Page navigation">
+          </ngb-pagination>
+        </div>
       </div>
     </div>
-    <div class="p-2">
-      <select formControlName="filterSearchOperation" class="form-control">
-        <option value="All selected">All selected</option>
-        <option *ngFor="let o of dataService.selectOperationNames" [value]="o">{{o}}</option>
-      </select>
-    </div>
-  </div>
-</form>
-<div class="p-2">
-  <form [formGroup]="sortForm">
-    Sort settings
-    <div class="d-flex">
-      <div class="p-2 form-group">
-        <select formControlName="key" class="form-control">
-          <option [value]="'Gene Names'">
-            Gene Names
-          </option>
-          <option [value]="'Primary IDs'">
-            Primary IDs
-          </option>
-          <option [value]="'Fold Change'">
-            Fold Change
-          </option>
-          <option [value]="'P-Value'">
-            P-Value
-          </option>
-          <option *ngIf="settings.settings.enrichrRunList.length > 0" [value]="'Enrichr'">
-            Enrichr
-          </option>
-        </select>
-      </div>
-      <div class="p-2 form-group">
-        <select formControlName="order" class="form-control">
-          <option [value]="'asc'">
-            Ascending
-          </option>
-          <option [value]="'desc'">
-            Descending
-          </option>
-        </select>
-      </div>
-      <div class="p-2 form-group" *ngIf="sortForm.value['key']==='Enrichr'">
-        <select formControlName="enrichrRun" class="form-control">
-          <option *ngFor="let run of settings.settings.enrichrRunList" [value]="run">
-            {{run}}
-          </option>
-        </select>
-      </div>
-      <div class="p-2">
-        <button class="btn btn-primary" (click)="sort()">Sort</button>
+  </section>
+
+  <ng-template #noData>
+    <div class="alert alert-info d-flex align-items-center" role="alert">
+      <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+      <div>
+        <h5>No data found</h5>
+        <p class="mb-0">Please try a different search term or filter criteria.</p>
       </div>
     </div>
-  </form>
+  </ng-template>
+
+  <ng-template #notready>
+    <div class="d-flex justify-content-center align-items-center p-5">
+      <div class="spinner-border text-primary me-3" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mb-0 fs-5">Processing data, please wait...</p>
+    </div>
+  </ng-template>
 </div>
-<!--<div class="card bg-warning">
-  <div class="card-body">
-    <p>
-      Quick filter of the selected results. This will not affect the search results. Any search term longer than 2 characters will trigger the filter task. Clear the search field to reset the display data to default.
-    </p>
-  </div>
-</div>-->
-<hr>
-<div *ngIf="ready; else notready">
-  <div *ngIf="displayDF.count() > 0; else noData">
-    <div class="d-flex">
-      <div class="p-2">
-        <ngb-pagination [(page)]="dataService.page" [boundaryLinks]="true" [maxSize]="10" [rotate]="true" [pageSize]="dataService.pageSize" [collectionSize]="displayDF.count()"></ngb-pagination>
-      </div>
-
-    </div>
-    <hr>
-    <ng-container *ngFor="let r of displayDF.toArray()|slice: (dataService.page-1) * dataService.pageSize: dataService.page* dataService.pageSize">
-      <app-raw-data-block class="mb-2" [data]="r"></app-raw-data-block>
-    </ng-container>
-    <div class="d-flex">
-      <div class="p-2">
-        <ngb-pagination [(page)]="dataService.page" [boundaryLinks]="true" [maxSize]="10" [rotate]="true" [pageSize]="dataService.pageSize" [collectionSize]="displayDF.count()"></ngb-pagination>
-      </div>
-    </div>
-  </div>
-</div>
-
-<ng-template #noData>
-  <div class="card">
-    <div class="card-body">
-      <h5 class="card-title">No data found</h5>
-      <p class="card-text">Please try a different search term.</p>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #notready>
-  <div class="card">
-    <div class="card-body">
-      <h5 class="card-title">Not ready</h5>
-      <p class="card-text">Please wait for the search to finish.</p>
-    </div>
-  </div>
-</ng-template>
-

@@ -23,7 +23,6 @@ export class RawDataViewerComponent implements OnInit {
     this.displayDF = value
     this.displayDF = this.displayDF.distinct((row: any) => row[this.dataService.rawForm.primaryIDs]).bake()
     this.ready = true
-    console.log(this._data)
   }
 
   form = this.fb.group({
@@ -225,4 +224,5 @@ export class RawDataViewerComponent implements OnInit {
     }
   }
 
+  protected readonly Math = Math;
 }

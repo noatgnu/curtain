@@ -1,94 +1,149 @@
-<h5>Functional Description</h5>
-<p>
-  {{_data["Function [CC]"].replace("FUNCTION: ", "")}}
-</p>
-<app-protein-domain-plot [data]="_data"></app-protein-domain-plot>
-<div class="mt-2">
-  <table class="table table-borderless" *ngIf="_data['Domain [FT]'].length > 0">
-    <thead>
-    <tr>
-      <th scope="col">
-        Start
-      </th>
-      <th scope="col">
-        End
-      </th>
-      <th scope="col">
-        Domain name
-      </th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let d of _data['Domain [FT]']">
-      <td>
-        {{d.start}}
-      </td>
-      <td>
-        {{d.end}}
-      </td>
-      <td>
-        {{d.name}}
-      </td>
-    </tr>
-  </table>
-</div>
-<div class="mt-4" *ngIf="diseases.length > 0 || pharmaUse.length > 0 || _data['Mutagenesis'].length">
-  <div class="accordion">
-    <div class="accordion-item" *ngIf="diseases.length > 0">
-      <h2 class="accordion-header">
-        <button [ngClass]="{'accordion-button': true, 'collapsed': isDiseaseCollapse}" type="button" (click)="isDiseaseCollapse=!isDiseaseCollapse">
-          Involvement in Diseases (UniProt)
-        </button>
-      </h2>
-      <div #collapse="ngbCollapse" [(ngbCollapse)]="isDiseaseCollapse">
-        <div class="accordion-body">
-          <div *ngIf="diseases.length > 0">
-            <ul>
-              <li *ngFor="let d of diseases">
-                {{d}}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="accordion-item" *ngIf="pharmaUse.length > 0">
-      <h2 class="accordion-header">
-        <button [ngClass]="{'accordion-button': true, 'collapsed': isPharmaUseCollapse}" type="button" (click)="isPharmaUseCollapse=!isPharmaUseCollapse">
-          Pharmaceutical use (UniProt)
-        </button>
-      </h2>
-      <div #collapse="ngbCollapse" [(ngbCollapse)]="isPharmaUseCollapse">
-        <div class="accordion-body">
-          <div *ngIf="pharmaUse.length > 0">
-            <ul>
-              <li *ngFor="let d of pharmaUse">
-                {{d}}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="accordion-item" *ngIf="_data['Mutagenesis'].length > 0">
-      <h2 class="accordion-header">
-        <button [ngClass]="{'accordion-button': true, 'collapsed': isMutagenesisCollapse}" type="button" (click)="isMutagenesisCollapse=!isMutagenesisCollapse">
-          Mutagenesis (UniProt)
-        </button>
-      </h2>
-      <div #collapse="ngbCollapse" [(ngbCollapse)]="isMutagenesisCollapse">
-        <div class="accordion-body">
-          <div *ngIf="_data['Mutagenesis'].length > 0">
-            <ul>
-              <li *ngFor="let d of _data['Mutagenesis']">
-                <b class="text-danger">{{d.position}}</b> - {{d.note}}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="protein-info-container">
+  <section class="mb-4">
+    <h5 class="border-bottom pb-2 mb-3">
+      <i class="bi bi-info-circle me-2"></i>Functional Description
+    </h5>
+    @if (_data['Function [CC]']) {
+      <p class="lead">
+        {{_data["Function [CC]"].replace("FUNCTION: ", "")}}
+      </p>
+    } @else {
+      <p class="text-muted">
+        No functional description available.
+      </p>
+    }
+  </section>
 
+  <section class="mb-4">
+    <h5 class="border-bottom pb-2 mb-3">
+      <i class="bi bi-bar-chart-line me-2"></i>Protein Domain Structure
+    </h5>
+    <app-protein-domain-plot [data]="_data"></app-protein-domain-plot>
 
+    <div class="mt-3">
+      @if (_data['Domain [FT]']?.length > 0) {
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+            <tr>
+              <th scope="col">Start</th>
+              <th scope="col">End</th>
+              <th scope="col">Domain name</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (d of _data['Domain [FT]']; track d.name) {
+                <tr>
+                  <td>{{d.start || 'N/A'}}</td>
+                  <td>{{d.end || 'N/A'}}</td>
+                  <td>{{d.name || 'Unknown'}}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="alert alert-info">
+          No domain information available.
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (diseases.length > 0 || pharmaUse.length > 0 || _data['Mutagenesis']?.length > 0) {
+    <section class="mt-4">
+      <h5 class="border-bottom pb-2 mb-3">
+        <i class="bi bi-file-medical me-2"></i>Additional Information
+      </h5>
+
+      <div class="accordion" id="proteinInfoAccordion">
+        @if (diseases.length > 0) {
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="diseaseHeading">
+              <button class="accordion-button"
+                      [class.collapsed]="isDiseaseCollapse"
+                      type="button"
+                      (click)="isDiseaseCollapse=!isDiseaseCollapse"
+                      aria-controls="diseaseCollapse">
+                <i class="bi bi-lungs me-2"></i>
+                Involvement in Diseases
+                <span class="badge bg-secondary ms-2">{{diseases.length}}</span>
+              </button>
+            </h2>
+            <div id="diseaseCollapse"
+                 class="accordion-collapse collapse"
+                 [class.show]="!isDiseaseCollapse"
+                 aria-labelledby="diseaseHeading">
+              <div class="accordion-body">
+                <ul class="list-group list-group-flush">
+                  @for (d of diseases; track d) {
+                    <li class="list-group-item">{{d}}</li>
+                  }
+                </ul>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (pharmaUse.length > 0) {
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="pharmaHeading">
+              <button class="accordion-button"
+                      [class.collapsed]="isPharmaUseCollapse"
+                      type="button"
+                      (click)="isPharmaUseCollapse=!isPharmaUseCollapse"
+                      aria-controls="pharmaCollapse">
+                <i class="bi bi-capsule me-2"></i>
+                Pharmaceutical Use
+                <span class="badge bg-secondary ms-2">{{pharmaUse.length}}</span>
+              </button>
+            </h2>
+            <div id="pharmaCollapse"
+                 class="accordion-collapse collapse"
+                 [class.show]="!isPharmaUseCollapse"
+                 aria-labelledby="pharmaHeading">
+              <div class="accordion-body">
+                <ul class="list-group list-group-flush">
+                  @for (p of pharmaUse; track p) {
+                    <li class="list-group-item">{{p}}</li>
+                  }
+                </ul>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (_data['Mutagenesis']?.length > 0) {
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="mutagenesisHeading">
+              <button class="accordion-button"
+                      [class.collapsed]="isMutagenesisCollapse"
+                      type="button"
+                      (click)="isMutagenesisCollapse=!isMutagenesisCollapse"
+                      aria-controls="mutagenesisCollapse">
+                <i class="bi bi-scissors me-2"></i>
+                Mutagenesis
+                <span class="badge bg-secondary ms-2">{{_data['Mutagenesis'].length}}</span>
+              </button>
+            </h2>
+            <div id="mutagenesisCollapse"
+                 class="accordion-collapse collapse"
+                 [class.show]="!isMutagenesisCollapse"
+                 aria-labelledby="mutagenesisHeading">
+              <div class="accordion-body">
+                <ul class="list-group">
+                  @for (mutation of _data['Mutagenesis']; track mutation.position) {
+                    <li class="list-group-item">
+                      <span class="badge bg-danger me-2">{{mutation.position}}</span>
+                      <span>{{mutation.note}}</span>
+                    </li>
+                  }
+                </ul>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>
