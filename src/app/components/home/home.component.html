@@ -151,15 +151,15 @@
             }
             @if (finished) {
               @if(gdprAccepted) {
+                <button ngbDropdownItem (click)="saveSession()" [disabled]="data.tempLink">
+                  Save Temporary Session
+                </button>
+                <button ngbDropdownItem (click)="saveSession(true)" [disabled]="data.tempLink">
+                  Save Permanent Session
+                </button>
                 @if (accounts.curtainAPI.user.loginStatus && data.session) {
                   <button ngbDropdownItem (click)="openDataciteDOI()">
                     {{data.session.data_cite ? 'View DOI Form' : 'Register DOI (Beta)'}}
-                  </button>
-                  <button ngbDropdownItem (click)="saveSession()" [disabled]="data.tempLink">
-                    Save Temporary Session
-                  </button>
-                  <button ngbDropdownItem (click)="saveSession(true)" [disabled]="data.tempLink">
-                    Save Permanent Session
                   </button>
                 }
               } @else {
