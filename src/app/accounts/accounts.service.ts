@@ -9,13 +9,14 @@ import {SessionExpiredModalComponent} from "../components/session-expired-modal/
   providedIn: 'root'
 })
 export class AccountsService {
-
   curtainAPI: CurtainWebAPI = new CurtainWebAPI(environment.apiURL)
 
   isOwner: boolean = false
 
 
   constructor(private toast: ToastService, private modal: NgbModal) {
+    // test which apiURL is available to create the curtainAPI
+
     this.curtainAPI.axiosInstance.interceptors.request.use((config) => {
       if (config.url) {
         if (this.curtainAPI.checkIfRefreshTokenExpired() && this.curtainAPI.user.loginStatus === true) {

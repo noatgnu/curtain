@@ -5,6 +5,10 @@
 export const environment = {
   production: false,
   apiURL: "https://celsus.muttsu.xyz/",
+  apiURLs: [
+    "https://celsus.muttsu.xyz/",
+    "https://curtain-backend.omics.quest/"
+  ],
   //apiURL: "https://celsus2.cap2.erymonite.com/",
   //apiURL: "http://127.0.0.1:8000/",
   //apiURL: "https://celsus-nopersistent.cap.erymonite.com/",

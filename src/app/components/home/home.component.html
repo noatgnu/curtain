@@ -7,7 +7,7 @@
     @if (finished && settings.settings.currentID !== '') {
       <div class="d-flex align-items-center me-auto">
         @if (uniqueLink !== '') {
-          <a href="{{uniqueLink}}" class="me-2 text-success text-truncate" style="max-width: 200px;">{{uniqueLink}}</a>
+          <a href="{{uniqueLink}}" class="me-2 text-success" style="max-width: 200px;">{{uniqueLink}}</a>
         }
         @if (!permanent) {
           <span class="badge bg-danger me-2">Temporary</span>
