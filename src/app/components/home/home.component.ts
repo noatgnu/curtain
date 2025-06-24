@@ -76,6 +76,7 @@ import {LogFileModalComponent} from "../log-file-modal/log-file-modal.component"
 import {
   AddRawDataImputationMapModalComponent
 } from "../add-raw-data-imputation-map-modal/add-raw-data-imputation-map-modal.component";
+import {environment} from "../../../environments/environment";
 
 @Component({
     selector: 'app-home',
@@ -183,6 +184,12 @@ export class HomeComponent implements OnInit {
               this.toast.show("Initialization", "Fetching data from session " + settings[0]).then()
               if (this.currentID !== settings[0]) {
                 this.currentID = settings[0]
+                
+                // Check if user is on Android and prompt for native app
+                if (this.isAndroid()) {
+                  this.promptForNativeApp(settings[0]);
+                }
+                
                 this.getSessionData(settings[0], token).then()
 
               }
@@ -193,6 +200,17 @@ export class HomeComponent implements OnInit {
     )
 
 
+  }
+
+  private isAndroid(): boolean {
+    return /Android/i.test(navigator.userAgent);
+  }
+
+  private promptForNativeApp(uniqueId: string): void {
+    if (confirm('Would you like to open this in the native Curtain app?')) {
+      const nativeAppUrl = `curtain://open?uniqueId=${encodeURIComponent(uniqueId)}&apiURL=${encodeURIComponent(environment.apiURL)}`;
+      window.location.href = nativeAppUrl;
+    }
   }
 
   async getDOISessionData(url: string, doiLink: string) {
