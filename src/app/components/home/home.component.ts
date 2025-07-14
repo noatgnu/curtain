@@ -184,12 +184,12 @@ export class HomeComponent implements OnInit {
               this.toast.show("Initialization", "Fetching data from session " + settings[0]).then()
               if (this.currentID !== settings[0]) {
                 this.currentID = settings[0]
-                
+
                 // Check if user is on Android and prompt for native app
                 if (this.isAndroid()) {
                   this.promptForNativeApp(settings[0]);
                 }
-                
+
                 this.getSessionData(settings[0], token).then()
 
               }
@@ -208,7 +208,7 @@ export class HomeComponent implements OnInit {
 
   private promptForNativeApp(uniqueId: string): void {
     if (confirm('Would you like to open this in the native Curtain app?')) {
-      const nativeAppUrl = `curtain://open?uniqueId=${encodeURIComponent(uniqueId)}&apiURL=${encodeURIComponent(environment.apiURL)}`;
+      const nativeAppUrl = `curtain://open?uniqueId=${encodeURIComponent(uniqueId)}&apiURL=${encodeURIComponent(environment.apiURL)}&frontendURL=${encodeURIComponent(location.origin)}`;
       window.location.href = nativeAppUrl;
     }
   }
