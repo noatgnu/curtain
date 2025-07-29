@@ -72,6 +72,7 @@ import {ShapesComponent} from "./components/volcano-plot/shapes/shapes.component
 import {
     DataciteMetadataDisplayComponent
 } from "./components/datacite-metadata-display/datacite-metadata-display.component";
+import { NearbyPointsModalComponent } from './components/nearby-points-modal/nearby-points-modal.component';
 
 //PlotlyViaCDNModule.setPlotlyVersion('latest');
 //PlotlyViaCDNModule.setPlotlyBundle('basic');
@@ -130,6 +131,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
         CurtainStatsSummaryComponent,
         EncryptionSettingsComponent,
         SubFilterComponent,
+        NearbyPointsModalComponent,
     ],
     bootstrap: [AppComponent],
     imports: [BrowserModule,

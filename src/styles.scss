@@ -39,6 +39,21 @@ body {
 
 }
 
+/* Custom modal sizes */
+.modal-extra-large .modal-dialog {
+  max-width: 95vw;
+  width: 95vw;
+  margin: 1.75rem auto;
+}
+
+.modal-extra-large .modal-content {
+  height: 90vh;
+}
+
+.modal-extra-large .modal-body {
+  overflow-y: auto;
+}
+
 // bootstrap sass purple theme
 // $purple: #6f42c1;
 // $purple-light: #957bbe;

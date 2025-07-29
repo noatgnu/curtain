@@ -1,0 +1,315 @@
+<div class="modal-header">
+  <h4 class="modal-title">Nearby Data Points</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
+</div>
+
+<div class="modal-body">
+  @if (targetPoint) {
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white">
+        <h6 class="mb-0">Selected Point</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Primary ID:</strong> {{ targetPoint.primaryId }}<br>
+            <strong>Gene Name:</strong> {{ targetPoint.geneName || 'N/A' }}<br>
+            <strong>Fold Change:</strong> {{ getDisplayValue(targetPoint, 'foldChange') }}
+          </div>
+          <div class="col-md-6">
+            <strong>Significance:</strong> {{ getDisplayValue(targetPoint, 'significance') }}<br>
+            <strong>Comparison:</strong> {{ targetPoint.comparison }}<br>
+            <strong>Trace Group:</strong> 
+            <span class="badge ms-1" [style.background-color]="targetPoint.traceColor" [style.color]="targetPoint.traceColor === '#ffffff' ? '#000000' : '#ffffff'">
+              {{ targetPoint.traceGroup }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="card mb-3">
+    <div class="card-header">
+      <h6 class="mb-0">Search Parameters</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label for="boundaryDistance" class="form-label">Euclidean Distance:</label>
+          <input 
+            id="boundaryDistance" 
+            type="number" 
+            class="form-control" 
+            [(ngModel)]="boundaryDistance" 
+            (ngModelChange)="onBoundaryChange()"
+            step="0.1" 
+            min="0.1">
+          <small class="text-muted">Maximum Euclidean distance from target point</small>
+          <div class="mt-1">
+            <small class="text-info">
+              <i class="bi bi-info-circle me-1"></i>
+              Formula: √[(x₂-x₁)² + (y₂-y₁)²] ≤ threshold
+            </small>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="maxPoints" class="form-label">Max Points:</label>
+          <input 
+            id="maxPoints" 
+            type="number" 
+            class="form-control" 
+            [(ngModel)]="maxPoints" 
+            (ngModelChange)="onMaxPointsChange()"
+            min="1" 
+            max="200">
+          <small class="text-muted">Maximum number of points to display</small>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" id="useFoldChangeFilter" 
+                   [(ngModel)]="useFoldChangeFilter" (ngModelChange)="onFilterChange()">
+            <label class="form-check-label" for="useFoldChangeFilter">
+              Filter by fold change threshold
+            </label>
+          </div>
+          @if (useFoldChangeFilter) {
+            <input 
+              type="number" 
+              class="form-control" 
+              [(ngModel)]="foldChangeThreshold" 
+              (ngModelChange)="onFilterChange()"
+              step="0.1" 
+              min="0"
+              placeholder="Min |log2FC|">
+            <small class="text-muted">Minimum absolute log2 fold change</small>
+          }
+        </div>
+        <div class="col-md-6">
+          <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" id="useSignificanceFilter" 
+                   [(ngModel)]="useSignificanceFilter" (ngModelChange)="onFilterChange()">
+            <label class="form-check-label" for="useSignificanceFilter">
+              Filter by significance threshold
+            </label>
+          </div>
+          @if (useSignificanceFilter) {
+            <input 
+              type="number" 
+              class="form-control" 
+              [(ngModel)]="significanceThreshold" 
+              (ngModelChange)="onFilterChange()"
+              step="0.01" 
+              min="0" 
+              max="1"
+              placeholder="Max p-value">
+            <small class="text-muted">Maximum p-value (e.g., 0.05)</small>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h6 class="mb-0">Nearby Points ({{ nearbyPoints.length }} found)</h6>
+    </div>
+    <div class="card-body p-0">
+      @if (nearbyPoints.length === 0) {
+        <div class="text-center p-4 text-muted">
+          <i class="bi bi-search fs-1"></i>
+          <p class="mt-2">No nearby points found within the specified boundary distance.</p>
+          <p class="small">Try increasing the boundary distance to find more points.</p>
+        </div>
+      } @else {
+        <div class="table-responsive" style="max-height: 400px;">
+          <table class="table table-striped table-hover mb-0">
+            <thead class="table-dark sticky-top">
+              <tr>
+                <th>
+                  <input 
+                    type="checkbox" 
+                    class="form-check-input"
+                    [(ngModel)]="selectAllChecked"
+                    (ngModelChange)="onSelectAllChange()"
+                    title="Select/Deselect All">
+                </th>
+                <th>Chart</th>
+                <th>Primary ID</th>
+                <th>Gene Name</th>
+                <th>Fold Change</th>
+                <th>Significance</th>
+                <th>Trace Group</th>
+                <th>Distance</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (point of nearbyPoints; track point.primaryId + point.comparison) {
+                <tr [class.table-primary]="isPointSelected(point.primaryId)">
+                  <td>
+                    <input 
+                      type="checkbox" 
+                      class="form-check-input"
+                      [checked]="isPointSelected(point.primaryId)"
+                      (change)="togglePointSelection(point.primaryId)">
+                  </td>
+                  <td>
+                    <button 
+                      type="button" 
+                      class="btn btn-sm btn-outline-info"
+                      (click)="toggleBarChart(point.primaryId)"
+                      [title]="isChartExpanded(point.primaryId) ? 'Hide bar chart' : 'Show bar chart'">
+                      <i class="bi" [ngClass]="isChartExpanded(point.primaryId) ? 'bi-bar-chart-fill' : 'bi-bar-chart'"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <code class="small">{{ point.primaryId }}</code>
+                  </td>
+                  <td>{{ point.geneName || 'N/A' }}</td>
+                  <td>{{ getDisplayValue(point, 'foldChange') }}</td>
+                  <td>{{ getDisplayValue(point, 'significance') }}</td>
+                  <td>
+                    <span class="badge" [style.background-color]="point.traceColor" [style.color]="point.traceColor === '#ffffff' ? '#000000' : '#ffffff'">
+                      {{ point.traceGroup }}
+                    </span>
+                  </td>
+                  <td>{{ getDisplayValue(point, 'distance') }}</td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button 
+                        type="button" 
+                        class="btn btn-outline-primary btn-sm"
+                        (click)="selectPoint(point)"
+                        title="Select this point individually">
+                        <i class="bi bi-check-circle"></i>
+                      </button>
+                      <button 
+                        type="button" 
+                        class="btn btn-outline-secondary btn-sm"
+                        (click)="annotatePoint(point)"
+                        title="Annotate this point">
+                        <i class="bi bi-tag"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                @if (isChartExpanded(point.primaryId)) {
+                  <tr>
+                    <td colspan="9" class="p-0">
+                      <div class="p-3 bg-light border-top">
+                        @if (getRawDataForPoint(point.primaryId)) {
+                          <app-bar-chart [data]="getRawDataForPoint(point.primaryId)"></app-bar-chart>
+                        } @else {
+                          <div class="text-muted text-center p-3">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            No raw data available for this protein
+                          </div>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  @if (nearbyPoints.length > 0) {
+    <div class="card w-100 mb-3">
+      <div class="card-header">
+        <h6 class="mb-0">Create Selection from Points</h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <div class="form-check mb-2">
+              <input type="checkbox" class="form-check-input" id="includeTargetPoint" [(ngModel)]="includeTargetPoint">
+              <label class="form-check-label" for="includeTargetPoint">
+                Include target point ({{ targetPoint?.geneName || targetPoint?.primaryId }})
+              </label>
+            </div>
+            <small class="text-muted">Selected nearby points: {{ selectedPoints.size }}</small>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="selectAllPoints()">
+                Select All
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearSelection()">
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label for="selectionName" class="form-label">New Selection Name:</label>
+            <input 
+              id="selectionName" 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="selectionName"
+              placeholder="Enter selection name">
+            <button 
+              type="button" 
+              class="btn btn-primary btn-sm mt-2 w-100" 
+              (click)="createNewSelection()"
+              [disabled]="!selectionName.trim() && selectedPoints.size === 0 && !includeTargetPoint">
+              Create New Selection
+            </button>
+          </div>
+          <div class="col-md-4">
+            <label for="existingSelection" class="form-label">Add to Existing Selection:</label>
+            <select 
+              id="existingSelection" 
+              class="form-select" 
+              [(ngModel)]="addToExistingSelection">
+              <option value="">Select existing selection...</option>
+              <option *ngFor="let selection of existingSelections" [value]="selection">
+                {{ selection }}
+              </option>
+            </select>
+            <button 
+              type="button" 
+              class="btn btn-success btn-sm mt-2 w-100" 
+              (click)="addToExisting()"
+              [disabled]="!addToExistingSelection && selectedPoints.size === 0 && !includeTargetPoint">
+              Add to Selection
+            </button>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Annotate Points:</label>
+            <div class="d-grid">
+              <button 
+                type="button" 
+                class="btn btn-warning btn-sm mt-4" 
+                (click)="annotateSelectedPoints()"
+                [disabled]="selectedPoints.size === 0 && !includeTargetPoint"
+                title="Add annotations to selected points">
+                <i class="bi bi-tag me-1"></i>
+                Annotate Selected
+              </button>
+            </div>
+            <small class="text-muted mt-1 d-block">
+              Will annotate {{ (includeTargetPoint ? 1 : 0) + selectedPoints.size }} points
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  
+  <div class="d-flex justify-content-end w-100">
+    <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+  </div>
+</div>

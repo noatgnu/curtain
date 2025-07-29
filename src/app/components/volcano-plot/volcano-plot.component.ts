@@ -15,6 +15,7 @@ import {ToastService} from "../../toast.service";
 import {FormBuilder} from "@angular/forms";
 import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you-sure-clear-modal.component";
 import {ColorByCategoryModalComponent} from "./color-by-category-modal/color-by-category-modal.component";
+import {NearbyPointsModalComponent} from "../nearby-points-modal/nearby-points-modal.component";
 
 @Component({
     selector: 'app-volcano-plot',
@@ -24,6 +25,7 @@ import {ColorByCategoryModalComponent} from "./color-by-category-modal/color-by-
 })
 export class VolcanoPlotComponent implements OnInit {
   editMode: boolean = false
+  explorerMode: boolean = false
   settingsNav: string = "parameters"
   @Output() selected: EventEmitter<selectionData> = new EventEmitter<selectionData>()
   isVolcanoParameterCollapsed: boolean = false
@@ -648,6 +650,13 @@ export class VolcanoPlotComponent implements OnInit {
 
   selectData(e: any) {
     if ("points" in e) {
+      // If explorer mode is enabled, show nearby points modal instead of selecting
+      if (this.explorerMode) {
+        this.openNearbyPointsModal(e);
+        return;
+      }
+      
+      // Normal selection behavior
       const selected: string[] = []
       for (const p of e["points"]) {
         selected.push(p.data.primaryIDs[p.pointNumber])
@@ -965,6 +974,120 @@ export class VolcanoPlotComponent implements OnInit {
     this.drawVolcano()
     console.log(this.graphLayout.shapes)
   }
+
+  openNearbyPointsModal(clickEvent: any) {
+    if (!clickEvent.points || clickEvent.points.length === 0) return;
+    
+    const point = clickEvent.points[0];
+    const primaryId = point.data.primaryIDs[point.pointNumber];
+    const x = point.x;
+    const y = point.y;
+    const text = point.data.text[point.pointNumber];
+    const comparison = this.extractComparisonFromText(text);
+    
+    // Get gene name
+    let geneName = '';
+    if (this.dataService.fetchUniprot) {
+      const uniprotData = this.uniprot.getUniprotFromPrimary(primaryId);
+      if (uniprotData && uniprotData['Gene Names']) {
+        geneName = uniprotData['Gene Names'];
+      }
+    } else if (this.dataService.differentialForm.geneNames !== '') {
+      const rowData = this.dataService.currentDF.where(r => 
+        r[this.dataService.differentialForm.primaryIDs] === primaryId &&
+        r[this.dataService.differentialForm.comparison] === comparison
+      ).first();
+      if (rowData) {
+        geneName = rowData[this.dataService.differentialForm.geneNames];
+      }
+    }
+
+    // Determine trace group and color
+    let traceGroup = point.data.name || 'Background';
+    let traceColor = '#a4a2a2';
+    
+    if (point.data.marker && point.data.marker.color) {
+      traceColor = point.data.marker.color;
+    }
+
+    const targetPoint = {
+      primaryId,
+      geneName,
+      foldChange: x,
+      significance: y,
+      comparison,
+      traceGroup,
+      traceColor,
+      text,
+      distance: 0
+    };
+
+    const ref = this.modal.open(NearbyPointsModalComponent, { size: 'xl', scrollable: true, windowClass: 'modal-extra-large' });
+    ref.componentInstance.targetPoint = targetPoint;
+    
+    ref.closed.subscribe((result: any) => {
+      if (result) {
+        if (result.action === 'select') {
+          this.selected.emit({
+            data: result.data,
+            title: result.title
+          });
+          // Show success message
+          this.messageService.show("Point Selected", 
+            `Selected: ${result.title}`);
+        } else if (result.action === 'annotate') {
+          this.dataService.annotationService.next({
+            id: result.data,
+            remove: false
+          });
+          // Show success message
+          this.messageService.show("Annotation Added", 
+            `Added annotation to 1 point`);
+        } else if (result.action === 'createSelection') {
+          // Create new selection with the provided data
+          this.selected.emit({
+            data: result.data,
+            title: result.title
+          });
+        } else if (result.action === 'addToSelection') {
+          // Add to existing selection
+          const existingSelection = result.existingSelection;
+          
+          // Add new IDs to the existing selection in dataService
+          for (const primaryId of result.data) {
+            if (!this.dataService.selectedMap[primaryId]) {
+              this.dataService.selectedMap[primaryId] = {};
+            }
+            this.dataService.selectedMap[primaryId][existingSelection] = true;
+          }
+          
+          // Trigger selection update
+          this.dataService.selectionUpdateTrigger.next(true);
+          
+          // Show success message
+          this.messageService.show("Selection Updated", 
+            `Added ${result.data.length} points to "${existingSelection}"`);
+        } else if (result.action === 'annotateMultiple') {
+          // Annotate multiple selected points
+          this.dataService.annotationService.next({
+            id: result.data,
+            remove: false
+          });
+          
+          // Show success message
+          this.messageService.show("Annotations Added", 
+            `Added annotations to ${result.data.length} points`);
+        }
+      }
+    });
+  }
+
+  private extractComparisonFromText(text: string): string {
+    const match = /\(([^)]*)\)[^(]*$/.exec(text);
+    return match ? match[1] : '';
+  }
+
+
 
   openColorByCategoryModal() {
     const ref = this.modal.open(ColorByCategoryModalComponent, {scrollable: true})
