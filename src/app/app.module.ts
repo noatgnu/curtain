@@ -1,7 +1,7 @@
 import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import * as PlotlyJS from 'plotly.js-dist-min';
-import {PlotlyModule, PlotlyViaCDNModule} from 'angular-plotly.js';
+import {PlotlyModule} from 'angular-plotly.js';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -27,7 +27,7 @@ import { InteractomeAtlasComponent } from './components/interactome-atlas/intera
 import { PdbViewerComponent } from './components/pdb-viewer/pdb-viewer.component';
 import { FdrCurveComponent } from './components/fdr-curve/fdr-curve.component';
 import { VolcanoColorsComponent } from './components/volcano-colors/volcano-colors.component';
-import {ColorPickerModule} from "ngx-color-picker";
+import {ColorPickerDirective} from "ngx-color-picker";
 import { QuickNavigationComponent } from './components/quick-navigation/quick-navigation.component';
 import { ProfilePlotComponent } from './components/profile-plot/profile-plot.component';
 import { ProfileCompareComponent } from './components/profile-compare/profile-compare.component';
@@ -77,7 +77,6 @@ import { NearbyPointsModalComponent } from './components/nearby-points-modal/nea
 //PlotlyViaCDNModule.setPlotlyVersion('latest');
 //PlotlyViaCDNModule.setPlotlyBundle('basic');
 
-PlotlyModule.plotlyjs = PlotlyJS;
 @NgModule({ declarations: [
         AppComponent,
         HomeComponent,
@@ -138,20 +137,19 @@ PlotlyModule.plotlyjs = PlotlyJS;
         AppRoutingModule,
         NgbModule,
         FormsModule,
-        PlotlyModule,
+        PlotlyModule.forRoot(PlotlyJS),
         //PlotlyViaCDNModule,
         ReactiveFormsModule,
-        ColorPickerModule,
+        ColorPickerDirective,
         QuillModule.forRoot(),
         AccountsModule,
         NgxPrintModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: !isDevMode(),
-            // Register the ServiceWorker as soon as the application is stable
-            // or after 30 seconds (whichever comes first).
             registrationStrategy: 'registerWhenStable:30000'
         }),
         ToastProgressbarComponent,
         AnnotationComponent,
-        ShapesComponent, DataciteMetadataDisplayComponent], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()),] })
+        ShapesComponent,
+        DataciteMetadataDisplayComponent], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()),] })
 export class AppModule { }

@@ -2,14 +2,14 @@ import {Component, Input} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {ColorPickerModule} from "ngx-color-picker";
+import {ColorPickerDirective} from "ngx-color-picker";
 
 @Component({
   selector: 'app-color-by-category-modal',
   imports: [
     ReactiveFormsModule,
     FormsModule,
-    ColorPickerModule
+    ColorPickerDirective
   ],
   templateUrl: './color-by-category-modal.component.html',
   styleUrl: './color-by-category-modal.component.scss'

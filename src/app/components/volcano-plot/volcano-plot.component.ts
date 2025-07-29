@@ -964,7 +964,7 @@ export class VolcanoPlotComponent implements OnInit {
     }
   }
 
-  updateShapes(data: any[]) {
+  updateShapes(data: any) {
     for (const i of data) {
       this.settings.settings.volcanoAdditionalShapes[i.index].label = i.label
       this.settings.settings.volcanoAdditionalShapes[i.index].fillcolor = i.fillcolor

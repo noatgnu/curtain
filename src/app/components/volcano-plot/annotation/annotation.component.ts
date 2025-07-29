@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {ColorPickerModule} from "ngx-color-picker";
+import {ColorPickerDirective} from "ngx-color-picker";
 import {Settings} from "../../../classes/settings";
 import {SettingsService} from "../../../settings.service";
 import {DataService} from "../../../data.service";
@@ -10,7 +10,7 @@ import {DataService} from "../../../data.service";
     selector: 'app-annotation',
     imports: [
         ReactiveFormsModule,
-        ColorPickerModule
+        ColorPickerDirective
     ],
     templateUrl: './annotation.component.html',
     styleUrl: './annotation.component.scss'

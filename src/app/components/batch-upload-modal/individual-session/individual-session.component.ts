@@ -14,8 +14,8 @@ import {CurtainEncryption} from "curtain-web-api";
 import {AccountsService} from "../../../accounts/accounts.service";
 import {ToastService} from "../../../toast.service";
 import {QuillEditorComponent} from "ngx-quill";
-import {NgClass, NgForOf} from "@angular/common";
-import {ColorPickerModule} from "ngx-color-picker";
+import {NgClass} from "@angular/common";
+import {ColorPickerDirective} from "ngx-color-picker";
 
 @Component({
   selector: 'app-individual-session',
@@ -26,7 +26,7 @@ import {ColorPickerModule} from "ngx-color-picker";
     QuillEditorComponent,
     NgClass,
     NgbCollapse,
-    ColorPickerModule,
+    ColorPickerDirective,
     NgbAlert
   ],
   templateUrl: './individual-session.component.html',
