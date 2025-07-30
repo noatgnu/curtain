@@ -27,6 +27,7 @@ export class BatchSearchComponent implements OnInit {
   data: string = ""
   searchType: "Gene Names"| "Primary IDs" = "Gene Names"
   title: string = ""
+  regexEnabled: boolean = false
   builtInList: string[] = []
   currentID: number = -1
   params = {
@@ -47,6 +48,7 @@ export class BatchSearchComponent implements OnInit {
   searchTerm: string = ""
   searching: boolean = false
   searchFailed: boolean = false
+  regexError: string = ""
   form = this.fb.group({
     searchTerm: [""]
   })
@@ -195,20 +197,72 @@ export class BatchSearchComponent implements OnInit {
 
   handleSubmit() {
     const result: any = {}
-    for (const r of this.data.replace("\r", "").split("\n")) {
-      const a = r.trim().toUpperCase()
-      if (a !== "") {
-        const e = a.split(";")
-        if (!result[a]) {
-          result[a] = []
+    this.regexError = ""; // Clear any previous errors
+    
+    if (this.regexEnabled) {
+      // Regex mode: use patterns to match against dataset
+      for (const r of this.data.replace("\r", "").split("\n")) {
+        const pattern = r.trim()
+        if (pattern !== "") {
+          try {
+            const regex = new RegExp(pattern, 'i');
+            // Find matches in the current dataset
+            const matches = this.findRegexMatches(regex, pattern);
+            if (matches.length > 0) {
+              // Store as the pattern with the matches as individual entries
+              result[pattern] = matches;
+            }
+          } catch (e) {
+            this.regexError = `Invalid regex pattern "${pattern}": ${(e as Error).message}`;
+            return; // Stop processing if there's a regex error
+          }
         }
-        for (let f of e) {
-          f = f.trim()
-          result[a].push(f)
+      }
+    } else {
+      // Normal mode: exact matching
+      for (const r of this.data.replace("\r", "").split("\n")) {
+        const a = r.trim().toUpperCase()
+        if (a !== "") {
+          const e = a.split(";")
+          if (!result[a]) {
+            result[a] = []
+          }
+          for (let f of e) {
+            f = f.trim()
+            result[a].push(f)
+          }
         }
       }
     }
-    this.modal.close({searchType: this.searchType, data: result, title: this.title, params: this.params})
+    
+    this.modal.close({searchType: this.searchType, data: result, title: this.title, params: this.params, regexEnabled: this.regexEnabled})
+  }
+  
+  private findRegexMatches(regex: RegExp, pattern: string): string[] {
+    const matches: string[] = [];
+    
+    // Get the current dataset to search against
+    if (this.searchType === "Gene Names") {
+      // Search in all available gene names
+      if (this.dataService.allGenes) {
+        for (const geneName of this.dataService.allGenes) {
+          if (regex.test(geneName)) {
+            matches.push(geneName);
+          }
+        }
+      }
+    } else {
+      // Search in primary IDs  
+      if (this.dataService.primaryIDsList) {
+        for (const primaryId of this.dataService.primaryIDsList) {
+          if (regex.test(primaryId)) {
+            matches.push(primaryId);
+          }
+        }
+      }
+    }
+    
+    return [...new Set(matches)]; // Remove duplicates
   }
 
   close() {

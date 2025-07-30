@@ -79,9 +79,27 @@
           </option>
         </select>
       </div>
+      <div class="form-group mt-2">
+        <div class="form-check">
+          <input type="checkbox" id="regexSearch" class="form-check-input" [(ngModel)]="regexEnabled">
+          <label for="regexSearch" class="form-check-label">Enable Regex Search</label>
+        </div>
+        <small class="form-text text-muted">
+          Use regular expressions to match patterns against the dataset. Each line in the text area will be treated as a regex pattern. Examples: 
+          <code>^ACTB</code> (starts with ACTB), 
+          <code>KINASE$</code> (ends with KINASE), 
+          <code>P[0-9]+</code> (P followed by numbers)
+        </small>
+        @if (regexError) {
+          <div class="alert alert-danger mt-2">
+            <small>{{regexError}}</small>
+          </div>
+        }
+      </div>
     </div>
     <div class="col-9">
-      <textarea [disabled]="params.enableAdvanced" class="form-control mb-2" [(ngModel)]="data" rows="12"></textarea>
+      <textarea [disabled]="params.enableAdvanced" class="form-control mb-2" [(ngModel)]="data" rows="12" 
+                [placeholder]="regexEnabled ? 'Enter regex patterns (one per line):\n^ACTB\nKINASE$\nP[0-9]+' : 'Enter protein identifiers (one per line or semicolon separated):\nACTB\nTUBB\nGAPDH'"></textarea>
     </div>
   </div>
   <div class="row">
