@@ -33,80 +33,65 @@
     <div class="card-header">
       <h6 class="mb-0">Search Parameters</h6>
     </div>
-    <div class="card-body">
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <label for="boundaryDistance" class="form-label">Euclidean Distance:</label>
+    <div class="card-body py-2">
+      <div class="row g-2">
+        <div class="col-md-3">
+          <label for="boundaryDistance" class="form-label small">Distance:</label>
           <input 
             id="boundaryDistance" 
             type="number" 
-            class="form-control" 
+            class="form-control form-control-sm" 
             [(ngModel)]="boundaryDistance" 
             (ngModelChange)="onBoundaryChange()"
             step="0.1" 
             min="0.1">
-          <small class="text-muted">Maximum Euclidean distance from target point</small>
-          <div class="mt-1">
-            <small class="text-info">
-              <i class="bi bi-info-circle me-1"></i>
-              Formula: √[(x₂-x₁)² + (y₂-y₁)²] ≤ threshold
-            </small>
-          </div>
         </div>
-        <div class="col-md-6">
-          <label for="maxPoints" class="form-label">Max Points:</label>
+        <div class="col-md-3">
+          <label for="maxPoints" class="form-label small">Max Points:</label>
           <input 
             id="maxPoints" 
             type="number" 
-            class="form-control" 
+            class="form-control form-control-sm" 
             [(ngModel)]="maxPoints" 
             (ngModelChange)="onMaxPointsChange()"
             min="1" 
             max="200">
-          <small class="text-muted">Maximum number of points to display</small>
         </div>
-      </div>
-
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="form-check mb-2">
+        <div class="col-md-3">
+          <label class="form-label small">FC Filter:</label>
+          <div class="form-check mb-1">
             <input type="checkbox" class="form-check-input" id="useFoldChangeFilter" 
                    [(ngModel)]="useFoldChangeFilter" (ngModelChange)="onFilterChange()">
-            <label class="form-check-label" for="useFoldChangeFilter">
-              Filter by fold change threshold
-            </label>
+            <label class="form-check-label small" for="useFoldChangeFilter">Enable</label>
           </div>
           @if (useFoldChangeFilter) {
             <input 
               type="number" 
-              class="form-control" 
+              class="form-control form-control-sm" 
               [(ngModel)]="foldChangeThreshold" 
               (ngModelChange)="onFilterChange()"
               step="0.1" 
               min="0"
               placeholder="Min |log2FC|">
-            <small class="text-muted">Minimum absolute log2 fold change</small>
           }
         </div>
-        <div class="col-md-6">
-          <div class="form-check mb-2">
+        <div class="col-md-3">
+          <label class="form-label small">P-value Filter:</label>
+          <div class="form-check mb-1">
             <input type="checkbox" class="form-check-input" id="useSignificanceFilter" 
                    [(ngModel)]="useSignificanceFilter" (ngModelChange)="onFilterChange()">
-            <label class="form-check-label" for="useSignificanceFilter">
-              Filter by significance threshold
-            </label>
+            <label class="form-check-label small" for="useSignificanceFilter">Enable</label>
           </div>
           @if (useSignificanceFilter) {
             <input 
               type="number" 
-              class="form-control" 
+              class="form-control form-control-sm" 
               [(ngModel)]="significanceThreshold" 
               (ngModelChange)="onFilterChange()"
               step="0.01" 
               min="0" 
               max="1"
               placeholder="Max p-value">
-            <small class="text-muted">Maximum p-value (e.g., 0.05)</small>
           }
         </div>
       </div>
@@ -228,21 +213,23 @@
       <div class="card-header">
         <h6 class="mb-0">Create Selection from Points</h6>
       </div>
-      <div class="card-body">
-        <div class="row g-3 mb-3">
+      <div class="card-body py-2">
+        <div class="row g-2 mb-2">
           <div class="col-md-6">
-            <div class="form-check mb-2">
+            <div class="form-check">
               <input type="checkbox" class="form-check-input" id="includeTargetPoint" [(ngModel)]="includeTargetPoint">
-              <label class="form-check-label" for="includeTargetPoint">
-                Include target point ({{ targetPoint?.geneName || targetPoint?.primaryId }})
+              <label class="form-check-label small" for="includeTargetPoint">
+                Include target point
               </label>
             </div>
-            <small class="text-muted">Selected nearby points: {{ selectedPoints.size }}</small>
           </div>
-          <div class="col-md-6">
-            <div class="d-flex gap-2">
+          <div class="col-md-3">
+            <small class="text-muted">Selected: {{ selectedPoints.size }}</small>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex gap-1">
               <button type="button" class="btn btn-sm btn-outline-primary" (click)="selectAllPoints()">
-                Select All
+                All
               </button>
               <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearSelection()">
                 Clear
@@ -251,28 +238,28 @@
           </div>
         </div>
 
-        <div class="row g-3 mb-3">
+        <div class="row g-2">
           <div class="col-md-4">
-            <label for="selectionName" class="form-label">New Selection Name:</label>
+            <label for="selectionName" class="form-label small">New Selection Name:</label>
             <input 
               id="selectionName" 
               type="text" 
-              class="form-control" 
+              class="form-control form-control-sm" 
               [(ngModel)]="selectionName"
               placeholder="Enter selection name">
             <button 
               type="button" 
-              class="btn btn-primary btn-sm mt-2 w-100" 
+              class="btn btn-primary btn-sm mt-1 w-100" 
               (click)="createNewSelection()"
               [disabled]="!selectionName.trim() && selectedPoints.size === 0 && !includeTargetPoint">
-              Create New Selection
+              Create New
             </button>
           </div>
           <div class="col-md-4">
-            <label for="existingSelection" class="form-label">Add to Existing Selection:</label>
+            <label for="existingSelection" class="form-label small">Add to Existing:</label>
             <select 
               id="existingSelection" 
-              class="form-select" 
+              class="form-select form-select-sm" 
               [(ngModel)]="addToExistingSelection">
               <option value="">Select existing selection...</option>
               @for (selection of existingSelections; track selection) {
@@ -283,14 +270,14 @@
             </select>
             <button 
               type="button" 
-              class="btn btn-success btn-sm mt-2 w-100" 
+              class="btn btn-success btn-sm mt-1 w-100" 
               (click)="addToExisting()"
               [disabled]="!addToExistingSelection && selectedPoints.size === 0 && !includeTargetPoint">
-              Add to Selection
+              Add to Existing
             </button>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Annotate Points:</label>
+            <label class="form-label small">Annotate:</label>
             <div class="d-grid">
               <button 
                 type="button" 
@@ -299,12 +286,9 @@
                 [disabled]="selectedPoints.size === 0 && !includeTargetPoint"
                 title="Add annotations to selected points">
                 <i class="bi bi-tag me-1"></i>
-                Annotate Selected
+                Annotate ({{ (includeTargetPoint ? 1 : 0) + selectedPoints.size }})
               </button>
             </div>
-            <small class="text-muted mt-1 d-block">
-              Will annotate {{ (includeTargetPoint ? 1 : 0) + selectedPoints.size }} points
-            </small>
           </div>
         </div>
       </div>
