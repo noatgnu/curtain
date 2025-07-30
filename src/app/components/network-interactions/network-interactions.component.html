@@ -142,7 +142,8 @@
       </table>
     </form>
 
-    <table class="table table-bordered table-striped mt-2" *ngIf="edgeDataViewer[edgeDataSource]">
+    @if (edgeDataViewer[edgeDataSource]) {
+    <table class="table table-bordered table-striped mt-2">
       <thead>
       <tr>
         <th scope="col">
@@ -154,7 +155,7 @@
       </tr>
       </thead>
       <tbody>
-      <ng-container *ngIf="edgeDataSource==='stringdb';else interactome">
+      @if (edgeDataSource === 'stringdb') {
         <tr>
           <td>Node A</td>
           <td>{{edgeDataViewer[edgeDataSource]["preferredName_A"]}}</td>
@@ -195,8 +196,7 @@
           <td><span ngbTooltip="combined score is computed by combining the probabilities from the different evidence channels and corrected for the probability of randomly observing an interaction">Score</span></td>
           <td>{{edgeDataViewer[edgeDataSource]["score"]}}</td>
         </tr>
-      </ng-container>
-      <ng-template #interactome>
+      } @else {
         <ng-container>
           <tr>
             <td>Node A</td>
@@ -211,9 +211,10 @@
             <td>{{edgeDataViewer[edgeDataSource]["score"]}}</td>
           </tr>
         </ng-container>
-      </ng-template>
+      }
       </tbody>
     </table>
+    }
   </div>
   <div class="col-9">
     <app-cytoplot #cytoplot [dimensions]="{width: 1200, height: 700}"  [drawData]="result" (clickedID)="handleSelect($event)" (ready)="saveNetwork()"></app-cytoplot>

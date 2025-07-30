@@ -2,7 +2,7 @@
   Rank Plot Text Annotation Editor
 </div>
 <div class="modal-body">
-  <ng-container *ngFor="let f of forms">
+  @for (f of forms; track f) {
     <form [formGroup]="f">
       <h5>{{f.value["annotationID"]}}</h5>
       <div class="d-flex">
@@ -71,7 +71,7 @@
       </div>
     </form>
     <hr>
-  </ng-container>
+  }
 </div>
 <div class="modal-footer">
   <button class="btn btn-primary" (click)="modal.close(forms)">Submit</button>

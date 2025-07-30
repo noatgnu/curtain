@@ -6,7 +6,7 @@
 <div class="modal-body">
   <div class="d-flex">
     <div ngbNav #nav="ngbNav" [(activeId)]="currentID"  class="nav-pills flex-column" orientation="vertical">
-      <ng-container *ngFor="let s of sessionList" [ngbNavItem]="s">
+      @for (s of sessionList; track s) {
         <button ngbNavLink>{{s}}</button>
         <ng-template ngbNavContent>
           <div class="card">
@@ -28,22 +28,30 @@
                       <option value="geneName">Gene Name</option>
                     </select>
                   </div>
-                  <div class="p-2" *ngIf="comparison['source']">
+                  @if (comparison['source']) {
+                  <div class="p-2">
                     <label for="sourceComparison">
                       Source Comparison
                     </label>
                     <select class="form-control" formControlName="category" id="sourceComparison">
-                      <option *ngFor="let c of comparison['source']" [value]="c">{{c}}</option>
+                      @for (c of comparison['source']; track c) {
+                      <option [value]="c">{{c}}</option>
+                      }
                     </select>
                   </div>
-                  <div class="p-2" *ngIf="comparison[s]">
+                  }
+                  @if (comparison[s]) {
+                  <div class="p-2">
                     <label for="targetComparison">
                       Target Comparison
                     </label>
                     <select class="form-control" formControlName="category" id="targetComparison">
-                      <option *ngFor="let c of comparison[s]" [value]="c">{{c}}</option>
+                      @for (c of comparison[s]; track c) {
+                      <option [value]="c">{{c}}</option>
+                      }
                     </select>
                   </div>
+                  }
                 </div>
                 <div class="p-2">
                   <button type="button" class="btn btn-outline-dark m-2" (click)="filterData(s)">Filter</button>
@@ -86,7 +94,8 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let row of viewDF[s]">
+            @for (row of viewDF[s]; track row) {
+            <tr>
               <td style="max-width: 100px; word-break: break-all">{{row.primaryID}}</td>
               <td style="max-width: 100px; word-break: break-all">{{row.geneName}}</td>
               <td>{{row.comparison}}</td>
@@ -97,10 +106,11 @@
               <td>{{row.targetComparison}}</td>
               <td>{{row.targetPrimaryID}}</td>
             </tr>
+            }
             </tbody>
           </table>
         </ng-template>
-      </ng-container>
+      }
     </div>
     <div [ngbNavOutlet]="nav" class="ms-4"></div>
   </div>

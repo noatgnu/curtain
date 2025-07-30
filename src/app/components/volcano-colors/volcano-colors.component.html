@@ -17,7 +17,8 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let c of colorGroups">
+    @for (c of colorGroups; track c) {
+    <tr>
       <td>
         <label for="{{c.group}}id" class="col-9">{{c.group}}</label>
       </td>
@@ -28,6 +29,7 @@
         <input type="checkbox" class="form-check-input" [(ngModel)]="c.remove">
       </td>
     </tr>
+    }
     </tbody>
   </table>
 

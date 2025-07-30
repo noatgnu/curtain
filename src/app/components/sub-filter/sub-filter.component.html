@@ -3,7 +3,9 @@
     <div class="form-group">
       <label for="primaryIDs">Primary IDs</label>
       <select id="primaryIDs" class="form-control" formControlName="primaryIDs" multiple>
-        <option *ngFor="let primaryID of primaryData" [value]="primaryID.primaryID">{{primaryID.primaryID}} <span *ngIf="primaryID.uniprot" class="text-primary">({{primaryID.uniprot["Gene Names"]}})</span></option>
+        @for (primaryID of primaryData; track primaryID.primaryID) {
+          <option [value]="primaryID.primaryID">{{primaryID.primaryID}} @if (primaryID.uniprot) {<span class="text-primary">({{primaryID.uniprot["Gene Names"]}})</span>}</option>
+        }
       </select>
     </div>
     <div class="form-group">

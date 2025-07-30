@@ -20,7 +20,9 @@
         <div class="col-md-4">
           <select formControlName="filterSearchOperation" class="form-control" aria-label="Filter operation">
             <option value="All selected">All selected</option>
-            <option *ngFor="let o of dataService.selectOperationNames" [value]="o">{{o}}</option>
+            @for (o of dataService.selectOperationNames; track o) {
+            <option [value]="o">{{o}}</option>
+            }
           </select>
         </div>
       </div>
@@ -38,7 +40,9 @@
             <option value="Primary IDs">Primary IDs</option>
             <option value="Fold Change">Fold Change</option>
             <option value="P-Value">P-Value</option>
-            <option *ngIf="settings.settings.enrichrRunList.length > 0" value="Enrichr">Enrichr</option>
+            @if (settings.settings.enrichrRunList.length > 0) {
+            <option value="Enrichr">Enrichr</option>
+            }
           </select>
         </div>
         <div class="col-md-3">
@@ -48,12 +52,16 @@
             <option value="desc">Descending</option>
           </select>
         </div>
-        <div class="col-md-3" *ngIf="sortForm.value['key']==='Enrichr'">
+        @if (sortForm.value['key']==='Enrichr') {
+        <div class="col-md-3">
           <label for="enrichrRun" class="form-label small">Enrichr Run</label>
           <select id="enrichrRun" formControlName="enrichrRun" class="form-control" aria-label="Enrichr run">
-            <option *ngFor="let run of settings.settings.enrichrRunList" [value]="run">{{run}}</option>
+            @for (run of settings.settings.enrichrRunList; track run) {
+            <option [value]="run">{{run}}</option>
+            }
           </select>
         </div>
+        }
         <div class="col-md-3">
           <div class="d-flex flex-column h-100">
             <label class="form-label small invisible" style="height: 19px;">Action</label>
@@ -71,8 +79,9 @@
   <hr>
 
   <section class="results-section">
-    <div *ngIf="ready; else notready">
-      <div *ngIf="displayDF.count() > 0; else noData" class="data-results">
+    @if (ready) {
+      @if (displayDF.count() > 0) {
+      <div class="data-results">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <ngb-pagination
             [(page)]="dataService.page"
@@ -90,9 +99,9 @@
         </div>
 
         <div class="data-list mb-3">
-          <ng-container *ngFor="let r of displayDF.toArray()|slice: (dataService.page-1) * dataService.pageSize: dataService.page* dataService.pageSize; let i = index">
+          @for (r of displayDF.toArray()|slice: (dataService.page-1) * dataService.pageSize: dataService.page* dataService.pageSize; track r; let i = $index) {
             <app-raw-data-block class="mb-2" [data]="r" [attr.data-index]="i"></app-raw-data-block>
-          </ng-container>
+          }
         </div>
 
         <div class="d-flex justify-content-between align-items-center">
@@ -107,25 +116,22 @@
           </ngb-pagination>
         </div>
       </div>
-    </div>
+      } @else {
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+          <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+          <div>
+            <h5>No data found</h5>
+            <p class="mb-0">Please try a different search term or filter criteria.</p>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="d-flex justify-content-center align-items-center p-5">
+        <div class="spinner-border text-primary me-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mb-0 fs-5">Processing data, please wait...</p>
+      </div>
+    }
   </section>
-
-  <ng-template #noData>
-    <div class="alert alert-info d-flex align-items-center" role="alert">
-      <i class="bi bi-info-circle-fill me-2 fs-4"></i>
-      <div>
-        <h5>No data found</h5>
-        <p class="mb-0">Please try a different search term or filter criteria.</p>
-      </div>
-    </div>
-  </ng-template>
-
-  <ng-template #notready>
-    <div class="d-flex justify-content-center align-items-center p-5">
-      <div class="spinner-border text-primary me-3" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p class="mb-0 fs-5">Processing data, please wait...</p>
-    </div>
-  </ng-template>
 </div>

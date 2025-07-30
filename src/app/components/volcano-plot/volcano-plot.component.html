@@ -202,7 +202,9 @@
                         <label class="form-label" for="custom-volcano-text-col">Custom Popup Label Column</label>
                         <select id="custom-volcano-text-col" [(ngModel)]="settings.settings.customVolcanoTextCol" class="form-select">
                           <option [value]="''">Default</option>
-                          <option *ngFor="let col of dataService.differential.df.getColumnNames()" [value]="col">{{col}}</option>
+                          @for (col of dataService.differential.df.getColumnNames(); track col) {
+                            <option [value]="col">{{col}}</option>
+                          }
                         </select>
                         <small class="text-muted">Changes here will only affect newly added annotation ids.</small>
                       </div>

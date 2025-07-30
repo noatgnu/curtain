@@ -12,43 +12,55 @@
         <div class="mb-3">
           <h6 class="fw-bold mb-2">Found in searches:</h6>
           <ul class="list-unstyled ps-2">
-            <li class="mb-1" *ngFor="let s of foundIn">
+            @for (s of foundIn; track s) {
+            <li class="mb-1">
               <app-draggable-element [label]="s"></app-draggable-element>
             </li>
+            }
           </ul>
         </div>
 
-        <ng-container *ngIf="dataService.fetchUniprot && uni">
+        @if (dataService.fetchUniprot && uni) {
           <div class="mb-3">
             <h6 class="fw-bold mb-1">UniProt Details</h6>
             <div class="ms-2">
               <div class="mb-1"><span class="text-secondary">Accession:</span> {{uni["Entry"]}}</div>
               <div class="mb-2"><span class="text-secondary">Protein names:</span> {{uni["Protein names"]}}</div>
 
-              <div *ngIf="uni['Subcellular location [CC]']" class="mb-2">
+              @if (uni['Subcellular location [CC]']) {
+              <div class="mb-2">
                 <div class="text-secondary">Subcellular location:</div>
                 <ul class="ps-3 mb-0 small">
-                  <li *ngFor="let subCell of uni['Subcellular location [CC]']">{{subCell}}</li>
+                  @for (subCell of uni['Subcellular location [CC]']; track subCell) {
+                  <li>{{subCell}}</li>
+                  }
                 </ul>
               </div>
+              }
             </div>
           </div>
 
-          <div *ngIf="enrichrRunNameList.length > 0" class="mb-3">
+          @if (enrichrRunNameList.length > 0) {
+          <div class="mb-3">
             <h6 class="fw-bold mb-1">Enrichr runs:</h6>
-            <div class="ms-2" *ngFor="let e of enrichrRunNameList">
+            @for (e of enrichrRunNameList; track e) {
+            <div class="ms-2">
               <div class="text-secondary mb-1">{{e}}</div>
               <div class="d-flex flex-wrap gap-1 mb-2">
-                <ng-container *ngFor="let t of enrichrTermList.slice(0,5)">
-                  <span class="badge bg-info text-dark" *ngIf="enrichrData[e][t]"
+                @for (t of enrichrTermList.slice(0,5); track t) {
+                  @if (enrichrData[e][t]) {
+                  <span class="badge bg-info text-dark"
                         [ngbTooltip]="'Adjusted p-value: ' + enrichrData[e][t].adjustedpValue">
                     {{enrichrData[e][t].rank}} {{t}}
                   </span>
-                </ng-container>
+                  }
+                }
               </div>
             </div>
+            }
           </div>
-        </ng-container>
+          }
+        }
 
         <form [formGroup]="form" class="mt-3">
           <div class="form-check mb-2">
@@ -81,36 +93,44 @@
     <div class="card h-100 border-dark">
       <div class="card-body">
         <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
-          <li [ngbNavItem]="1" *ngIf="uni">
+          @if (uni) {
+          <li [ngbNavItem]="1">
             <a ngbNavLink>Protein Information</a>
             <ng-template ngbNavContent>
               <app-protein-information [data]="uni"></app-protein-information>
             </ng-template>
           </li>
+          }
           <li [ngbNavItem]="2">
             <a ngbNavLink>Raw Data Distribution</a>
             <ng-template ngbNavContent>
               <app-bar-chart [data]="_data"></app-bar-chart>
             </ng-template>
           </li>
-          <li [ngbNavItem]="3" *ngIf="uni">
+          @if (uni) {
+          <li [ngbNavItem]="3">
             <a ngbNavLink>Proteomics DB</a>
             <ng-template ngbNavContent>
               <app-proteomics-db [uniprotID]="uni['Entry']"></app-proteomics-db>
             </ng-template>
           </li>
-          <li [ngbNavItem]="4" *ngIf="uni">
+          }
+          @if (uni) {
+          <li [ngbNavItem]="4">
             <a ngbNavLink>String DB</a>
             <ng-template ngbNavContent>
               <app-string-db [uniProtData]="primaryID"></app-string-db>
             </ng-template>
           </li>
-          <li [ngbNavItem]="5" *ngIf="uni">
+          }
+          @if (uni) {
+          <li [ngbNavItem]="5">
             <a ngbNavLink>Interactome Atlas</a>
             <ng-template ngbNavContent>
               <app-interactome-atlas [data]="primaryID"></app-interactome-atlas>
             </ng-template>
           </li>
+          }
         </ul>
         <div [ngbNavOutlet]="nav" class="mt-3"></div>
       </div>

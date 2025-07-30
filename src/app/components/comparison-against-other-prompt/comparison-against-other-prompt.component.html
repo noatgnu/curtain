@@ -6,22 +6,28 @@
     <div class="form-group">
       <label for="selection">Volcano Plot Selection</label>
       <select id="selection" class="form-control" formControlName="selection">
-        <option *ngFor="let selection of data.selectOperationNames" [value]="selection">{{selection}}</option>
+        @for (selection of data.selectOperationNames; track selection) {
+          <option [value]="selection">{{selection}}</option>
+        }
       </select>
     </div>
     <div class="form-group">
       <label for="matchType">Match Type</label>
       <select id="matchType" class="form-control" formControlName="others">
-        <option *ngFor="let m of matchTypes" [value]="m">{{m}}</option>
+        @for (m of matchTypes; track m) {
+          <option [value]="m">{{m}}</option>
+        }
       </select>
     </div>
   </form>
   <label>
     Session links for comparison
   </label>
-  <div *ngFor="let u of urls; let ind = index">
-    <input class="form-control" placeholder="session-link" [(ngModel)]="u.url">
-  </div>
+  @for (u of urls; track u; let ind = $index) {
+    <div>
+      <input class="form-control" placeholder="session-link" [(ngModel)]="u.url">
+    </div>
+  }
   <button class="btn btn-sm btn-outline-primary" (click)="urls.push({url:''})">+</button>
 </div>
 <div class="modal-footer">

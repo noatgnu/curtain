@@ -275,9 +275,11 @@
               class="form-select" 
               [(ngModel)]="addToExistingSelection">
               <option value="">Select existing selection...</option>
-              <option *ngFor="let selection of existingSelections" [value]="selection">
+              @for (selection of existingSelections; track selection) {
+              <option [value]="selection">
                 {{ selection }}
               </option>
+              }
             </select>
             <button 
               type="button" 

@@ -66,7 +66,7 @@
     </div>
     <div class="card-body p-0">
       <div class="accordion" id="conditionAccordion">
-        <ng-container *ngFor="let c of condition; let i = index">
+        @for (c of condition; track c; let i = $index) {
           <div class="accordion-item">
             <div class="accordion-header d-flex align-items-center p-2 bg-light">
               <div class="row w-100 align-items-center">
@@ -117,7 +117,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <ng-container *ngFor="let s of samples[c]; let j = index">
+                @for (s of samples[c]; track s; let j = $index) {
                   <tr>
                     <td>{{s}}</td>
                     <td class="text-center">
@@ -148,12 +148,12 @@
                       </div>
                     </td>
                   </tr>
-                </ng-container>
+                }
                 </tbody>
               </table>
             </div>
           </div>
-        </ng-container>
+        }
       </div>
     </div>
   </div>

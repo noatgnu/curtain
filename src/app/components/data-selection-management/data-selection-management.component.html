@@ -4,7 +4,8 @@
   </h5>
 </div>
 <div class="modal-body">
-  <div *ngFor="let s of selectOperationNames">
+  @for (s of selectOperationNames; track s) {
+  <div>
     <form [formGroup]="selectionForms[s]">
       <div class="form-group">
         <label>Selection title</label>
@@ -21,7 +22,8 @@
 
     </form>
     <button class="btn btn-sm btn-outline-info" (click)="selectionToggle[s] = !selectionToggle[s]">Edit Selection</button>
-    <div *ngIf="selectionToggle[s] === true && primaryIDForms[s]">
+    @if (selectionToggle[s] === true && primaryIDForms[s]) {
+      <div>
       <div class="card border-dark mt-2">
         <div class="card-body">
           <form [formGroup]="selectAllForms[s]">
@@ -31,11 +33,13 @@
             </div>
           </form>
 
-          <div *ngFor="let primaryID of selectionMap[s]; let ind = index">
+          @for (primaryID of selectionMap[s]; track primaryID; let ind = $index) {
             <div>
-              <b>{{primaryID}} <span *ngIf="geneNameMap[primaryID]">[{{geneNameMap[primaryID]}}]</span></b>
+            <div>
+              <b>{{primaryID}} @if (geneNameMap[primaryID]) {<span>[{{geneNameMap[primaryID]}}]</span>}</b>
             </div>
-            <form *ngIf="primaryIDForms[s][primaryID]" [formGroup]="primaryIDForms[s][primaryID]">
+            @if (primaryIDForms[s][primaryID]) {
+              <form [formGroup]="primaryIDForms[s][primaryID]">
               <div class="d-flex">
                 <div class="p-2">
                   <div class="form-check">
@@ -56,12 +60,16 @@
                   </div>
                 </div>
               </div>
-            </form>
-          </div>
+              </form>
+            }
+            </div>
+          }
+        </div>
         </div>
       </div>
-    </div>
+    }
   </div>
+  }
 
   <hr>
 </div>
