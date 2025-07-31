@@ -151,4 +151,19 @@ export class SampleOrderAndHideComponent implements OnInit {
     }
   }
 
+  hasPeptideCountData(): boolean {
+    return this.settings.settings.peptideCountData && Object.keys(this.settings.settings.peptideCountData).length > 0;
+  }
+
+  clearPeptideCountData() {
+    if (confirm('Are you sure you want to clear all peptide count data? This action cannot be undone.')) {
+      this.settings.settings.peptideCountData = {};
+      // Also disable the peptide count view if data is cleared
+      this.settings.settings.viewPeptideCount = false;
+      this.enablePeptideCount = false;
+      // Trigger a redraw to update the UI
+      this.dataService.redrawTrigger.next(true);
+    }
+  }
+
 }

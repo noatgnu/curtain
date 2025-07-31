@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import { InputFile } from 'src/app/classes/input-file';
 import { Raw } from 'src/app/classes/raw';
 import {Differential} from "../../../classes/differential";
@@ -37,7 +37,7 @@ import {ColorPickerDirective} from "ngx-color-picker";
     SettingsService
   ]
 })
-export class IndividualSessionComponent implements OnChanges{
+export class IndividualSessionComponent implements OnChanges, AfterViewInit {
   @Input() sessionId: number = -1;
   private _session: {data: {
     raw: InputFile,
@@ -119,6 +119,7 @@ export class IndividualSessionComponent implements OnChanges{
   @Input() differentialFiles: File[] = [];
   @Input() rawFiles: File[] = [];
   @Input() extraFiles: File[] = [];
+  @Input() peptideFiles: File[] = [];
   @Output() changed: EventEmitter<any> = new EventEmitter<any>();
   @Output() finished: EventEmitter<string> = new EventEmitter<string>();
   progressBar: any = {value: 0, text: ""}
@@ -139,6 +140,34 @@ export class IndividualSessionComponent implements OnChanges{
       }
     })
     this.colorPalletes = Object.keys(this.data.palette)
+  }
+
+  ngAfterViewInit() {
+    // Set up peptide file change handler
+    if (this.session?.peptideFileForm) {
+      this.session.peptideFileForm.get('peptideFile')?.valueChanges.subscribe((file: File) => {
+        if (file) {
+          this.loadPeptideFileColumns(file);
+        }
+      });
+    }
+  }
+
+  private loadPeptideFileColumns(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result && this.session) {
+        try {
+          const df = fromCSV(e.target.result as string);
+          this.session.peptideFileColumns = df.getColumnNames();
+          this.session.peptideFile = file;
+        } catch (error) {
+          console.error('Error reading peptide count file:', error);
+          this.toast.show('Error', 'Failed to read peptide count file. Please check the file format.');
+        }
+      }
+    };
+    reader.readAsText(file);
   }
 
   ngOnChanges(changes: SimpleChanges) {

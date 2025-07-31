@@ -39,6 +39,7 @@ export class BatchUploadModalComponent {
   differentialFiles: File[] = [];
   rawFiles: File[] = [];
   extraFiles: File[] = [];
+  peptideFiles: File[] = [];
 
   sessions: {data: {
       raw: InputFile,
@@ -107,6 +108,16 @@ export class BatchUploadModalComponent {
     if (files) {
       for (const f of files) {
         this.extraFiles.push(f);
+      }
+    }
+  }
+
+  handlePeptideCountFiles(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const files = target.files;
+    if (files) {
+      for (const f of files) {
+        this.peptideFiles.push(f);
       }
     }
   }

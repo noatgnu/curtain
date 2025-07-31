@@ -2,14 +2,16 @@
   <h5 class="modal-title">Batch Session Creation</h5>
 </div>
 <div class="modal-body">
-  <div class="d-flex gap-2">
+  <div class="d-flex gap-2 flex-wrap">
     <button class="btn btn-primary" (click)="differentialAnalysisFiles.click()">Select Differential Analysis Files @if (differentialFiles.length > 0) {({{differentialFiles.length}} selected)}</button>
     <button class="btn btn-primary" (click)="rFiles.click()">Select Raw Files @if (rawFiles.length >0) {({{rawFiles.length}} selected)}</button>
     <button class="btn btn-primary" (click)="eFiles.click()">Select Extra Files @if (extraFiles.length >0) {({{extraFiles.length}} selected)}</button>
+    <button class="btn btn-info" (click)="peptideCountFiles.click()">Select Peptide Count Files @if (peptideFiles.length >0) {({{peptideFiles.length}} selected)}</button>
   </div>
   <input type="file" hidden (change)="handleDifferentialAnalysisFiles($event)" #differentialAnalysisFiles multiple>
   <input type="file" hidden (change)="handleRawFiles($event)" #rFiles multiple>
   <input type="file" hidden (change)="handleExtraFiles($event)" #eFiles multiple>
+  <input type="file" hidden (change)="handlePeptideCountFiles($event)" #peptideCountFiles multiple>
 
   <button class="btn btn-primary mt-2" (click)="addSession()">+ Session</button>
   @if (sessions.length > 0) {
@@ -39,7 +41,7 @@
                 <a href="{{s.linkId}}" target="_blank">{{s.linkId}}</a>
               </div>
             }
-            <app-individual-session [extraFiles]="extraFiles" [sessionId]="index" (changed)="sessions[index] = $event" [session]="s" [differentialFiles]="differentialFiles" [rawFiles]="rawFiles" (finished)="handleFinished($event, index)"></app-individual-session>
+            <app-individual-session [extraFiles]="extraFiles" [peptideFiles]="peptideFiles" [sessionId]="index" (changed)="sessions[index] = $event" [session]="s" [differentialFiles]="differentialFiles" [rawFiles]="rawFiles" (finished)="handleFinished($event, index)"></app-individual-session>
           </ng-template>
         </li>
       }

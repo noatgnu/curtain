@@ -141,13 +141,13 @@
         </div>
 
       </form>
-      @if (session.data.rawForm.samples.length >0 && extraFiles.length > 0) {
+      @if (session.data.rawForm.samples.length >0 && peptideFiles.length > 0) {
         <hr>
         <form [formGroup]="session.peptideFileForm">
           <div class="form-group">
-            <label>Select Peptide Data File</label>
+            <label>Select Peptide Count Data File</label>
             <select class="form-select" formControlName="peptideFile">
-              @for (f of extraFiles; track f) {
+              @for (f of peptideFiles; track f) {
                 <option [ngValue]="f">{{ f.name }}</option>
               }
             </select>
