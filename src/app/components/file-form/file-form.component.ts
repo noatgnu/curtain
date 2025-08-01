@@ -23,6 +23,7 @@ export class FileFormComponent implements OnInit {
   transformedFC = false;
   transformedP = false;
   clicked = false;
+  autoMatchSampleColumnsPattern= "\.s"
 
   @Output() finished: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -104,6 +105,19 @@ export class FileFormComponent implements OnInit {
         console.error("Error processing files:", error);
         this.toast.show("Error", "Failed to process files. See console for details.");
       });
+    }
+  }
+
+  autoMatchSampleColumns(): void {
+    // Automatically match sample columns based on the pattern
+    const regex = new RegExp(this.autoMatchSampleColumnsPattern);
+    const matchedColumns = this.data.raw.df.getColumnNames().filter(name => regex.test(name));
+    console.log(matchedColumns);
+    if (matchedColumns.length > 0) {
+      this.data.rawForm.samples = matchedColumns;
+      this.toast.show("Success", `Matched ${matchedColumns.length} sample columns.`);
+    } else {
+      this.toast.show("Info", "No sample columns matched the pattern.");
     }
   }
 
@@ -213,6 +227,10 @@ export class FileFormComponent implements OnInit {
       this.data.raw = e;
     } else {
       this.data.differential = e;
+      // Auto-populate description with filename if description is empty
+      if (!this.settings.settings.description || this.settings.settings.description.trim() === '') {
+        this.settings.settings.description = e.filename;
+      }
     }
   }
 
@@ -708,5 +726,16 @@ export class FileFormComponent implements OnInit {
     } else {
       this.updateProgressBar(progress, `Loading ${fileType}`);
     }
+  }
+
+  clearComparisonSelection(): void {
+    this.data.differentialForm.comparisonSelect = [];
+    this.toast.show("Cleared", "Comparison selection has been cleared.");
+  }
+
+  clearComparisonGroup(): void {
+    this.data.differentialForm.comparison = '';
+    this.data.differentialForm.comparisonSelect = [];
+    this.toast.show("Cleared", "Comparison group and selection have been cleared.");
   }
 }

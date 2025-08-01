@@ -124,17 +124,36 @@ export class BatchUploadModalComponent {
 
   addSession() {
     const form = this.fb.group({
-      raw: [null],
-      differential: [null],
+      raw: [null as File | null],
+      differential: [null as File | null],
     })
 
     const peptideFileForm = this.fb.group({
-      peptideFile: [null],
+      peptideFile: [null as File | null],
       primaryIdColumn: [""],
       sampleColumns: [[]]
     })
 
-    const data = {data: {
+    const data: {
+      data: any,
+      form: FormGroup,
+      peptideFileForm: FormGroup,
+      rawColumns: string[],
+      differentialColumns: string[],
+      peptideFileColumns: string[],
+      rawFile: File | null,
+      differentialFile: File | null,
+      peptideFile: File | null,
+      uniqueComparisons: string[],
+      linkId: string | null,
+      extraFiles: {file: File, type: string}[],
+      colorCategoryForms: FormGroup[],
+      colorCategoryColumn: string,
+      colorCategoryPrimaryIdColumn: string,
+      private: boolean,
+      volcanoColors: any,
+      colorPalette: string
+    } = {data: {
       raw: new InputFile(),
       rawForm: new Raw(),
       differentialForm: new Differential(),
@@ -167,7 +186,7 @@ export class BatchUploadModalComponent {
       volcanoColors: {},
       colorPalette: "pastel"
     }
-    peptideFileForm.controls.peptideFile.valueChanges.subscribe((value) => {
+    peptideFileForm.controls.peptideFile.valueChanges.subscribe((value: File | null) => {
       if (value) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -184,7 +203,7 @@ export class BatchUploadModalComponent {
         reader.readAsText(value)
       }
     })
-    form.controls.raw.valueChanges.subscribe((value) => {
+    form.controls.raw.valueChanges.subscribe((value: File | null) => {
       if (value) {
 
         const reader = new FileReader();
@@ -203,7 +222,7 @@ export class BatchUploadModalComponent {
         reader.readAsText(value)
       }
     })
-    form.controls.differential.valueChanges.subscribe((value) => {
+    form.controls.differential.valueChanges.subscribe((value: File | null) => {
       if (value) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -219,6 +238,11 @@ export class BatchUploadModalComponent {
         }
         console.log(value)
         reader.readAsText(value)
+
+        // Auto-populate description with filename if description is empty
+        if (!data.data.settings.description || data.data.settings.description.trim() === '') {
+          data.data.settings.description = value.name;
+        }
       }
     })
     // @ts-ignore
@@ -236,7 +260,26 @@ export class BatchUploadModalComponent {
 
   cloneSession(index: number) {
     const selectedSession = this.sessions[index]
-    const data = {data: {
+    const data: {
+      data: any,
+      form: FormGroup,
+      peptideFileForm: FormGroup,
+      rawColumns: string[],
+      differentialColumns: string[],
+      peptideFileColumns: string[],
+      rawFile: File | null,
+      differentialFile: File | null,
+      peptideFile: File | null,
+      uniqueComparisons: string[],
+      linkId: string | null,
+      extraFiles: {file: File, type: string}[],
+      colorCategoryForms: FormGroup[],
+      colorCategoryColumn: string,
+      colorCategoryPrimaryIdColumn: string,
+      private: boolean,
+      volcanoColors: any,
+      colorPalette: string
+    } = {data: {
       raw: new InputFile(),
       rawForm: new Raw(),
       differentialForm: new Differential(),
@@ -251,10 +294,10 @@ export class BatchUploadModalComponent {
       extraData: null,
       permanent: false,
     }, form: this.fb.group({
-      raw: [null],
-      differential: [null],
+      raw: [null as File | null],
+      differential: [null as File | null],
     }), peptideFileForm: this.fb.group({
-      peptideFile: [null],
+      peptideFile: [null as File | null],
       primaryIdColumn: [""],
       sampleColumns: [[]]
       }),
@@ -339,7 +382,7 @@ export class BatchUploadModalComponent {
     // @ts-ignore
     data.peptideFileColumns = [...selectedSession.peptideFileColumns]
 
-    data.peptideFileForm.controls.peptideFile.valueChanges.subscribe((value) => {
+    data.peptideFileForm.controls["peptideFile"].valueChanges.subscribe((value: File | null) => {
       if (value) {
 
         const reader = new FileReader();
@@ -358,7 +401,7 @@ export class BatchUploadModalComponent {
       }
     })
 
-    data.form.controls.raw.valueChanges.subscribe((value) => {
+    data.form.controls['raw'].valueChanges.subscribe((value: File | null) => {
       if (value) {
 
         const reader = new FileReader();
@@ -377,7 +420,7 @@ export class BatchUploadModalComponent {
         reader.readAsText(value)
       }
     })
-    data.form.controls.differential.valueChanges.subscribe((value) => {
+    data.form.controls['differential'].valueChanges.subscribe((value: File | null) => {
       if (value) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -393,6 +436,11 @@ export class BatchUploadModalComponent {
         }
         console.log(value)
         reader.readAsText(value)
+
+        // Auto-populate description with filename if description is empty
+        if (!data.data.settings.description || data.data.settings.description.trim() === '') {
+          data.data.settings.description = value.name;
+        }
       }
     })
     for (const extraFile of selectedSession.extraFiles) {
@@ -513,11 +561,18 @@ export class BatchUploadModalComponent {
               for (const r in currentSession.data.differentialForm) {
                 if (session.data.differentialForm[r]) {
                   if (typeof session.data.differentialForm[r] === "string") {
+                    // Validate all string fields against current differential columns
                     if (currentSession.differentialColumns.includes(session.data.differentialForm[r])) {
                       // @ts-ignore
                       currentSession.data.differentialForm[r] = session.data.differentialForm[r]
+                      // If this is the comparison column, update unique comparisons
+                      if (r === "comparison") {
+                        this.getComparisonColumnUniqueForImport(currentSession, session.data.differentialForm[r]);
+                      }
                     }
                   } else if (r === "comparisonSelect") {
+                    // Handle comparison selection - validate against uniqueComparisons after comparison column is set
+                    currentSession.data.differentialForm.comparisonSelect = [];
                     for (const c of session.data.differentialForm.comparisonSelect) {
                       if (currentSession.uniqueComparisons.includes(c)) {
                         currentSession.data.differentialForm.comparisonSelect.push(c)
@@ -561,5 +616,24 @@ export class BatchUploadModalComponent {
       }
     }
     reader.readAsText(file)
+  }
+
+  private getComparisonColumnUniqueForImport(session: any, columnComp: string) {
+    if (session.differentialFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target) {
+          const loadedFile = e.target.result;
+          const df = fromCSV(<string>loadedFile)
+          // @ts-ignore
+          const column = df.getSeries(columnComp)
+          // @ts-ignore
+          session.uniqueComparisons = column.distinct().toArray()
+        } else {
+          session.uniqueComparisons = []
+        }
+      }
+      reader.readAsText(session.differentialFile)
+    }
   }
 }

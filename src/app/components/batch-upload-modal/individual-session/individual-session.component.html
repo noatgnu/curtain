@@ -79,11 +79,18 @@
           </div>
           <div class="col-3">
             <label>Comparison</label>
-            <select class="form-select" aria-label="Comparison" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.comparison" (ngModelChange)="getComparisonColumnUnique(session, $event)">
-              @for (c of session.differentialColumns; track c) {
-                <option [value]="c" (click)="getComparisonColumnUnique(session, c)">{{ c }}</option>
-              }
-            </select>
+            <div class="input-group">
+              <select class="form-select" aria-label="Comparison" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.differentialForm.comparison" (ngModelChange)="getComparisonColumnUnique(session, $event)">
+                @for (c of session.differentialColumns; track c) {
+                  <option [value]="c" (click)="getComparisonColumnUnique(session, c)">{{ c }}</option>
+                }
+              </select>
+              <button type="button" class="btn btn-outline-secondary" (click)="clearComparisonGroup()" 
+                      [disabled]="!session.data.differentialForm.comparison || session.data.differentialForm.comparison === ''"
+                      title="Clear comparison group">
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
           </div>
           @if (session.uniqueComparisons) {
             <div class="col-6">
@@ -93,6 +100,13 @@
                   <option [value]="c">{{ c }}</option>
                 }
               </select>
+              <div class="mt-1 text-end">
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearComparisonSelection()" 
+                        [disabled]="!session.data.differentialForm.comparisonSelect || session.data.differentialForm.comparisonSelect.length === 0"
+                        title="Clear comparison selection">
+                  <i class="bi bi-x"></i> Clear
+                </button>
+              </div>
             </div>
           }
         </div>
@@ -116,19 +130,32 @@
             <small class="text-muted">Unique and should be the same as differential analysis primary ID column</small>
           </div>
           <div class="col-5">
-            <div class="form-group">
-              <label>Select Samples</label>
-              <select multiple class="form-select" aria-label="Select Samples" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.rawForm.samples">
-                @for (c of session.rawColumns; track c) {
-                  <option [value]="c">{{ c }}</option>
-                }
-              </select>
+            <div class="d-flex gap-2">
+              <div class="form-group">
+                <label>Manual Sample(s) Selection</label>
+                <select multiple class="form-select" aria-label="Select Samples" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.rawForm.samples" size="5">
+                  @for (c of session.rawColumns; track c) {
+                    <option [value]="c">{{ c }}</option>
+                  }
+                </select>
+                <small class="text-muted d-block mt-1">Hold Ctrl/Cmd to select multiple samples. Samples should be named as 'Condition.Replicate'</small>
+              </div>
+              <div>
+                <div class="form-group">
+                  <label>Autoselection pattern</label>
+                  <input type="text" class="form-control" [(ngModel)]="autoMatchSampleColumnsPattern" [ngModelOptions]="{standalone: true}">
+                </div>
+                <div>
+                  <button class="btn btn-secondary" (click)="autoMatchSampleColumns()">
+                    <i class="bi bi-magic me-1"></i>Autoselect Samples
+                  </button>
+                </div>
+              </div>
             </div>
-            <div class="form-check">
+            <div class="form-check mt-2">
               <input type="checkbox" class="form-check-input" [ngModelOptions]="{standalone: true}" [(ngModel)]="session.data.rawForm.log2">
               <label class="form-check-label">Data was log2 transformed</label>
             </div>
-            <small class="text-muted">Sample column names in format "condition"."replicate" for automated experimental condition parsing</small>
           </div>
         </div>
         <div class="form-group mb-2 mt-2">

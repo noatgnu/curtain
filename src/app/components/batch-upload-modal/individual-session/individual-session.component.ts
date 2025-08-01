@@ -74,6 +74,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
     colorPalette: string,
   }|undefined = undefined;
   colorPalletes: string[] = []
+  autoMatchSampleColumnsPattern = "\.s"
   @Input() set session(value: {data: {
       raw: InputFile,
       rawForm: Raw,
@@ -728,7 +729,6 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
         const primaryId = this.session.peptideFileForm.value.primaryIdColumn
         peptideDF.forEach((row: any) => {
           if (this.session) {
-
             this.session.peptideFileForm.value.sampleColumns.forEach((sampleColumn: string) => {
               const primaryIDValue = row[primaryId]
               if (!peptideCountData[primaryIDValue]) {
@@ -948,6 +948,42 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
       for (const c in this.session.volcanoColors) {
         this.settings.settings.log2FCCutoff = value
       }
+    }
+  }
+
+  clearComparisonSelection(): void {
+    if (this.session) {
+      this.session.data.differentialForm.comparisonSelect = [];
+      this.toast.show("Cleared", "Comparison selection has been cleared.");
+    }
+  }
+
+  clearComparisonGroup(): void {
+    if (this.session) {
+      this.session.data.differentialForm.comparison = '';
+      this.session.data.differentialForm.comparisonSelect = [];
+      this.session.uniqueComparisons = [];
+      this.toast.show("Cleared", "Comparison group and selection have been cleared.");
+    }
+  }
+
+  autoMatchSampleColumns(): void {
+    if (!this.session) {
+      return;
+    }
+
+    try {
+      const regex = new RegExp(this.autoMatchSampleColumnsPattern);
+      const matchedColumns = this.session.rawColumns.filter(name => regex.test(name));
+      
+      if (matchedColumns.length > 0) {
+        this.session.data.rawForm.samples = matchedColumns;
+        this.toast.show("Success", `Matched ${matchedColumns.length} sample columns.`);
+      } else {
+        this.toast.show("Info", "No sample columns matched the pattern.");
+      }
+    } catch (error) {
+      this.toast.show("Error", "Invalid regex pattern. Please check your pattern syntax.");
     }
   }
 

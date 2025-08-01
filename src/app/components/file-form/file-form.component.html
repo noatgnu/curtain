@@ -110,11 +110,18 @@
                 <!-- Comparison -->
                 <div class="col-md-3">
                   <label for="comparison" class="form-label fw-bold">Comparison</label>
-                  <select class="form-select" id="comparison" [(ngModel)]="data.differentialForm.comparison">
-                    @for (column of data.differential.df.getColumnNames(); track column) {
-                      <option [value]="column">{{column}}</option>
-                    }
-                  </select>
+                  <div class="input-group">
+                    <select class="form-select" id="comparison" [(ngModel)]="data.differentialForm.comparison">
+                      @for (column of data.differential.df.getColumnNames(); track column) {
+                        <option [value]="column">{{column}}</option>
+                      }
+                    </select>
+                    <button type="button" class="btn btn-outline-secondary" (click)="clearComparisonGroup()" 
+                            [disabled]="!data.differentialForm.comparison || data.differentialForm.comparison === ''"
+                            title="Clear comparison group">
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </div>
                 </div>
 
                 <!-- Comparison Selection (conditional) -->
@@ -127,7 +134,14 @@
                         <option [value]="val">{{val}}</option>
                       }
                     </select>
-                    <small class="text-muted d-block mt-1">Hold Ctrl/Cmd to select multiple values</small>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                      <small class="text-muted">Hold Ctrl/Cmd to select multiple values</small>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearComparisonSelection()" 
+                              [disabled]="!data.differentialForm.comparisonSelect || data.differentialForm.comparisonSelect.length === 0"
+                              title="Clear comparison selection">
+                        <i class="bi bi-x"></i> Clear
+                      </button>
+                    </div>
                   </div>
                 }
               </div>
@@ -157,18 +171,34 @@
 
                 <!-- Samples -->
                 <div class="col-md-8">
-                  <div class="form-group">
-                    <label for="samples" class="form-label fw-bold">Select Samples</label>
-                    <select multiple class="form-select" id="samples" [(ngModel)]="data.rawForm.samples"
-                            size="5">
-                      @for (column of data.raw.df.getColumnNames(); track column) {
-                        <option [value]="column">{{column}}</option>
-                      }
-                    </select>
-                    <small id="samplesHelp" class="text-muted d-block mt-1">
-                      Hold Ctrl/Cmd to select multiple samples. Samples should be named as 'Condition.Replicate'
-                    </small>
+                  <div class="d-flex gap-2">
+                    <div class="form-group">
+                      <label for="samples" class="form-label fw-bold">Manual Sample(s) Selection</label>
+                      <select multiple class="form-select" id="samples" [(ngModel)]="data.rawForm.samples"
+                              size="5">
+                        @for (column of data.raw.df.getColumnNames(); track column) {
+                          <option [value]="column">{{column}}</option>
+                        }
+                      </select>
+                      <small id="samplesHelp" class="text-muted d-block mt-1">
+                        Hold Ctrl/Cmd to select multiple samples. Samples should be named as 'Condition.Replicate'
+                      </small>
+                    </div>
+                    <div>
+                      <div class="form-group">
+                        <label for="samplePattern" class="form-label fw-bold">Autoselection pattern</label>
+                        <input type="text" class="form-control" id="samplePattern"
+                               [(ngModel)]="autoMatchSampleColumnsPattern">
+                      </div>
+                      <div>
+                        <button class="btn btn-secondary" (click)="autoMatchSampleColumns()">
+                          <i class="bi bi-magic me-1"></i>Autoselect Samples
+                        </button>
+                      </div>
+                    </div>
+
                   </div>
+
 
                   <div class="form-check mt-2">
                     <input type="checkbox" class="form-check-input" id="rawdatalog2"
