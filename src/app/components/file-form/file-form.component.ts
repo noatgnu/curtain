@@ -23,7 +23,7 @@ export class FileFormComponent implements OnInit {
   transformedFC = false;
   transformedP = false;
   clicked = false;
-  autoMatchSampleColumnsPattern= "\.s"
+  autoMatchSampleColumnsPattern= "\\.s"
 
   @Output() finished: EventEmitter<boolean> = new EventEmitter<boolean>();
 
