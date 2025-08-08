@@ -43,15 +43,26 @@ export class VolcanoPlotComponent implements OnInit {
     height: 700, width: 700,
     margin: {r: null, l: null, b: null, t: null},
     xaxis: {
-      title: "<b>Log2FC</b>",
+      title: {
+        text: "<b>log2 Fold Change</b>",
+        font: {
+          size: 16,
+          family: this.settings.settings.plotFontFamily
+        }
+      },
       tickmode: "linear",
       ticklen: 5,
       showgrid: false,
       visible: true,
-      //zerolinecolor: "#ffffff"
     },
     yaxis: {
-      title: "<b>-log10(p-value)</b>",
+      title: {
+        text:  "<b>-log10(p-value)</b>",
+        font: {
+          size: 16,
+          family: this.settings.settings.plotFontFamily
+        }
+      },
       tickmode: "linear",
       ticklen: 5,
       showgrid: false,
@@ -655,7 +666,7 @@ export class VolcanoPlotComponent implements OnInit {
         this.openNearbyPointsModal(e);
         return;
       }
-      
+
       // Normal selection behavior
       const selected: string[] = []
       for (const p of e["points"]) {
@@ -929,10 +940,22 @@ export class VolcanoPlotComponent implements OnInit {
       this.settings.settings.volcanoPlotTitle = data["title.text"]
     }
     if (data["yaxis.title.text"]) {
-      this.settings.settings.volcanoAxis.y = data["yaxis.title.text"]
+      this.settings.settings.volcanoAxis.y = {
+        text: `<b>${data["yaxis.title.text"]}</b>`,
+        font: {
+          size: 16,
+          family: this.settings.settings.plotFontFamily,
+        }
+      }
     }
     if (data["xaxis.title.text"]) {
-      this.settings.settings.volcanoAxis.x = data["xaxis.title.text"]
+      this.settings.settings.volcanoAxis.x = {
+        text: `<b>${data["xaxis.title.text"]}</b>`,
+        font: {
+          size: 16,
+          family: this.settings.settings.plotFontFamily,
+        }
+      }
     }
     if (keys[0].startsWith("annotations")) {
       for (const k of keys) {
@@ -977,14 +1000,14 @@ export class VolcanoPlotComponent implements OnInit {
 
   openNearbyPointsModal(clickEvent: any) {
     if (!clickEvent.points || clickEvent.points.length === 0) return;
-    
+
     const point = clickEvent.points[0];
     const primaryId = point.data.primaryIDs[point.pointNumber];
     const x = point.x;
     const y = point.y;
     const text = point.data.text[point.pointNumber];
     const comparison = this.extractComparisonFromText(text);
-    
+
     // Get gene name
     let geneName = '';
     if (this.dataService.fetchUniprot) {
@@ -993,7 +1016,7 @@ export class VolcanoPlotComponent implements OnInit {
         geneName = uniprotData['Gene Names'];
       }
     } else if (this.dataService.differentialForm.geneNames !== '') {
-      const rowData = this.dataService.currentDF.where(r => 
+      const rowData = this.dataService.currentDF.where(r =>
         r[this.dataService.differentialForm.primaryIDs] === primaryId &&
         r[this.dataService.differentialForm.comparison] === comparison
       ).first();
@@ -1005,7 +1028,7 @@ export class VolcanoPlotComponent implements OnInit {
     // Determine trace group and color
     let traceGroup = point.data.name || 'Background';
     let traceColor = '#a4a2a2';
-    
+
     if (point.data.marker && point.data.marker.color) {
       traceColor = point.data.marker.color;
     }
@@ -1024,7 +1047,7 @@ export class VolcanoPlotComponent implements OnInit {
 
     const ref = this.modal.open(NearbyPointsModalComponent, { size: 'xl', scrollable: true, windowClass: 'modal-extra-large' });
     ref.componentInstance.targetPoint = targetPoint;
-    
+
     ref.closed.subscribe((result: any) => {
       if (result) {
         if (result.action === 'select') {
@@ -1033,7 +1056,7 @@ export class VolcanoPlotComponent implements OnInit {
             title: result.title
           });
           // Show success message
-          this.messageService.show("Point Selected", 
+          this.messageService.show("Point Selected",
             `Selected: ${result.title}`);
         } else if (result.action === 'annotate') {
           this.dataService.annotationService.next({
@@ -1041,7 +1064,7 @@ export class VolcanoPlotComponent implements OnInit {
             remove: false
           });
           // Show success message
-          this.messageService.show("Annotation Added", 
+          this.messageService.show("Annotation Added",
             `Added annotation to 1 point`);
         } else if (result.action === 'createSelection') {
           // Create new selection with the provided data
@@ -1052,7 +1075,7 @@ export class VolcanoPlotComponent implements OnInit {
         } else if (result.action === 'addToSelection') {
           // Add to existing selection
           const existingSelection = result.existingSelection;
-          
+
           // Add new IDs to the existing selection in dataService
           for (const primaryId of result.data) {
             if (!this.dataService.selectedMap[primaryId]) {
@@ -1060,12 +1083,12 @@ export class VolcanoPlotComponent implements OnInit {
             }
             this.dataService.selectedMap[primaryId][existingSelection] = true;
           }
-          
+
           // Trigger selection update
           this.dataService.selectionUpdateTrigger.next(true);
-          
+
           // Show success message
-          this.messageService.show("Selection Updated", 
+          this.messageService.show("Selection Updated",
             `Added ${result.data.length} points to "${existingSelection}"`);
         } else if (result.action === 'annotateMultiple') {
           // Annotate multiple selected points
@@ -1073,9 +1096,9 @@ export class VolcanoPlotComponent implements OnInit {
             id: result.data,
             remove: false
           });
-          
+
           // Show success message
-          this.messageService.show("Annotations Added", 
+          this.messageService.show("Annotations Added",
             `Added annotations to ${result.data.length} points`);
         }
       }

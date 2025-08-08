@@ -31,6 +31,54 @@
   </div>
 
   <div class="card mb-3">
+    <div class="card-header">Metabolomics Enablement</div>
+    <div class="card-body d-flex flex-column gap-2">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="enableMetabolomics" [(ngModel)]="enableMetabolomics">
+        <label class="form-check-label" for="enableMetabolomics">Enable Metabolomics</label>
+      </div>
+      @if (enableMetabolomics) {
+        <div class="form-group">
+          <label for="polarity" class="form-label">Polarity Column</label>
+          <select class="form-control form-select" id="polarity" [(ngModel)]="metabolomicsColumnMap['polarity']">
+            <option [value]="null" selected>None selected</option>
+            @for (column of dataService.currentDF.getColumnNames(); track column) {
+              <option [value]="column">{{ column }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="formula" class="form-label">Formula Column</label>
+          <select class="form-control form-select" id="formula" [(ngModel)]="metabolomicsColumnMap['formula']">
+            <option [value]="null" selected>None selected</option>
+            @for (column of dataService.currentDF.getColumnNames(); track column) {
+              <option [value]="column">{{ column }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="abbreviation" class="form-label">Abbreviation Column</label>
+          <select class="form-control form-select" id="abbreviation" [(ngModel)]="metabolomicsColumnMap['abbreviation']">
+            <option [value]="null" selected>None selected</option>
+            @for (column of dataService.currentDF.getColumnNames(); track column) {
+              <option [value]="column">{{ column }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="smiles" class="form-label">SMILES Column</label>
+          <select class="form-control form-select" id="smiles" [(ngModel)]="metabolomicsColumnMap['smiles']">
+            <option [value]="null" selected>None selected</option>
+            @for (column of dataService.currentDF.getColumnNames(); track column) {
+              <option [value]="column">{{ column }}</option>
+            }
+          </select>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="card mb-3">
     <div class="card-header bg-light">Plot Size Settings</div>
     <div class="card-body">
       <div class="row g-3">

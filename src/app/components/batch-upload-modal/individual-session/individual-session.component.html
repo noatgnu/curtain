@@ -24,7 +24,7 @@
           <label>Differential Analysis</label>
           <select class="form-select" formControlName="differential">
             @for (f of differentialFiles; track f) {
-              <option [ngValue]="f">{{ f.name }}</option>
+              <option [ngValue]="f" (click)="settings.settings.description=f.name">{{ f.name }}</option>
             }
           </select>
         </div>
@@ -85,7 +85,7 @@
                   <option [value]="c" (click)="getComparisonColumnUnique(session, c)">{{ c }}</option>
                 }
               </select>
-              <button type="button" class="btn btn-outline-secondary" (click)="clearComparisonGroup()" 
+              <button type="button" class="btn btn-outline-secondary" (click)="clearComparisonGroup()"
                       [disabled]="!session.data.differentialForm.comparison || session.data.differentialForm.comparison === ''"
                       title="Clear comparison group">
                 <i class="bi bi-x"></i>
@@ -101,7 +101,7 @@
                 }
               </select>
               <div class="mt-1 text-end">
-                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearComparisonSelection()" 
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearComparisonSelection()"
                         [disabled]="!session.data.differentialForm.comparisonSelect || session.data.differentialForm.comparisonSelect.length === 0"
                         title="Clear comparison selection">
                   <i class="bi bi-x"></i> Clear

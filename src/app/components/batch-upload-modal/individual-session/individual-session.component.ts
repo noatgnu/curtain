@@ -128,7 +128,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
   isVolcanoPlotSettingsClosed = true
   isVolcanoPlotCategoryColorClosed = true
   isColorPaletteClosed = true
-  constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private batchService: BatchUploadServiceService, private data: DataService, private uniprot: UniprotService, private cd: ChangeDetectorRef, private settings: SettingsService) {
+  constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private batchService: BatchUploadServiceService, private data: DataService, private uniprot: UniprotService, private cd: ChangeDetectorRef, public settings: SettingsService) {
     this.batchService.taskStartAnnouncer.subscribe((taskId: number) => {
       if (taskId === this.sessionId) {
         this.startWork().then()
@@ -975,7 +975,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
     try {
       const regex = new RegExp(this.autoMatchSampleColumnsPattern);
       const matchedColumns = this.session.rawColumns.filter(name => regex.test(name));
-      
+
       if (matchedColumns.length > 0) {
         this.session.data.rawForm.samples = matchedColumns;
         this.toast.show("Success", `Matched ${matchedColumns.length} sample columns.`);

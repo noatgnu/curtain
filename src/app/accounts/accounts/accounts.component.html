@@ -2,23 +2,41 @@
   <h5>Account Information</h5>
 </div>
 <div class="modal-body">
-  <p>
-    <b>Username: </b>{{accounts.curtainAPI.user.username}}<br>
-    <b>Curtain Link Limits: </b>@if (accounts.curtainAPI.user.curtainLinkLimit === 0) {<span>infinite</span>}@if (accounts.curtainAPI.user.curtainLinkLimit > 0) {<span>{{accounts.curtainAPI.user.curtainLinkLimit}}</span>} @if (accounts.curtainAPI.user.curtainLinkLimitExceeded) {<span class="text-danger">- Limit Exceed</span>} <br>
-    <b>Total Curtain Sessions: </b> {{accounts.curtainAPI.user.totalCurtain}}
-  </p>
-  <form [formGroup]="form" (submit)="submit()">
-    <div class="form-floating">
-      <input type="text" formControlName="sessionDescription" id="session-search" class="form-control">
-      <label for="session-search">Search Session Description</label>
-
+  <div class="card mb-2">
+    <div class="card-body py-2">
+      <div class="row g-2">
+        <div class="col-md-4">
+          <small class="text-muted">Username:</small><br>
+          <strong>{{accounts.curtainAPI.user.username}}</strong>
+        </div>
+        <div class="col-md-4">
+          <small class="text-muted">Link Limits:</small><br>
+          @if (accounts.curtainAPI.user.curtainLinkLimit === 0) {<strong>infinite</strong>}@if (accounts.curtainAPI.user.curtainLinkLimit > 0) {<strong>{{accounts.curtainAPI.user.curtainLinkLimit}}</strong>} @if (accounts.curtainAPI.user.curtainLinkLimitExceeded) {<span class="text-danger">- Limit Exceed</span>}
+        </div>
+        <div class="col-md-4">
+          <small class="text-muted">Total Sessions:</small><br>
+          <strong>{{accounts.curtainAPI.user.totalCurtain}}</strong>
+        </div>
+      </div>
     </div>
-    <button class="btn btn-primary mt-1 mb-1" type="submit">Search</button>
+  </div>
+  <form [formGroup]="form" (submit)="submit()">
+    <div class="row g-2 mb-2">
+      <div class="col-md-9">
+        <label for="session-search" class="form-label small">Search Session Description:</label>
+        <input type="text" formControlName="sessionDescription" id="session-search" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary btn-sm w-100" type="submit">Search</button>
+      </div>
+    </div>
   </form>
   @if (totalItems > 0) {
-    <ngb-pagination [collectionSize]="totalItems" [(page)]="currentPage" [maxSize]="5" [boundaryLinks]="true" class="mt-2" (pageChange)="submit($event)"></ngb-pagination>
-    {{selectedCount}} Selected
-    <table class="table table-striped">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <small class="text-muted">{{selectedCount}} Selected</small>
+      <ngb-pagination [collectionSize]="totalItems" [(page)]="currentPage" [maxSize]="5" [boundaryLinks]="true" [size]="'sm'" (pageChange)="submit($event)"></ngb-pagination>
+    </div>
+    <table class="table table-striped table-sm">
       <thead>
       <tr>
         <th scope="col">
@@ -35,13 +53,13 @@
         </th>
         <th scope="col">
           <div ngbDropdown class="d-inline-block">
-            <button class="btn btn-outline-primary ml-2" id="accountSelectedLinksAction" ngbDropdownToggle>Actions</button>
+            <button class="btn btn-outline-primary btn-sm" id="accountSelectedLinksAction" ngbDropdownToggle>Actions</button>
             <div ngbDropdownMenu>
-              <div class="px-4 py-3">
-                <div class="mb-3">
-                  <label for="addMultipleOwner">Add Owner</label>
-                  <input type="text" placeholder="to add" id="addMultipleOwner" class="form-control" #allowner>
-                  <button class="btn btn-sm btn-primary mt-2" (click)="addOwnerToSelectedLinks(allowner.value)">Submit</button>
+              <div class="px-3 py-2">
+                <div class="mb-2">
+                  <label for="addMultipleOwner" class="form-label small">Add Owner:</label>
+                  <input type="text" placeholder="Username" id="addMultipleOwner" class="form-control form-control-sm" #allowner>
+                  <button class="btn btn-sm btn-primary mt-1 w-100" (click)="addOwnerToSelectedLinks(allowner.value)">Submit</button>
                 </div>
               </div>
               <button ngbDropdownItem (click)="removeSelectedLinks()">Remove Selected</button>
@@ -68,27 +86,30 @@
             <div [innerHTML]="d.description"></div>
           </td>
           <td>
-            @if (d.enable) {<p>Public</p>}
-            @if (!d.enable) {<p>Private</p>}
+            @if (d.enable) {<span class="badge bg-success">Public</span>}
+            @if (!d.enable) {<span class="badge bg-secondary">Private</span>}
           </td>
           <td>
-            <button class="btn btn-sm btn-outline-primary" style="margin-right: 2px" (click)="viewDescription(d.link_id)">Details</button>
-            @if (accounts.curtainAPI.user.canDelete) {<button class="btn btn-sm btn-outline-danger" (click)="deleteLink(d.link_id)">Rm</button>}
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary btn-sm" (click)="viewDescription(d.link_id)">Details</button>
+              @if (accounts.curtainAPI.user.canDelete) {<button class="btn btn-outline-danger btn-sm" (click)="deleteLink(d.link_id)">Rm</button>}
+            </div>
           </td>
         </tr>
         @if (descriptionTrigger[d.link_id]) {
         <tr class="table-light">
-          <td [colSpan]="3">
-            <ul>
-              <b>Owners:</b>
-              @for (o of d.owners; track o) {
-              <li>{{o.username}}</li>
-              }
-            </ul>
+          <td [colSpan]="5">
+            <div class="p-2">
+              <small class="text-muted">Owners:</small>
+              <div class="mt-1">
+                @for (o of d['owners']; track o) {
+                <span class="badge bg-info me-1">{{o.username}}</span>
+                }
+              </div>
+            </div>
           </td>
         </tr>
         }
-        <tr></tr>
       }
 
       </tbody>

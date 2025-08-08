@@ -7,6 +7,7 @@ import {ScrollService} from "../../scroll.service";
 import {SettingsService} from "../../settings.service";
 import {Subject, Subscription} from "rxjs";
 import {FormBuilder} from "@angular/forms";
+import {ISeries} from "data-forge";
 
 @Component({
     selector: 'app-raw-data-block',
@@ -25,11 +26,38 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
   enrichrData: any = null
   enrichrRunNameList: string[] = []
   enrichrTermList: string[] = []
+
+  metabolomicsData: any = {
+    "polarity": null,
+    "formula": null,
+    "abbreviation": null,
+    "smiles": null,
+  }
+  diffData: ISeries<number, any>| null = null
+
   @Input() set data(value: any) {
     this._data = value
 
     this.primaryID = this._data[this.dataService.rawForm.primaryIDs]
+    this.diffData = this.dataService.currentDF.where((row: any) => {
+      return row[this.dataService.differentialForm.primaryIDs] === this.primaryID
+    }).first()
 
+    if (this.settings.settings.enableMetabolomics) {
+      for (const c in this.settings.settings.metabolomicsColumnMap) {
+        if (this.settings.settings.metabolomicsColumnMap[c]) {
+          if (this.diffData) {
+            // @ts-ignore
+            if (this.diffData[c]) {
+              // @ts-ignore
+              this.metabolomicsData[c] = this.diffData[c]
+            } else {
+              this.metabolomicsData[c] = null
+            }
+          }
+        }
+      }
+    }
     const form = this.fb.group({
       annotate: [false],
       profilePlot: [this.settings.settings.selectedComparison.includes(this.primaryID)],
@@ -48,7 +76,6 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
     this.foundIn = Object.keys(this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]])
     if (this.dataService.fetchUniprot) {
       this.uni = this.uniprot.getUniprotFromPrimary(this.primaryID)
-      console.log(this.uni)
       if (this.uni) {
         if (this.uni["Gene Names"] !== "") {
           this.title = this.uni["Gene Names"]

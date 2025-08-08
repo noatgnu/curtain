@@ -152,7 +152,6 @@ export class FileFormComponent implements OnInit {
     // Calculate min/max values for fc and significance
     const fc = currentDF.getSeries(this.data.differentialForm.foldChange).where(i => !isNaN(i)).bake();
     const sign = currentDF.getSeries(this.data.differentialForm.significant).where(i => !isNaN(i)).bake();
-
     this.data.minMax = {
       fcMin: fc.min(),
       fcMax: fc.max(),

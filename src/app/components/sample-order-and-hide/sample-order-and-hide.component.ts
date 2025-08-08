@@ -26,9 +26,27 @@ export class SampleOrderAndHideComponent implements OnInit {
 
   batchToggle: any = {}
   enablePeptideCount: boolean = false
+  enableMetabolomics: boolean = false
+
+  metabolomicsColumnMap: any = {
+    "polarity": null,
+    "formula": null,
+    "abbreviation": null,
+    "smiles": null,
+  }
+
   constructor(public dataService: DataService, public modal: NgbActiveModal, private settings: SettingsService) {
     this.enableImputation = this.settings.settings.enableImputation
-    console.log(this.settings.settings.sampleMap)
+    this.enableMetabolomics = this.settings.settings.enableMetabolomics || false
+    if (this.enableMetabolomics) {
+      for (const c in this.metabolomicsColumnMap) {
+        if (this.settings.settings.metabolomicsColumnMap[c]) {
+          this.metabolomicsColumnMap[c] = Object.assign({}, this.settings.settings.metabolomicsColumnMap[c])
+        } else {
+          this.metabolomicsColumnMap[c] = null
+        }
+      }
+    }
     if (this.settings.settings.viewPeptideCount) {
       this.enablePeptideCount = true
     }
@@ -102,8 +120,12 @@ export class SampleOrderAndHideComponent implements OnInit {
     this.settings.settings.conditionOrder = this.condition
     this.settings.settings.violinPointPos = this.violinPointPos
     this.settings.settings.enableImputation = this.enableImputation
+    this.settings.settings.enableMetabolomics = this.enableMetabolomics
     for (const c in this.columnSize) {
       this.settings.settings.columnSize[c] = this.columnSize[c]
+    }
+    for (const c in this.metabolomicsColumnMap) {
+      this.settings.settings.metabolomicsColumnMap[c] = this.metabolomicsColumnMap[c]
     }
     const sampleMap: any = {}
     for (const c of this.condition) {

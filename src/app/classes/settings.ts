@@ -118,4 +118,11 @@ export class Settings {
   extraData: {name: string, content: string, type: string}[] = []
   imputationMap: any = {}
   enableImputation: boolean = false
+  enableMetabolomics: boolean = false
+  metabolomicsColumnMap: any = {
+    "polarity": null,
+    "formula": null,
+    "abbreviation": null,
+    "smiles": null,
+  }
 }

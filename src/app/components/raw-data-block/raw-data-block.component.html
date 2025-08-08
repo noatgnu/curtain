@@ -19,7 +19,9 @@
             }
           </ul>
         </div>
+        @if (settings.settings.enableMetabolomics) {
 
+        }
         @if (dataService.fetchUniprot && uni) {
           <div class="mb-3">
             <h6 class="fw-bold mb-1">UniProt Details</h6>
