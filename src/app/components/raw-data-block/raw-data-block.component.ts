@@ -8,6 +8,7 @@ import {SettingsService} from "../../settings.service";
 import {Subject, Subscription} from "rxjs";
 import {FormBuilder} from "@angular/forms";
 import {ISeries} from "data-forge";
+import {LipidmapsService} from "../../lipidmaps.service";
 
 @Component({
     selector: 'app-raw-data-block',
@@ -33,6 +34,13 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
     "abbreviation": null,
     "smiles": null,
   }
+
+  lipidMapsData: any = {
+    "formula": null,
+    "abbreviation": null,
+    "smiles": null
+  }
+
   diffData: ISeries<number, any>| null = null
 
   @Input() set data(value: any) {
@@ -54,6 +62,32 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
             } else {
               this.metabolomicsData[c] = null
             }
+            if (this.metabolomicsData[c]) {
+              switch (c) {
+                case "formula":
+                  this.lipidMaps.fetchLipidData("formula", c).subscribe(
+                    (data: any) => {
+                      this.lipidMapsData.formula = data;
+                    }
+                  )
+                  break;
+                case "abbreviation":
+                  this.lipidMaps.fetchLipidData("abbrev", c).subscribe(
+                    (data: any) => {
+                      this.lipidMapsData.abbreviation = data;
+                    }
+                  )
+                  break;
+                case "smiles":
+                  this.lipidMaps.fetchLipidData("smiles", c).subscribe(
+                    (data: any) => {
+                      this.lipidMapsData.smiles = data;
+                    }
+                  )
+                  break;
+              }
+            }
+
           }
         }
       }
@@ -101,7 +135,7 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
   })
   annotateSubscription = new Subscription()
   profilePlotSubscription = new Subscription()
-  constructor(private scroll: ScrollService, public dataService: DataService, private uniprot: UniprotService, private modal: NgbModal, public settings: SettingsService, private fb: FormBuilder) {
+  constructor(private lipidMaps: LipidmapsService, private scroll: ScrollService, public dataService: DataService, private uniprot: UniprotService, private modal: NgbModal, public settings: SettingsService, private fb: FormBuilder) {
     this.dataService.finishedProcessingData.asObservable().subscribe((value) => {
       if (value) {
         if (this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]]) {

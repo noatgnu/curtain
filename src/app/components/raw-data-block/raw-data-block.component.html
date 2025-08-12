@@ -1,5 +1,6 @@
 <div class="row g-3 mb-4" id="{{primaryID}}scrollID">
   <div class="col-md-4 col-lg-3">
+
     <div class="card h-100 border-primary">
       <div class="card-header bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
         <h3 class="card-title h5 mb-0" draggable="true" (dragstart)="handleDragProtein($event)">
@@ -20,6 +21,32 @@
           </ul>
         </div>
         @if (settings.settings.enableMetabolomics) {
+          <div class="mb-3">
+            <h6 class="fw-bold mb-1">Metabolite details</h6>
+            <div class="ms-2">
+              @if (metabolomicsData['polarity']) {
+                <div class="mb-1">
+                  <span class="text-secondary">Polarity:</span> {{metabolomicsData['polarity']}}
+                </div>
+              }
+              @if (metabolomicsData['formula']) {
+                <div class="mb-1">
+                  <span class="text-secondary">Formula:</span> {{metabolomicsData['formula']}}
+                </div>
+              }
+              @if (metabolomicsData['abbreviation']) {
+                <div class="mb-1">
+                  <span class="text-secondary">Abbreviation:</span> {{metabolomicsData['abbreviation']}}
+                </div>
+              }
+              @if (metabolomicsData['smiles']) {
+                <div class="mb-1">
+                  <span class="text-secondary">SMILES:</span> {{metabolomicsData['smiles']}}
+                </div>
+              }
+            </div>
+          </div>
+
 
         }
         @if (dataService.fetchUniprot && uni) {
