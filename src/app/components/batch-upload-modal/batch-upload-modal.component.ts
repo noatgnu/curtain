@@ -491,10 +491,21 @@ export class BatchUploadModalComponent {
   }
 
   openAllLinks() {
+    let popupBlocked = false
     for (const session of this.sessions) {
       if (session.linkId) {
-        window.open(session.linkId, "_blank")
+        const win = window.open(session.linkId, "_blank")
+        if (!win) {
+          popupBlocked = true
+        }
       }
+    }
+    if (popupBlocked) {
+      this.toasts.show(
+        "Error",
+        "Some or all links opening were blocked by your browser. Please allow popups for this site and try again.",
+        10000, "error"
+      ).then()
     }
   }
 
