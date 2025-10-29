@@ -255,6 +255,19 @@ export class AccountsComponent implements OnInit, OnDestroy {
     
     this.updateSelectedCount();
   }
+
+  /**
+   * Toggles selection of all links on current page
+   */
+  toggleSelectAll(): void {
+    const allSelected = this.selectedCount === this.data.results.length && this.data.results.length > 0;
+    
+    this.data.results.forEach(link => {
+      this.selectedLinks[link.link_id] = !allSelected;
+    });
+    
+    this.updateSelectedCount();
+  }
   
   /**
    * Updates the selected count based on current selection state
