@@ -8,9 +8,6 @@ import {ToastService} from "../../toast.service";
 import {environment} from "../../../environments/environment";
 import {DataService} from "../../data.service";
 
-
-
-
 @Component({
     selector: 'app-login-modal',
     templateUrl: './login-modal.component.html',
@@ -43,7 +40,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isLoading = true
       this.loginError = ''
-      
+
       this.accounts.login(this.form.value["username"], this.form.value["password"]).then((data: any) => {
         this.processLogin(data)
       }).catch((error: any) => {
