@@ -2,6 +2,12 @@
   <h5 class="modal-title">Account Information</h5>
 </div>
 <div class="modal-body">
+  <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs mb-3">
+    <li [ngbNavItem]="1">
+      <button ngbNavLink>
+        <i class="bi bi-collection me-1"></i>Sessions
+      </button>
+      <ng-template ngbNavContent>
   @if (isLoading) {
     <div class="d-flex justify-content-center align-items-center py-5">
       <div class="spinner-border text-primary" role="status">
@@ -109,6 +115,7 @@
           <th scope="col">Link ID</th>
           <th scope="col">Description</th>
           <th scope="col" style="width: 130px;">Status</th>
+          <th scope="col" style="width: 100px;">DOI</th>
           <th scope="col" style="width: 180px;">
             <div ngbDropdown class="d-inline-block">
               <button 
@@ -183,6 +190,17 @@
               }
             </td>
             <td>
+              @if (d['doi'] || d['datacite']) {
+                <span class="badge bg-primary" title="Has DataCite DOI">
+                  <i class="bi bi-check-circle me-1"></i>Yes
+                </span>
+              } @else {
+                <span class="badge bg-secondary" title="No DataCite DOI">
+                  <i class="bi bi-dash-circle me-1"></i>No
+                </span>
+              }
+            </td>
+            <td>
               <div class="btn-group btn-group-sm">
                 <button 
                   class="btn btn-outline-primary btn-sm" 
@@ -205,7 +223,7 @@
           </tr>
           @if (descriptionTrigger[d.link_id]) {
             <tr class="table-light">
-              <td [colSpan]="5">
+              <td [colSpan]="6">
                 <div class="p-3 bg-white rounded">
                   <div class="mb-2">
                     <strong class="text-muted d-block mb-2">
@@ -230,6 +248,23 @@
                       <div [innerHTML]="d.description" class="border-start border-3 border-primary ps-3"></div>
                     </div>
                   }
+                  @if (d['doi'] || d['datacite']) {
+                    <div class="mt-3">
+                      <strong class="text-muted d-block mb-2">
+                        <i class="bi bi-journal-check me-2"></i>DataCite DOI
+                      </strong>
+                      <div class="d-flex align-items-center">
+                        <span class="badge bg-primary me-2">
+                          <i class="bi bi-check-circle me-1"></i>Published
+                        </span>
+                        @if (d['doi']) {
+                          <a [href]="'https://doi.org/' + d['doi']" target="_blank" class="text-decoration-none">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>{{d['doi']}}
+                          </a>
+                        }
+                      </div>
+                    </div>
+                  }
                 </div>
               </td>
             </tr>
@@ -244,5 +279,16 @@
       <p class="text-muted mt-3">No sessions found. Try adjusting your search criteria.</p>
     </div>
   }
-
+      </ng-template>
+    </li>
+    <li [ngbNavItem]="2">
+      <button ngbNavLink>
+        <i class="bi bi-list-ul me-1"></i>Data Filter Lists
+      </button>
+      <ng-template ngbNavContent>
+        <app-user-lists-management></app-user-lists-management>
+      </ng-template>
+    </li>
+  </ul>
+  <div [ngbNavOutlet]="nav"></div>
 </div>

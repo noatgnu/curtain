@@ -5,6 +5,7 @@ import {LoginModalComponent} from "./login-modal/login-modal.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {environment} from "../../environments/environment";
 import {NgbDropdownModule, NgbNavModule, NgbPaginationModule} from "@ng-bootstrap/ng-bootstrap";
+import {UserListsManagementComponent} from "./user-lists-management/user-lists-management.component";
 
 
 @NgModule({
@@ -19,6 +20,7 @@ import {NgbDropdownModule, NgbNavModule, NgbPaginationModule} from "@ng-bootstra
         NgbNavModule,
         FormsModule,
         NgbDropdownModule,
+        UserListsManagementComponent
     ],
     exports: [
         LoginModalComponent

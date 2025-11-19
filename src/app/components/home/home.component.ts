@@ -153,7 +153,7 @@ export class HomeComponent implements OnInit {
                   this.loadingDataCite = false
                   this.doiMetadata = data
                   if (data.data.attributes.alternateIdentifiers.length > 0) {
-                    this.tryAlternateIdentifiers(data.data.attributes.alternateIdentifiers, params["settings"], 0).then()
+                    this.tryAlternateIdentifiers(data.data.attributes.alternateIdentifiers, params["settings"], data.data.attributes.alternateIdentifiers.length - 1).then()
                   }
 
                 })
@@ -214,7 +214,7 @@ export class HomeComponent implements OnInit {
   }
 
   async tryAlternateIdentifiers(alternateIdentifiers: any[], doiLink: string, index: number) {
-    if (index >= alternateIdentifiers.length) {
+    if (index < 0) {
       this.toast.show("Initialization", "Error: No valid alternate identifier found in DOI").then()
       this.data.downloadProgress.next(100)
       return
@@ -227,7 +227,7 @@ export class HomeComponent implements OnInit {
       await this.getDOISessionData(url, doiLink)
     } catch (e) {
       console.log(`Failed to load from alternate identifier ${index + 1}:`, e)
-      await this.tryAlternateIdentifiers(alternateIdentifiers, doiLink, index + 1)
+      await this.tryAlternateIdentifiers(alternateIdentifiers, doiLink, index - 1)
     }
   }
 

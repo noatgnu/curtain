@@ -60,10 +60,11 @@ export class AccountsComponent implements OnInit, OnDestroy {
   selectedLinks: SelectedLinksState = {};
   selectedCount: number = 0;
   isLoading: boolean = false;
-  
+  activeTab: number = 1;
+
   // RxJS subject for component cleanup
   private readonly destroy$ = new Subject<void>();
-  
+
   // Constants
   private readonly ITEMS_PER_PAGE = 20;
   constructor(
