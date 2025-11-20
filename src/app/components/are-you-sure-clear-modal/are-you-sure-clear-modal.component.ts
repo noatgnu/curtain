@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 
@@ -11,21 +11,21 @@ import {FormsModule} from "@angular/forms";
     styleUrl: './are-you-sure-clear-modal.component.scss'
 })
 export class AreYouSureClearModalComponent {
-  remember = false
+  remember = signal(false)
 
   constructor(private activeModal: NgbActiveModal) {
 
   }
 
   close() {
-    if (this.remember) {
+    if (this.remember()) {
       localStorage.setItem('curtainRememberClearSettings', 'true')
     }
     this.activeModal.dismiss()
   }
 
   ok() {
-    if (this.remember) {
+    if (this.remember()) {
       localStorage.setItem('curtainRememberClearSettings', 'true')
     }
     this.activeModal.close(true)

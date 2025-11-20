@@ -60,7 +60,7 @@
               <div class="mb-2">
                 <div class="text-secondary">Subcellular location:</div>
                 <ul class="ps-3 mb-0 small">
-                  @for (subCell of uni['Subcellular location [CC]']; track subCell) {
+                  @for (subCell of uni['Subcellular location [CC]']; track $index) {
                   <li>{{subCell}}</li>
                   }
                 </ul>

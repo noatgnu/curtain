@@ -695,7 +695,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
       publicKey: this.data.public_key,
     }
     this.toast.show("User information", `Curtain link #${this.sessionId+1} is being submitted`).then()
-    this.accounts.curtainAPI.putSettings(this.payload, !this.session.private, this.payload.settings.description, "TP", encryption, this.session.data.permanent, this.onUploadProgress).then((data: any) => {
+    this.accounts.curtainAPI.putSettings(this.payload, !this.session.private, this.payload.settings.description, "TP", encryption, this.session.data.permanent, undefined, this.onUploadProgress).then((data: any) => {
       console.log(data.data)
       if (data.data) {
         this.finished.emit(data.data.link_id)

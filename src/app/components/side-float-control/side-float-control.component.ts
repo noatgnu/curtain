@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, signal, ViewChild} from '@angular/core';
 import {WebsocketService} from "../../websocket.service";
 import {FormBuilder, NgForm} from "@angular/forms";
 import {debounceTime, map, distinctUntilChanged, Observable, OperatorFunction, Subscription} from "rxjs";
@@ -20,12 +20,12 @@ interface Message {
 })
 
 export class SideFloatControlComponent implements OnInit, OnDestroy {
-  toggleChatPanel: boolean = false
+  toggleChatPanel = signal(false)
   messagesList: Message[] = []
   form = this.fb.group({
     message: ['']
   })
-  commandCompleteModel: string = ""
+  commandCompleteModel = signal("")
 
   senderMap: {[key: string]: string} = {'system': 'System'}
   @ViewChild("chatForm") chatForm: NgForm|undefined
@@ -105,8 +105,8 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
 
   sendMessage() {
     let message = this.form.value.message?.slice()
-    if (this.form.value.message !== this.commandCompleteModel) {
-      message = this.commandCompleteModel
+    if (this.form.value.message !== this.commandCompleteModel()) {
+      message = this.commandCompleteModel()
     }
     if (message !== "" && !message?.startsWith("@") && !message?.startsWith("!")) {
       this.ws.sendEvent({message: {message: message, timestamp: Date.now()}, senderName: this.ws.displayName, requestType: "chat"})
@@ -148,7 +148,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     }
 
     this.form.reset()
-    this.commandCompleteModel = ""
+    this.commandCompleteModel.set("")
 
 
   }
@@ -226,8 +226,8 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
   }
 
   toggleChat() {
-    this.toggleChatPanel = !this.toggleChatPanel
-    if (this.toggleChatPanel) {
+    this.toggleChatPanel.set(!this.toggleChatPanel())
+    if (this.toggleChatPanel()) {
       this.chatbox?.nativeElement.scrollTo(0, this.chatbox.nativeElement.scrollHeight)
     }
   }
@@ -407,7 +407,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
       //debounceTime(200),
       distinctUntilChanged(),
       map((term) => {
-        this.commandCompleteModel = term
+        this.commandCompleteModel.set(term)
         const command = term.split(" ")
         const lastParameter = command[command.length - 1]
         if (lastParameter.startsWith("@")) {
@@ -439,8 +439,8 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
       } else if (lastCommand.startsWith("!")) {
         command[command.length - 1] = x
       }
-      this.commandCompleteModel = command.join(" ")
-      return this.commandCompleteModel
+      this.commandCompleteModel.set(command.join(" "))
+      return this.commandCompleteModel()
     }
     return x
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, effect } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {DataService} from "../../data.service";
 import {selectionData} from "../protein-selections/protein-selections.component";
@@ -30,7 +30,16 @@ import {
   saveToLocalStorage,
   CurtainEncryption,
   base64ToArrayBuffer,
-  arrayBufferToBase64String
+  arrayBufferToBase64String,
+  encryptDataRSA,
+  decryptAESData,
+  decryptAESKey,
+  encryptAESData,
+  encryptAESKey,
+  exportAESKey,
+  generateAESKey,
+  importAESKey,
+  Announcement
 } from "curtain-web-api";
 import {DefaultColorPaletteComponent} from "../default-color-palette/default-color-palette.component";
 import {DataSelectionManagementComponent} from "../data-selection-management/data-selection-management.component";
@@ -54,13 +63,6 @@ import {
   SessionComparisonResultViewerModalComponent
 } from "../session-comparison-result-viewer-modal/session-comparison-result-viewer-modal.component";
 import {EncryptionSettingsComponent} from "../encryption-settings/encryption-settings.component";
-import {encryptDataRSA} from "curtain-web-api/src/classes/curtain-encryption";
-import {
-  decryptAESData,
-  decryptAESKey, encryptAESData, encryptAESKey, exportAESKey,
-  generateAESKey,
-  importAESKey
-} from "curtain-web-api/build/classes/curtain-encryption";
 import {PrimaryIdExportModalComponent} from "../primary-id-export-modal/primary-id-export-modal.component";
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ApiKeyModalComponent} from "../api-key-modal/api-key-modal.component";
@@ -73,6 +75,7 @@ import {DataciteComponent} from "../datacite/datacite.component";
 import {DataciteAdminManagementComponent} from "../datacite-admin-management/datacite-admin-management.component";
 import {BatchUploadModalComponent} from "../batch-upload-modal/batch-upload-modal.component";
 import {LogFileModalComponent} from "../log-file-modal/log-file-modal.component";
+import {PermanentLinkRequestModalComponent} from "../permanent-link-request-modal/permanent-link-request-modal.component";
 import {
   AddRawDataImputationMapModalComponent
 } from "../add-raw-data-imputation-map-modal/add-raw-data-imputation-map-modal.component";
@@ -85,22 +88,19 @@ import {environment} from "../../../environments/environment";
     standalone: false
 })
 export class HomeComponent implements OnInit {
-  showAlert: boolean = true;
-  animate: boolean = false
-  isDOI: boolean = false
+  showAlert = signal(true);
+  animate = signal(false);
+  isDOI = signal(false);
   doiMetadata: DataCiteMetadata|undefined = undefined
-  canAccessSettings: boolean = false
-  isRankPlotCollapse: boolean = true
-  GDPR: boolean = false
-  loadingDataCite: boolean = false
-  _finished: boolean = false
-  set finished(value: boolean) {
-    this._finished = value
-  }
-  get finished(): boolean {
-    return this._finished
-  }
-  permanent: boolean = false
+  canAccessSettings = signal(false);
+  isRankPlotCollapse = signal(true);
+  GDPR = signal(false);
+  loadingDataCite = signal(false);
+  currentAnnouncement = signal<Announcement | null>(null);
+  dismissedAnnouncementIds: Set<number> = this.loadDismissedAnnouncements()
+  finished = signal(false);
+  permanent = signal(false);
+  gdprAccepted = signal(false);
   rawFiltered: IDataFrame = new DataFrame()
   uniqueLink: string = ""
   filterModel: string = ""
@@ -112,12 +112,16 @@ export class HomeComponent implements OnInit {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
     if (localStorage.getItem("CurtainGDPR") === "true") {
-      this.GDPR = true
-      this.gdprAccepted = true
+      this.GDPR.set(true)
+      this.gdprAccepted.set(true)
     } else {
-      this.GDPR = false
-      this.gdprAccepted = false
+      this.GDPR.set(false)
+      this.gdprAccepted.set(false)
     }
+
+    effect(() => {
+      localStorage.setItem("CurtainGDPR", this.gdprAccepted().toString())
+    })
 
     this.data.clearWatcher.asObservable().subscribe(data => {
       if (data) {
@@ -129,8 +133,8 @@ export class HomeComponent implements OnInit {
     this.initialize().then(
       () => {
         this.route.params.subscribe(params => {
-          this.isDOI = false
-          this.loadingDataCite = false
+          this.isDOI.set(false)
+          this.loadingDataCite.set(false)
           this.accounts.isOwner = false
           console.log(params)
           if (params) {
@@ -138,8 +142,8 @@ export class HomeComponent implements OnInit {
               console.log(params["settings"])
             } else if (params["settings"] && params["settings"].length > 0) {
               if (params["settings"].startsWith("doi.org/")) {
-                this.isDOI = true
-                this.loadingDataCite = true
+                this.isDOI.set(true)
+                this.loadingDataCite.set(true)
                 this.toast.show("Initialization", "Fetching data from DOI").then()
                 const meta = document.createElement("meta");
                 meta.name = "DC.identifier";
@@ -150,7 +154,7 @@ export class HomeComponent implements OnInit {
                 console.log(doiID)
                 this.web.getDataCiteMetaData(doiID).subscribe((data) => {
                   console.log(data)
-                  this.loadingDataCite = false
+                  this.loadingDataCite.set(false)
                   this.doiMetadata = data
                   if (data.data.attributes.alternateIdentifiers.length > 0) {
                     this.tryAlternateIdentifiers(data.data.attributes.alternateIdentifiers, params["settings"], data.data.attributes.alternateIdentifiers.length - 1).then()
@@ -160,7 +164,7 @@ export class HomeComponent implements OnInit {
 
                 return
               } else {
-                this.isDOI = false
+                this.isDOI.set(false)
               }
               console.log(params["settings"])
               console.log(params["settings"])
@@ -238,7 +242,7 @@ export class HomeComponent implements OnInit {
       this.restoreSettings(data.data).then(() => {
         this.uniqueLink = location.origin + "/#/" + encodeURIComponent(doiLink)
         this.settings.settings.currentID = doiLink
-        this.permanent = true
+        this.permanent.set(true)
         if (this.data.session) {
           this.data.session.permanent = true
         }
@@ -254,7 +258,7 @@ export class HomeComponent implements OnInit {
     this.data.session = d.data
     if (this.data.session) {
       if (this.data.session.permanent) {
-        this.permanent = true
+        this.permanent.set(true)
       }
     }
     try {
@@ -265,7 +269,7 @@ export class HomeComponent implements OnInit {
         this.accounts.isOwner = false
       }
       if (this.accounts.isOwner) {
-        this.canAccessSettings = true
+        this.canAccessSettings.set(true)
       }
     } catch (e) {
       this.accounts.isOwner = false
@@ -354,7 +358,7 @@ export class HomeComponent implements OnInit {
   async initialize() {
     await this.data.getKey()
     console.log(this.data.public_key)
-    await this.accounts.curtainAPI.getSiteProperties()
+    await this.web.loadSiteProperties(this.accounts.curtainAPI)
     await this.accounts.curtainAPI.user.loadFromDB()
     if (this.accounts.curtainAPI.user.loginStatus && this.accounts.curtainAPI.user.isStaff) {
       const draft = await this.accounts.curtainAPI.getDataCites(undefined, undefined, "draft", 10, 0, true, "TP")
@@ -366,6 +370,7 @@ export class HomeComponent implements OnInit {
     this.subscription = this.uniprot.uniprotProgressBar.asObservable().subscribe((data: any) => {
       this.progressEvent = data
     })
+    this.loadAnnouncements()
   }
 
 
@@ -382,8 +387,8 @@ export class HomeComponent implements OnInit {
   }
 
   handleFinish(e: boolean) {
-    this.finished = e
-    if (this.finished) {
+    this.finished.set(e)
+    if (this.finished()) {
       if (this.data.selected.length > 0) {
         this.data.finishedProcessingData.next(e)
 
@@ -396,7 +401,7 @@ export class HomeComponent implements OnInit {
         this.data.finishedProcessingData.next(e)
       }
       console.log(this.rawFiltered)
-      this.finished = true
+      this.finished.set(true)
     }
   }
 
@@ -473,21 +478,33 @@ export class HomeComponent implements OnInit {
     this.scroll.scrollToID(primaryIDs+"scrollID")
   }
 
-  saveSession(permanent: boolean = false) {
-    this.toast.show("User information", "Saving session data").then()
-    console.log(this.settings.settings.conditionOrder.slice())
+  async saveSession() {
     if (!this.accounts.curtainAPI.user.loginStatus) {
-      if (this.web.siteProperties.non_user_post) {
-        this.saving(permanent);
-      } else {
+      if (!this.web.siteProperties.non_user_post) {
         this.toast.show("User information", "Please login before saving data session").then()
+        return;
       }
     } else {
-      if (!this.accounts.curtainAPI.user.curtainLinkLimitExceeded ) {
-        this.saving(permanent);
-      } else {
+      if (this.accounts.curtainAPI.user.curtainLinkLimitExceeded) {
         this.toast.show("User information", "Curtain link limit exceed").then()
+        return;
       }
+    }
+
+    const { SessionSaveModalComponent } = await import('../session-save-modal/session-save-modal.component');
+    const modalRef = this.modal.open(SessionSaveModalComponent, {
+      backdrop: 'static',
+      size: 'md'
+    });
+    modalRef.componentInstance.siteProperties = this.web.siteProperties;
+
+    try {
+      const result = await modalRef.result;
+      this.toast.show("User information", "Saving session data").then()
+      console.log(this.settings.settings.conditionOrder.slice())
+      this.saving(result.permanent, result.expiryDuration);
+    } catch (error) {
+      console.log('Modal dismissed');
     }
   }
 
@@ -528,7 +545,7 @@ export class HomeComponent implements OnInit {
     return data
   }
 
-  private saving(permanent: boolean = false) {
+  private async saving(permanent: boolean = false, expiryDuration?: number) {
     const data = this.createPayload()
     const encryption: CurtainEncryption = {
       encrypted: this.settings.settings.encrypted,
@@ -537,14 +554,63 @@ export class HomeComponent implements OnInit {
     }
     console.log(encryption)
     this.toast.show("User information", "Uploading session data", undefined, undefined, "upload").then()
-    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, permanent, this.onUploadProgress).then((data: any) => {
+
+    const jsonString = JSON.stringify(data, replacer)
+    const blob = new Blob([jsonString], { type: 'application/json' })
+    const file = new File([blob], 'curtain-settings.json', { type: 'application/json' })
+
+    const CHUNK_THRESHOLD = 5 * 1024 * 1024
+
+    if (file.size > CHUNK_THRESHOLD) {
+      try {
+        const response = await this.accounts.curtainAPI.uploadCurtainFileInChunks(
+          file,
+          1024 * 1024,
+          {
+            description: data.settings.description,
+            curtain_type: "TP",
+            permanent: permanent,
+            encrypted: encryption.encrypted,
+            expiry_duration: expiryDuration,
+            enable: !this.accounts.curtainAPI.user.loginStatus,
+            onProgress: (progress: number) => {
+              this.uniprot.uniprotProgressBar.next({
+                value: progress,
+                text: `Uploading session data at ${Math.round(progress)}%`
+              })
+              this.data.uploadProgress.next(progress)
+            }
+          }
+        )
+
+        if (response.curtain) {
+          this.toast.show("User information", `Curtain link saved with unique id ${response.curtain.link_id}`).then()
+          this.data.session = response.curtain
+          this.settings.settings.currentID = response.curtain.link_id
+          console.log(this.data.session)
+          this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
+          this.permanent.set(response.curtain.permanent)
+          this.accounts.isOwner = true
+          this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
+        }
+      } catch (err) {
+        console.error('Chunk upload failed, falling back to regular upload:', err)
+        this.fallbackToRegularUpload(data, encryption, permanent, expiryDuration)
+      }
+    } else {
+      this.fallbackToRegularUpload(data, encryption, permanent, expiryDuration)
+    }
+  }
+
+  private fallbackToRegularUpload(data: any, encryption: CurtainEncryption, permanent: boolean, expiryDuration?: number) {
+    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, permanent, expiryDuration, this.onUploadProgress).then((data: any) => {
       if (data.data) {
         this.toast.show("User information", `Curtain link saved with unique id ${data.data.link_id}`).then()
         this.data.session = data.data
         this.settings.settings.currentID = data.data.link_id
         console.log(this.data.session)
         this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
-        this.permanent = data.data.permanent
+        this.permanent.set(data.data.permanent)
         this.accounts.isOwner = true
         this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
       }
@@ -552,7 +618,6 @@ export class HomeComponent implements OnInit {
       console.log(err)
       this.data.uploadProgress.next(100)
       this.toast.show("User information", "Curtain link cannot be saved").then()
-
     })
   }
 
@@ -921,18 +986,64 @@ export class HomeComponent implements OnInit {
   }
 
   closeGDPR() {
-    this.GDPR = true
-    //localStorage.setItem("GDPR", "true")
+    this.GDPR.set(true)
+    this.showAlert.set(false)
   }
 
-  _gdprAccepted: boolean = false
-  set gdprAccepted(value: boolean) {
-    this._gdprAccepted = value
-    localStorage.setItem("CurtainGDPR", value.toString())
+  loadAnnouncements() {
+    this.accounts.curtainAPI.getAnnouncements(1, 0).then((response) => {
+      if (response.data && response.data.results.length > 0) {
+        const announcements = response.data.results.filter(
+          a => a.is_active && !this.dismissedAnnouncementIds.has(a.id)
+        )
+        if (announcements.length > 0) {
+          this.currentAnnouncement.set(announcements[0])
+        }
+      }
+    }).catch(err => {
+      console.error('Failed to load announcements:', err)
+    })
   }
 
-  get gdprAccepted(): boolean {
-    return this._gdprAccepted
+  dismissAnnouncement(id: number) {
+    this.dismissedAnnouncementIds.add(id)
+    this.saveDismissedAnnouncements()
+    this.currentAnnouncement.set(null)
+  }
+
+  loadDismissedAnnouncements(): Set<number> {
+    const stored = localStorage.getItem('CurtainDismissedAnnouncements')
+    if (stored) {
+      try {
+        const ids = JSON.parse(stored)
+        return new Set(ids)
+      } catch (e) {
+        return new Set()
+      }
+    }
+    return new Set()
+  }
+
+  saveDismissedAnnouncements() {
+    const ids = Array.from(this.dismissedAnnouncementIds)
+    localStorage.setItem('CurtainDismissedAnnouncements', JSON.stringify(ids))
+  }
+
+  getAnnouncementClass(type: string): string {
+    switch (type) {
+      case 'warning':
+        return 'warning'
+      case 'error':
+        return 'danger'
+      case 'success':
+        return 'success'
+      case 'info':
+        return 'info'
+      case 'maintenance':
+        return 'dark'
+      default:
+        return 'primary'
+    }
   }
 
   openSampleAndConditionModal() {
@@ -1098,6 +1209,13 @@ export class HomeComponent implements OnInit {
         }
       }
     })
+  }
+
+  openPermanentLinkRequestModal() {
+    const ref = this.modal.open(PermanentLinkRequestModalComponent, {scrollable: true, size: "lg"})
+    if (this.data.session) {
+      ref.componentInstance.curtainId = this.data.session.id
+    }
   }
 
 }

@@ -6,7 +6,7 @@
     <div class="accordion">
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button [ngClass]="{'accordion-button': true, 'collapsed': uniprotCollapsed}" type="button" (click)="uniprotCollapsed=!uniprotCollapsed">
+          <button [ngClass]="{'accordion-button': true, 'collapsed': uniprotCollapsed()}" type="button" (click)="uniprotCollapsed.set(!uniprotCollapsed())">
             UniProt
           </button>
         </h2>
@@ -20,7 +20,7 @@
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button [ngClass]="{'accordion-button': true, 'collapsed': proteomicsDBCollapsed}" type="button" (click)="proteomicsDBCollapsed=!proteomicsDBCollapsed">
+          <button [ngClass]="{'accordion-button': true, 'collapsed': proteomicsDBCollapsed()}" type="button" (click)="proteomicsDBCollapsed.set(!proteomicsDBCollapsed())">
             ProteomicsDB
           </button>
         </h2>
@@ -33,7 +33,7 @@
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button [ngClass]="{'accordion-button': true, 'collapsed': stringDBCollapsed}" type="button" (click)="stringDBCollapsed=!stringDBCollapsed">
+          <button [ngClass]="{'accordion-button': true, 'collapsed': stringDBCollapsed()}" type="button" (click)="stringDBCollapsed.set(!stringDBCollapsed())">
             StringDB
           </button>
         </h2>
@@ -94,7 +94,7 @@
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button [ngClass]="{'accordion-button': true, 'collapsed': interactomeAtlasCollapsed}" type="button" (click)="interactomeAtlasCollapsed=!interactomeAtlasCollapsed">
+          <button [ngClass]="{'accordion-button': true, 'collapsed': interactomeAtlasCollapsed()}" type="button" (click)="interactomeAtlasCollapsed.set(!interactomeAtlasCollapsed())">
             InteractomeAtlas
           </button>
         </h2>
@@ -112,7 +112,7 @@
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button [ngClass]="{'accordion-button': true, 'collapsed': alphaFoldCollapsed}" type="button" (click)="alphaFoldCollapsed=!alphaFoldCollapsed">
+          <button [ngClass]="{'accordion-button': true, 'collapsed': alphaFoldCollapsed()}" type="button" (click)="alphaFoldCollapsed.set(!alphaFoldCollapsed())">
             AlphaFold
           </button>
         </h2>
@@ -124,7 +124,7 @@
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button [ngClass]="{'accordion-button': true, 'collapsed': molstartCollapsed}" type="button" (click)="molstartCollapsed=!molstartCollapsed">
+          <button [ngClass]="{'accordion-button': true, 'collapsed': molstartCollapsed()}" type="button" (click)="molstartCollapsed.set(!molstartCollapsed())">
             Mol* viewer
           </button>
         </h2>
@@ -137,7 +137,7 @@
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button [ngClass]="{'accordion-button': true, 'collapsed': pdbeCollapsed}" type="button" (click)="pdbeCollapsed=!pdbeCollapsed">
+          <button [ngClass]="{'accordion-button': true, 'collapsed': pdbeCollapsed()}" type="button" (click)="pdbeCollapsed.set(!pdbeCollapsed())">
             PDBe
           </button>
         </h2>

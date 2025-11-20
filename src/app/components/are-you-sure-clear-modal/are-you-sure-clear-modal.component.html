@@ -4,7 +4,7 @@
 <div class="modal-body">
   <p>Do you really want to clear settings this record?</p>
   <div class="form-check">
-    <input class="form-check-input" type="checkbox" [(ngModel)]="remember" id="rememberClearSettings">
+    <input class="form-check-input" type="checkbox" [checked]="remember()" (change)="remember.set($any($event.target).checked)" id="rememberClearSettings">
     <label class="form-check-label" for="rememberClearSettings">
       Don't ask me again
     </label>

@@ -4,15 +4,15 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
   <div class="container-fluid">
     <a class="navbar-brand fw-bold" href="#">Curtain</a>
-    @if (finished && settings.settings.currentID !== '') {
+    @if (finished() && settings.settings.currentID !== '') {
       <div class="d-flex align-items-center me-auto">
         @if (uniqueLink !== '') {
           <a href="{{uniqueLink}}" class="me-2 text-success" style="max-width: 200px;">{{uniqueLink}}</a>
         }
-        @if (!permanent) {
+        @if (!permanent()) {
           <span class="badge bg-danger me-2">Temporary</span>
         } @else {
-          @if (isDOI && data.session) {
+          @if (isDOI() && data.session) {
             @if (data.session.data_cite) {
               <span class="badge me-2" [ngClass]="{
             'bg-warning': data.session.data_cite.status === 'draft',
@@ -24,7 +24,7 @@
           </span>
             }
           } @else {
-            @if (!isDOI) {
+            @if (!isDOI()) {
               <span class="badge bg-success me-2">Permanent</span>
             }
           }
@@ -72,7 +72,7 @@
               <button ngbDropdownItem (click)="openDataciteAdminManagement()">
                 Submitted DOI @if (data.draftDataCiteCount > 0) {<span class="badge bg-danger ms-1">{{data.draftDataCiteCount}}</span>}
               </button>
-              @if (finished && gdprAccepted && data.session) {
+              @if (finished() && gdprAccepted() && data.session) {
                 <button ngbDropdownItem (click)="openDataciteDOI()"
                         [disabled]="!data.session">
                   {{data.session.data_cite ? 'View DOI Form' : 'Register DOI (Beta)'}}
@@ -82,7 +82,7 @@
           </div>
         </div>
       }
-      @if (finished) {
+      @if (finished()) {
         <div class="me-2">
           <div display="dynamic" ngbDropdown>
             <button class="btn btn-outline-primary" id="localState" ngbDropdownToggle>
@@ -104,7 +104,7 @@
             <i class="bi bi-graph-up"></i> Plot
           </button>
           <div ngbDropdownMenu aria-labelledby="plot-dropdown">
-            @if (finished) {
+            @if (finished()) {
               <h6 class="dropdown-header">Data Visualization</h6>
               <button ngbDropdownItem (click)="openCorrelationMatrix()">Correlation Matrix</button>
               <button ngbDropdownItem (click)="openProfileCompare()">
@@ -163,7 +163,7 @@
             <button ngbDropdownItem (click)="openPeptideCountModal()">Add Peptide Count Data</button>
             <button ngbDropdownItem (click)="openLogFileModal()">Log File</button>
             <button ngbDropdownItem (click)="openAddRawDataImputationMap()">Add Imputation Data</button>
-            @if (finished) {
+            @if (finished()) {
               <div class="dropdown-divider"></div>
               <h6 class="dropdown-header">Session Actions</h6>
             }
@@ -172,17 +172,19 @@
                 Batch Session Creation
               </button>
             }
-            @if (finished) {
-              @if(gdprAccepted) {
+            @if (finished()) {
+              @if(gdprAccepted()) {
                 <button ngbDropdownItem (click)="saveSession()" [disabled]="data.tempLink">
-                  Save Temporary Session
-                </button>
-                <button ngbDropdownItem (click)="saveSession(true)" [disabled]="data.tempLink">
-                  Save Permanent Session
+                  <i class="bi bi-save me-1"></i>Save Session
                 </button>
                 @if (accounts.curtainAPI.user.loginStatus && data.session) {
                   <button ngbDropdownItem (click)="openDataciteDOI()">
                     {{data.session.data_cite ? 'View DOI Form' : 'Register DOI (Beta)'}}
+                  </button>
+                }
+                @if (accounts.curtainAPI.user.loginStatus && data.session && !data.session.permanent) {
+                  <button ngbDropdownItem (click)="openPermanentLinkRequestModal()">
+                    <i class="bi bi-clock-history me-1"></i>Request Session Change
                   </button>
                 }
               } @else {
@@ -239,7 +241,7 @@
 </nav>
 
 <div class="container mt-5 pt-3">
-  @if (showAlert) {
+  @if (showAlert()) {
     <ngb-alert type="warning" [dismissible]="true" (closed)="closeGDPR()">
       <h5><i class="bi bi-shield-check"></i> GDPR Statement</h5>
       <p>
@@ -256,16 +258,23 @@
       </div>
     </ngb-alert>
   }
+
+  @if (currentAnnouncement()) {
+    <ngb-alert [type]="getAnnouncementClass(currentAnnouncement()!.announcement_type)" [dismissible]="true" (closed)="dismissAnnouncement(currentAnnouncement()!.id)">
+      <h5><i class="bi bi-megaphone-fill me-2"></i>{{currentAnnouncement()!.title}}</h5>
+      <p>{{currentAnnouncement()!.content}}</p>
+    </ngb-alert>
+  }
 </div>
 
-@if (isDOI) {
+@if (isDOI()) {
   <div class="container">
     @if (doiMetadata) {
       <app-datacite-metadata-display [metadata]="doiMetadata"
                                      (clickDownload)="handleDataCiteClickDownload($event)">
       </app-datacite-metadata-display>
     } @else {
-      @if (loadingDataCite) {
+      @if (loadingDataCite()) {
         @if (!doiMetadata) {
         <div class="mb-4">
           <ngb-progressbar [animated]="true" [value]="100" [striped]="true">Retrieving MetaData</ngb-progressbar>
@@ -279,22 +288,22 @@
 <app-pride></app-pride>
 <app-file-form (finished)="handleFinish($event)"></app-file-form>
 
-@if (finished) {
+@if (finished()) {
   @if (data.raw.df.count() > 0) {
     <div class="container mt-4">
       <div class="accordion">
         <div class="accordion-item">
           <div class="accordion-header">
-            <button class="accordion-button" [class.collapsed]="isRankPlotCollapse" type="button" (click)="isRankPlotCollapse=!isRankPlotCollapse">
+            <button class="accordion-button" [class.collapsed]="isRankPlotCollapse()" type="button" (click)="isRankPlotCollapse.set(!isRankPlotCollapse())">
               <div class="d-flex justify-content-between align-items-center w-100">
                 <span>Rank Abundance Plot</span>
                 <span class="badge bg-primary ms-2">{{data.raw.df.count()}} Primary IDs</span>
               </div>
             </button>
           </div>
-          <div class="accordion-collapse" [ngbCollapse]="isRankPlotCollapse">
+          <div class="accordion-collapse" [ngbCollapse]="isRankPlotCollapse()">
             <div class="accordion-body">
-              @if (!isRankPlotCollapse) {
+              @if (!isRankPlotCollapse()) {
                 <app-rank-plot [data]="data.raw.df"></app-rank-plot>
               }
             </div>
@@ -318,8 +327,8 @@
   }
 }
 
-@if (finished) {
-  @if (finished) {
+@if (finished()) {
+  @if (finished()) {
     <app-side-float-control (searchChatSelection)="handleSearch($event)"></app-side-float-control>
   }
 }

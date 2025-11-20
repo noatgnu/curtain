@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, effect, EventEmitter, input, Output, signal} from '@angular/core';
 import {NgbProgressbar} from "@ng-bootstrap/ng-bootstrap";
 import {DataService} from "../../../data.service";
 
@@ -11,35 +11,30 @@ import {DataService} from "../../../data.service";
     styleUrl: './toast-progressbar.component.scss'
 })
 export class ToastProgressbarComponent {
-  private _action: string = "other"
-  @Input() set action(value: string) {
-    this._action = value
-    if (value === "download") {
-      this.data.downloadProgress.subscribe((data) => {
-        this.progress = data
-        if (data === 100) {
-          this.finished.emit(true)
-        }
-      })
-    } else if (value === "upload") {
-      this.data.uploadProgress.subscribe((data) => {
-        this.progress = data
-        if (data === 100) {
-          this.finished.emit(true)
-        }
-      })
-    }
-  }
-
-  get action(): string {
-    return this._action
-  }
-  @Input() progress: number = 0
-  @Input() total: number = 100
+  action = input("other")
+  progress = signal(0)
+  total = input(100)
   @Output() finished: EventEmitter<boolean> = new EventEmitter()
 
   constructor(public data: DataService) {
-
+    effect(() => {
+      const actionValue = this.action()
+      if (actionValue === "download") {
+        this.data.downloadProgress.subscribe((data) => {
+          this.progress.set(data)
+          if (data === 100) {
+            this.finished.emit(true)
+          }
+        })
+      } else if (actionValue === "upload") {
+        this.data.uploadProgress.subscribe((data) => {
+          this.progress.set(data)
+          if (data === 100) {
+            this.finished.emit(true)
+          }
+        })
+      }
+    })
   }
 
 }

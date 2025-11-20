@@ -5,14 +5,18 @@ import { HttpClient } from "@angular/common/http";
 import {DataCiteMetadata} from "./data-cite-metadata";
 import {OrcidPublicRecord} from "./orcid-public-record";
 import {environment} from "../environments/environment";
+import {SiteProperties} from "curtain-web-api";
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebService {
   dataciteURL: string = environment.datacite
-  siteProperties: any = {
-    non_user_post: true
+  siteProperties: SiteProperties = {
+    non_user_post: true,
+    allow_user_set_permanent: true,
+    expiry_duration_options: [1, 3, 6, 12],
+    default_expiry_duration_months: 6
   }
   links = new CurtainLink()
   filters: any = {
@@ -39,6 +43,17 @@ export class WebService {
     mTOR: {filename: "mtor.txt", name: "mTOR Pathway"}
   }
   constructor(private plotly: PlotlyService, private http: HttpClient) { }
+
+  async loadSiteProperties(curtainAPI: any) {
+    try {
+      const response = await curtainAPI.getSiteProperties();
+      if (response.data) {
+        this.siteProperties = response.data;
+      }
+    } catch (error) {
+      console.warn('Failed to load site properties, using defaults:', error);
+    }
+  }
 
 
   toParamString(options: Map<string, string>): string {

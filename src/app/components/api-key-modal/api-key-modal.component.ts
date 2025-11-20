@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgbActiveModal, NgbAlert} from "@ng-bootstrap/ng-bootstrap";
 import {WebService} from "../../web.service";
@@ -19,8 +19,8 @@ export class ApiKeyModalComponent {
     name: new FormControl(null, Validators.required)
   })
 
-  apiKeys: {name: string, id: string}[] = []
-  apiKey: string = ""
+  apiKeys = signal<{name: string, id: string}[]>([])
+  apiKey = signal("")
   constructor(private fb: FormBuilder, private activeModal: NgbActiveModal, private account: AccountsService) {
     this.refreshList()
   }
@@ -33,7 +33,7 @@ export class ApiKeyModalComponent {
   create() {
     if (this.form.valid && this.form.value.name) {
       this.account.curtainAPI.createCurtainAPIKey(this.form.value.name).then((data: any) => {
-        this.apiKey = data.data.key
+        this.apiKey.set(data.data.key)
         console.log(data)
         this.refreshList()
       })
@@ -42,7 +42,7 @@ export class ApiKeyModalComponent {
 
   refreshList() {
     this.account.curtainAPI.getCurtainAPIKeys().then((data: any) => {
-      this.apiKeys = data.data.results
+      this.apiKeys.set(data.data.results)
     })
   }
 
