@@ -18,6 +18,9 @@ import {UniprotService} from "../../uniprot.service";
 export class SessionSettingsComponent implements OnInit {
   private _currretID: string = ""
   owners: any[] = []
+  isUpdating: boolean = false
+  uploadProgress: number = 0
+
   @Input() set currentID(value: string) {
     if (!value || value === "") {
       this._currretID = this.settings.settings.currentID
@@ -47,7 +50,7 @@ export class SessionSettingsComponent implements OnInit {
     additionalOwner: ["",]
   })
   temporaryLink: string = ""
-  constructor(private fb: UntypedFormBuilder, private web:WebService, private modal: NgbActiveModal, private data: DataService, private settings: SettingsService, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService) {
+  constructor(private fb: UntypedFormBuilder, private web:WebService, public modal: NgbActiveModal, private data: DataService, private settings: SettingsService, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService) {
 
   }
 
@@ -62,7 +65,10 @@ export class SessionSettingsComponent implements OnInit {
     }
   }
 
-  submit() {
+  async submit() {
+    this.isUpdating = true
+    this.uploadProgress = 0
+
     const extraData: any = {
       uniprot: {
         results: this.uniprot.results,
@@ -79,40 +85,79 @@ export class SessionSettingsComponent implements OnInit {
         allGenes: this.data.allGenes,
       }
     }
-    const payload: any = {enable: this.form.value["enable"]}
+
     if (this.form.value["update_content"]) {
-      payload["file"] = {
-        raw: this.data.raw.originalFile,
-        rawForm: this.data.rawForm,
-        differentialForm: this.data.differentialForm,
-        processed: this.data.differential.originalFile,
-        password: "",
-        selections: this.data.selected,
-        selectionsMap: this.data.selectedMap,
-        selectionsName: this.data.selectOperationNames,
-        settings: this.settings.settings,
-        fetchUniprot: this.data.fetchUniprot,
-        annotatedData: this.data.annotatedData,
-        extraData: extraData
+      try {
+        const fileData = {
+          raw: this.data.raw.originalFile,
+          rawForm: this.data.rawForm,
+          differentialForm: this.data.differentialForm,
+          processed: this.data.differential.originalFile,
+          password: "",
+          selections: this.data.selected,
+          selectionsMap: this.data.selectedMap,
+          selectionsName: this.data.selectOperationNames,
+          settings: this.settings.settings,
+          fetchUniprot: this.data.fetchUniprot,
+          annotatedData: this.data.annotatedData,
+          extraData: extraData
+        }
+
+        const jsonString = JSON.stringify(fileData)
+        const blob = new Blob([jsonString], { type: 'application/json' })
+        const file = new File([blob], 'session_update.json', { type: 'application/json' })
+
+        const result = await this.accounts.curtainAPI.uploadCurtainFileInChunks(
+          file,
+          1024 * 1024 * 5,
+          {
+            link_id: this.currentID,
+            enable: this.form.value["enable"],
+            onProgress: (progress: number) => {
+              this.uploadProgress = progress
+            }
+          }
+        )
+
+        this.data.session = result.curtain
+        this.toast.show("Success", "Session updated successfully").then()
+        this.isUpdating = false
+        this.modal.dismiss()
+      } catch (error) {
+        console.error('Failed to update session:', error)
+        this.toast.show("Error", "Failed to update session").then()
+        this.isUpdating = false
+      }
+    } else {
+      const payload: any = {enable: this.form.value["enable"]}
+      const encryption: CurtainEncryption = {
+        encrypted: this.settings.settings.encrypted,
+        e2e: this.settings.settings.encrypted,
+        publicKey: this.data.public_key,
+      }
+
+      try {
+        const data = await this.accounts.curtainAPI.updateSession(payload, this.currentID, encryption)
+        this.data.session = data.data
+        this.toast.show("Success", "Session settings updated").then()
+        this.isUpdating = false
+        this.modal.dismiss()
+      } catch (error) {
+        console.error('Failed to update session:', error)
+        this.toast.show("Error", "Failed to update session").then()
+        this.isUpdating = false
       }
     }
-    const encryption: CurtainEncryption = {
-      encrypted: this.settings.settings.encrypted,
-      e2e: this.settings.settings.encrypted,
-      publicKey: this.data.public_key,
-    }
-    this.accounts.curtainAPI.updateSession(payload, this.currentID, encryption).then(data => {
-      this.data.session = data.data
-      this.modal.dismiss()
-    })
   }
 
   addOwner() {
-    if (this.form.value["additionalOwer"] !== "") {
+    if (this.form.value["additionalOwner"] !== "") {
       this.accounts.curtainAPI.addOwner(this.currentID, this.form.value["additionalOwner"]).then((resp)=> {
         if (resp.status === 204) {
           this.accounts.curtainAPI.getOwners(this.currentID).then((data:any) => {
             this.owners = data.data["owners"]
+            this.form.controls["additionalOwner"].setValue("")
+            this.toast.show("Success", "Owner added successfully").then()
           })
         } else {
           this.toast.show("Adding owner error", "This owner cannot be found.").then()
@@ -121,5 +166,28 @@ export class SessionSettingsComponent implements OnInit {
         this.toast.show("Adding owner error", "This owner cannot be found.").then()
       })
     }
+  }
+
+  removeOwner(username: string) {
+    this.accounts.curtainAPI.removeOwner(this.currentID, username).then((resp: any) => {
+      if (resp.status === 204) {
+        this.accounts.curtainAPI.getOwners(this.currentID).then((data:any) => {
+          this.owners = data.data["owners"]
+          this.toast.show("Success", "Owner removed successfully").then()
+        })
+      } else {
+        this.toast.show("Error", "Failed to remove owner").then()
+      }
+    }, (error: any) => {
+      this.toast.show("Error", "Failed to remove owner").then()
+    })
+  }
+
+  copyTemporaryLink() {
+    navigator.clipboard.writeText(this.temporaryLink).then(() => {
+      this.toast.show("Success", "Link copied to clipboard").then()
+    }, (error: any) => {
+      this.toast.show("Error", "Failed to copy link").then()
+    })
   }
 }

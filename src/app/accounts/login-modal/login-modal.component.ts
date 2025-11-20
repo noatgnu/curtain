@@ -20,7 +20,8 @@ export class LoginModalComponent implements OnInit, OnDestroy {
   orcid: string = environment.orcid
   form = this.fb.group({
     username: [null, Validators.required],
-    password: [null, Validators.required]
+    password: [null, Validators.required],
+    remember_me: [false]
   })
 
   loginStatus: Subject<boolean> = new Subject<boolean>()
@@ -28,12 +29,20 @@ export class LoginModalComponent implements OnInit, OnDestroy {
   isLoading: boolean = false
   showPassword: boolean = false
   loginError: string = ''
+  rememberMeDays: number = 0
 
   constructor(private dataService: DataService, public modal: NgbActiveModal, private fb: UntypedFormBuilder, private accounts: AccountsService, private web: WebService, private toast: ToastService) {
 
   }
 
   ngOnInit(): void {
+    this.accounts.curtainAPI.getSiteProperties().then(response => {
+      if (response.data) {
+        this.rememberMeDays = response.data.jwt_remember_me_refresh_token_lifetime_days
+      }
+    }).catch(err => {
+      console.error('Failed to load site properties:', err)
+    })
   }
 
   login() {
@@ -41,7 +50,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
       this.isLoading = true
       this.loginError = ''
 
-      this.accounts.login(this.form.value["username"], this.form.value["password"]).then((data: any) => {
+      this.accounts.login(this.form.value["username"], this.form.value["password"], this.form.value["remember_me"] || false).then((data: any) => {
         this.processLogin(data)
       }).catch((error: any) => {
         this.isLoading = false
@@ -75,6 +84,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
 
   clickOrcid() {
     localStorage.setItem("urlAfterLogin", document.URL)
+    localStorage.setItem("orcidRememberMe", this.form.value["remember_me"] ? "true" : "false")
     this.loginWatcher = setInterval(()=> {
       console.log("ORCID LOGIN CHECK")
       this.accounts.reload().then(() => {
@@ -85,6 +95,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
               this.dataService.draftDataCiteCount = data.data.count
             })
           }
+          localStorage.removeItem("orcidRememberMe")
           this.modal.dismiss()
           clearInterval(this.loginWatcher)
         }

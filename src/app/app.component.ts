@@ -24,8 +24,10 @@ export class AppComponent implements AfterViewInit {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
       const code = path.split("=")
-      this.accounts.ORCIDLogin(code[1]).then((data: any) => {
+      const rememberMe = localStorage.getItem("orcidRememberMe") === "true"
+      this.accounts.ORCIDLogin(code[1], rememberMe).then((data: any) => {
         console.log(data)
+        localStorage.removeItem("orcidRememberMe")
       })
     }
     this.ws.connectJob()
