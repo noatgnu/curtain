@@ -361,8 +361,14 @@ export class HomeComponent implements OnInit {
     await this.web.loadSiteProperties(this.accounts.curtainAPI)
     await this.accounts.curtainAPI.user.loadFromDB()
     if (this.accounts.curtainAPI.user.loginStatus && this.accounts.curtainAPI.user.isStaff) {
-      const draft = await this.accounts.curtainAPI.getDataCites(undefined, undefined, "draft", 10, 0, true, "TP")
-      this.data.draftDataCiteCount = draft.data.count
+      try {
+        const draft = await this.accounts.curtainAPI.getDataCites(undefined, undefined, "draft", 10, 0, true, "TP")
+        if (draft.data && draft.data.count !== undefined) {
+          this.data.draftDataCiteCount = draft.data.count
+        }
+      } catch (e) {
+        console.warn('Failed to load draft DataCite count:', e)
+      }
     }
     if (this.subscription) {
       this.subscription.unsubscribe()

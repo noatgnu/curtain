@@ -111,6 +111,60 @@
   </div>
 
   <div class="card mb-3">
+    <div class="card-header bg-light">Global Y-Axis Limits</div>
+    <div class="card-body">
+      <p class="text-muted small mb-3">Set global Y-axis limits that apply to all items. Individual item limits (if set) will override these.</p>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Bar Chart</label>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label small">Min Y</label>
+              <input type="number" class="form-control form-control-sm"
+                     [(ngModel)]="chartYAxisLimits.barChart.min">
+            </div>
+            <div class="col-6">
+              <label class="form-label small">Max Y</label>
+              <input type="number" class="form-control form-control-sm"
+                     [(ngModel)]="chartYAxisLimits.barChart.max">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Average Bar Chart</label>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label small">Min Y</label>
+              <input type="number" class="form-control form-control-sm"
+                     [(ngModel)]="chartYAxisLimits.averageBarChart.min">
+            </div>
+            <div class="col-6">
+              <label class="form-label small">Max Y</label>
+              <input type="number" class="form-control form-control-sm"
+                     [(ngModel)]="chartYAxisLimits.averageBarChart.max">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Violin Plot</label>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label small">Min Y</label>
+              <input type="number" class="form-control form-control-sm"
+                     [(ngModel)]="chartYAxisLimits.violinPlot.min">
+            </div>
+            <div class="col-6">
+              <label class="form-label small">Max Y</label>
+              <input type="number" class="form-control form-control-sm"
+                     [(ngModel)]="chartYAxisLimits.violinPlot.max">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
     <div class="card-header bg-light">
       <div class="d-flex justify-content-between align-items-center">
         <span>Sample Order</span>

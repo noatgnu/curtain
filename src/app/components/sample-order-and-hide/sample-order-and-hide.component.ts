@@ -22,6 +22,11 @@ export class SampleOrderAndHideComponent implements OnInit {
     averageBarChart: 0,
     violinPlot: 0,
   }
+  chartYAxisLimits: any = {
+    barChart: { min: null, max: null },
+    averageBarChart: { min: null, max: null },
+    violinPlot: { min: null, max: null },
+  }
   violinPointPos: number = -2
 
   batchToggle: any = {}
@@ -53,6 +58,13 @@ export class SampleOrderAndHideComponent implements OnInit {
     for (const c in this.settings.settings.columnSize) {
       if (c in this.columnSize) {
         this.columnSize[c] = this.settings.settings.columnSize[c]
+      }
+    }
+    if (this.settings.settings.chartYAxisLimits) {
+      for (const c in this.settings.settings.chartYAxisLimits) {
+        if (c in this.chartYAxisLimits) {
+          this.chartYAxisLimits[c] = { ...this.settings.settings.chartYAxisLimits[c] }
+        }
       }
     }
     this.violinPointPos = this.settings.settings.violinPointPos
@@ -123,6 +135,9 @@ export class SampleOrderAndHideComponent implements OnInit {
     this.settings.settings.enableMetabolomics = this.enableMetabolomics
     for (const c in this.columnSize) {
       this.settings.settings.columnSize[c] = this.columnSize[c]
+    }
+    for (const c in this.chartYAxisLimits) {
+      this.settings.settings.chartYAxisLimits[c] = { ...this.chartYAxisLimits[c] }
     }
     for (const c in this.metabolomicsColumnMap) {
       this.settings.settings.metabolomicsColumnMap[c] = this.metabolomicsColumnMap[c]

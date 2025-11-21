@@ -73,6 +73,8 @@ import {
     DataciteMetadataDisplayComponent
 } from "./components/datacite-metadata-display/datacite-metadata-display.component";
 import { NearbyPointsModalComponent } from './components/nearby-points-modal/nearby-points-modal.component';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import {ReorderTracesModalComponent} from './components/volcano-plot/reorder-traces-modal/reorder-traces-modal.component';
 
 //PlotlyViaCDNModule.setPlotlyVersion('latest');
 //PlotlyViaCDNModule.setPlotlyBundle('basic');
@@ -131,6 +133,7 @@ import { NearbyPointsModalComponent } from './components/nearby-points-modal/nea
         EncryptionSettingsComponent,
         SubFilterComponent,
         NearbyPointsModalComponent,
+        ReorderTracesModalComponent,
     ],
     bootstrap: [AppComponent],
     imports: [BrowserModule,
@@ -151,5 +154,6 @@ import { NearbyPointsModalComponent } from './components/nearby-points-modal/nea
         ToastProgressbarComponent,
         AnnotationComponent,
         ShapesComponent,
-        DataciteMetadataDisplayComponent], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()),] })
+        DataciteMetadataDisplayComponent,
+        DragDropModule], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()),] })
 export class AppModule { }

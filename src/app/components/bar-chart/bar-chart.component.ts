@@ -1,12 +1,11 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, input, OnInit, signal} from '@angular/core';
 import {DataService} from "../../data.service";
 import {Series} from "data-forge";
 import {UniprotService} from "../../uniprot.service";
-import {PlotlyService} from "angular-plotly.js";
 import {WebService} from "../../web.service";
 import {StatsService} from "../../stats.service";
 import {SettingsService} from "../../settings.service";
-import {ObjectUnsubscribedError, Subject} from "rxjs";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
 @Component({
     selector: 'app-bar-chart',
@@ -15,7 +14,14 @@ import {ObjectUnsubscribedError, Subject} from "rxjs";
     standalone: false
 })
 export class BarChartComponent implements OnInit {
-  _data: any = {}
+  private destroyRef = inject(DestroyRef)
+
+  data = input<any>()
+
+  _data = signal<any>({})
+  currentPrimaryID = signal<string>("")
+  title = signal<string>("")
+
   uni: any = {}
   comparisons: any[] = []
   conditionA: string = ""
@@ -26,40 +32,9 @@ export class BarChartComponent implements OnInit {
   barChartErrorType: string = "Standard Error"
   violinPointPos: number = -2
   isCollapse: boolean = true
-  @Input() set data(value: any) {
-    this._data = value
-    this.title = "<b>" + this._data[this.dataService.rawForm.primaryIDs] + "</b>"
-    if (this.dataService.fetchUniprot) {
-      this.uni = this.uniprot.getUniprotFromPrimary(this._data[this.dataService.rawForm.primaryIDs])
-
-      if (this.uni) {
-        if (this.uni["Gene Names"] !== "") {
-          this.title = "<b>" + this.uni["Gene Names"] + "(" + this._data[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
-        }
-      }
-    } else {
-      if (this.dataService.differentialForm.geneNames !== "") {
-        const result = this.dataService.currentDF.where(row => (row[this.dataService.differentialForm.primaryIDs] === this._data[this.dataService.rawForm.primaryIDs])).toArray()
-        if (result.length > 0) {
-          const diffData = result[0]
-          this.title = "<b>" + diffData[this.dataService.differentialForm.geneNames] + "(" + this._data[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
-        }
-      } else {
-        this.title = "<b>" + this._data[this.dataService.rawForm.primaryIDs] + "</b>"
-      }
-    }
-
-    this.drawBarChart()
-    this.graphLayout["title"] = this.title
-    this.graphLayoutAverage["title"] = this.title
-    this.graphLayoutViolin["title"] = this.title
-    this.drawAverageBarChart()
-
-  }
+  isYAxisCollapsed: boolean = true
 
   averageBarchartEnableDot = true
-
-  title = ""
   graph: any = {}
   graphData: any[] = []
   graphLayout: any = {
@@ -167,27 +142,59 @@ export class BarChartComponent implements OnInit {
   imputationMap: any = {}
   enableImputation: boolean = false
 
-  constructor(private stats: StatsService, private web: WebService, public dataService: DataService, private uniprot: UniprotService, private settings: SettingsService) {
-    if (this.settings.settings.enableImputation) {
-      this.enableImputation = true
-    } else {
-      this.enableImputation = false
-    }
-    this.dataService.externalBarChartDownloadTrigger.asObservable().subscribe(trigger => {
+  constructor(private stats: StatsService, private web: WebService, public dataService: DataService, private uniprot: UniprotService, public settings: SettingsService) {
+    this.enableImputation = this.settings.settings.enableImputation
+
+    effect(() => {
+      const value = this.data()
+      if (value) {
+        this._data.set(value)
+        const rawData = value
+        this.currentPrimaryID.set(rawData[this.dataService.rawForm.primaryIDs])
+        let newTitle = "<b>" + this.currentPrimaryID() + "</b>"
+        if (this.dataService.fetchUniprot) {
+          this.uni = this.uniprot.getUniprotFromPrimary(rawData[this.dataService.rawForm.primaryIDs])
+          if (this.uni) {
+            if (this.uni["Gene Names"] !== "") {
+              newTitle = "<b>" + this.uni["Gene Names"] + "(" + rawData[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
+            }
+          }
+        } else {
+          if (this.dataService.differentialForm.geneNames !== "") {
+            const result = this.dataService.currentDF.where(row => (row[this.dataService.differentialForm.primaryIDs] === rawData[this.dataService.rawForm.primaryIDs])).toArray()
+            if (result.length > 0) {
+              const diffData = result[0]
+              newTitle = "<b>" + diffData[this.dataService.differentialForm.geneNames] + "(" + rawData[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
+            }
+          } else {
+            newTitle = "<b>" + rawData[this.dataService.rawForm.primaryIDs] + "</b>"
+          }
+        }
+        this.title.set(newTitle)
+        this.drawBarChart()
+        this.graphLayout["title"] = this.title()
+        this.graphLayoutAverage["title"] = this.title()
+        this.graphLayoutViolin["title"] = this.title()
+        this.drawAverageBarChart()
+      }
+    })
+
+    this.dataService.externalBarChartDownloadTrigger.asObservable().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(trigger => {
       if (trigger) {
+        const rawData = this._data()
         for (const i of ["bar", "average", "violin"]) {
-          let e = document.getElementById(this._data[this.dataService.rawForm.primaryIDs]+i)
+          let e = document.getElementById(rawData[this.dataService.rawForm.primaryIDs]+i)
           if (e) {
-            this.web.downloadPlotlyImage('svg', this._data[this.dataService.rawForm.primaryIDs]+this.uni["Gene Names"]+i+'.svg', this._data[this.dataService.rawForm.primaryIDs]+i).then()
+            this.web.downloadPlotlyImage('svg', rawData[this.dataService.rawForm.primaryIDs]+this.uni["Gene Names"]+i+'.svg', rawData[this.dataService.rawForm.primaryIDs]+i).then()
           } else {
             let observer = new MutationObserver(mutations => {
               mutations.forEach((mutation) => {
                 let nodes = Array.from(mutation.addedNodes)
                 for (const node of nodes) {
-                  if (node.contains(document.getElementById(this._data[this.dataService.rawForm.primaryIDs]+i))) {
-                    e = document.getElementById(this._data[this.dataService.rawForm.primaryIDs]+i)
+                  if (node.contains(document.getElementById(rawData[this.dataService.rawForm.primaryIDs]+i))) {
+                    e = document.getElementById(rawData[this.dataService.rawForm.primaryIDs]+i)
                     if (e) {
-                      this.web.downloadPlotlyImage('svg', this._data[this.dataService.rawForm.primaryIDs]+this.uni["Gene Names"]+i+'.svg', this._data[this.dataService.rawForm.primaryIDs]+i).then()
+                      this.web.downloadPlotlyImage('svg', rawData[this.dataService.rawForm.primaryIDs]+this.uni["Gene Names"]+i+'.svg', rawData[this.dataService.rawForm.primaryIDs]+i).then()
                     }
                     observer.disconnect()
                     break
@@ -203,18 +210,10 @@ export class BarChartComponent implements OnInit {
         }
       }
     })
-    this.dataService.finishedProcessingData.subscribe(data => {
-      if (data) {
 
-      }
-    })
-    this.dataService.redrawTrigger.subscribe(data => {
+    this.dataService.redrawTrigger.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(data => {
       if (data) {
-        if (this.settings.settings.enableImputation) {
-          this.enableImputation = true
-        } else {
-          this.enableImputation = false
-        }
+        this.enableImputation = this.settings.settings.enableImputation
         this.drawBarChart()
         this.drawAverageBarChart()
       }
@@ -222,14 +221,14 @@ export class BarChartComponent implements OnInit {
   }
 
   download(type: string) {
+    const rawData = this._data()
     if (type === "all") {
-      this.web.downloadPlotlyImage('svg', 'bar.svg', this._data[this.dataService.rawForm.primaryIDs]+"bar").then()
-      this.web.downloadPlotlyImage('svg', 'average.svg', this._data[this.dataService.rawForm.primaryIDs]+"average").then()
-      this.web.downloadPlotlyImage('svg', 'violin.svg', this._data[this.dataService.rawForm.primaryIDs]+"violin").then()
+      this.web.downloadPlotlyImage('svg', 'bar.svg', rawData[this.dataService.rawForm.primaryIDs]+"bar").then()
+      this.web.downloadPlotlyImage('svg', 'average.svg', rawData[this.dataService.rawForm.primaryIDs]+"average").then()
+      this.web.downloadPlotlyImage('svg', 'violin.svg', rawData[this.dataService.rawForm.primaryIDs]+"violin").then()
     } else {
-      this.web.downloadPlotlyImage('svg', type+'.svg', this._data[this.dataService.rawForm.primaryIDs]+type).then()
+      this.web.downloadPlotlyImage('svg', type+'.svg', rawData[this.dataService.rawForm.primaryIDs]+type).then()
     }
-
   }
 
   ngOnInit(): void {
@@ -312,9 +311,10 @@ export class BarChartComponent implements OnInit {
             showlegend: false,
           }
         }
+        const rawData = this._data()
         let canImpute = false
-        if (this.settings.settings.imputationMap[this._data[this.dataService.rawForm.primaryIDs]]) {
-          if (this.settings.settings.imputationMap[this._data[this.dataService.rawForm.primaryIDs]][s]) {
+        if (this.settings.settings.imputationMap[rawData[this.dataService.rawForm.primaryIDs]]) {
+          if (this.settings.settings.imputationMap[rawData[this.dataService.rawForm.primaryIDs]][s]) {
             if (!this.imputationCount[condition]) {
               this.imputationCount[condition] = 0
               this.imputationMap[condition] = []
@@ -330,7 +330,7 @@ export class BarChartComponent implements OnInit {
         sampleNumber ++
 
         graph[condition].x.push(s)
-        graph[condition].y.push(this._data[s])
+        graph[condition].y.push(rawData[s])
         if (canImpute) {
           graph[condition].marker.pattern.shape.push("/")
 
@@ -338,11 +338,11 @@ export class BarChartComponent implements OnInit {
           graph[condition].marker.pattern.shape.push("")
         }
         if (this.settings.settings.peptideCountData && this.settings.settings.viewPeptideCount) {
-          if (this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]]) {
-            if (this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]][s]) {
-              const peptideCountData = this.settings.settings.peptideCountData[this._data[this.dataService.rawForm.primaryIDs]][s].toString()
+          if (this.settings.settings.peptideCountData[rawData[this.dataService.rawForm.primaryIDs]]) {
+            if (this.settings.settings.peptideCountData[rawData[this.dataService.rawForm.primaryIDs]][s]) {
+              const peptideCountData = this.settings.settings.peptideCountData[rawData[this.dataService.rawForm.primaryIDs]][s].toString()
               graph[condition].hovertext.push(
-                `Sample:${s}<br>Value:${this._data[s]}<br>${peptideCountData} peptides`
+                `Sample:${s}<br>Value:${rawData[s]}<br>${peptideCountData} peptides`
               )
               heatmap.x.push(s)
               heatmap.y.push("Peptide Count")
@@ -434,6 +434,53 @@ export class BarChartComponent implements OnInit {
         this.hasImputation = true
       }
     }
+
+    this.applyYAxisLimits('barChart', this.graphLayout)
+  }
+
+  setIndividualLimit(chartType: string, limitType: 'min' | 'max', value: any) {
+    const primaryID = this.currentPrimaryID()
+    if (!this.settings.settings.individualYAxisLimits[primaryID]) {
+      this.settings.settings.individualYAxisLimits[primaryID] = {}
+    }
+    if (!this.settings.settings.individualYAxisLimits[primaryID][chartType]) {
+      this.settings.settings.individualYAxisLimits[primaryID][chartType] = { min: null, max: null }
+    }
+    this.settings.settings.individualYAxisLimits[primaryID][chartType][limitType] = value === '' ? null : Number(value)
+    this.drawBarChart()
+    this.drawAverageBarChart()
+  }
+
+  clearIndividualLimits() {
+    delete this.settings.settings.individualYAxisLimits[this.currentPrimaryID()]
+    this.drawBarChart()
+    this.drawAverageBarChart()
+  }
+
+  applyYAxisLimits(chartType: string, layout: any) {
+    const globalLimits = this.settings.settings.chartYAxisLimits?.[chartType]
+    const individualLimits = this.settings.settings.individualYAxisLimits?.[this.currentPrimaryID()]?.[chartType]
+
+    let minY = null
+    let maxY = null
+
+    if (globalLimits) {
+      if (globalLimits.min !== null) minY = globalLimits.min
+      if (globalLimits.max !== null) maxY = globalLimits.max
+    }
+
+    if (individualLimits) {
+      if (individualLimits.min !== null) minY = individualLimits.min
+      if (individualLimits.max !== null) maxY = individualLimits.max
+    }
+
+    if (minY !== null || maxY !== null) {
+      layout.yaxis.range = [minY ?? 0, maxY ?? layout.yaxis.range?.[1] ?? 0]
+      layout.yaxis.autorange = false
+    } else {
+      layout.yaxis.autorange = true
+      delete layout.yaxis.range
+    }
   }
 
   changeImputation() {
@@ -474,7 +521,7 @@ export class BarChartComponent implements OnInit {
         } else {
           boxDotInnerColor[condition].push("#654949")
         }
-        graph[condition].push(this._data[s])
+        graph[condition].push(this._data()[s])
         if (this.imputationMap[condition]) {
           if (this.imputationMap[condition].includes(s)) {
             selectedPoints[condition].push(graph[condition].length-1)
@@ -613,6 +660,9 @@ export class BarChartComponent implements OnInit {
     this.graphLayoutViolin.xaxis.tickvals = tickVals
     this.graphLayoutViolin.xaxis.ticktext = tickText
     this.graphDataViolin = graphViolin
+
+    this.applyYAxisLimits('averageBarChart', this.graphLayoutAverage)
+    this.applyYAxisLimits('violinPlot', this.graphLayoutViolin)
   }
 
   performTest() {
@@ -636,11 +686,10 @@ export class BarChartComponent implements OnInit {
   }
 
   downloadData() {
-    console.log(this._data)
+    const rawData = this._data()
     let data: string = ""
-    data = Object.keys(this._data).join("\t") + "\n"
-    data = data+ Object.values(this._data).join("\t") + "\n"
-
-    this.web.downloadFile(this.title + ".txt", data)
+    data = Object.keys(rawData).join("\t") + "\n"
+    data = data + Object.values(rawData).join("\t") + "\n"
+    this.web.downloadFile(this.title() + ".txt", data)
   }
 }

@@ -92,6 +92,12 @@ export class Settings {
     violinPlot: 0,
     profilePlot: 0,
   }
+  chartYAxisLimits: any = {
+    barChart: { min: null, max: null },
+    averageBarChart: { min: null, max: null },
+    violinPlot: { min: null, max: null },
+  }
+  individualYAxisLimits: any = {}
   violinPointPos: number = -2
   volcanoPlotGrid: any = {
     x: true,
@@ -111,6 +117,7 @@ export class Settings {
     },
   }
   volcanoAdditionalShapes: any = []
+  volcanoTraceOrder: string[] = []
   volcanoPlotLegendX: number|null = null
   volcanoPlotLegendY: number|null = null
   peptideCountData: any = {}

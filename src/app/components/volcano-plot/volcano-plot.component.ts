@@ -16,6 +16,7 @@ import {FormBuilder} from "@angular/forms";
 import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you-sure-clear-modal.component";
 import {ColorByCategoryModalComponent} from "./color-by-category-modal/color-by-category-modal.component";
 import {NearbyPointsModalComponent} from "../nearby-points-modal/nearby-points-modal.component";
+import {ReorderTracesModalComponent} from "./reorder-traces-modal/reorder-traces-modal.component";
 
 @Component({
     selector: 'app-volcano-plot',
@@ -493,8 +494,13 @@ export class VolcanoPlotComponent implements OnInit {
 
       this.graphLayout.shapes = cutOff
     }
+
+    const sortedGraphData = this.sortGraphDataByOrder(graphData)
+
     if (!this.scattergl) {
-      this.graphData = graphData.reverse()
+      this.graphData = sortedGraphData.reverse()
+    } else {
+      this.graphData = sortedGraphData
     }
     this.graphLayout.yaxis.showgrid = this.settings.settings.volcanoPlotGrid.y
     this.graphLayout.xaxis.showgrid = this.settings.settings.volcanoPlotGrid.x
@@ -1137,6 +1143,43 @@ export class VolcanoPlotComponent implements OnInit {
 
         this.drawVolcano()
       }
+    })
+  }
+
+  sortGraphDataByOrder(graphData: any[]): any[] {
+    const order = this.settings.settings.volcanoTraceOrder
+    if (!order || order.length === 0) {
+      return graphData
+    }
+
+    const orderedTraces: any[] = []
+    const unorderedTraces: any[] = []
+
+    order.forEach(name => {
+      const trace = graphData.find(t => t.name === name)
+      if (trace) {
+        orderedTraces.push(trace)
+      }
+    })
+
+    graphData.forEach(trace => {
+      if (!orderedTraces.find(t => t.name === trace.name)) {
+        unorderedTraces.push(trace)
+      }
+    })
+
+    return [...orderedTraces, ...unorderedTraces]
+  }
+
+  openReorderTracesModal() {
+    const ref = this.modal.open(ReorderTracesModalComponent, {scrollable: true})
+    if (!this.scattergl) {
+      ref.componentInstance.traces = [...this.graphData].reverse()
+    } else {
+      ref.componentInstance.traces = this.graphData
+    }
+    ref.closed.subscribe(() => {
+      this.drawVolcano()
     })
   }
 

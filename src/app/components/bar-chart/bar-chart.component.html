@@ -1,7 +1,7 @@
 <div class="container-fluid p-0">
   <div class="d-flex justify-content-end mb-3">
     <div ngbDropdown class="d-inline-block">
-      <button class="btn btn-outline-primary" id="dropdownDownload{{_data[dataService.rawForm.primaryIDs]}}" ngbDropdownToggle>
+      <button class="btn btn-outline-primary" id="dropdownDownload{{_data()[dataService.rawForm.primaryIDs]}}" ngbDropdownToggle>
         <i class="bi bi-download me-1"></i>Download Plot
       </button>
       <div ngbDropdownMenu>
@@ -39,7 +39,7 @@
         </div>
       }
       <div class="plot-container">
-        <plotly-plot [config]="config" [divId]="_data[dataService.rawForm.primaryIDs]+'bar'"
+        <plotly-plot [config]="config" [divId]="_data()[dataService.rawForm.primaryIDs]+'bar'"
                      [data]="graphData" [layout]="graphLayout"
                      [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
       </div>
@@ -54,7 +54,7 @@
         </div>
         <div class="card-body">
           <div class="plot-container mb-3">
-            <plotly-plot [config]="configAverage" [divId]="_data[dataService.rawForm.primaryIDs]+'average'"
+            <plotly-plot [config]="configAverage" [divId]="_data()[dataService.rawForm.primaryIDs]+'average'"
                          [data]="graphDataAverage" [layout]="graphLayoutAverage"
                          [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
           </div>
@@ -85,7 +85,7 @@
         </div>
         <div class="card-body">
           <div class="plot-container">
-            <plotly-plot [config]="configViolin" [divId]="_data[dataService.rawForm.primaryIDs]+'violin'"
+            <plotly-plot [config]="configViolin" [divId]="_data()[dataService.rawForm.primaryIDs]+'violin'"
                          [data]="graphDataViolin" [layout]="graphLayoutViolin"
                          [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
           </div>
@@ -98,6 +98,77 @@
     <div class="accordion">
       <div class="accordion-item">
         <h2 class="accordion-header">
+          <button [ngClass]="{'accordion-button': true, 'collapsed': isYAxisCollapsed}"
+                  type="button" (click)="isYAxisCollapsed=!isYAxisCollapsed">
+            <i class="bi bi-rulers me-2"></i>Y-Axis Limits (This Item)
+          </button>
+        </h2>
+        <div #yAxisCollapse="ngbCollapse" [(ngbCollapse)]="isYAxisCollapsed">
+          <div class="accordion-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Bar Chart</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="form-label small">Min Y</label>
+                    <input type="number" class="form-control form-control-sm"
+                           [ngModel]="settings.settings.individualYAxisLimits[currentPrimaryID()]?.barChart?.min"
+                           (ngModelChange)="setIndividualLimit('barChart', 'min', $event)">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">Max Y</label>
+                    <input type="number" class="form-control form-control-sm"
+                           [ngModel]="settings.settings.individualYAxisLimits[currentPrimaryID()]?.barChart?.max"
+                           (ngModelChange)="setIndividualLimit('barChart', 'max', $event)">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Average Bar Chart</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="form-label small">Min Y</label>
+                    <input type="number" class="form-control form-control-sm"
+                           [ngModel]="settings.settings.individualYAxisLimits[currentPrimaryID()]?.averageBarChart?.min"
+                           (ngModelChange)="setIndividualLimit('averageBarChart', 'min', $event)">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">Max Y</label>
+                    <input type="number" class="form-control form-control-sm"
+                           [ngModel]="settings.settings.individualYAxisLimits[currentPrimaryID()]?.averageBarChart?.max"
+                           (ngModelChange)="setIndividualLimit('averageBarChart', 'max', $event)">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Violin Plot</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="form-label small">Min Y</label>
+                    <input type="number" class="form-control form-control-sm"
+                           [ngModel]="settings.settings.individualYAxisLimits[currentPrimaryID()]?.violinPlot?.min"
+                           (ngModelChange)="setIndividualLimit('violinPlot', 'min', $event)">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">Max Y</label>
+                    <input type="number" class="form-control form-control-sm"
+                           [ngModel]="settings.settings.individualYAxisLimits[currentPrimaryID()]?.violinPlot?.max"
+                           (ngModelChange)="setIndividualLimit('violinPlot', 'max', $event)">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2">
+              <button class="btn btn-sm btn-outline-danger" (click)="clearIndividualLimits()">
+                <i class="bi bi-x-circle me-1"></i>Clear Individual Limits
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header">
           <button [ngClass]="{'accordion-button': true, 'collapsed': isCollapse}"
                   type="button" (click)="isCollapse=!isCollapse">
             <i class="bi bi-calculator me-2"></i>Additional Statistical Tests
@@ -108,9 +179,9 @@
             <div class="row g-3">
               @if (testType==='ANOVA') {
                 <div class="col-md-4">
-                  <label for="condition{{_data[dataService.rawForm.primaryIDs]}}" class="form-label">Select conditions</label>
+                  <label for="condition{{_data()[dataService.rawForm.primaryIDs]}}" class="form-label">Select conditions</label>
                   <select multiple [(ngModel)]="selectedConditions" class="form-select"
-                          id="condition{{_data[dataService.rawForm.primaryIDs]}}"
+                          id="condition{{_data()[dataService.rawForm.primaryIDs]}}"
                           aria-describedby="conditionsHelp">
                     @for (c of dataService.conditions; track c) {
                       <option [value]="c">{{c}}</option>
@@ -122,18 +193,18 @@
 
               @if (testType==='TTest') {
                 <div class="col-md-3">
-                  <label for="conditionA{{_data[dataService.rawForm.primaryIDs]}}" class="form-label">Condition A</label>
+                  <label for="conditionA{{_data()[dataService.rawForm.primaryIDs]}}" class="form-label">Condition A</label>
                   <select [(ngModel)]="conditionA" class="form-select"
-                          id="conditionA{{_data[dataService.rawForm.primaryIDs]}}">
+                          id="conditionA{{_data()[dataService.rawForm.primaryIDs]}}">
                     @for (c of dataService.conditions; track c) {
                       <option [value]="c">{{c}}</option>
                     }
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <label for="conditionB{{_data[dataService.rawForm.primaryIDs]}}" class="form-label">Condition B</label>
+                  <label for="conditionB{{_data()[dataService.rawForm.primaryIDs]}}" class="form-label">Condition B</label>
                   <select [(ngModel)]="conditionB" class="form-select"
-                          id="conditionB{{_data[dataService.rawForm.primaryIDs]}}">
+                          id="conditionB{{_data()[dataService.rawForm.primaryIDs]}}">
                     @for (c of dataService.conditions; track c) {
                       <option [value]="c">{{c}}</option>
                     }
@@ -142,9 +213,9 @@
               }
 
               <div class="col-md-3">
-                <label for="testType{{_data[dataService.rawForm.primaryIDs]}}" class="form-label">Test Type</label>
+                <label for="testType{{_data()[dataService.rawForm.primaryIDs]}}" class="form-label">Test Type</label>
                 <select [(ngModel)]="testType" class="form-select"
-                        id="testType{{_data[dataService.rawForm.primaryIDs]}}">
+                        id="testType{{_data()[dataService.rawForm.primaryIDs]}}">
                   @for (d of dataService.dataTestTypes; track d) {
                     <option [value]="d">{{d}}</option>
                   }
