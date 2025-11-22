@@ -1173,11 +1173,7 @@ export class VolcanoPlotComponent implements OnInit {
 
   openReorderTracesModal() {
     const ref = this.modal.open(ReorderTracesModalComponent, {scrollable: true})
-    if (!this.scattergl) {
-      ref.componentInstance.traces = [...this.graphData].reverse()
-    } else {
-      ref.componentInstance.traces = this.graphData
-    }
+    ref.componentInstance.traces = this.graphData
     ref.closed.subscribe(() => {
       this.drawVolcano()
     })
