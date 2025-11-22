@@ -497,7 +497,7 @@ export class VolcanoPlotComponent implements OnInit {
 
     const sortedGraphData = this.sortGraphDataByOrder(graphData)
 
-    if (!this.scattergl) {
+    if (!this.scattergl && (!this.settings.settings.volcanoTraceOrder || this.settings.settings.volcanoTraceOrder.length === 0)) {
       this.graphData = sortedGraphData.reverse()
     } else {
       this.graphData = sortedGraphData
