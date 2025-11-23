@@ -185,7 +185,7 @@
                 @if (isChartExpanded(point.primaryId)) {
                   <tr>
                     <td colspan="9" class="p-0">
-                      <div class="p-3 bg-light border-top">
+                      <div class="p-3  border-top">
                         @if (getRawDataForPoint(point.primaryId)) {
                           <app-bar-chart [data]="getRawDataForPoint(point.primaryId)"></app-bar-chart>
                         } @else {

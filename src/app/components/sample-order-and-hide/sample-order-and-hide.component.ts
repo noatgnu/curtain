@@ -40,7 +40,7 @@ export class SampleOrderAndHideComponent implements OnInit {
     "smiles": null,
   }
 
-  constructor(public dataService: DataService, public modal: NgbActiveModal, private settings: SettingsService) {
+  constructor(public dataService: DataService, public modal: NgbActiveModal, public settings: SettingsService) {
     this.enableImputation = this.settings.settings.enableImputation
     this.enableMetabolomics = this.settings.settings.enableMetabolomics || false
     if (this.enableMetabolomics) {

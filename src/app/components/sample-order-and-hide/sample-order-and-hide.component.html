@@ -5,7 +5,7 @@
 
 <div class="modal-body">
   <div class="card mb-3">
-    <div class="card-header bg-light">General Settings</div>
+    <div class="card-header ">General Settings</div>
     <div class="card-body">
       <div class="row mb-3">
         <div class="col-md-6">
@@ -79,7 +79,7 @@
   </div>
 
   <div class="card mb-3">
-    <div class="card-header bg-light">Plot Size Settings</div>
+    <div class="card-header ">Plot Size Settings</div>
     <div class="card-body">
       <div class="row g-3">
         <div class="col-md-6">
@@ -111,7 +111,7 @@
   </div>
 
   <div class="card mb-3">
-    <div class="card-header bg-light">Global Y-Axis Limits</div>
+    <div class="card-header ">Global Y-Axis Limits</div>
     <div class="card-body">
       <p class="text-muted small mb-3">Set global Y-axis limits that apply to all items. Individual item limits (if set) will override these.</p>
       <div class="row g-3">
@@ -165,7 +165,38 @@
   </div>
 
   <div class="card mb-3">
-    <div class="card-header bg-light">
+    <div class="card-header">Condition Bracket on Bar Charts</div>
+    <div class="card-body">
+      <div class="form-check mb-3">
+        <input type="checkbox" class="form-check-input" id="showBracketModal" [(ngModel)]="settings.settings.barChartConditionBracket.showBracket">
+        <label class="form-check-label" for="showBracketModal">
+          Show connecting bracket between conditions
+        </label>
+        <small class="text-muted d-block mt-1">
+          Uses conditions set in Volcano Plot settings
+        </small>
+      </div>
+
+      <div class="row g-2 mb-2">
+        <div class="col-md-4">
+          <label for="bracketHeightModal" class="form-label">Bracket Height</label>
+          <input id="bracketHeightModal" type="number" step="0.01" min="0" max="0.2" class="form-control form-control-sm" [(ngModel)]="settings.settings.barChartConditionBracket.bracketHeight">
+          <small class="text-muted">Distance above condition line</small>
+        </div>
+        <div class="col-md-4">
+          <label for="bracketWidthModal" class="form-label">Bracket Line Width</label>
+          <input id="bracketWidthModal" type="number" min="1" max="5" class="form-control form-control-sm" [(ngModel)]="settings.settings.barChartConditionBracket.bracketWidth">
+        </div>
+        <div class="col-md-4">
+          <label for="bracketColorModal" class="form-label">Bracket Color</label>
+          <input id="bracketColorModal" type="color" class="form-control form-control-sm form-control-color" [(ngModel)]="settings.settings.barChartConditionBracket.bracketColor">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header ">
       <div class="d-flex justify-content-between align-items-center">
         <span>Sample Order</span>
         <div>
@@ -178,7 +209,7 @@
       <div class="accordion" id="conditionAccordion">
         @for (c of condition; track c; let i = $index) {
           <div class="accordion-item">
-            <div class="accordion-header d-flex align-items-center p-2 bg-light">
+            <div class="accordion-header d-flex align-items-center p-2 ">
               <div class="row w-100 align-items-center">
                 <div class="col-5">
                   <span class="fw-bold">{{c}}</span>

@@ -26,7 +26,20 @@
 
   <div class="card mb-3 border-primary">
     <div class="card-header bg-primary bg-opacity-10">
-      <h5 class="card-title mb-0">Bar Chart Visualization</h5>
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Bar Chart Visualization</h5>
+        @if (volcanoConditionLeft && volcanoConditionRight && settings.settings.barChartConditionBracket.showBracket) {
+          <div class="badge bg-info text-dark">
+            <span class="me-2">{{volcanoConditionLeft}} vs {{volcanoConditionRight}}</span>
+            @if (foldChangeValue !== null) {
+              <span class="me-2">FC: {{foldChangeValue.toFixed(4)}}</span>
+            }
+            @if (pValue !== null) {
+              <span>p-value: {{pValue.toFixed(4)}}</span>
+            }
+          </div>
+        }
+      </div>
     </div>
     <div class="card-body">
       @if (hasImputation) {
@@ -49,8 +62,21 @@
   <div class="row g-3">
     <div class="col-md-6">
       <div class="card h-100">
-        <div class="card-header bg-light">
-          <h5 class="card-title h6 mb-0">Average Bar Chart</h5>
+        <div class="card-header ">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title h6 mb-0">Average Bar Chart</h5>
+            @if (volcanoConditionLeft && volcanoConditionRight && settings.settings.barChartConditionBracket.showBracket) {
+              <div class="badge bg-info text-dark">
+                <span class="me-2">{{volcanoConditionLeft}} vs {{volcanoConditionRight}}</span>
+                @if (foldChangeValue !== null) {
+                  <span class="me-2">FC: {{foldChangeValue.toFixed(4)}}</span>
+                }
+                @if (pValue !== null) {
+                  <span>p: {{pValue.toFixed(4)}}</span>
+                }
+              </div>
+            }
+          </div>
         </div>
         <div class="card-body">
           <div class="plot-container mb-3">
@@ -80,8 +106,21 @@
 
     <div class="col-md-6">
       <div class="card h-100">
-        <div class="card-header bg-light">
-          <h5 class="card-title h6 mb-0">Violin Plot</h5>
+        <div class="card-header ">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title h6 mb-0">Violin Plot</h5>
+            @if (volcanoConditionLeft && volcanoConditionRight && settings.settings.barChartConditionBracket.showBracket) {
+              <div class="badge bg-info text-dark">
+                <span class="me-2">{{volcanoConditionLeft}} vs {{volcanoConditionRight}}</span>
+                @if (foldChangeValue !== null) {
+                  <span class="me-2">FC: {{foldChangeValue.toFixed(4)}}</span>
+                }
+                @if (pValue !== null) {
+                  <span>p: {{pValue.toFixed(4)}}</span>
+                }
+              </div>
+            }
+          </div>
         </div>
         <div class="card-body">
           <div class="plot-container">

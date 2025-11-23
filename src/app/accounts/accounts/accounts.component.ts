@@ -62,11 +62,18 @@ export class AccountsComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   activeTab: number = 1;
 
+  collections: any[] = [];
+  collectionsLoading: boolean = false;
+  collectionPage: number = 1;
+  totalCollections: number = 0;
+  collectionSearchQuery: string = '';
+
   // RxJS subject for component cleanup
   private readonly destroy$ = new Subject<void>();
 
   // Constants
   private readonly ITEMS_PER_PAGE = 20;
+  private readonly COLLECTIONS_PER_PAGE = 20;
   constructor(
     private readonly web: WebService,
     public readonly accounts: AccountsService,
@@ -110,6 +117,12 @@ export class AccountsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Component initialization is handled in constructor
     // Additional initialization logic can be added here if needed
+  }
+
+  onTabChange(tabId: number): void {
+    if (tabId === 2) {
+      this.loadCollections();
+    }
   }
   
   /**
@@ -468,7 +481,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
    */
   private async handleApiError(error: ApiError): Promise<void> {
     console.error('API Error:', error);
-    
+
     // Handle token expiration
     if (error.code === 'token_not_valid') {
       try {
@@ -477,8 +490,93 @@ export class AccountsComponent implements OnInit, OnDestroy {
         console.error('Logout failed:', logoutError);
       }
     }
-    
+
     // Log error for debugging
     console.error(`Operation failed: ${error.message ?? 'Unknown error'}`);
+  }
+
+  async loadCollections(): Promise<void> {
+    try {
+      this.collectionsLoading = true;
+      const response = await this.accounts.getCollections(
+        this.collectionPage,
+        this.COLLECTIONS_PER_PAGE,
+        this.collectionSearchQuery,
+        true
+      );
+      this.collections = response.results || [];
+      this.totalCollections = response.count || 0;
+    } catch (error) {
+      console.error('Failed to load collections:', error);
+    } finally {
+      this.collectionsLoading = false;
+    }
+  }
+
+  searchCollections(): void {
+    this.collectionPage = 1;
+    this.loadCollections();
+  }
+
+  openCreateCollectionModal(): void {
+    const name = prompt('Enter collection name:');
+    if (name && name.trim()) {
+      const description = prompt('Enter collection description (optional):');
+      this.createCollection(name.trim(), description?.trim() || '');
+    }
+  }
+
+  async createCollection(name: string, description: string = ''): Promise<void> {
+    try {
+      this.collectionsLoading = true;
+      await this.accounts.createCollection(name, description);
+      await this.loadCollections();
+    } catch (error) {
+      console.error('Failed to create collection:', error);
+    } finally {
+      this.collectionsLoading = false;
+    }
+  }
+
+  openEditCollectionModal(collection: any): void {
+    const name = prompt('Enter new collection name:', collection.name);
+    if (name && name.trim()) {
+      const description = prompt('Enter new collection description (optional):', collection.description || '');
+      this.updateCollection(collection.id, name.trim(), description?.trim() || '');
+    }
+  }
+
+  async updateCollection(id: number, name: string, description: string = ''): Promise<void> {
+    try {
+      this.collectionsLoading = true;
+      await this.accounts.updateCollection(id, name, description);
+      await this.loadCollections();
+    } catch (error) {
+      console.error('Failed to update collection:', error);
+    } finally {
+      this.collectionsLoading = false;
+    }
+  }
+
+  confirmDeleteCollection(collection: any): void {
+    if (confirm(`Are you sure you want to delete collection "${collection.name}"?`)) {
+      this.deleteCollection(collection.id);
+    }
+  }
+
+  async deleteCollection(id: number): Promise<void> {
+    try {
+      this.collectionsLoading = true;
+      await this.accounts.deleteCollection(id);
+      await this.loadCollections();
+    } catch (error) {
+      console.error('Failed to delete collection:', error);
+    } finally {
+      this.collectionsLoading = false;
+    }
+  }
+
+  viewCollectionSessions(collection: any): void {
+    console.log('Viewing sessions for collection:', collection);
   }
 }

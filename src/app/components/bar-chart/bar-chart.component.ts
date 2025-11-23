@@ -34,6 +34,11 @@ export class BarChartComponent implements OnInit {
   isCollapse: boolean = true
   isYAxisCollapsed: boolean = true
 
+  volcanoConditionLeft: string = ""
+  volcanoConditionRight: string = ""
+  foldChangeValue: number | null = null
+  pValue: number | null = null
+
   averageBarchartEnableDot = true
   graph: any = {}
   graphData: any[] = []
@@ -152,6 +157,23 @@ export class BarChartComponent implements OnInit {
         const rawData = value
         this.currentPrimaryID.set(rawData[this.dataService.rawForm.primaryIDs])
         let newTitle = "<b>" + this.currentPrimaryID() + "</b>"
+
+        this.volcanoConditionLeft = this.settings.settings.volcanoConditionLabels.leftCondition
+        this.volcanoConditionRight = this.settings.settings.volcanoConditionLabels.rightCondition
+        this.foldChangeValue = null
+        this.pValue = null
+
+        const result = this.dataService.currentDF.where(row => (row[this.dataService.differentialForm.primaryIDs] === rawData[this.dataService.rawForm.primaryIDs])).toArray()
+        if (result.length > 0) {
+          const diffData = result[0]
+          if (this.dataService.differentialForm.foldChange !== "") {
+            this.foldChangeValue = diffData[this.dataService.differentialForm.foldChange]
+          }
+          if (this.dataService.differentialForm.significant !== "") {
+            this.pValue = diffData[this.dataService.differentialForm.significant]
+          }
+        }
+
         if (this.dataService.fetchUniprot) {
           this.uni = this.uniprot.getUniprotFromPrimary(rawData[this.dataService.rawForm.primaryIDs])
           if (this.uni) {
@@ -161,7 +183,6 @@ export class BarChartComponent implements OnInit {
           }
         } else {
           if (this.dataService.differentialForm.geneNames !== "") {
-            const result = this.dataService.currentDF.where(row => (row[this.dataService.differentialForm.primaryIDs] === rawData[this.dataService.rawForm.primaryIDs])).toArray()
             if (result.length > 0) {
               const diffData = result[0]
               newTitle = "<b>" + diffData[this.dataService.differentialForm.geneNames] + "(" + rawData[this.dataService.rawForm.primaryIDs] + ")" + "</b>"
@@ -214,6 +235,23 @@ export class BarChartComponent implements OnInit {
     this.dataService.redrawTrigger.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(data => {
       if (data) {
         this.enableImputation = this.settings.settings.enableImputation
+        this.volcanoConditionLeft = this.settings.settings.volcanoConditionLabels.leftCondition
+        this.volcanoConditionRight = this.settings.settings.volcanoConditionLabels.rightCondition
+
+        const rawData = this._data()
+        if (rawData && this.dataService.differentialForm.geneNames !== "") {
+          const result = this.dataService.currentDF.where(row => (row[this.dataService.differentialForm.primaryIDs] === rawData[this.dataService.rawForm.primaryIDs])).toArray()
+          if (result.length > 0) {
+            const diffData = result[0]
+            if (this.dataService.differentialForm.foldChange !== "") {
+              this.foldChangeValue = diffData[this.dataService.differentialForm.foldChange]
+            }
+            if (this.dataService.differentialForm.significant !== "") {
+              this.pValue = diffData[this.dataService.differentialForm.significant]
+            }
+          }
+        }
+
         this.drawBarChart()
         this.drawAverageBarChart()
       }
@@ -292,6 +330,7 @@ export class BarChartComponent implements OnInit {
         if (this.settings.settings.barchartColorMap[condition]) {
           color = this.settings.settings.barchartColorMap[condition]
         }
+
         if (!graph[condition]) {
           graph[condition] = {
             x: [],
@@ -369,16 +408,16 @@ export class BarChartComponent implements OnInit {
     }
 
     let currentSampleNumber: number = 0
+    let previousSampleNumber: number = 0
+    let leftConditionPos: {x0: number, x1: number} | null = null
+    let rightConditionPos: {x0: number, x1: number} | null = null
 
     for (const g of this.settings.settings.conditionOrder) {
       if (!graph[g]) {
         continue
       }
-      //const annotationsPosition = currentSampleNumber +  graph[g].x.length/2
       let sampleCount = graph[g].x.length
-      //if (this.imputationCount[g] >0) {
-      //  sampleCount = sampleCount - this.imputationCount[g]
-      //}
+      previousSampleNumber = currentSampleNumber
       currentSampleNumber = currentSampleNumber + sampleCount
       this.graphData.push(graph[g])
       tickvals.push(graph[g].x[Math.round(sampleCount/2)-1])
@@ -387,6 +426,40 @@ export class BarChartComponent implements OnInit {
       } else {
         ticktext.push(g)
       }
+
+      const isLeftCondition = this.volcanoConditionLeft && g === this.volcanoConditionLeft
+      const isRightCondition = this.volcanoConditionRight && g === this.volcanoConditionRight
+
+      if (isLeftCondition || isRightCondition) {
+        const x0 = previousSampleNumber/sampleNumber
+        const x1 = currentSampleNumber/sampleNumber
+
+        if (this.settings.settings.barChartConditionBracket.showBracket) {
+          const width = x1 - x0
+          const padding = width * 0.1
+          shapes.push({
+            type: "line",
+            xref: "paper",
+            yref: "paper",
+            x0: x0 + padding,
+            x1: x1 - padding,
+            y0: 1.02,
+            y1: 1.02,
+            line: {
+              color: this.settings.settings.barChartConditionBracket.bracketColor,
+              width: this.settings.settings.barChartConditionBracket.bracketWidth
+            }
+          })
+        }
+
+        if (isLeftCondition) {
+          leftConditionPos = {x0, x1}
+        }
+        if (isRightCondition) {
+          rightConditionPos = {x0, x1}
+        }
+      }
+
       if (sampleNumber !== currentSampleNumber) {
         shapes.push({
           type: "line",
@@ -401,6 +474,52 @@ export class BarChartComponent implements OnInit {
           }
         })
       }
+    }
+
+    if (leftConditionPos && rightConditionPos && this.settings.settings.barChartConditionBracket.showBracket) {
+      const bracketY = 1.02 + this.settings.settings.barChartConditionBracket.bracketHeight
+      const leftMidX = (leftConditionPos.x0 + leftConditionPos.x1) / 2
+      const rightMidX = (rightConditionPos.x0 + rightConditionPos.x1) / 2
+
+      shapes.push({
+        type: "line",
+        xref: "paper",
+        yref: "paper",
+        x0: leftMidX,
+        x1: leftMidX,
+        y0: 1.02,
+        y1: bracketY,
+        line: {
+          color: this.settings.settings.barChartConditionBracket.bracketColor,
+          width: this.settings.settings.barChartConditionBracket.bracketWidth
+        }
+      })
+      shapes.push({
+        type: "line",
+        xref: "paper",
+        yref: "paper",
+        x0: leftMidX,
+        x1: rightMidX,
+        y0: bracketY,
+        y1: bracketY,
+        line: {
+          color: this.settings.settings.barChartConditionBracket.bracketColor,
+          width: this.settings.settings.barChartConditionBracket.bracketWidth
+        }
+      })
+      shapes.push({
+        type: "line",
+        xref: "paper",
+        yref: "paper",
+        x0: rightMidX,
+        x1: rightMidX,
+        y0: bracketY,
+        y1: 1.02,
+        line: {
+          color: this.settings.settings.barChartConditionBracket.bracketColor,
+          width: this.settings.settings.barChartConditionBracket.bracketWidth
+        }
+      })
     }
     if (this.settings.settings.viewPeptideCount) {
       this.graphData.push(heatmap)
@@ -541,9 +660,6 @@ export class BarChartComponent implements OnInit {
         color = this.settings.settings.barchartColorMap[g]
       }
 
-
-
-
       const box: any = {
         x: g, y: graph[g].filter((d: number) => !isNaN(d)),
         type: 'box',
@@ -566,7 +682,6 @@ export class BarChartComponent implements OnInit {
           }
         },
         name: g,
-        //visible: visible,
         showlegend: false
       }
       console.log(box)
@@ -575,7 +690,6 @@ export class BarChartComponent implements OnInit {
       const violin = {
         type: 'violin',
         x: violinX,
-        //y: graph[g].filter((d: number) => !isNaN(d)),
         y: graph[g],
         points: "all",
         pointpos: this.settings.settings.violinPointPos,
@@ -588,8 +702,7 @@ export class BarChartComponent implements OnInit {
         line: {
           color: "black"
         },
-        fillcolor: color
-        ,
+        fillcolor: color,
         name: g,
         showlegend: false,
         spanmode: 'soft',
@@ -636,7 +749,6 @@ export class BarChartComponent implements OnInit {
         line: {
           color: "black"
         },
-        //visible: temp[t].visible,
         showlegend: false
       }
 
@@ -654,6 +766,118 @@ export class BarChartComponent implements OnInit {
     }
     this.graphLayoutAverage.xaxis.tickvals = tickVals
     this.graphLayoutAverage.xaxis.ticktext = tickText
+
+    const avgShapes: any[] = []
+    const violinShapes: any[] = []
+    let conditionIndex = 0
+    let avgLeftPos: {x0: number, x1: number} | null = null
+    let avgRightPos: {x0: number, x1: number} | null = null
+
+    for (const g of this.settings.settings.conditionOrder) {
+      if (!graph[g]) {
+        continue
+      }
+      const isLeftCondition = this.volcanoConditionLeft && g === this.volcanoConditionLeft
+      const isRightCondition = this.volcanoConditionRight && g === this.volcanoConditionRight
+
+      if (isLeftCondition || isRightCondition) {
+        const x0 = conditionIndex / tickVals.length
+        const x1 = (conditionIndex + 1) / tickVals.length
+
+        if (this.settings.settings.barChartConditionBracket.showBracket) {
+          const width = x1 - x0
+          const padding = width * 0.1
+          avgShapes.push({
+            type: "line",
+            xref: "paper",
+            yref: "paper",
+            x0: x0 + padding,
+            x1: x1 - padding,
+            y0: 1.02,
+            y1: 1.02,
+            line: {
+              color: this.settings.settings.barChartConditionBracket.bracketColor,
+              width: this.settings.settings.barChartConditionBracket.bracketWidth
+            }
+          })
+          violinShapes.push({
+            type: "line",
+            xref: "paper",
+            yref: "paper",
+            x0: x0 + padding,
+            x1: x1 - padding,
+            y0: 1.02,
+            y1: 1.02,
+            line: {
+              color: this.settings.settings.barChartConditionBracket.bracketColor,
+              width: this.settings.settings.barChartConditionBracket.bracketWidth
+            }
+          })
+        }
+
+        if (isLeftCondition) {
+          avgLeftPos = {x0, x1}
+        }
+        if (isRightCondition) {
+          avgRightPos = {x0, x1}
+        }
+      }
+      conditionIndex++
+    }
+
+    if (avgLeftPos && avgRightPos && this.settings.settings.barChartConditionBracket.showBracket) {
+      const bracketY = 1.02 + this.settings.settings.barChartConditionBracket.bracketHeight
+      const leftMidX = (avgLeftPos.x0 + avgLeftPos.x1) / 2
+      const rightMidX = (avgRightPos.x0 + avgRightPos.x1) / 2
+
+      const bracketShapes = [
+        {
+          type: "line",
+          xref: "paper",
+          yref: "paper",
+          x0: leftMidX,
+          x1: leftMidX,
+          y0: 1.02,
+          y1: bracketY,
+          line: {
+            color: this.settings.settings.barChartConditionBracket.bracketColor,
+            width: this.settings.settings.barChartConditionBracket.bracketWidth
+          }
+        },
+        {
+          type: "line",
+          xref: "paper",
+          yref: "paper",
+          x0: leftMidX,
+          x1: rightMidX,
+          y0: bracketY,
+          y1: bracketY,
+          line: {
+            color: this.settings.settings.barChartConditionBracket.bracketColor,
+            width: this.settings.settings.barChartConditionBracket.bracketWidth
+          }
+        },
+        {
+          type: "line",
+          xref: "paper",
+          yref: "paper",
+          x0: rightMidX,
+          x1: rightMidX,
+          y0: bracketY,
+          y1: 1.02,
+          line: {
+            color: this.settings.settings.barChartConditionBracket.bracketColor,
+            width: this.settings.settings.barChartConditionBracket.bracketWidth
+          }
+        }
+      ]
+      avgShapes.push(...bracketShapes)
+      violinShapes.push(...bracketShapes)
+    }
+
+    this.graphLayoutAverage.shapes = avgShapes
+    this.graphLayoutViolin.shapes = violinShapes
+
     if (this.settings.settings.columnSize.violinPlot !== 0) {
       this.graphLayoutViolin.width = this.graphLayoutViolin.margin.l + this.graphLayoutViolin.margin.r + this.settings.settings.columnSize.violinPlot * tickVals.length
     }

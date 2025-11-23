@@ -79,6 +79,12 @@ import {PermanentLinkRequestModalComponent} from "../permanent-link-request-moda
 import {
   AddRawDataImputationMapModalComponent
 } from "../add-raw-data-imputation-map-modal/add-raw-data-imputation-map-modal.component";
+import {
+  CollectionManagementModalComponent
+} from "../collection-management-modal/collection-management-modal.component";
+import {
+  CollectionSessionsViewerModalComponent
+} from "../collection-sessions-viewer-modal/collection-sessions-viewer-modal.component";
 import {environment} from "../../../environments/environment";
 
 @Component({
@@ -107,6 +113,10 @@ export class HomeComponent implements OnInit {
   currentID: string = ""
   subscription: Subscription = new Subscription()
   progressEvent: any = {}
+
+  sessionCollections: any[] = []
+  selectedCollectionId: number | null = null
+  loadingCollections: boolean = false
   constructor(private saveState: SaveStateService, private ws: WebsocketService, public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, public settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
@@ -260,6 +270,7 @@ export class HomeComponent implements OnInit {
       if (this.data.session.permanent) {
         this.permanent.set(true)
       }
+      await this.loadSessionCollections(this.data.session.link_id)
     }
     try {
       const ownership = await this.accounts.curtainAPI.getOwnership(id)
@@ -598,6 +609,7 @@ export class HomeComponent implements OnInit {
           this.permanent.set(response.curtain.permanent)
           this.accounts.isOwner = true
           this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
+          await this.loadSessionCollections(response.curtain.link_id)
         }
       } catch (err) {
         console.error('Chunk upload failed, falling back to regular upload:', err)
@@ -609,12 +621,13 @@ export class HomeComponent implements OnInit {
   }
 
   private fallbackToRegularUpload(data: any, encryption: CurtainEncryption, permanent: boolean, expiryDuration?: number) {
-    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, permanent, expiryDuration, this.onUploadProgress).then((data: any) => {
+    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, permanent, expiryDuration, this.onUploadProgress).then(async (data: any) => {
       if (data.data) {
         this.toast.show("User information", `Curtain link saved with unique id ${data.data.link_id}`).then()
         this.data.session = data.data
         this.settings.settings.currentID = data.data.link_id
         console.log(this.data.session)
+        await this.loadSessionCollections(data.data.link_id)
         this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
         this.permanent.set(data.data.permanent)
         this.accounts.isOwner = true
@@ -827,26 +840,60 @@ export class HomeComponent implements OnInit {
   clearSelections() {
     const rememberClearSettings = localStorage.getItem("curtainRememberClearSettings")
     if (rememberClearSettings === "true") {
-      this.data.selected = []
-      this.data.selectedGenes = []
-      this.data.selectedMap = {}
-      this.data.selectOperationNames = []
-      this.settings.settings.rankPlotAnnotation = {}
-      this.settings.settings.textAnnotation = {}
-      this.data.annotatedData = {}
+      const savedSettings = localStorage.getItem('curtainClearSettingsSelection')
+      let settingsToClear: {[key: string]: boolean} = {}
+      if (savedSettings) {
+        try {
+          settingsToClear = JSON.parse(savedSettings)
+        } catch (e) {
+          console.error('Failed to parse saved clear settings:', e)
+        }
+      }
+      if (settingsToClear['selections']) {
+        this.data.selected = []
+        this.data.selectedGenes = []
+      }
+      if (settingsToClear['selectionOperations']) {
+        this.data.selectedMap = {}
+        this.data.selectOperationNames = []
+      }
+      if (settingsToClear['rankPlotAnnotation']) {
+        this.settings.settings.rankPlotAnnotation = {}
+      }
+      if (settingsToClear['textAnnotation']) {
+        this.settings.settings.textAnnotation = {}
+      }
+      if (settingsToClear['volcanoShapes']) {
+        this.settings.settings.volcanoAdditionalShapes = []
+      }
+      if (settingsToClear['annotatedData']) {
+        this.data.annotatedData = {}
+      }
       this.data.clearWatcher.next(true)
     } else {
       const ref = this.modal.open(AreYouSureClearModalComponent)
       ref.closed.subscribe(data => {
         if (data) {
-          this.data.selected = []
-          this.data.selectedGenes = []
-          this.data.selectedMap = {}
-          this.data.selectOperationNames = []
-          this.settings.settings.rankPlotAnnotation = {}
-          this.settings.settings.textAnnotation = {}
-          this.settings.settings.volcanoAdditionalShapes = []
-          this.data.annotatedData = {}
+          if (data.selections) {
+            this.data.selected = []
+            this.data.selectedGenes = []
+          }
+          if (data.selectionOperations) {
+            this.data.selectedMap = {}
+            this.data.selectOperationNames = []
+          }
+          if (data.rankPlotAnnotation) {
+            this.settings.settings.rankPlotAnnotation = {}
+          }
+          if (data.textAnnotation) {
+            this.settings.settings.textAnnotation = {}
+          }
+          if (data.volcanoShapes) {
+            this.settings.settings.volcanoAdditionalShapes = []
+          }
+          if (data.annotatedData) {
+            this.data.annotatedData = {}
+          }
           this.data.clearWatcher.next(true)
         }
       })
@@ -905,6 +952,19 @@ export class HomeComponent implements OnInit {
 
   openAccountModal() {
     const ref = this.modal.open(AccountsComponent, {size:"xl"})
+  }
+
+  openCollectionManagementModal() {
+    if (this.data.session && this.data.session.link_id) {
+      const linkId = this.data.session.link_id
+      const ref = this.modal.open(CollectionManagementModalComponent, {size: "lg", scrollable: true})
+      ref.componentInstance.linkId = linkId
+      ref.result.then(() => {
+        this.loadSessionCollections(linkId)
+      }).catch(() => {
+        this.loadSessionCollections(linkId)
+      })
+    }
   }
 
   downloadAll() {
@@ -1221,6 +1281,52 @@ export class HomeComponent implements OnInit {
     const ref = this.modal.open(PermanentLinkRequestModalComponent, {scrollable: true, size: "lg"})
     if (this.data.session) {
       ref.componentInstance.curtainId = this.data.session.id
+    }
+  }
+
+  async loadSessionCollections(linkId: string): Promise<void> {
+    if (!linkId) return
+
+    try {
+      this.loadingCollections = true
+      const response = await this.accounts.getCollections(1, 10, '', false, linkId)
+      this.sessionCollections = response.results || []
+
+      if (this.sessionCollections.length > 0) {
+        const savedCollectionId = localStorage.getItem('selectedCollectionId')
+        if (savedCollectionId) {
+          const found = this.sessionCollections.find(c => c.id === parseInt(savedCollectionId))
+          this.selectedCollectionId = found ? found.id : this.sessionCollections[0].id
+        } else {
+          this.selectedCollectionId = this.sessionCollections[0].id
+        }
+        localStorage.setItem('selectedCollectionId', this.selectedCollectionId!.toString())
+      } else {
+        this.selectedCollectionId = null
+        localStorage.removeItem('selectedCollectionId')
+      }
+    } catch (error) {
+      console.error('Failed to load session collections:', error)
+      this.sessionCollections = []
+      this.selectedCollectionId = null
+    } finally {
+      this.loadingCollections = false
+    }
+  }
+
+  selectCollection(collectionId: number): void {
+    this.selectedCollectionId = collectionId
+    localStorage.setItem('selectedCollectionId', collectionId.toString())
+  }
+
+  get selectedCollection(): any {
+    return this.sessionCollections.find(c => c.id === this.selectedCollectionId)
+  }
+
+  openCollectionSessionsModal(): void {
+    if (this.selectedCollectionId) {
+      const ref = this.modal.open(CollectionSessionsViewerModalComponent, {size: "lg", scrollable: true})
+      ref.componentInstance.collectionId = this.selectedCollectionId
     }
   }
 

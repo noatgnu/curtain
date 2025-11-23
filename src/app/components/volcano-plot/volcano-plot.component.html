@@ -61,7 +61,7 @@
                   </div>
 
                   <div class="card mb-3">
-                    <div class="card-header bg-light">Plot Dimensions</div>
+                    <div class="card-header ">Plot Dimensions</div>
                     <div class="card-body">
                       <div class="row g-2">
                         <div class="col-6">
@@ -77,7 +77,7 @@
                   </div>
 
                   <div class="card mb-3">
-                    <div class="card-header bg-light">Axis Settings</div>
+                    <div class="card-header ">Axis Settings</div>
                     <div class="card-body">
                       <div class="mb-2">
                         <label for="xTitle" class="form-label">X-axis Title</label>
@@ -143,7 +143,105 @@
                   </div>
 
                   <div class="card mb-3">
-                    <div class="card-header bg-light">Margins</div>
+                    <div class="card-header">
+                      <button class="btn btn-link w-100 text-start text-decoration-none p-0" type="button" (click)="isConditionLabelsCollapsed = !isConditionLabelsCollapsed">
+                        <i class="bi" [class.bi-chevron-down]="isConditionLabelsCollapsed" [class.bi-chevron-up]="!isConditionLabelsCollapsed"></i>
+                        Condition Labels
+                      </button>
+                    </div>
+                    <div class="card-body" [class.d-none]="isConditionLabelsCollapsed">
+                      <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="enableConditionLabels" [(ngModel)]="settings.settings.volcanoConditionLabels.enabled" (change)="drawVolcano()">
+                        <label class="form-check-label" for="enableConditionLabels">
+                          Show condition labels on plot
+                        </label>
+                      </div>
+
+                      <div class="mb-2">
+                        <label for="leftCondition" class="form-label">Left Side Condition (x &lt; 0)</label>
+                        <div class="input-group" ngbDropdown>
+                          <input id="leftCondition" type="text" class="form-control" [(ngModel)]="settings.settings.volcanoConditionLabels.leftCondition" (change)="drawVolcano()" placeholder="e.g., Control">
+                          @if (availableConditions.length > 0) {
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" ngbDropdownToggle>
+                              <i class="bi bi-list"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
+                              @for (condition of availableConditions; track condition) {
+                                <button class="dropdown-item" type="button" (click)="selectLeftCondition(condition)">
+                                  {{condition}}
+                                </button>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="mb-2">
+                        <label for="rightCondition" class="form-label">Right Side Condition (x &gt; 0)</label>
+                        <div class="input-group" ngbDropdown>
+                          <input id="rightCondition" type="text" class="form-control" [(ngModel)]="settings.settings.volcanoConditionLabels.rightCondition" (change)="drawVolcano()" placeholder="e.g., Treatment">
+                          @if (availableConditions.length > 0) {
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" ngbDropdownToggle>
+                              <i class="bi bi-list"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
+                              @for (condition of availableConditions; track condition) {
+                                <button class="dropdown-item" type="button" (click)="selectRightCondition(condition)">
+                                  {{condition}}
+                                </button>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+
+                      <hr>
+
+                      <h6 class="mb-2">Position &amp; Style</h6>
+
+                      <div class="row g-2 mb-2">
+                        <div class="col-6">
+                          <label for="leftLabelX" class="form-label">Left Label X Position</label>
+                          <input id="leftLabelX" type="number" step="0.05" min="0" max="1" class="form-control form-control-sm" [(ngModel)]="settings.settings.volcanoConditionLabels.leftX" (change)="drawVolcano()">
+                          <small class="text-muted">0 (left) to 1 (right)</small>
+                        </div>
+                        <div class="col-6">
+                          <label for="rightLabelX" class="form-label">Right Label X Position</label>
+                          <input id="rightLabelX" type="number" step="0.05" min="0" max="1" class="form-control form-control-sm" [(ngModel)]="settings.settings.volcanoConditionLabels.rightX" (change)="drawVolcano()">
+                          <small class="text-muted">0 (left) to 1 (right)</small>
+                        </div>
+                      </div>
+
+                      <div class="mb-2">
+                        <label for="labelYPosition" class="form-label">Y Position</label>
+                        <input id="labelYPosition" type="number" step="0.05" class="form-control form-control-sm" [(ngModel)]="settings.settings.volcanoConditionLabels.yPosition" (change)="drawVolcano()">
+                        <small class="text-muted">Negative values place below plot</small>
+                      </div>
+
+                      <div class="row g-2 mb-2">
+                        <div class="col-6">
+                          <label for="labelFontSize" class="form-label">Font Size</label>
+                          <input id="labelFontSize" type="number" min="8" max="48" class="form-control form-control-sm" [(ngModel)]="settings.settings.volcanoConditionLabels.fontSize" (change)="drawVolcano()">
+                        </div>
+                        <div class="col-6">
+                          <label for="labelFontColor" class="form-label">Font Color</label>
+                          <input id="labelFontColor" type="color" class="form-control form-control-sm form-control-color" [(ngModel)]="settings.settings.volcanoConditionLabels.fontColor" (change)="drawVolcano()">
+                        </div>
+                      </div>
+
+                      <hr>
+
+                      <div class="mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary w-100" (click)="autoAdjustConditionLabels()">
+                          <i class="bi bi-arrows-move me-1"></i>Auto-Adjust to Avoid Overlap
+                        </button>
+                        <small class="text-muted d-block mt-1">Automatically adjusts Y position to avoid overlap with legend</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-3">
+                    <div class="card-header ">Margins</div>
                     <div class="card-body">
                       <div class="row g-2">
                         <div class="col-6">
@@ -169,7 +267,7 @@
                   </div>
 
                   <div class="card mb-3">
-                    <div class="card-header bg-light">Plot Thresholds</div>
+                    <div class="card-header ">Plot Thresholds</div>
                     <div class="card-body">
                       <div class="row g-2">
                         <div class="col-6">
@@ -185,7 +283,7 @@
                   </div>
 
                   <div class="card mb-3">
-                    <div class="card-header bg-light">Visual Settings</div>
+                    <div class="card-header ">Visual Settings</div>
                     <div class="card-body">
                       <div class="row g-2 mb-3">
                         <div class="col-6">
