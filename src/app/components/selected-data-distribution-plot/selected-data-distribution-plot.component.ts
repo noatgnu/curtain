@@ -1,7 +1,10 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {PlotlyThemeService} from "../../plotly-theme.service";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-selected-data-distribution-plot',
@@ -9,7 +12,9 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
     styleUrls: ['./selected-data-distribution-plot.component.scss'],
     standalone: false
 })
-export class SelectedDataDistributionPlotComponent implements OnInit {
+export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy {
+  private themeSubscription?: Subscription;
+  revision = 0;
   graphData: any[] = []
   graphLayoutViolin: any = {
     xaxis: {
@@ -31,11 +36,21 @@ export class SelectedDataDistributionPlotComponent implements OnInit {
     margin: {r: 40, l: 40, b: 120, t: 100}
   }
   enableDotPlot: boolean = true
-  constructor(private data: DataService, private settings: SettingsService, private modal: NgbActiveModal) {
+  constructor(private data: DataService, private settings: SettingsService, private modal: NgbActiveModal, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
     this.drawPlot()
   }
 
   ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      this.graphLayoutViolin = this.plotlyTheme.applyThemeToLayout(this.graphLayoutViolin);
+      this.revision++;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
   }
 
   drawPlot() {
@@ -92,6 +107,7 @@ export class SelectedDataDistributionPlotComponent implements OnInit {
     this.graphData = graph
     this.graphLayoutViolin.xaxis.tickvals = tickVals
     this.graphLayoutViolin.xaxis.ticktext = tickText
+    this.graphLayoutViolin = this.plotlyTheme.applyThemeToLayout(this.graphLayoutViolin);
   }
 
   config: any = {

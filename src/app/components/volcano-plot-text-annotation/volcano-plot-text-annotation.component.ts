@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {SettingsService} from "../../settings.service";
 import {DataService} from "../../data.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
@@ -15,7 +15,6 @@ export class VolcanoPlotTextAnnotationComponent implements OnInit {
   @Input() set data(value: any) {
     this._data = value
     for (const i in value.annotation) {
-      //this.annotationText.push(this.settings.settings.textAnnotation[i])
       this.forms.push(this.fb.group({
         annotationID: [i],
         text: [value.annotation[i].data.text],
@@ -33,6 +32,7 @@ export class VolcanoPlotTextAnnotationComponent implements OnInit {
     }
   }
 
+  onApply: ((data: any) => void) | null = null
   colorMap: any = {}
 
   forms: FormGroup[] = []
@@ -53,8 +53,13 @@ export class VolcanoPlotTextAnnotationComponent implements OnInit {
 
   submitFormAll() {
     for (const f of this.forms) {
-      //f.controls["fontcolor"].setValue(this.formAll.controls["fontcolor"].value)
       f.controls["fontsize"].setValue(this.formAll.controls["fontsize"].value)
+    }
+  }
+
+  applyChanges() {
+    if (this.onApply) {
+      this.onApply(this.forms)
     }
   }
 }

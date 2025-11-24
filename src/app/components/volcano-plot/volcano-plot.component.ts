@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {DataFrame, fromCSV, IDataFrame} from "data-forge";
 import {DataService} from "../../data.service";
 import {UniprotService} from "../../uniprot.service";
@@ -17,6 +17,9 @@ import {AreYouSureClearModalComponent} from "../are-you-sure-clear-modal/are-you
 import {ColorByCategoryModalComponent} from "./color-by-category-modal/color-by-category-modal.component";
 import {NearbyPointsModalComponent} from "../nearby-points-modal/nearby-points-modal.component";
 import {ReorderTracesModalComponent} from "./reorder-traces-modal/reorder-traces-modal.component";
+import {PlotlyThemeService} from "../../plotly-theme.service";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-volcano-plot',
@@ -24,7 +27,8 @@ import {ReorderTracesModalComponent} from "./reorder-traces-modal/reorder-traces
     styleUrls: ['./volcano-plot.component.scss'],
     standalone: false
 })
-export class VolcanoPlotComponent implements OnInit {
+export class VolcanoPlotComponent implements OnInit, OnDestroy {
+  private themeSubscription?: Subscription;
   editMode: boolean = false
   explorerMode: boolean = false
   settingsNav: string = "parameters"
@@ -699,13 +703,15 @@ export class VolcanoPlotComponent implements OnInit {
       this.graphLayout.yaxis.ticklen = 5
     }
 
+    this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
+
     this.revision ++
     this.messageService.show("Volcano Plot", "Finished drawing volcano plot")
     //this.removeAnnotatedDataPoints([])
     console.log(this.graphData)
   }
 
-  constructor(private fb: FormBuilder, private web: WebService, public dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService) {
+  constructor(private fb: FormBuilder, private web: WebService, public dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
     this.annotated = {}
     for (const i in this.settings.settings.textAnnotation) {
       if (this.settings.settings.textAnnotation[i].data.showannotation === undefined || this.settings.settings.textAnnotation[i].data.showannotation === null) {
@@ -759,6 +765,18 @@ export class VolcanoPlotComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      if (this._data && this._data.count()) {
+        this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
+        this.revision++;
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
   }
 
   selectData(e: any) {
@@ -958,6 +976,9 @@ export class VolcanoPlotComponent implements OnInit {
   openTextEditor() {
     const ref = this.modal.open(VolcanoPlotTextAnnotationComponent, {size: "xl", scrollable: true})
     ref.componentInstance.data = {annotation: this.settings.settings.textAnnotation}
+    ref.componentInstance.onApply = (data: any) => {
+      this.updateAnnotation(data)
+    }
     ref.closed.subscribe(data => {
       this.updateAnnotation(data)
     })

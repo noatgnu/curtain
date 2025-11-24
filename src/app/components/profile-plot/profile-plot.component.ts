@@ -1,10 +1,13 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame, Series} from "data-forge";
 import {DataService} from "../../data.service";
 import {UniprotService} from "../../uniprot.service";
 import {ToastService} from "../../toast.service";
 import {SettingsService} from "../../settings.service";
 import {WebService} from "../../web.service";
+import {PlotlyThemeService} from "../../plotly-theme.service";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-profile-plot',
@@ -12,7 +15,9 @@ import {WebService} from "../../web.service";
     styleUrls: ['./profile-plot.component.scss'],
     standalone: false
 })
-export class ProfilePlotComponent implements OnInit {
+export class ProfilePlotComponent implements OnInit, OnDestroy {
+  private themeSubscription?: Subscription;
+  revision = 0;
   @Input() divId = "profile"
   boxplot: boolean = true
   _data: IDataFrame = new DataFrame()
@@ -53,7 +58,7 @@ export class ProfilePlotComponent implements OnInit {
     }
   }
   graphSelected: any[] = []
-  constructor(private toast: ToastService, private dataService: DataService, private uniprot: UniprotService, private settings: SettingsService, private web: WebService) {
+  constructor(private toast: ToastService, private dataService: DataService, private uniprot: UniprotService, private settings: SettingsService, private web: WebService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       this.drawSelected().then()
     })
@@ -70,6 +75,16 @@ export class ProfilePlotComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
+      this.revision++;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
   }
 
   async drawBoxPlot() {
@@ -121,6 +136,7 @@ export class ProfilePlotComponent implements OnInit {
     }
     this.graphLayout.xaxis.tickvals = tickval
     this.graphLayout.xaxis.ticktext = ticktext
+    this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
 
     this.graphBox = graphBox
     this.toast.show("Profile Plot", "Completed Constructing Box Plots").then(r => {})

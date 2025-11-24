@@ -67,6 +67,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
   collectionPage: number = 1;
   totalCollections: number = 0;
   collectionSearchQuery: string = '';
+  userCollections: any[] = [];
 
   // RxJS subject for component cleanup
   private readonly destroy$ = new Subject<void>();
@@ -115,8 +116,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Component initialization is handled in constructor
-    // Additional initialization logic can be added here if needed
+    this.loadUserCollections();
   }
 
   onTabChange(tabId: number): void {
@@ -417,6 +417,52 @@ export class AccountsComponent implements OnInit, OnDestroy {
     this.changePublicity(status).catch(error => {
       console.error('Failed to change publicity of selected links:', error);
     });
+  }
+
+  async loadUserCollections(): Promise<void> {
+    try {
+      const response = await this.accounts.getCollections(1, 10, '', true);
+      this.userCollections = response.results || [];
+    } catch (error) {
+      console.error('Failed to load user collections:', error);
+      this.userCollections = [];
+    }
+  }
+
+  async addLinksToCollection(collectionId: string): Promise<void> {
+    const selectedLinkIds = this.getSelectedLinkIds();
+    if (selectedLinkIds.length === 0) {
+      console.warn('No links selected for adding to collection');
+      return;
+    }
+
+    if (!collectionId) {
+      console.warn('No collection selected');
+      return;
+    }
+
+    try {
+      this.isLoading = true;
+      await Promise.all(
+        selectedLinkIds.map(linkId =>
+          this.accounts.addCurtainToCollection(parseInt(collectionId), linkId)
+        )
+      );
+    } catch (error) {
+      await this.handleApiError(error as ApiError);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  addSelectedLinksToCollection(collectionId: string): void {
+    this.addLinksToCollection(collectionId).catch(error => {
+      console.error('Failed to add selected links to collection:', error);
+    });
+  }
+
+  isCollectionOwner(collection: any): boolean {
+    return collection.owner_username === this.accounts.curtainAPI.user.username;
   }
   
   // Private helper methods

@@ -46,6 +46,7 @@ import {DataSelectionManagementComponent} from "../data-selection-management/dat
 import {QrcodeModalComponent} from "../qrcode-modal/qrcode-modal.component";
 import {WebsocketService} from "../../websocket.service";
 import {CollaborateModalComponent} from "../collaborate-modal/collaborate-modal.component";
+import {ThemeService} from "../../theme.service";
 import {
   SelectedDataDistributionPlotComponent
 } from "../selected-data-distribution-plot/selected-data-distribution-plot.component";
@@ -117,7 +118,7 @@ export class HomeComponent implements OnInit {
   sessionCollections: any[] = []
   selectedCollectionId: number | null = null
   loadingCollections: boolean = false
-  constructor(private saveState: SaveStateService, private ws: WebsocketService, public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, public settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
+  constructor(public themeService: ThemeService, private saveState: SaveStateService, private ws: WebsocketService, public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, public settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
@@ -1328,6 +1329,14 @@ export class HomeComponent implements OnInit {
       const ref = this.modal.open(CollectionSessionsViewerModalComponent, {size: "lg", scrollable: true})
       ref.componentInstance.collectionId = this.selectedCollectionId
     }
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme()
+  }
+
+  isDarkMode(): boolean {
+    return this.themeService.isDarkMode()
   }
 
 }

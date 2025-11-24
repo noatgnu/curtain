@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {InteractomeAtlasService} from "../../interactome-atlas.service";
 import {UniprotService} from "../../uniprot.service";
 import {DataService} from "../../data.service";
@@ -9,6 +9,8 @@ import {CytoplotComponent} from "../cytoplot/cytoplot.component";
 import {getInteractomeAtlas} from "curtain-web-api";
 import {AccountsService} from "../../accounts/accounts.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-interactome-atlas',
@@ -16,7 +18,8 @@ import {FormBuilder, FormGroup} from "@angular/forms";
     styleUrls: ['./interactome-atlas.component.scss'],
     standalone: false
 })
-export class InteractomeAtlasComponent implements OnInit {
+export class InteractomeAtlasComponent implements OnInit, OnDestroy {
+  private themeSubscription?: Subscription;
   @ViewChild("cytoplot") cytoplot: CytoplotComponent | undefined
   get data(): any {
     return this._data;
@@ -77,7 +80,7 @@ export class InteractomeAtlasComponent implements OnInit {
     "Literature": "rgba(181,151,222,0.96)",
     "HI-Union and Literature": "rgba(222,178,151,0.96)",
   })
-  constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService) {
+  constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService, private themeService: ThemeService) {
     this.dataService.interactomeDBColorMapSubject.asObservable().subscribe(data => {
       if (data) {
         for (const i in this.settings.settings.interactomeAtlasColorMap) {
@@ -90,6 +93,17 @@ export class InteractomeAtlasComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      if (this._data) {
+        this.getInteractions().then();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
   }
 
   async getInteractions() {
@@ -254,25 +268,32 @@ export class InteractomeAtlasComponent implements OnInit {
 
     }
 
+    const isDark = this.themeService.isDarkMode();
+    const textColor = isDark ? "#f8f9fa" : "#212529";
+    const textOutlineColor = isDark ? "#f8f9fa" : "rgb(16,10,10)";
+    const nodeColor = isDark ? "rgba(77,171,247,0.96)" : "rgba(25,128,128,0.96)";
+    const edgeColor = isDark ? "rgba(77,171,247,0.96)" : "rgba(25,128,128,0.96)";
+    const noScoreColor = isDark ? "rgba(108,117,125,0.96)" : "rgba(47,39,40,0.96)";
+
     styles.push(
       {
         selector: "node", style:
           {
             label: "data(label)",
-            "background-color": "rgba(25,128,128,0.96)",
-            "color": "#fffffe",
+            "background-color": nodeColor,
+            "color": textColor,
             "text-valign": "center",
             "text-halign": "center",
             "text-outline-width": "1px",
-            "text-outline-color": "rgb(16,10,10)"
+            "text-outline-color": textOutlineColor
           }
       }
     )
     styles.push(
-      {selector: "edge", style: {"line-color": "rgba(25,128,128,0.96)", width: "data(score)"}}
+      {selector: "edge", style: {"line-color": edgeColor, width: "data(score)"}}
     )
     styles.push(
-      {selector: ".noscore", style: {"line-color": "rgba(47,39,40,0.96)", width: "data(score)"}}
+      {selector: ".noscore", style: {"line-color": noScoreColor, width: "data(score)"}}
     )
     styles.push(
       {selector: ".HI-Union", style: {"line-color": this.form.value["HI-Union"], width: "data(score)"}}

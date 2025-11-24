@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, effect, input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import QRCodeStyling from "qr-code-styling";
 import {Options} from "qr-code-styling";
@@ -9,7 +9,7 @@ import {Options} from "qr-code-styling";
     standalone: false
 })
 export class QrcodeModalComponent implements OnInit, AfterViewInit {
-  url = input("")
+  url: string = ""
   config: Options = {
     width: 250,
     height: 250,
@@ -32,15 +32,13 @@ export class QrcodeModalComponent implements OnInit, AfterViewInit {
 
   qrCode?: QRCodeStyling
   constructor(public modal: NgbActiveModal) {
-    effect(() => {
-      this.config.data = this.url()
-    })
   }
 
   ngOnInit(): void {
   }
 
   ngAfterViewInit() {
+    this.config.data = this.url || ""
     const qrCode = new QRCodeStyling(this.config);
     const canvas = document.getElementById("canvas")
     if (canvas) {

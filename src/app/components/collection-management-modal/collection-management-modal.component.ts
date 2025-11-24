@@ -11,6 +11,8 @@ interface Collection {
   curtain_count: number;
   curtains: string[];
   updated: Date;
+  owner_username?: string;
+  owner?: number;
 }
 
 @Component({
@@ -53,6 +55,10 @@ export class CollectionManagementModalComponent implements OnInit {
 
   isSessionInCollection(collection: Collection): boolean {
     return collection.curtains && collection.curtains.includes(this.linkId);
+  }
+
+  isOwner(collection: Collection): boolean {
+    return collection.owner_username === this.accounts.curtainAPI.user.username;
   }
 
   async toggleCollection(collection: Collection): Promise<void> {

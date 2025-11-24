@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {DataService} from "../../data.service";
 import {DbStringService} from "../../db-string.service";
 import {InteractomeAtlasService} from "../../interactome-atlas.service";
@@ -11,6 +11,8 @@ import {FormBuilder, FormGroup} from "@angular/forms";
 import {SettingsService} from "../../settings.service";
 import {CytoplotComponent} from "../cytoplot/cytoplot.component";
 import {ToastService} from "../../toast.service";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-network-interactions',
@@ -18,7 +20,8 @@ import {ToastService} from "../../toast.service";
     styleUrls: ['./network-interactions.component.scss'],
     standalone: false
 })
-export class NetworkInteractionsComponent implements OnInit {
+export class NetworkInteractionsComponent implements OnInit, OnDestroy {
+  private themeSubscription?: Subscription;
   @ViewChild(CytoplotComponent) cytoplot: CytoplotComponent | undefined
   get requiredScore(): number {
     return this._requiredScore;
@@ -152,12 +155,36 @@ export class NetworkInteractionsComponent implements OnInit {
 
   result: any = {data: this.nodes.slice(), stylesheet: this.styles.slice(), id:'networkInteractions'}
 
-  constructor(private toast: ToastService, private fb: FormBuilder, public settings: SettingsService, private accounts: AccountsService, private scroll: ScrollService, private data: DataService, private dbString: DbStringService, private interac: InteractomeAtlasService, private uniprot: UniprotService) {
+  constructor(private toast: ToastService, private fb: FormBuilder, public settings: SettingsService, private accounts: AccountsService, private scroll: ScrollService, private data: DataService, private dbString: DbStringService, private interac: InteractomeAtlasService, private uniprot: UniprotService, private themeService: ThemeService) {
 
 
   }
 
   ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      this.updateStylesForTheme();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  private updateStylesForTheme(): void {
+    this.styles = this.createStyles();
+    this.result = {
+      data: this.nodes.slice(),
+      stylesheet: this.styles.slice(),
+      id: 'networkInteractions',
+      add: [],
+      remove: [],
+      fromBase: false
+    };
+  }
+
+  oldNgOnInit(): void {
   }
 
   async getInteractions() {
@@ -368,17 +395,22 @@ export class NetworkInteractionsComponent implements OnInit {
   }
 
   createStyles() {
+    const isDark = this.themeService.isDarkMode();
+    const textColor = isDark ? "#f8f9fa" : "#212529";
+    const textOutlineColor = isDark ? "#f8f9fa" : "rgb(16,10,10)";
+    const nodeColor = isDark ? "rgba(77,171,247,0.96)" : "rgba(25,128,128,0.96)";
+    const edgeColor = isDark ? "rgba(77,171,247,0.66)" : "rgba(25,128,128,0.66)";
 
     return [
       {
         selector: "node", style: {
           label: "data(label)",
-          "background-color": "rgba(25,128,128,0.96)",
-          "color": "#fffffe",
+          "background-color": nodeColor,
+          "color": textColor,
           "text-valign": "center",
           "text-halign": "center",
           "text-outline-width": "1px",
-          "text-outline-color": "rgb(16,10,10)",
+          "text-outline-color": textOutlineColor,
           "height": 20,
           "width": 20,
         }
@@ -387,11 +419,11 @@ export class NetworkInteractionsComponent implements OnInit {
         selector: ".genes", style: {
           label: "data(label)",
           //"background-color": "rgba(139,0,220,0.96)",
-          "color": "#fffffe",
+          "color": textColor,
           "text-valign": "center",
           "text-halign": "center",
           "text-outline-width": "1px",
-          "text-outline-color": "rgb(16,10,10)",
+          "text-outline-color": textOutlineColor,
           "height": 20,
           "width": 20,
           "font-size": "6px",
@@ -426,7 +458,7 @@ export class NetworkInteractionsComponent implements OnInit {
       {
         selector: "edge",
         style: {
-          "line-color": "rgba(25,128,128,0.66)",
+          "line-color": edgeColor,
           width: 1,
           "curve-style": "bezier",
           //'line-style': 'dashed'

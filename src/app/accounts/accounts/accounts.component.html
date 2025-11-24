@@ -128,16 +128,34 @@
               <div ngbDropdownMenu aria-labelledby="accountSelectedLinksAction">
                 <div class="px-3 py-2 border-bottom">
                   <label for="addMultipleOwner" class="form-label small fw-bold mb-2">Add Owner</label>
-                  <input 
-                    type="text" 
-                    placeholder="Enter username" 
-                    id="addMultipleOwner" 
-                    class="form-control form-control-sm mb-2" 
+                  <input
+                    type="text"
+                    placeholder="Enter username"
+                    id="addMultipleOwner"
+                    class="form-control form-control-sm mb-2"
                     #allowner>
-                  <button 
-                    class="btn btn-sm btn-primary w-100" 
+                  <button
+                    class="btn btn-sm btn-primary w-100"
                     (click)="addOwnerToSelectedLinks(allowner.value); allowner.value = ''">
                     <i class="bi bi-person-plus me-1"></i>Add
+                  </button>
+                </div>
+                <div class="px-3 py-2 border-bottom">
+                  <label for="addToCollectionSelect" class="form-label small fw-bold mb-2">Add to Collection</label>
+                  <select
+                    id="addToCollectionSelect"
+                    class="form-select form-select-sm mb-2"
+                    #collectionSelect>
+                    <option value="">Select a collection...</option>
+                    @for (collection of userCollections; track collection.id) {
+                      <option [value]="collection.id">{{collection.name}}</option>
+                    }
+                  </select>
+                  <button
+                    class="btn btn-sm btn-primary w-100"
+                    (click)="addSelectedLinksToCollection(collectionSelect.value); collectionSelect.value = ''"
+                    [disabled]="!collectionSelect.value">
+                    <i class="bi bi-folder-plus me-1"></i>Add to Collection
                   </button>
                 </div>
                 <button ngbDropdownItem (click)="changePublicitySelectedLinks(true)">
@@ -365,12 +383,18 @@
                         <button class="btn btn-outline-primary" (click)="viewCollectionSessions(collection)" [disabled]="collectionsLoading">
                           <i class="bi bi-eye me-1"></i>View
                         </button>
-                        <button class="btn btn-outline-primary" (click)="openEditCollectionModal(collection)" [disabled]="collectionsLoading">
-                          <i class="bi bi-pencil me-1"></i>Edit
-                        </button>
-                        <button class="btn btn-outline-danger" (click)="confirmDeleteCollection(collection)" [disabled]="collectionsLoading">
-                          <i class="bi bi-trash me-1"></i>Delete
-                        </button>
+                        @if (isCollectionOwner(collection)) {
+                          <button class="btn btn-outline-primary" (click)="openEditCollectionModal(collection)" [disabled]="collectionsLoading">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                          </button>
+                          <button class="btn btn-outline-danger" (click)="confirmDeleteCollection(collection)" [disabled]="collectionsLoading">
+                            <i class="bi bi-trash me-1"></i>Delete
+                          </button>
+                        } @else {
+                          <span class="badge bg-secondary ms-2">
+                            <i class="bi bi-eye me-1"></i>View Only
+                          </span>
+                        }
                       </div>
                     </td>
                   </tr>

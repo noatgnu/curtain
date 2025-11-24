@@ -1,10 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {DataService} from "../../data.service";
 import {JeezyService} from "../../jeezy.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {ToastService} from "../../toast.service";
 import {WebService} from "../../web.service";
 import {SettingsService} from "../../settings.service";
+import {PlotlyThemeService} from "../../plotly-theme.service";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-correlation-matrix',
@@ -12,7 +15,9 @@ import {SettingsService} from "../../settings.service";
     styleUrls: ['./correlation-matrix.component.scss'],
     standalone: false
 })
-export class CorrelationMatrixComponent implements OnInit {
+export class CorrelationMatrixComponent implements OnInit, OnDestroy {
+  private themeSubscription?: Subscription;
+  revision = 0;
   graphData: any[] = []
   graphLayout: any = {
     title: "Correlation Matrix",
@@ -42,7 +47,7 @@ export class CorrelationMatrixComponent implements OnInit {
       scale: 1
     }
   }
-  constructor(private web: WebService, private settings: SettingsService, private toast: ToastService, public modal: NgbActiveModal, private data: DataService, private jz: JeezyService) {
+  constructor(private web: WebService, private settings: SettingsService, private toast: ToastService, public modal: NgbActiveModal, private data: DataService, private jz: JeezyService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
     this.cols = Object.keys(this.settings.settings.sampleMap)
 
     this.graphData.push({
@@ -65,9 +70,20 @@ export class CorrelationMatrixComponent implements OnInit {
     this.graphLayout.xaxis.ticktext = this.cols
     this.graphLayout.yaxis.tickvals = this.cols
     this.graphLayout.yaxis.ticktext = this.cols
+    this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
   }
 
   ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
+      this.revision++;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
   }
 
   calculateCorrelation() {

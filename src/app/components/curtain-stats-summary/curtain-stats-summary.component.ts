@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {AccountsService} from "../../accounts/accounts.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {PlotlyThemeService} from "../../plotly-theme.service";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-curtain-stats-summary',
@@ -8,7 +11,10 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
     styleUrls: ['./curtain-stats-summary.component.scss'],
     standalone: false
 })
-export class CurtainStatsSummaryComponent {
+export class CurtainStatsSummaryComponent implements OnInit, OnDestroy {
+  private themeSubscription?: Subscription;
+  revisionDownload = 0;
+  revisionCreated = 0;
   graphDataDownload: any[] = []
   graphDataCreated: any[] = []
   graphLayoutDownload: any = {
@@ -33,7 +39,7 @@ export class CurtainStatsSummaryComponent {
       type: 'linear',
     }
   }
-  constructor(private accounts: AccountsService, public modal: NgbActiveModal) {
+  constructor(private accounts: AccountsService, public modal: NgbActiveModal, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
     this.accounts.curtainAPI.getStatsSummary(30).then((data: any) => {
       const weekDownload: any[] = data.data["session_download_per_week"]
       const weekCreated: any[] = data.data["session_created_per_week"]
@@ -72,6 +78,23 @@ export class CurtainStatsSummaryComponent {
       })
       this.graphDataCreated.push(weekCreatedData)
       this.graphDataDownload.push(weekDownloadData)
+      this.graphLayoutDownload = this.plotlyTheme.applyThemeToLayout(this.graphLayoutDownload);
+      this.graphLayoutCreated = this.plotlyTheme.applyThemeToLayout(this.graphLayoutCreated);
     })
+  }
+
+  ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      this.graphLayoutDownload = this.plotlyTheme.applyThemeToLayout(this.graphLayoutDownload);
+      this.graphLayoutCreated = this.plotlyTheme.applyThemeToLayout(this.graphLayoutCreated);
+      this.revisionDownload++;
+      this.revisionCreated++;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
   }
 }

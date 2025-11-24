@@ -1,310 +1,385 @@
 <div class="modal-header">
-  <h5 class="modal-title">Sample Settings</h5>
+  <h5 class="modal-title">
+    <i class="bi bi-sliders me-2"></i>Sample & Display Settings
+  </h5>
   <button type="button" class="btn-close" aria-label="Close" (click)="modal.close()"></button>
 </div>
 
 <div class="modal-body">
-  <div class="card mb-3">
-    <div class="card-header ">General Settings</div>
-    <div class="card-body">
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <div class="form-check mb-2">
-            <input type="checkbox" class="form-check-input" id="enablePeptideCount" [(ngModel)]="enablePeptideCount">
-            <label class="form-check-label" for="enablePeptideCount">Enable Peptide Count</label>
-          </div>
-          @if (hasPeptideCountData()) {
-            <div class="mb-2">
-              <button type="button" class="btn btn-sm btn-outline-danger" (click)="clearPeptideCountData()">
-                <i class="bi bi-trash me-1"></i>Clear Peptide Count Data
-              </button>
-              <small class="form-text text-muted d-block">Remove all imported peptide count data</small>
-            </div>
-          }
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="enableImputation" [(ngModel)]="enableImputation">
-            <label class="form-check-label" for="enableImputation">Enable Imputation</label>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card mb-3">
-    <div class="card-header">Metabolomics Enablement</div>
-    <div class="card-body d-flex flex-column gap-2">
-      <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="enableMetabolomics" [(ngModel)]="enableMetabolomics">
-        <label class="form-check-label" for="enableMetabolomics">Enable Metabolomics</label>
-      </div>
-      @if (enableMetabolomics) {
-        <div class="form-group">
-          <label for="polarity" class="form-label">Polarity Column</label>
-          <select class="form-control form-select" id="polarity" [(ngModel)]="metabolomicsColumnMap['polarity']">
-            <option [value]="null" selected>None selected</option>
-            @for (column of dataService.currentDF.getColumnNames(); track column) {
-              <option [value]="column">{{ column }}</option>
-            }
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="formula" class="form-label">Formula Column</label>
-          <select class="form-control form-select" id="formula" [(ngModel)]="metabolomicsColumnMap['formula']">
-            <option [value]="null" selected>None selected</option>
-            @for (column of dataService.currentDF.getColumnNames(); track column) {
-              <option [value]="column">{{ column }}</option>
-            }
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="abbreviation" class="form-label">Abbreviation Column</label>
-          <select class="form-control form-select" id="abbreviation" [(ngModel)]="metabolomicsColumnMap['abbreviation']">
-            <option [value]="null" selected>None selected</option>
-            @for (column of dataService.currentDF.getColumnNames(); track column) {
-              <option [value]="column">{{ column }}</option>
-            }
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="smiles" class="form-label">SMILES Column</label>
-          <select class="form-control form-select" id="smiles" [(ngModel)]="metabolomicsColumnMap['smiles']">
-            <option [value]="null" selected>None selected</option>
-            @for (column of dataService.currentDF.getColumnNames(); track column) {
-              <option [value]="column">{{ column }}</option>
-            }
-          </select>
-        </div>
-      }
-    </div>
-  </div>
-
-  <div class="card mb-3">
-    <div class="card-header ">Plot Size Settings</div>
-    <div class="card-body">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="barChartColumnSize" class="form-label">Bar Chart Column Width</label>
-            <input type="number" class="form-control" [(ngModel)]="columnSize.barChart" id="barChartColumnSize">
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="averageBarChartColumnSize" class="form-label">Average Bar Chart Column Width</label>
-            <input type="number" class="form-control" [(ngModel)]="columnSize.averageBarChart" id="averageBarChartColumnSize">
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="violinPlotColumnSize" class="form-label">Violin Plot Width</label>
-            <input type="number" class="form-control" [(ngModel)]="columnSize.violinPlot" id="violinPlotColumnSize">
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="pointPos" class="form-label">Dot Position Relative to Violin Plot</label>
-            <input type="number" class="form-control" id="pointPos" min="-2" max="2" [(ngModel)]="violinPointPos">
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card mb-3">
-    <div class="card-header ">Global Y-Axis Limits</div>
-    <div class="card-body">
-      <p class="text-muted small mb-3">Set global Y-axis limits that apply to all items. Individual item limits (if set) will override these.</p>
-      <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label fw-bold">Bar Chart</label>
-          <div class="row g-2">
-            <div class="col-6">
-              <label class="form-label small">Min Y</label>
-              <input type="number" class="form-control form-control-sm"
-                     [(ngModel)]="chartYAxisLimits.barChart.min">
-            </div>
-            <div class="col-6">
-              <label class="form-label small">Max Y</label>
-              <input type="number" class="form-control form-control-sm"
-                     [(ngModel)]="chartYAxisLimits.barChart.max">
+  <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs mb-3">
+    <li [ngbNavItem]="1">
+      <button ngbNavLink>
+        <i class="bi bi-list-ol me-1"></i>Sample Order
+      </button>
+      <ng-template ngbNavContent>
+        <div class="card">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="mb-0"><i class="bi bi-eye me-2"></i>Sample Visibility & Order</h6>
+              <div>
+                <button class="btn btn-sm btn-outline-primary me-2" (click)="check(true)">
+                  <i class="bi bi-check-square me-1"></i>Check All
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="check(false)">
+                  <i class="bi bi-square me-1"></i>Uncheck All
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label fw-bold">Average Bar Chart</label>
-          <div class="row g-2">
-            <div class="col-6">
-              <label class="form-label small">Min Y</label>
-              <input type="number" class="form-control form-control-sm"
-                     [(ngModel)]="chartYAxisLimits.averageBarChart.min">
-            </div>
-            <div class="col-6">
-              <label class="form-label small">Max Y</label>
-              <input type="number" class="form-control form-control-sm"
-                     [(ngModel)]="chartYAxisLimits.averageBarChart.max">
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label fw-bold">Violin Plot</label>
-          <div class="row g-2">
-            <div class="col-6">
-              <label class="form-label small">Min Y</label>
-              <input type="number" class="form-control form-control-sm"
-                     [(ngModel)]="chartYAxisLimits.violinPlot.min">
-            </div>
-            <div class="col-6">
-              <label class="form-label small">Max Y</label>
-              <input type="number" class="form-control form-control-sm"
-                     [(ngModel)]="chartYAxisLimits.violinPlot.max">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card mb-3">
-    <div class="card-header">Condition Bracket on Bar Charts</div>
-    <div class="card-body">
-      <div class="form-check mb-3">
-        <input type="checkbox" class="form-check-input" id="showBracketModal" [(ngModel)]="settings.settings.barChartConditionBracket.showBracket">
-        <label class="form-check-label" for="showBracketModal">
-          Show connecting bracket between conditions
-        </label>
-        <small class="text-muted d-block mt-1">
-          Uses conditions set in Volcano Plot settings
-        </small>
-      </div>
-
-      <div class="row g-2 mb-2">
-        <div class="col-md-4">
-          <label for="bracketHeightModal" class="form-label">Bracket Height</label>
-          <input id="bracketHeightModal" type="number" step="0.01" min="0" max="0.2" class="form-control form-control-sm" [(ngModel)]="settings.settings.barChartConditionBracket.bracketHeight">
-          <small class="text-muted">Distance above condition line</small>
-        </div>
-        <div class="col-md-4">
-          <label for="bracketWidthModal" class="form-label">Bracket Line Width</label>
-          <input id="bracketWidthModal" type="number" min="1" max="5" class="form-control form-control-sm" [(ngModel)]="settings.settings.barChartConditionBracket.bracketWidth">
-        </div>
-        <div class="col-md-4">
-          <label for="bracketColorModal" class="form-label">Bracket Color</label>
-          <input id="bracketColorModal" type="color" class="form-control form-control-sm form-control-color" [(ngModel)]="settings.settings.barChartConditionBracket.bracketColor">
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card mb-3">
-    <div class="card-header ">
-      <div class="d-flex justify-content-between align-items-center">
-        <span>Sample Order</span>
-        <div>
-          <button class="btn btn-sm btn-outline-primary me-2" (click)="check(true)">Check All</button>
-          <button class="btn btn-sm btn-outline-primary" (click)="check(false)">Uncheck All</button>
-        </div>
-      </div>
-    </div>
-    <div class="card-body p-0">
-      <div class="accordion" id="conditionAccordion">
-        @for (c of condition; track c; let i = $index) {
-          <div class="accordion-item">
-            <div class="accordion-header d-flex align-items-center p-2 ">
-              <div class="row w-100 align-items-center">
-                <div class="col-5">
-                  <span class="fw-bold">{{c}}</span>
-                </div>
-                <div class="col-3">
-                  <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-primary"
-                            (click)="moveUpCondition(c)"
-                            aria-label="Move condition up"
-                            title="Move up">
-                      <i class="bi bi-arrow-up"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-primary"
-                            (click)="moveDownCondition(c)"
-                            aria-label="Move condition down"
-                            title="Move down">
-                      <i class="bi bi-arrow-down"></i>
+          <div class="card-body p-0">
+            <div class="accordion" id="conditionAccordion">
+              @for (c of condition; track c; let i = $index) {
+                <div class="accordion-item">
+                  <div class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse' + i">
+                      <div class="row w-100 align-items-center me-2">
+                        <div class="col-5">
+                          <span class="fw-bold"><i class="bi bi-folder me-2"></i>{{c}}</span>
+                          <small class="text-muted ms-2">({{samples[c]?.length || 0}} samples)</small>
+                        </div>
+                        <div class="col-3">
+                          <div class="btn-group" (click)="$event.stopPropagation()">
+                            <button class="btn btn-sm btn-outline-primary"
+                                    (click)="moveUpCondition(c)"
+                                    aria-label="Move condition up"
+                                    title="Move condition up">
+                              <i class="bi bi-arrow-up"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary"
+                                    (click)="moveDownCondition(c)"
+                                    aria-label="Move condition down"
+                                    title="Move condition down">
+                              <i class="bi bi-arrow-down"></i>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="col-4" (click)="$event.stopPropagation()">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="small text-muted">Color:</span>
+                            <input
+                              class="form-control form-control-sm color-input flex-grow-1"
+                              [(colorPicker)]="colorMap[c]"
+                              [style.background]="colorMap[c]"
+                              [style.color]="getContrastColor(colorMap[c])"
+                              [value]="colorMap[c]"
+                              [attr.aria-label]="'Color for ' + c"
+                              title="Choose condition color">
+                          </div>
+                        </div>
+                      </div>
                     </button>
                   </div>
+                  <div [id]="'collapse' + i" class="accordion-collapse collapse" [attr.data-bs-parent]="'#conditionAccordion'">
+                    <div class="accordion-body p-0">
+                      <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                          <thead class="table-light">
+                          <tr>
+                            <th scope="col">Sample Name</th>
+                            <th scope="col" class="text-center" style="width: 120px;">Reorder</th>
+                            <th scope="col" style="width: 100px;">
+                              <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                       id="toggle-all-{{i}}"
+                                       [(ngModel)]="batchToggle[c]"
+                                       (change)="batchToggleSamples(c)">
+                                <label class="form-check-label" for="toggle-all-{{i}}">Visible</label>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          @for (s of samples[c]; track s; let j = $index) {
+                            <tr>
+                              <td>
+                                <i class="bi bi-file-text me-2 text-muted"></i>{{s}}
+                              </td>
+                              <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                  <button class="btn btn-outline-primary"
+                                          (click)="moveUp(s, c)"
+                                          [disabled]="j === 0"
+                                          aria-label="Move sample up"
+                                          title="Move sample up">
+                                    <i class="bi bi-arrow-up"></i>
+                                  </button>
+                                  <button class="btn btn-outline-primary"
+                                          (click)="moveDown(s, c)"
+                                          [disabled]="j === samples[c].length - 1"
+                                          aria-label="Move sample down"
+                                          title="Move sample down">
+                                    <i class="bi bi-arrow-down"></i>
+                                  </button>
+                                </div>
+                              </td>
+                              <td>
+                                <div class="form-check">
+                                  <input type="checkbox"
+                                         class="form-check-input"
+                                         id="visibility-{{i}}-{{j}}"
+                                         [(ngModel)]="samplesVisible[s]">
+                                  <label class="form-check-label visually-hidden" for="visibility-{{i}}-{{j}}">
+                                    Toggle visibility for {{s}}
+                                  </label>
+                                </div>
+                              </td>
+                            </tr>
+                          }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-4">
-                  <input
-                    class="form-control form-control-sm"
-                    [(colorPicker)]="colorMap[c]"
-                    [style.background]="colorMap[c]"
-                    [attr.aria-label]="'Color for ' + c"
-                    title="Choose condition color">
+              }
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </li>
+
+    <li [ngbNavItem]="2">
+      <button ngbNavLink>
+        <i class="bi bi-gear me-1"></i>General
+      </button>
+      <ng-template ngbNavContent>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-toggles me-2"></i>Data Options</h6>
+              </div>
+              <div class="card-body">
+                <div class="form-check mb-3">
+                  <input type="checkbox" class="form-check-input" id="enablePeptideCount" [(ngModel)]="enablePeptideCount">
+                  <label class="form-check-label" for="enablePeptideCount">
+                    <i class="bi bi-hash me-1"></i>Enable Peptide Count
+                  </label>
+                </div>
+                @if (hasPeptideCountData()) {
+                  <div class="mb-3 p-2 bg-light rounded">
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="clearPeptideCountData()">
+                      <i class="bi bi-trash me-1"></i>Clear Peptide Count Data
+                    </button>
+                    <small class="form-text text-muted d-block mt-1">Remove all imported peptide count data</small>
+                  </div>
+                }
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="enableImputation" [(ngModel)]="enableImputation">
+                  <label class="form-check-label" for="enableImputation">
+                    <i class="bi bi-graph-up me-1"></i>Enable Imputation
+                  </label>
+                  <small class="form-text text-muted d-block mt-1">Fill in missing values using statistical methods</small>
                 </div>
               </div>
             </div>
-            <div class="accordion-body p-0">
-              <table class="table table-sm mb-0">
-                <thead>
-                <tr>
-                  <th scope="col">Sample name</th>
-                  <th scope="col" class="text-center">Move</th>
-                  <th scope="col">
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox"
-                             id="toggle-all-{{i}}"
-                             [(ngModel)]="batchToggle[c]"
-                             (change)="batchToggleSamples(c)">
-                      <label class="form-check-label" for="toggle-all-{{i}}">Visibility</label>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-water me-2"></i>Metabolomics</h6>
+              </div>
+              <div class="card-body">
+                <div class="form-check mb-3">
+                  <input type="checkbox" class="form-check-input" id="enableMetabolomics" [(ngModel)]="enableMetabolomics">
+                  <label class="form-check-label" for="enableMetabolomics">
+                    Enable Metabolomics Mode
+                  </label>
+                </div>
+                @if (enableMetabolomics) {
+                  <div class="row g-2">
+                    <div class="col-12">
+                      <label for="polarity" class="form-label small">Polarity Column</label>
+                      <select class="form-select form-select-sm" id="polarity" [(ngModel)]="metabolomicsColumnMap['polarity']">
+                        <option [value]="null">None selected</option>
+                        @for (column of dataService.currentDF.getColumnNames(); track column) {
+                          <option [value]="column">{{ column }}</option>
+                        }
+                      </select>
                     </div>
-                  </th>
-                </tr>
-                </thead>
-                <tbody>
-                @for (s of samples[c]; track s; let j = $index) {
-                  <tr>
-                    <td>{{s}}</td>
-                    <td class="text-center">
-                      <div class="btn-group btn-group-sm">
-                        <button class="btn btn-sm btn-outline-primary"
-                                (click)="moveUp(s, c)"
-                                aria-label="Move sample up"
-                                title="Move up">
-                          <i class="bi bi-arrow-up"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-primary"
-                                (click)="moveDown(s, c)"
-                                aria-label="Move sample down"
-                                title="Move down">
-                          <i class="bi bi-arrow-down"></i>
-                        </button>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="form-check">
-                        <input type="checkbox"
-                               class="form-check-input"
-                               id="visibility-{{i}}-{{j}}"
-                               [(ngModel)]="samplesVisible[s]">
-                        <label class="form-check-label visually-hidden" for="visibility-{{i}}-{{j}}">
-                          Toggle visibility for {{s}}
-                        </label>
-                      </div>
-                    </td>
-                  </tr>
+                    <div class="col-12">
+                      <label for="formula" class="form-label small">Formula Column</label>
+                      <select class="form-select form-select-sm" id="formula" [(ngModel)]="metabolomicsColumnMap['formula']">
+                        <option [value]="null">None selected</option>
+                        @for (column of dataService.currentDF.getColumnNames(); track column) {
+                          <option [value]="column">{{ column }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div class="col-12">
+                      <label for="abbreviation" class="form-label small">Abbreviation Column</label>
+                      <select class="form-select form-select-sm" id="abbreviation" [(ngModel)]="metabolomicsColumnMap['abbreviation']">
+                        <option [value]="null">None selected</option>
+                        @for (column of dataService.currentDF.getColumnNames(); track column) {
+                          <option [value]="column">{{ column }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div class="col-12">
+                      <label for="smiles" class="form-label small">SMILES Column</label>
+                      <select class="form-select form-select-sm" id="smiles" [(ngModel)]="metabolomicsColumnMap['smiles']">
+                        <option [value]="null">None selected</option>
+                        @for (column of dataService.currentDF.getColumnNames(); track column) {
+                          <option [value]="column">{{ column }}</option>
+                        }
+                      </select>
+                    </div>
+                  </div>
                 }
-                </tbody>
-              </table>
+              </div>
             </div>
           </div>
-        }
-      </div>
-    </div>
-  </div>
+        </div>
+      </ng-template>
+    </li>
+
+    <li [ngbNavItem]="3">
+      <button ngbNavLink>
+        <i class="bi bi-rulers me-1"></i>Chart Display
+      </button>
+      <ng-template ngbNavContent>
+        <div class="card mb-3">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-aspect-ratio me-2"></i>Plot Size Settings</h6>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="barChartColumnSize" class="form-label">
+                  <i class="bi bi-bar-chart me-1"></i>Bar Chart Column Width
+                </label>
+                <input type="number" class="form-control" [(ngModel)]="columnSize.barChart" id="barChartColumnSize">
+              </div>
+              <div class="col-md-6">
+                <label for="averageBarChartColumnSize" class="form-label">
+                  <i class="bi bi-bar-chart-fill me-1"></i>Average Bar Chart Column Width
+                </label>
+                <input type="number" class="form-control" [(ngModel)]="columnSize.averageBarChart" id="averageBarChartColumnSize">
+              </div>
+              <div class="col-md-6">
+                <label for="violinPlotColumnSize" class="form-label">
+                  <i class="bi bi-graph-up me-1"></i>Violin Plot Width
+                </label>
+                <input type="number" class="form-control" [(ngModel)]="columnSize.violinPlot" id="violinPlotColumnSize">
+              </div>
+              <div class="col-md-6">
+                <label for="pointPos" class="form-label">
+                  <i class="bi bi-dot me-1"></i>Dot Position Relative to Violin Plot
+                </label>
+                <input type="number" class="form-control" id="pointPos" min="-2" max="2" step="0.1" [(ngModel)]="violinPointPos">
+                <small class="text-muted">Range: -2 to 2</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-arrows-vertical me-2"></i>Global Y-Axis Limits</h6>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info alert-sm">
+              <i class="bi bi-info-circle me-1"></i>
+              <small>Global limits apply to all items. Individual item limits (if set) override these.</small>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Bar Chart</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="form-label small">Min Y</label>
+                    <input type="number" class="form-control form-control-sm" placeholder="Auto"
+                           [(ngModel)]="chartYAxisLimits.barChart.min">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">Max Y</label>
+                    <input type="number" class="form-control form-control-sm" placeholder="Auto"
+                           [(ngModel)]="chartYAxisLimits.barChart.max">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Average Bar Chart</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="form-label small">Min Y</label>
+                    <input type="number" class="form-control form-control-sm" placeholder="Auto"
+                           [(ngModel)]="chartYAxisLimits.averageBarChart.min">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">Max Y</label>
+                    <input type="number" class="form-control form-control-sm" placeholder="Auto"
+                           [(ngModel)]="chartYAxisLimits.averageBarChart.max">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Violin Plot</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="form-label small">Min Y</label>
+                    <input type="number" class="form-control form-control-sm" placeholder="Auto"
+                           [(ngModel)]="chartYAxisLimits.violinPlot.min">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">Max Y</label>
+                    <input type="number" class="form-control form-control-sm" placeholder="Auto"
+                           [(ngModel)]="chartYAxisLimits.violinPlot.max">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-diagram-2 me-2"></i>Condition Bracket on Bar Charts</h6>
+          </div>
+          <div class="card-body">
+            <div class="form-check mb-3">
+              <input type="checkbox" class="form-check-input" id="showBracketModal" [(ngModel)]="settings.settings.barChartConditionBracket.showBracket">
+              <label class="form-check-label" for="showBracketModal">
+                Show connecting bracket between conditions
+              </label>
+              <small class="text-muted d-block mt-1">
+                <i class="bi bi-info-circle me-1"></i>Uses conditions set in Volcano Plot settings
+              </small>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label for="bracketHeightModal" class="form-label small">Bracket Height</label>
+                <input id="bracketHeightModal" type="number" step="0.01" min="0" max="0.2" class="form-control form-control-sm" [(ngModel)]="settings.settings.barChartConditionBracket.bracketHeight">
+                <small class="text-muted">Distance above condition line</small>
+              </div>
+              <div class="col-md-4">
+                <label for="bracketWidthModal" class="form-label small">Bracket Line Width</label>
+                <input id="bracketWidthModal" type="number" min="1" max="5" class="form-control form-control-sm" [(ngModel)]="settings.settings.barChartConditionBracket.bracketWidth">
+              </div>
+              <div class="col-md-4">
+                <label for="bracketColorModal" class="form-label small">Bracket Color</label>
+                <div class="input-group input-group-sm">
+                  <input id="bracketColorModal" type="color" class="form-control form-control-color" [(ngModel)]="settings.settings.barChartConditionBracket.bracketColor">
+                  <input type="text" class="form-control" [(ngModel)]="settings.settings.barChartConditionBracket.bracketColor" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </li>
+  </ul>
+
+  <div [ngbNavOutlet]="nav"></div>
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-primary" (click)="submit()">
-    Apply Changes
-  </button>
   <button class="btn btn-secondary" (click)="modal.close()">
-    Cancel
+    <i class="bi bi-x-lg me-1"></i>Cancel
+  </button>
+  <button class="btn btn-primary" (click)="submit()">
+    <i class="bi bi-check-lg me-1"></i>Apply Changes
   </button>
 </div>

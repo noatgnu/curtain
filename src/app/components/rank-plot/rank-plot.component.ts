@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
@@ -10,6 +10,9 @@ import {
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {RankPlotTextAnnotationComponent} from "../rank-plot-text-annotation/rank-plot-text-annotation.component";
 import {VolcanoColorsComponent} from "../volcano-colors/volcano-colors.component";
+import {PlotlyThemeService} from "../../plotly-theme.service";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-rank-plot',
@@ -17,7 +20,9 @@ import {VolcanoColorsComponent} from "../volcano-colors/volcano-colors.component
     styleUrls: ['./rank-plot.component.scss'],
     standalone: false
 })
-export class RankPlotComponent implements OnInit {
+export class RankPlotComponent implements OnInit, OnDestroy {
+  private themeSubscription?: Subscription;
+  revision = 0;
   _data: IDataFrame = new DataFrame()
   sortedDataMap: any = {}
 
@@ -102,7 +107,7 @@ export class RankPlotComponent implements OnInit {
     }
   }
 
-  constructor(private web: WebService, public dataService: DataService, public settings: SettingsService, public uniprot: UniprotService, private modal: NgbModal) {
+  constructor(private web: WebService, public dataService: DataService, public settings: SettingsService, public uniprot: UniprotService, private modal: NgbModal, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       if (data) {
         this.draw().then()
@@ -212,6 +217,16 @@ export class RankPlotComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
+      this.revision++;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
   }
 
   async draw() {
@@ -317,6 +332,7 @@ export class RankPlotComponent implements OnInit {
     if (annotations.length > 0) {
       this.graphLayout.annotations = annotations
     }
+    this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
     this.graphData = graphData
   }
 

@@ -1,6 +1,9 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {WebService} from "../../web.service";
 import {SettingsService} from "../../settings.service";
+import {PlotlyThemeService} from "../../plotly-theme.service";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-protein-domain-plot',
@@ -8,7 +11,9 @@ import {SettingsService} from "../../settings.service";
     styleUrls: ['./protein-domain-plot.component.scss'],
     standalone: false
 })
-export class ProteinDomainPlotComponent implements OnInit {
+export class ProteinDomainPlotComponent implements OnInit, OnDestroy {
+  private themeSubscription?: Subscription;
+  revision = 0;
   _data: any[] = []
   geneName = ""
 
@@ -70,6 +75,7 @@ export class ProteinDomainPlotComponent implements OnInit {
       }
     }
     this._data = [waterfallPlot]
+    this.layout = this.plotlyTheme.applyThemeToLayout(this.layout);
   }
 
   get data(): any[] {
@@ -97,9 +103,19 @@ export class ProteinDomainPlotComponent implements OnInit {
       family: this.settings.settings.plotFontFamily + ", serif",
     }
   }
-  constructor(private web: WebService, private settings: SettingsService) { }
+  constructor(private web: WebService, private settings: SettingsService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      this.layout = this.plotlyTheme.applyThemeToLayout(this.layout);
+      this.revision++;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
   }
 
   downloadSVG() {

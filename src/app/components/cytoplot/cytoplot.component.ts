@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import cytoscape from "cytoscape";
 import fcose from "cytoscape-fcose";
 import {saveAs} from "file-saver";
@@ -8,6 +8,8 @@ import {saveAs} from "file-saver";
 // @ts-ignore
 //import * as panzoom from "cytoscape-panzoom";
 import {SettingsService} from "../../settings.service";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 //cytoscape.use(cytoscapeSVG);
 cytoscape.use(fcose);
 //cytoscape.use(cxtmenu);
@@ -17,7 +19,8 @@ cytoscape.use(fcose);
     styleUrls: ['./cytoplot.component.scss'],
     standalone: false
 })
-export class CytoplotComponent implements OnInit, AfterViewInit {
+export class CytoplotComponent implements OnInit, AfterViewInit, OnDestroy {
+  private themeSubscription?: Subscription;
   private _dimensions = {width: 700, height: 700}
   @Output() clickedID = new EventEmitter<string>()
   @Output() ready = new EventEmitter<boolean>()
@@ -43,10 +46,26 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
     }
   }
 
-  constructor(private settings: SettingsService) { }
+  constructor(private settings: SettingsService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      if (this.cy && this._drawData) {
+        this.updateTheme();
+      }
+    });
+  }
 
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  private updateTheme(): void {
+    if (this.cy && this._drawData && this._drawData.stylesheet) {
+      this.cy.style().clear().fromJson(this._drawData.stylesheet).update();
+    }
   }
 
   ngAfterViewInit() {
@@ -162,7 +181,8 @@ export class CytoplotComponent implements OnInit, AfterViewInit {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url)*/
-    const pngContent = this.cy.png({full:true, scale: 10, bg: "#FFFFFF", output: "blob"})
+    const bgColor = this.themeService.isDarkMode() ? "#212529" : "#FFFFFF";
+    const pngContent = this.cy.png({full:true, scale: 10, bg: bgColor, output: "blob"})
     const url = window.URL.createObjectURL(pngContent);
     const a = document.createElement("a")
     a.href = url

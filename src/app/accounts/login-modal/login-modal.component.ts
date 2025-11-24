@@ -30,6 +30,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
   showPassword: boolean = false
   loginError: string = ''
   rememberMeDays: number = 0
+  waitingForOrcid: boolean = false
 
   constructor(private dataService: DataService, public modal: NgbActiveModal, private fb: UntypedFormBuilder, private accounts: AccountsService, private web: WebService, private toast: ToastService) {
 
@@ -85,6 +86,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
   clickOrcid() {
     localStorage.setItem("urlAfterLogin", document.URL)
     localStorage.setItem("orcidRememberMe", this.form.value["remember_me"] ? "true" : "false")
+    this.waitingForOrcid = true
     this.loginWatcher = setInterval(()=> {
       console.log("ORCID LOGIN CHECK")
       this.accounts.reload().then(() => {
@@ -96,6 +98,8 @@ export class LoginModalComponent implements OnInit, OnDestroy {
             })
           }
           localStorage.removeItem("orcidRememberMe")
+          this.waitingForOrcid = false
+          this.toast.show("Login Information", "ORCID Login Successful.").then()
           this.modal.dismiss()
           clearInterval(this.loginWatcher)
         }

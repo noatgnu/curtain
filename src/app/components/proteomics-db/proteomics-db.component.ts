@@ -1,9 +1,12 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {WebService} from "../../web.service";
 import {UniprotService} from "../../uniprot.service";
 import {UntypedFormBuilder, UntypedFormGroup} from "@angular/forms";
 import {getProteomicsData} from "curtain-web-api";
 import {SettingsService} from "../../settings.service";
+import {PlotlyThemeService} from "../../plotly-theme.service";
+import {ThemeService} from "../../theme.service";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-proteomics-db',
@@ -11,7 +14,9 @@ import {SettingsService} from "../../settings.service";
     styleUrls: ['./proteomics-db.component.scss'],
     standalone: false
 })
-export class ProteomicsDbComponent implements OnInit {
+export class ProteomicsDbComponent implements OnInit, OnDestroy {
+  private themeSubscription?: Subscription;
+  revision = 0;
   _uniprotID = ""
   @Input() set uniprotID(value: string) {
     this._uniprotID = value
@@ -51,7 +56,7 @@ export class ProteomicsDbComponent implements OnInit {
 
   color = "rgb(128,51,169)"
 
-  constructor(public web: WebService, private uniprot: UniprotService, private fb: UntypedFormBuilder, private settings: SettingsService) {
+  constructor(public web: WebService, private uniprot: UniprotService, private fb: UntypedFormBuilder, private settings: SettingsService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
 
     this.form.valueChanges.subscribe(value => {
       getProteomicsData(this._uniprotID, value.selected).then((r: any) => {
@@ -63,6 +68,16 @@ export class ProteomicsDbComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+      this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
+      this.revision++;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
   }
 
   drawBarChart(data: any) {
@@ -128,7 +143,7 @@ export class ProteomicsDbComponent implements OnInit {
           graphLayout.yaxis.tickvals = temp.y
           graphLayout.height = 400 + 25*temp.y.length
           this.graphData = graphData
-          this.graphLayout = graphLayout
+          this.graphLayout = this.plotlyTheme.applyThemeToLayout(graphLayout);
           this.config = {
             //modeBarButtonsToRemove: ["toImage"]
             toImageButtonOptions: {

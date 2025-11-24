@@ -32,6 +32,7 @@ export class SampleOrderAndHideComponent implements OnInit {
   batchToggle: any = {}
   enablePeptideCount: boolean = false
   enableMetabolomics: boolean = false
+  activeTab: number = 1
 
   metabolomicsColumnMap: any = {
     "polarity": null,
@@ -201,6 +202,16 @@ export class SampleOrderAndHideComponent implements OnInit {
       // Trigger a redraw to update the UI
       this.dataService.redrawTrigger.next(true);
     }
+  }
+
+  getContrastColor(hexColor: string): string {
+    if (!hexColor) return '#000000'
+    const hex = hexColor.replace('#', '')
+    const r = parseInt(hex.substr(0, 2), 16)
+    const g = parseInt(hex.substr(2, 2), 16)
+    const b = parseInt(hex.substr(4, 2), 16)
+    const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000
+    return brightness > 155 ? '#000000' : '#ffffff'
   }
 
 }

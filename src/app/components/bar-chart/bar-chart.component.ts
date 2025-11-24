@@ -6,6 +6,8 @@ import {WebService} from "../../web.service";
 import {StatsService} from "../../stats.service";
 import {SettingsService} from "../../settings.service";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {PlotlyThemeService} from "../../plotly-theme.service";
+import {ThemeService} from "../../theme.service";
 
 @Component({
     selector: 'app-bar-chart',
@@ -147,7 +149,7 @@ export class BarChartComponent implements OnInit {
   imputationMap: any = {}
   enableImputation: boolean = false
 
-  constructor(private stats: StatsService, private web: WebService, public dataService: DataService, private uniprot: UniprotService, public settings: SettingsService) {
+  constructor(private stats: StatsService, private web: WebService, public dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
     this.enableImputation = this.settings.settings.enableImputation
 
     effect(() => {
@@ -199,6 +201,14 @@ export class BarChartComponent implements OnInit {
         this.drawAverageBarChart()
       }
     })
+
+    this.themeService.theme$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.drawBarChart();
+      this.drawAverageBarChart();
+      this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
+      this.graphLayoutAverage = this.plotlyTheme.applyThemeToLayout(this.graphLayoutAverage);
+      this.graphLayoutViolin = this.plotlyTheme.applyThemeToLayout(this.graphLayoutViolin);
+    });
 
     this.dataService.externalBarChartDownloadTrigger.asObservable().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(trigger => {
       if (trigger) {
@@ -272,6 +282,9 @@ export class BarChartComponent implements OnInit {
   ngOnInit(): void {
   }
   drawBarChart() {
+    const isDark = this.themeService.isDarkMode();
+    const annotationColor = isDark ? "#f8f9fa" : "black";
+
     const tickvals: string[] = []
     const ticktext: string[] = []
     const graph: any = {}
@@ -303,7 +316,7 @@ export class BarChartComponent implements OnInit {
         x: 1.1
       },
       font: {
-        color: "white",
+        color: isDark ? "#f8f9fa" : "white",
         family: 'Arial',
       }
     }
@@ -397,7 +410,7 @@ export class BarChartComponent implements OnInit {
                   showarrow: false,
                   font: {
                     size: 12,
-                    color: "white"
+                    color: annotationColor
                   }
                 }
               )
@@ -555,6 +568,7 @@ export class BarChartComponent implements OnInit {
     }
 
     this.applyYAxisLimits('barChart', this.graphLayout)
+    this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
   }
 
   setIndividualLimit(chartType: string, limitType: 'min' | 'max', value: any) {
@@ -608,6 +622,9 @@ export class BarChartComponent implements OnInit {
   }
 
   drawAverageBarChart() {
+    const isDark = this.themeService.isDarkMode();
+    const boxDotColor = isDark ? "#adb5bd" : "#654949";
+
     const tickVals: string[] = []
     const tickText: string[] = []
     const graphData: any[] = []
@@ -635,10 +652,10 @@ export class BarChartComponent implements OnInit {
             boxDotInnerColor[condition].push("rgba(0,0,0,0)")
 
           } else {
-            boxDotInnerColor[condition].push("#654949")
+            boxDotInnerColor[condition].push(boxDotColor)
           }
         } else {
-          boxDotInnerColor[condition].push("#654949")
+          boxDotInnerColor[condition].push(boxDotColor)
         }
         graph[condition].push(this._data()[s])
         if (this.imputationMap[condition]) {
@@ -672,7 +689,7 @@ export class BarChartComponent implements OnInit {
         },
         hoveron: 'points',
         marker: {
-          color: "#654949",
+          color: boxDotColor,
           opacity: 0.8,
         },
         selectedpoints: selectedPoints[g],
@@ -711,6 +728,10 @@ export class BarChartComponent implements OnInit {
           marker: {
             color: '#e61010'
           }
+        },
+        marker: {
+          color: boxDotColor,
+          opacity: 0.8
         }
       }
       graphViolin.push(violin)
@@ -887,6 +908,8 @@ export class BarChartComponent implements OnInit {
 
     this.applyYAxisLimits('averageBarChart', this.graphLayoutAverage)
     this.applyYAxisLimits('violinPlot', this.graphLayoutViolin)
+    this.graphLayoutAverage = this.plotlyTheme.applyThemeToLayout(this.graphLayoutAverage);
+    this.graphLayoutViolin = this.plotlyTheme.applyThemeToLayout(this.graphLayoutViolin);
   }
 
   performTest() {
