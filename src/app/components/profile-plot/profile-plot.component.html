@@ -1,5 +1,33 @@
-<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-  <button class="btn btn-primary" (click)="hideBoxPlot()">Toggle Box Plot</button>
-  <button class="btn btn-primary" (click)="downloadSVG()">Download SVG</button>
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h6 class="mb-2">
+          <i class="bi bi-bar-chart-line me-2"></i>Plot Controls
+        </h6>
+        <p class="small text-muted mb-0">
+          Showing <strong>{{_selected.length}}</strong> selected protein(s) across <strong>{{sampleCount}}</strong> samples
+        </p>
+      </div>
+      <div class="col-md-4">
+        <div class="btn-group w-100" role="group">
+          <button
+            class="btn btn-sm"
+            [ngClass]="boxplot ? 'btn-primary' : 'btn-outline-primary'"
+            (click)="hideBoxPlot()"
+            title="Toggle background box plot showing data distribution">
+            <i class="bi bi-box me-1"></i>Box Plot
+          </button>
+          <button
+            class="btn btn-sm btn-outline-success"
+            (click)="downloadSVG()"
+            title="Download plot as SVG file">
+            <i class="bi bi-download me-1"></i>SVG
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
 <plotly-plot [divId]="divId" [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>

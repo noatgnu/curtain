@@ -20,6 +20,7 @@ export class ProfilePlotComponent implements OnInit, OnDestroy {
   revision = 0;
   @Input() divId = "profile"
   boxplot: boolean = true
+  sampleCount = 0
   _data: IDataFrame = new DataFrame()
   @Input() set data(value: IDataFrame) {
     this._data = value
@@ -138,6 +139,7 @@ export class ProfilePlotComponent implements OnInit, OnDestroy {
     this.graphLayout.xaxis.ticktext = ticktext
     this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
 
+    this.sampleCount = sampleNumber
     this.graphBox = graphBox
     this.toast.show("Profile Plot", "Completed Constructing Box Plots").then(r => {})
   }

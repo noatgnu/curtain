@@ -1,9 +1,35 @@
 <div class="modal-header">
-  <h5 class="modal-title">Profile Comparisons</h5>
+  <h5 class="modal-title">
+    <i class="bi bi-graph-up-arrow me-2"></i>Profile Plot
+  </h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
 </div>
 <div class="modal-body">
+  @if (!hideInfo) {
+    <div class="alert alert-info mb-3">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="alert-heading"><i class="bi bi-info-circle me-2"></i>About Profile Plots</h6>
+          <p class="mb-2">Profile plots show the intensity patterns of selected proteins/PTMs across all samples, allowing you to:</p>
+          <ul class="mb-0">
+            <li>Compare expression patterns between different proteins</li>
+            <li>Identify consistent vs. variable proteins across replicates</li>
+            <li>Visualize intensity distributions with box plots</li>
+            <li>Detect outliers and data quality issues</li>
+          </ul>
+        </div>
+        <button type="button" class="btn-close" aria-label="Hide" (click)="hideInfo = true"></button>
+      </div>
+    </div>
+  }
+
   <app-profile-plot [data]="data" [selected]="selected" [divId]="'profile-compare'"></app-profile-plot>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-danger" (click)="modal.dismiss()">Close</button>
+  <button class="btn btn-outline-secondary btn-sm" (click)="hideInfo = !hideInfo">
+    <i class="bi bi-info-circle me-1"></i>{{ hideInfo ? 'Show' : 'Hide' }} Info
+  </button>
+  <div class="ms-auto">
+    <button class="btn btn-secondary" (click)="modal.dismiss()">Close</button>
+  </div>
 </div>

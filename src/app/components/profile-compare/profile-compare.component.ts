@@ -11,6 +11,8 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 export class ProfileCompareComponent implements OnInit {
   @Input() data: IDataFrame = new DataFrame()
   @Input() selected: string[] = []
+  hideInfo = false
+
   constructor(public modal: NgbActiveModal) { }
 
   ngOnInit(): void {
