@@ -30,12 +30,6 @@ export class AreYouSureClearModalComponent {
       selected: true
     },
     {
-      key: 'selectionOperations',
-      label: 'Selection Operations',
-      description: 'Selection operation names and mappings',
-      selected: true
-    },
-    {
       key: 'rankPlotAnnotation',
       label: 'Rank Plot Annotations',
       description: 'Annotations on rank plots',

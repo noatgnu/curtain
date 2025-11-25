@@ -843,8 +843,9 @@ export class HomeComponent implements OnInit {
 
   clearSelections() {
     const rememberClearSettings = localStorage.getItem("curtainRememberClearSettings")
-    if (rememberClearSettings === "true") {
-      const savedSettings = localStorage.getItem('curtainClearSettingsSelection')
+    const savedSettings = localStorage.getItem('curtainClearSettingsSelection')
+    if (rememberClearSettings === "true" && savedSettings) {
+
       let settingsToClear: {[key: string]: boolean} = {}
       if (savedSettings) {
         try {
@@ -856,8 +857,6 @@ export class HomeComponent implements OnInit {
       if (settingsToClear['selections']) {
         this.data.selected = []
         this.data.selectedGenes = []
-      }
-      if (settingsToClear['selectionOperations']) {
         this.data.selectedMap = {}
         this.data.selectOperationNames = []
       }
@@ -881,8 +880,6 @@ export class HomeComponent implements OnInit {
           if (data.selections) {
             this.data.selected = []
             this.data.selectedGenes = []
-          }
-          if (data.selectionOperations) {
             this.data.selectedMap = {}
             this.data.selectOperationNames = []
           }

@@ -994,17 +994,62 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
 
   clear() {
     const rememberClearSettings = localStorage.getItem("curtainRememberClearSettings")
-    if (rememberClearSettings === "true") {
-      this.dataService.clear()
+    const savedSettings = localStorage.getItem('curtainClearSettingsSelection')
+    if (rememberClearSettings === "true" && savedSettings) {
+      let settingsToClear: {[key: string]: boolean} = {}
+      if (savedSettings) {
+        try {
+          settingsToClear = JSON.parse(savedSettings)
+        } catch (e) {
+          console.error('Failed to parse saved clear settings:', e)
+        }
+      }
+
+      if (settingsToClear['selections']) {
+        this.dataService.selected = []
+        this.dataService.selectedGenes = []
+        this.dataService.selectedMap = {}
+        this.dataService.selectOperationNames = []
+      }
+      if (settingsToClear['rankPlotAnnotation']) {
+        this.settings.settings.rankPlotAnnotation = {}
+      }
+      if (settingsToClear['textAnnotation']) {
+        this.settings.settings.textAnnotation = {}
+      }
+      if (settingsToClear['volcanoShapes']) {
+        this.settings.settings.volcanoAdditionalShapes = []
+      }
+      if (settingsToClear['annotatedData']) {
+        this.dataService.annotatedData = {}
+      }
+      this.dataService.clearWatcher.next(true)
     } else {
       const ref = this.modal.open(AreYouSureClearModalComponent)
-      ref.closed.subscribe((result: boolean) => {
-        if (result) {
-          this.dataService.clear()
+      ref.closed.subscribe(data => {
+        if (data) {
+          if (data.selections) {
+            this.dataService.selected = []
+            this.dataService.selectedGenes = []
+            this.dataService.selectedMap = {}
+            this.dataService.selectOperationNames = []
+          }
+          if (data.rankPlotAnnotation) {
+            this.settings.settings.rankPlotAnnotation = {}
+          }
+          if (data.textAnnotation) {
+            this.settings.settings.textAnnotation = {}
+          }
+          if (data.volcanoShapes) {
+            this.settings.settings.volcanoAdditionalShapes = []
+          }
+          if (data.annotatedData) {
+            this.dataService.annotatedData = {}
+          }
+          this.dataService.clearWatcher.next(true)
         }
       })
     }
-
   }
 
   isOverlapping(labelA: any, labelB: any) {
