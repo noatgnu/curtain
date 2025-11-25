@@ -108,6 +108,8 @@ export class HomeComponent implements OnInit {
   finished = signal(false);
   permanent = signal(false);
   gdprAccepted = signal(false);
+  hasSavedClearSettings = signal(localStorage.getItem('curtainClearSettingsSelection') !== null);
+
   rawFiltered: IDataFrame = new DataFrame()
   uniqueLink: string = ""
   filterModel: string = ""
@@ -137,6 +139,7 @@ export class HomeComponent implements OnInit {
 
     this.data.clearWatcher.asObservable().subscribe(data => {
       if (data) {
+        this.hasSavedClearSettings = signal(localStorage.getItem('curtainClearSettingsSelection') !== null);
         this.rawFiltered = new DataFrame()
         this.data.selectionUpdateTrigger.next(true)
       }
@@ -1357,6 +1360,10 @@ export class HomeComponent implements OnInit {
 
   dismissSessionLink(): void {
     this.sessionLinkDismissed.set(true)
+  }
+
+  removeClearSettings() {
+    localStorage.removeItem('curtainClearSettingsSelection')
   }
 
 }
