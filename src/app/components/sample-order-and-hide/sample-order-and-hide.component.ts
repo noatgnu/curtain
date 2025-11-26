@@ -33,6 +33,7 @@ export class SampleOrderAndHideComponent implements OnInit {
   enablePeptideCount: boolean = false
   enableMetabolomics: boolean = false
   activeTab: number = 1
+  collapseState: {[key: string]: boolean} = {}
 
   metabolomicsColumnMap: any = {
     "polarity": null,
@@ -93,7 +94,7 @@ export class SampleOrderAndHideComponent implements OnInit {
     console.log(this.condition)
     for (const c of this.condition) {
       this.batchToggle[c] = !this.samples[c].some((s: string) => this.samplesVisible[s] === false);
-      // if all samples in a condition are visible, then the condition is visible
+      this.collapseState[c] = true
 
       if (this.settings.settings.barchartColorMap[c]) {
         this.colorMap[c] = this.settings.settings.barchartColorMap[c].slice()
@@ -101,6 +102,10 @@ export class SampleOrderAndHideComponent implements OnInit {
         this.colorMap[c] = this.settings.settings.colorMap[c].slice()
       }
     }
+  }
+
+  toggleCollapse(condition: string) {
+    this.collapseState[condition] = !this.collapseState[condition]
   }
 
   ngOnInit(): void {

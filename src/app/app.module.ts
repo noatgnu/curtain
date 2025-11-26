@@ -23,6 +23,10 @@ import { ProteinDomainPlotComponent } from './components/protein-domain-plot/pro
 import { ProteinInformationComponent } from './components/protein-information/protein-information.component';
 import { ProteomicsDbComponent } from './components/proteomics-db/proteomics-db.component';
 import { StringDbComponent } from './components/string-db/string-db.component';
+import { StringNetworkComponent } from './components/string-network/string-network.component';
+import { InteractiveNetworkComponent } from './components/string-network/interactive-network/interactive-network.component';
+import { ProteinInfoPanelComponent } from './components/string-network/protein-info-panel/protein-info-panel.component';
+import { StringNetworkService } from './components/string-network/string-network.service';
 import { InteractomeAtlasComponent } from './components/interactome-atlas/interactome-atlas.component';
 import { PdbViewerComponent } from './components/pdb-viewer/pdb-viewer.component';
 import { FdrCurveComponent } from './components/fdr-curve/fdr-curve.component';
@@ -97,6 +101,9 @@ import {ReorderTracesModalComponent} from './components/volcano-plot/reorder-tra
         ProteinInformationComponent,
         ProteomicsDbComponent,
         StringDbComponent,
+        StringNetworkComponent,
+        InteractiveNetworkComponent,
+        ProteinInfoPanelComponent,
         InteractomeAtlasComponent,
         PdbViewerComponent,
         FdrCurveComponent,
@@ -136,24 +143,24 @@ import {ReorderTracesModalComponent} from './components/volcano-plot/reorder-tra
         ReorderTracesModalComponent,
     ],
     bootstrap: [AppComponent],
-    imports: [BrowserModule,
-        AppRoutingModule,
-        NgbModule,
-        FormsModule,
-        PlotlyModule.forRoot(PlotlyJS),
-        //PlotlyViaCDNModule,
-        ReactiveFormsModule,
-        ColorPickerDirective,
-        QuillModule.forRoot(),
-        AccountsModule,
-        NgxPrintModule,
-        ServiceWorkerModule.register('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-        }),
-        ToastProgressbarComponent,
-        AnnotationComponent,
-        ShapesComponent,
-        DataciteMetadataDisplayComponent,
-        DragDropModule], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()),] })
+  imports: [BrowserModule,
+    AppRoutingModule,
+    NgbModule,
+    FormsModule,
+    PlotlyModule.forRoot(PlotlyJS),
+    //PlotlyViaCDNModule,
+    ReactiveFormsModule,
+    ColorPickerDirective,
+    QuillModule.forRoot(),
+    AccountsModule,
+    NgxPrintModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
+    ToastProgressbarComponent,
+    AnnotationComponent,
+    ShapesComponent,
+    DataciteMetadataDisplayComponent,
+    DragDropModule], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()), StringNetworkService] })
 export class AppModule { }

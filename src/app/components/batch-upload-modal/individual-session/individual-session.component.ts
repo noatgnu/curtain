@@ -10,7 +10,7 @@ import {DataService} from "../../../data.service";
 import {SettingsService} from "../../../settings.service";
 import {BatchUploadServiceService} from "../batch-upload-service.service";
 import {NgbAlert, NgbCollapse, NgbProgressbar} from "@ng-bootstrap/ng-bootstrap";
-import {CurtainEncryption} from "curtain-web-api";
+import {CurtainEncryption, replacer} from "curtain-web-api";
 import {AccountsService} from "../../../accounts/accounts.service";
 import {ToastService} from "../../../toast.service";
 import {QuillEditorComponent} from "ngx-quill";
@@ -128,7 +128,14 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
   isVolcanoPlotSettingsClosed = true
   isVolcanoPlotCategoryColorClosed = true
   isColorPaletteClosed = true
-  constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private batchService: BatchUploadServiceService, private data: DataService, private uniprot: UniprotService, private cd: ChangeDetectorRef, public settings: SettingsService) {
+
+  availableCollections: any[] = []
+  selectedCollectionIds: number[] = []
+  newCollectionName: string = ''
+  newCollectionDescription: string = ''
+  loadingCollections: boolean = false
+  isCreatingCollection: boolean = false
+  constructor(private fb: FormBuilder, private toast: ToastService, public accounts: AccountsService, private batchService: BatchUploadServiceService, private data: DataService, private uniprot: UniprotService, private cd: ChangeDetectorRef, public settings: SettingsService) {
     this.batchService.taskStartAnnouncer.subscribe((taskId: number) => {
       if (taskId === this.sessionId) {
         this.startWork().then()
@@ -144,13 +151,72 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Set up peptide file change handler
+    this.loadCollections()
     if (this.session?.peptideFileForm) {
       this.session.peptideFileForm.get('peptideFile')?.valueChanges.subscribe((file: File) => {
         if (file) {
           this.loadPeptideFileColumns(file);
         }
       });
+    }
+  }
+
+  async loadCollections() {
+    if (!this.accounts.curtainAPI.user.loginStatus) {
+      return
+    }
+    try {
+      this.loadingCollections = true
+      const response = await this.accounts.getCollections(1, 100, '', true)
+      this.availableCollections = response.results || []
+    } catch (error) {
+      console.error('Failed to load collections:', error)
+      this.availableCollections = []
+    } finally {
+      this.loadingCollections = false
+    }
+  }
+
+  async createNewCollection() {
+    if (!this.newCollectionName.trim()) {
+      this.toast.show("Error", "Collection name is required").then()
+      return
+    }
+    try {
+      this.isCreatingCollection = true
+      const newCollection = await this.accounts.createCollection(this.newCollectionName, this.newCollectionDescription)
+      if (newCollection && newCollection.id) {
+        this.availableCollections.push(newCollection)
+        this.selectedCollectionIds.push(newCollection.id)
+        this.newCollectionName = ''
+        this.newCollectionDescription = ''
+      }
+    } catch (error) {
+      console.error('Failed to create collection:', error)
+    } finally {
+      this.isCreatingCollection = false
+    }
+  }
+
+  toggleCollectionSelection(collectionId: number) {
+    const index = this.selectedCollectionIds.indexOf(collectionId)
+    if (index > -1) {
+      this.selectedCollectionIds.splice(index, 1)
+    } else {
+      this.selectedCollectionIds.push(collectionId)
+    }
+  }
+
+  async addSessionToCollections(linkId: string) {
+    if (this.selectedCollectionIds.length === 0) {
+      return
+    }
+    for (const collectionId of this.selectedCollectionIds) {
+      try {
+        await this.accounts.addCurtainToCollection(collectionId, linkId)
+      } catch (error) {
+        console.error(`Failed to add session to collection ${collectionId}:`, error)
+      }
     }
   }
 
@@ -683,7 +749,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
     return data
   }
 
-  saveSession() {
+  async saveSession() {
     if (!this.session) {
       return
     }
@@ -695,9 +761,58 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
       publicKey: this.data.public_key,
     }
     this.toast.show("User information", `Curtain link #${this.sessionId+1} is being submitted`).then()
-    this.accounts.curtainAPI.putSettings(this.payload, !this.session.private, this.payload.settings.description, "TP", encryption, this.session.data.permanent, undefined, this.onUploadProgress).then((data: any) => {
+
+    const jsonString = JSON.stringify(this.payload, replacer)
+    const blob = new Blob([jsonString], { type: 'application/json' })
+    const file = new File([blob], 'curtain-settings.json', { type: 'application/json' })
+
+    const CHUNK_THRESHOLD = 5 * 1024 * 1024
+
+    if (file.size > CHUNK_THRESHOLD) {
+      try {
+        const response = await this.accounts.curtainAPI.uploadCurtainFileInChunks(
+          file,
+          1024 * 1024,
+          {
+            description: this.payload.settings.description,
+            curtain_type: "TP",
+            permanent: this.session.data.permanent,
+            encrypted: encryption.encrypted,
+            enable: !this.session.private,
+            onProgress: (progress: number) => {
+              this.updateProgressBar(progress, `Uploading session data at ${Math.round(progress)}%`)
+            }
+          }
+        )
+
+        if (response.curtain) {
+          console.log(response.curtain)
+          await this.addSessionToCollections(response.curtain.link_id)
+          this.finished.emit(response.curtain.link_id)
+          this.data.reset()
+          this.uniprot.reset()
+          this.settings.settings = new Settings()
+          this.updateProgressBar(100, "Finished")
+          this.toast.show("User information", `Curtain link ${this.sessionId+1} saved with unique id ${response.curtain.link_id}`).then()
+        }
+      } catch (err) {
+        console.error('Chunk upload failed, falling back to regular upload:', err)
+        this.fallbackToRegularUpload(encryption)
+      }
+    } else {
+      this.fallbackToRegularUpload(encryption)
+    }
+  }
+
+  private async fallbackToRegularUpload(encryption: CurtainEncryption) {
+    if (!this.session) {
+      return
+    }
+    try {
+      const data: any = await this.accounts.curtainAPI.putSettings(this.payload, !this.session.private, this.payload.settings.description, "TP", encryption, this.session.data.permanent, undefined, this.onUploadProgress)
       console.log(data.data)
       if (data.data) {
+        await this.addSessionToCollections(data.data.link_id)
         this.finished.emit(data.data.link_id)
         this.data.reset()
         this.uniprot.reset()
@@ -705,12 +820,11 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
         this.updateProgressBar(100, "Finished")
         this.toast.show("User information", `Curtain link ${this.sessionId+1} saved with unique id ${data.data.link_id}`).then()
       }
-    }).catch(err => {
+    } catch (err) {
       console.log(err)
       this.updateProgressBar(100, "Error on upload")
       this.toast.show("User information", `Curtain link #${this.sessionId+1} cannot be saved`).then()
-
-    })
+    }
   }
 
   onUploadProgress = (progressEvent: any) => {

@@ -20,6 +20,75 @@
           <label class="form-check-label" for="private-session-{{sessionId}}">Private Session</label>
         </div>
 
+        @if (accounts.curtainAPI.user.loginStatus) {
+          <div class="card mb-3 mt-2">
+            <div class="card-header">
+              <i class="bi bi-folder2-open me-2"></i>Collections
+            </div>
+            <div class="card-body">
+              @if (loadingCollections) {
+                <div class="text-center">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading collections...</span>
+                  </div>
+                  <small class="ms-2">Loading collections...</small>
+                </div>
+              } @else {
+                @if (availableCollections.length > 0) {
+                  <div class="mb-3">
+                    <label class="form-label"><strong>Select Collections:</strong></label>
+                    <div class="list-group" style="max-height: 200px; overflow-y: auto;">
+                      @for (collection of availableCollections; track collection.id) {
+                        <label class="list-group-item d-flex align-items-center">
+                          <input
+                            class="form-check-input me-2"
+                            type="checkbox"
+                            [checked]="selectedCollectionIds.includes(collection.id)"
+                            (change)="toggleCollectionSelection(collection.id)">
+                          <div class="flex-grow-1">
+                            <div class="fw-bold">{{collection.name}}</div>
+                            @if (collection.description) {
+                              <small class="text-muted">{{collection.description}}</small>
+                            }
+                          </div>
+                          <span class="badge bg-info ms-2">{{collection.curtain_count || 0}}</span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <div class="border-top pt-3">
+                  <label class="form-label"><strong>Create New Collection:</strong></label>
+                  <div class="mb-2">
+                    <input
+                      type="text"
+                      class="form-control form-control-sm mb-2"
+                      placeholder="Collection name"
+                      [(ngModel)]="newCollectionName"
+                      [ngModelOptions]="{standalone: true}">
+                    <textarea
+                      class="form-control form-control-sm mb-2"
+                      rows="2"
+                      placeholder="Description (optional)"
+                      [(ngModel)]="newCollectionDescription"
+                      [ngModelOptions]="{standalone: true}"></textarea>
+                    <button
+                      class="btn btn-sm btn-primary"
+                      (click)="createNewCollection()"
+                      [disabled]="!newCollectionName.trim() || isCreatingCollection">
+                      @if (isCreatingCollection) {
+                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                      }
+                      <i class="bi bi-plus-circle me-1"></i>Create Collection
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
         <div class="form-group">
           <label>Differential Analysis</label>
           <select class="form-select" formControlName="differential">
