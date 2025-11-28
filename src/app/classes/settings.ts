@@ -12,6 +12,7 @@ export class Settings {
   dataAnalysisContact: string = ""
   uniprot: boolean = true
   colorMap: any = {}
+  markerSizeMap: any = {}
   academic: boolean = true
   backGroundColorGrey: boolean = false
   currentComparison: string = ""

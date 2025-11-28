@@ -116,7 +116,7 @@
                         <option [value]="column">{{column}}</option>
                       }
                     </select>
-                    <button type="button" class="btn btn-outline-secondary" (click)="clearComparisonGroup()" 
+                    <button type="button" class="btn btn-outline-secondary" (click)="clearComparisonGroup()"
                             [disabled]="!data.differentialForm.comparison || data.differentialForm.comparison === ''"
                             title="Clear comparison group">
                       <i class="bi bi-x"></i>
@@ -136,7 +136,7 @@
                     </select>
                     <div class="d-flex justify-content-between align-items-center mt-1">
                       <small class="text-muted">Hold Ctrl/Cmd to select multiple values</small>
-                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearComparisonSelection()" 
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearComparisonSelection()"
                               [disabled]="!data.differentialForm.comparisonSelect || data.differentialForm.comparisonSelect.length === 0"
                               title="Clear comparison selection">
                         <i class="bi bi-x"></i> Clear
@@ -190,7 +190,7 @@
                         <input type="text" class="form-control" id="samplePattern"
                                [(ngModel)]="autoMatchSampleColumnsPattern">
                       </div>
-                      <div>
+                      <div class="mt-2">
                         <button class="btn btn-secondary" (click)="autoMatchSampleColumns()">
                           <i class="bi bi-magic me-1"></i>Autoselect Samples
                         </button>

@@ -216,7 +216,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
         name: s,
         marker: {
           color: this.settings.settings.colorMap[s],
-          size: this.settings.settings.scatterPlotMarkerSize
+          size: this.settings.settings.markerSizeMap[s] || this.settings.settings.scatterPlotMarkerSize
         }
       }
     }
@@ -363,7 +363,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
             mode: "markers",
             marker: {
               color: this.settings.settings.colorMap[group],
-              size: this.settings.settings.scatterPlotMarkerSize
+              size: this.settings.settings.markerSizeMap[group] || this.settings.settings.scatterPlotMarkerSize
             },
             name: group
           }
@@ -823,7 +823,8 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
     console.log(this.settings.settings.colorMap)
     for (const g in this.settings.settings.colorMap) {
       if (this.currentLegend.includes(g)) {
-        colorGroups.push({color: this.settings.settings.colorMap[g], group: g, remove: false})
+        const size = this.settings.settings.markerSizeMap[g] || this.settings.settings.scatterPlotMarkerSize
+        colorGroups.push({color: this.settings.settings.colorMap[g], group: g, remove: false, size: size})
       }
     }
     ref.componentInstance.data = {colorGroups: colorGroups, groups: this.currentLegend}
@@ -832,8 +833,12 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
         if (this.settings.settings.colorMap[g.group] !== g.color) {
           this.settings.settings.colorMap[g.group] = g.color
         }
+        if (g.size !== undefined && g.size !== null) {
+          this.settings.settings.markerSizeMap[g.group] = g.size
+        }
         if (g.remove) {
           delete this.settings.settings.colorMap[g.group]
+          delete this.settings.settings.markerSizeMap[g.group]
         }
       }
       this.drawVolcano()

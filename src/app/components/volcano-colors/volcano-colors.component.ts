@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, signal} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {SettingsService} from "../../settings.service";
 import {FormBuilder} from "@angular/forms";
@@ -11,12 +11,12 @@ import {ToastService} from "../../toast.service";
     standalone: false
 })
 export class VolcanoColorsComponent implements OnInit {
-  colorGroups: any[] = []
+  colorGroups = signal<any[]>([])
   private _data: string[] = []
 
   @Input() set data(value: any) {
     this._data = value.groups
-    this.colorGroups = value.colorGroups
+    this.colorGroups.set(value.colorGroups)
     console.log(value)
   }
 
@@ -36,7 +36,7 @@ export class VolcanoColorsComponent implements OnInit {
   }
 
   updateColorGroup() {
-    this.modal.close(this.colorGroups)
+    this.modal.close(this.colorGroups())
   }
 
   closeModal() {
@@ -44,12 +44,12 @@ export class VolcanoColorsComponent implements OnInit {
   }
 
   copyColorArray() {
-    const colorArray: any[] = this.colorGroups.map(x => {
-      return {group: x.group, color: x.color}
+    const colorArray: any[] = this.colorGroups().map(x => {
+      return {group: x.group, color: x.color, size: x.size}
     })
     navigator.clipboard.writeText(JSON.stringify(colorArray)).then(
       () => {
-        this.toast.show("Clipboard", "Color array copied to clipboard").then()
+        this.toast.show("Clipboard", "Color and size data copied to clipboard").then()
       }
     )
   }
@@ -60,20 +60,25 @@ export class VolcanoColorsComponent implements OnInit {
         const colorArray = JSON.parse(this.form.value["colors"])
         if (Array.isArray(colorArray)) {
           let matchCount = 0
+          const groups = this.colorGroups()
           for (const c of colorArray) {
-            for (const g of this.colorGroups) {
+            for (const g of groups) {
               if (g.group === c.group) {
                 g.color = c.color
+                if (c.size !== undefined) {
+                  g.size = c.size
+                }
                 matchCount++
               }
             }
           }
-          this.toast.show("Success", `Imported ${matchCount} color(s) successfully`).then()
+          this.colorGroups.set([...groups])
+          this.toast.show("Success", `Imported ${matchCount} item(s) successfully`).then()
         } else {
-          this.toast.show("Error", "Invalid format. Expected an array of color objects.").then()
+          this.toast.show("Error", "Invalid format. Expected an array of objects.").then()
         }
       } catch (error) {
-        this.toast.show("Error", "Failed to parse color array JSON").then()
+        this.toast.show("Error", "Failed to parse JSON").then()
       }
     }
   }
