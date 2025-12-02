@@ -5,7 +5,7 @@ import {DataFrame, fromCSV} from "data-forge";
 import {InputFile} from "../../classes/input-file";
 import {Differential} from "../../classes/differential";
 import {Raw} from "../../classes/raw";
-import {NgClass, NgForOf, NgIf} from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   NgbActiveModal,
   NgbNav,
