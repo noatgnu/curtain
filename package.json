@@ -59,7 +59,7 @@
     "quill": "^2.0.3",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
-    "uniprotparserjs": "^1.0.31",
+    "uniprotparserjs": "^1.0.33",
     "uuid-readable": "^0.0.2",
     "zone.js": "~0.15.0"
   },
