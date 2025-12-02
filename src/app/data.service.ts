@@ -355,8 +355,18 @@ export class DataService {
   }
 
   async getKey() {
-    this.private_key = await loadFromLocalStorage("private")
-    this.public_key = await loadFromLocalStorage("public")
+    try {
+      this.private_key = await loadFromLocalStorage("private")
+      this.public_key = await loadFromLocalStorage("public")
+      console.log("Keys loaded from localStorage:", {
+        hasPrivateKey: !!this.private_key,
+        hasPublicKey: !!this.public_key
+      })
+    } catch (error) {
+      console.error("Error loading keys from localStorage:", error)
+      this.private_key = undefined
+      this.public_key = undefined
+    }
   }
 
   mergeSearchOperation(searchOperations: string[], newSearchOperationName: string, color: string = "") {

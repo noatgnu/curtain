@@ -293,9 +293,16 @@ export class HomeComponent implements OnInit {
     this.toast.show("Initialization", "Downloading data from session " + id, undefined, undefined, "download").then()
     try {
       const data = await this.accounts.curtainAPI.postSettings(id, token, this.onDownloadProgress)
-      if (data.data) {
-        console.log(data.data)
-        if (data.data.encrypted) {
+      if (data && data.data) {
+        console.log("Received data type:", typeof data.data)
+        console.log("Data preview:", typeof data.data === 'string' ? data.data.substring(0, 100) : data.data)
+
+        // Check if data is encrypted - either has encrypted property or is a base64-like string that's not valid JSON
+        const isEncryptedData = (typeof data.data === 'object' && data.data.encrypted) ||
+          (typeof data.data === 'string' && data.data.length > 100 && !data.data.trim().startsWith('{'))
+
+        if (isEncryptedData) {
+          console.log("Encrypted data detected. Checking for private key:", !!this.data.private_key)
           const encryption = await this.accounts.curtainAPI.getEncryptionFactors(id)
           if (this.data.private_key) {
             this.toast.show("Encryption", "Decrypting data using private key").then()
@@ -357,8 +364,15 @@ export class HomeComponent implements OnInit {
         }
       }
     } catch (error: any) {
-      console.log(error)
+      console.error("Error loading session:", error)
       this.data.downloadProgress.next(100)
+
+      // Check if this is a JSON parsing error
+      if (error.message && error.message.includes("Failed to parse")) {
+        this.toast.show("Decryption Error", "The session data appears to be encrypted or corrupted. Please ensure you have the correct decryption key.").then()
+        return
+      }
+
       if (error.status === 400) {
         this.toast.show("Credential Error", "Login Information Required").then()
         const login = this.openLoginModal()
@@ -655,10 +669,22 @@ export class HomeComponent implements OnInit {
   async restoreSettings(object: any) {
 
     if (typeof object === "string") {
-      object = JSON.parse(object, reviver)
+      try {
+        object = JSON.parse(object, reviver)
+      } catch (e) {
+        console.error("Error parsing JSON:", e)
+        console.error("Invalid JSON string:", object.substring(0, 100))
+        throw new Error("Failed to parse session data: Invalid JSON format")
+      }
     }
     if (typeof object.settings === "string") {
-      object.settings = JSON.parse(object.settings, reviver)
+      try {
+        object.settings = JSON.parse(object.settings, reviver)
+      } catch (e) {
+        console.error("Error parsing settings JSON:", e)
+        console.error("Invalid settings JSON string:", object.settings.substring(0, 100))
+        throw new Error("Failed to parse settings: Invalid JSON format")
+      }
     }
     if (object.fetchUniprot) {
       if (object.extraData) {
