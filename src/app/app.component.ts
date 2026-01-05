@@ -10,6 +10,7 @@ import {loadFromLocalStorage} from "curtain-web-api";
 import {DataService} from "./data.service";
 import {environment} from "../environments/environment";
 import {CitationComponent} from "./components/citation/citation.component";
+import {AnalyticsService} from "./analytics.service";
 
 @Component({
     selector: 'app-root',
@@ -20,7 +21,7 @@ import {CitationComponent} from "./components/citation/citation.component";
 export class AppComponent implements AfterViewInit {
   title = 'Curtain';
   baseURL = environment.apiURL
-  constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private data: DataService,  private settings: SettingsService, private ws: WebsocketService, private modal: NgbModal) {
+  constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private data: DataService,  private settings: SettingsService, private ws: WebsocketService, private modal: NgbModal, private analytics: AnalyticsService) {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
       const code = path.split("=")
@@ -34,6 +35,7 @@ export class AppComponent implements AfterViewInit {
     this.ws.getJobMessages()?.subscribe((data: any) => {
       console.log(data)
     })
+    this.analytics.initialize()
   }
 
   ngAfterViewInit() {
