@@ -27,6 +27,7 @@ export class CollectionManagementModalComponent implements OnInit {
   collections: Collection[] = [];
   isLoading: boolean = false;
   searchQuery: string = '';
+  filterMode: 'all' | 'containing' = 'all';
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -40,12 +41,20 @@ export class CollectionManagementModalComponent implements OnInit {
   async loadCollections(): Promise<void> {
     try {
       this.isLoading = true;
-      const response = await this.accounts.getCollections(1, 10, this.searchQuery, true, this.linkId);
+      const linkId = this.filterMode === 'containing' ? this.linkId : undefined;
+      const response = await this.accounts.getCollections(1, 10, this.searchQuery, true, linkId);
       this.collections = response.results || [];
     } catch (error) {
       console.error('Failed to load collections:', error);
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  setFilterMode(mode: 'all' | 'containing'): void {
+    if (this.filterMode !== mode) {
+      this.filterMode = mode;
+      this.loadCollections();
     }
   }
 

@@ -4,6 +4,8 @@ import { AccountsService } from '../accounts.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CollectionSessionsViewerModalComponent } from '../../components/collection-sessions-viewer-modal/collection-sessions-viewer-modal.component';
 
 // Interfaces for type safety
 interface CurtainLink {
@@ -78,7 +80,8 @@ export class AccountsComponent implements OnInit, OnDestroy {
   constructor(
     private readonly web: WebService,
     public readonly accounts: AccountsService,
-    private readonly fb: FormBuilder
+    private readonly fb: FormBuilder,
+    private modal: NgbModal
   ) {
     this.initializeForm();
     this.initializeUserData();
@@ -623,6 +626,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
   }
 
   viewCollectionSessions(collection: any): void {
-    console.log('Viewing sessions for collection:', collection);
+    const modalRef = this.modal.open(CollectionSessionsViewerModalComponent, { size: 'lg', scrollable: true });
+    modalRef.componentInstance.collectionId = collection.id;
   }
 }
