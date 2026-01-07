@@ -35,7 +35,7 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background-color: #f8f9fa;
+  background-color: var(--app-bg-secondary);
 }
 
 @media (max-height: 900px) {

@@ -326,7 +326,9 @@
   <div class="container">
     @if (doiMetadata) {
       <app-datacite-metadata-display [metadata]="doiMetadata"
-                                     (clickDownload)="handleDataCiteClickDownload($event)">
+                                     [parsedData]="doiParsedData"
+                                     (clickDownload)="handleDataCiteClickDownload($event)"
+                                     (navigateToSession)="handleNavigateToSession($event)">
       </app-datacite-metadata-display>
     } @else {
       @if (loadingDataCite()) {

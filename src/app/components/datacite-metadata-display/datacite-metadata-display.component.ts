@@ -43,7 +43,11 @@ export class DataciteMetadataDisplayComponent {
 
   }
 
+  @Input() parsedData: any = undefined
+
   @Output() clickDownload: EventEmitter<string> = new EventEmitter<string>()
+  @Output() navigateToSession: EventEmitter<string> = new EventEmitter<string>()
+
   creatorsString: string = ""
   get metadata(): DataCiteMetadata|undefined {
     return this._metadata

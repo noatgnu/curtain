@@ -53,7 +53,7 @@
     border-left: 0;
 
     &:focus {
-      border-color: #ced4da;
+      border-color: var(--app-input-border);
       box-shadow: none;
     }
   }

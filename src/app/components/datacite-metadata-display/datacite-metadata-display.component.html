@@ -102,6 +102,37 @@
             </div>
           }
         </div>
+
+        @if (parsedData?.collectionMetadata) {
+          <div class="mb-3">
+            <h5 class="border-bottom pb-2"><i class="bi bi-collection me-2"></i>Collection Information</h5>
+            <div class="card">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">{{parsedData.collectionMetadata.collectionName}}</h6>
+                @if (parsedData.collectionMetadata.description) {
+                  <p class="card-text">{{parsedData.collectionMetadata.description}}</p>
+                }
+                @if (parsedData.collectionMetadata.allSessionLinks && parsedData.collectionMetadata.allSessionLinks.length > 0) {
+                  <h6 class="mt-3 mb-2">Related Sessions in Collection:</h6>
+                  <div class="list-group">
+                    @for (session of parsedData.collectionMetadata.allSessionLinks; track session.sessionUrl) {
+                      <button type="button" class="list-group-item list-group-item-action" (click)="navigateToSession.emit(session.sessionUrl)">
+                        <div class="d-flex w-100 justify-content-between">
+                          <h6 class="mb-1">{{session.title || 'Untitled Session'}}</h6>
+                          <small><i class="bi bi-box-arrow-up-right"></i></small>
+                        </div>
+                        @if (session.description) {
+                          <p class="mb-1 text-muted small">{{session.description}}</p>
+                        }
+                        <small class="text-muted">{{session.sessionUrl}}</small>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Actions Footer -->
