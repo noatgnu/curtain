@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1767792835003,
+  "timestamp": 1767893236979,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -11,17 +11,17 @@
         "ignoreVary": true
       },
       "urls": [
+        "/chunk-3DT7B52G.js",
         "/chunk-GEW536EM.js",
-        "/chunk-MG3L4ZJX.js",
         "/chunk-N57AJHA5.js",
-        "/chunk-STRJFKTR.js",
+        "/chunk-TOBQ2WM3.js",
         "/favicon.ico",
         "/index.html",
-        "/main-XHQE7XYA.js",
+        "/main-4DNYKESW.js",
         "/manifest.webmanifest",
         "/polyfills-S3KRBCMK.js",
         "/scripts-TSGU23AO.js",
-        "/styles-RTESMJUM.css",
+        "/styles-TYVX67L7.css",
         "/worker-GDI5HWZZ.js",
         "/worker-P27M7M6U.js"
       ],
@@ -123,17 +123,17 @@
     "/assets/proteinLists/pd.txt": "915c4a708c5dc7227d0b8fdc5eb51b17b2342746",
     "/assets/proteinLists/phosphatases.txt": "c350ec4656fee8be08c7dead8fdd42a0cd20e350",
     "/assets/proteinLists/pink1.txt": "6b73c270d0407981851903bae49a622c0c22e0f8",
+    "/chunk-3DT7B52G.js": "3afb42822120eec24d4bc873a9bd3822257c8ac0",
     "/chunk-GEW536EM.js": "60e1daa2afbfab2259fd0ae9b03e2b0cab550f28",
-    "/chunk-MG3L4ZJX.js": "566b274c74d917d9a46897ffeab2622242ef9c8c",
     "/chunk-N57AJHA5.js": "0596171feebf974cc1f5eeeef7f1e75616da8bca",
-    "/chunk-STRJFKTR.js": "a432b82ef02c5031c77c0d1b08272efb06f7c3e4",
+    "/chunk-TOBQ2WM3.js": "a6d21d682d3f27fa5c77f680908efd0766a31978",
     "/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/index.html": "52be8adff8808e1ef2e3404c3061b34ea2b4bf56",
-    "/main-XHQE7XYA.js": "512e0a70b022556604022c73a6e408cefae4ae93",
+    "/index.html": "b914833854a6bdfd72e7b4f90c875d5695a245ac",
+    "/main-4DNYKESW.js": "8207a9711cf8e6172ceef7f474f4bb27037b27a9",
     "/manifest.webmanifest": "0f6d8f1c753e9f503daf4cd303ebecc6b0b0a04b",
     "/polyfills-S3KRBCMK.js": "666124c1a3df4ed7eb66e54da096791013fab792",
     "/scripts-TSGU23AO.js": "e172440274ca0257fbf1b7e414f5bd41b03b202f",
-    "/styles-RTESMJUM.css": "03dc4a5da3ec6fa15183b1b7252497dacdb91ba9",
+    "/styles-TYVX67L7.css": "35005f2e997f4d574cdda1cd5229ac8e28327fd2",
     "/worker-GDI5HWZZ.js": "212ea13c7c9838db4d44b41a2f82d63700fd68e4",
     "/worker-P27M7M6U.js": "212ea13c7c9838db4d44b41a2f82d63700fd68e4"
   },
