@@ -6,6 +6,7 @@ import { Observable, Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CollectionSessionsViewerModalComponent } from '../../components/collection-sessions-viewer-modal/collection-sessions-viewer-modal.component';
+import { QrcodeModalComponent } from '../../components/qrcode-modal/qrcode-modal.component';
 
 // Interfaces for type safety
 interface CurtainLink {
@@ -628,5 +629,36 @@ export class AccountsComponent implements OnInit, OnDestroy {
   viewCollectionSessions(collection: any): void {
     const modalRef = this.modal.open(CollectionSessionsViewerModalComponent, { size: 'lg', scrollable: true });
     modalRef.componentInstance.collectionId = collection.id;
+  }
+
+  async toggleCollectionEnable(collection: any): Promise<void> {
+    try {
+      this.collectionsLoading = true;
+      const newEnable = !collection.enable;
+      await this.accounts.updateCollectionEnable(collection.id, newEnable);
+      collection.enable = newEnable;
+    } catch (error) {
+      console.error('Failed to toggle collection sharing:', error);
+    } finally {
+      this.collectionsLoading = false;
+    }
+  }
+
+  getCollectionLink(collection: any): string {
+    return `${window.location.origin}${window.location.pathname}#/collection/${collection.id}`;
+  }
+
+  async copyCollectionLink(collection: any): Promise<void> {
+    const link = this.getCollectionLink(collection);
+    try {
+      await navigator.clipboard.writeText(link);
+    } catch (error) {
+      console.error('Failed to copy link:', error);
+    }
+  }
+
+  openCollectionQRCode(collection: any): void {
+    const ref = this.modal.open(QrcodeModalComponent, { size: 'sm' });
+    ref.componentInstance.url = this.getCollectionLink(collection);
   }
 }

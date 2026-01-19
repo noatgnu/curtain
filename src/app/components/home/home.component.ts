@@ -39,7 +39,9 @@ import {
   exportAESKey,
   generateAESKey,
   importAESKey,
-  Announcement
+  Announcement,
+  CurtainCollection,
+  AccessibleCurtain
 } from "curtain-web-api";
 import {DefaultColorPaletteComponent} from "../default-color-palette/default-color-palette.component";
 import {DataSelectionManagementComponent} from "../data-selection-management/data-selection-management.component";
@@ -268,19 +270,13 @@ export class HomeComponent implements OnInit {
   }
 
   findSessionUrlById(parsedData: any, sessionId: string): string | null {
-    if (!parsedData || !parsedData.collectionMetadata || !parsedData.collectionMetadata.allSessionLinks) {
+    if (!parsedData || !parsedData.collectionMetadata || !parsedData.collectionMetadata.sessions) {
       return null
     }
 
-    for (const session of parsedData.collectionMetadata.allSessionLinks) {
-      try {
-        const url = new URL(session.sessionUrl)
-        const id = url.searchParams.get("id") || url.searchParams.get("link")
-        if (id === sessionId) {
-          return session.sessionUrl
-        }
-      } catch (e) {
-        console.error("Failed to parse session URL:", e)
+    for (const session of parsedData.collectionMetadata.sessions) {
+      if (session.link_id === sessionId) {
+        return session.data_url
       }
     }
 
@@ -305,24 +301,12 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  handleNavigateToSession(sessionUrl: string) {
+  handleNavigateToSession(sessionLinkId: string) {
     const params = this.route.snapshot.params
-    if (!params || !params["settings"] || !params["settings"].startsWith("doi.org/")) {
-      return
-    }
-
-    const doiPart = params["settings"].split("&")[0]
-
-    try {
-      const url = new URL(sessionUrl)
-      const uniqueID = url.searchParams.get("id") || url.searchParams.get("link")
-
-      if (uniqueID) {
-        const newUrl = `${location.origin}/#/${encodeURIComponent(doiPart)}&${encodeURIComponent(uniqueID)}`
-        window.open(newUrl, '_blank')
-      }
-    } catch (e) {
-      console.error("Failed to parse session URL:", e)
+    if (params && params["settings"] && params["settings"].startsWith("doi.org/")) {
+      const doiPart = params["settings"].split("&")[0]
+      const newUrl = `${location.origin}/#/${doiPart}&${sessionLinkId}`
+      window.open(newUrl, '_blank')
     }
   }
 
