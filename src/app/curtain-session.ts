@@ -6,6 +6,7 @@ export interface CurtainSession {
   link_id: string,
   file: string,
   enable: boolean,
+  name?: string,
   description: string,
   curtain_type: string,
   encrypted: boolean,

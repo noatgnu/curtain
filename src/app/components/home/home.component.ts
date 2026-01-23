@@ -594,12 +594,13 @@ export class HomeComponent implements OnInit {
     });
     modalRef.componentInstance.siteProperties = this.web.siteProperties;
     modalRef.componentInstance.isStaff = this.accounts.curtainAPI.user.isStaff;
+    modalRef.componentInstance.currentName = this.data.session?.name || '';
 
     try {
       const result = await modalRef.result;
       this.toast.show("User information", "Saving session data").then()
       console.log(this.settings.settings.conditionOrder.slice())
-      this.saving(result.permanent, result.expiryDuration);
+      this.saving(result.permanent, result.expiryDuration, result.sessionName);
     } catch (error) {
       console.log('Modal dismissed');
     }
@@ -642,7 +643,7 @@ export class HomeComponent implements OnInit {
     return data
   }
 
-  private async saving(permanent: boolean = false, expiryDuration?: number) {
+  private async saving(permanent: boolean = false, expiryDuration?: number, sessionName?: string) {
     const data = this.createPayload()
     const encryption: CurtainEncryption = {
       encrypted: this.settings.settings.encrypted,
@@ -664,6 +665,7 @@ export class HomeComponent implements OnInit {
           file,
           1024 * 1024,
           {
+            name: sessionName,
             description: data.settings.description,
             curtain_type: "TP",
             permanent: permanent,
@@ -694,15 +696,15 @@ export class HomeComponent implements OnInit {
         }
       } catch (err) {
         console.error('Chunk upload failed, falling back to regular upload:', err)
-        this.fallbackToRegularUpload(data, encryption, permanent, expiryDuration)
+        this.fallbackToRegularUpload(data, encryption, permanent, expiryDuration, sessionName)
       }
     } else {
-      this.fallbackToRegularUpload(data, encryption, permanent, expiryDuration)
+      this.fallbackToRegularUpload(data, encryption, permanent, expiryDuration, sessionName)
     }
   }
 
-  private fallbackToRegularUpload(data: any, encryption: CurtainEncryption, permanent: boolean, expiryDuration?: number) {
-    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, permanent, expiryDuration, this.onUploadProgress).then(async (data: any) => {
+  private fallbackToRegularUpload(data: any, encryption: CurtainEncryption, permanent: boolean, expiryDuration?: number, sessionName?: string) {
+    this.accounts.curtainAPI.putSettings(data, !this.accounts.curtainAPI.user.loginStatus, data.settings.description, "TP", encryption, permanent, expiryDuration, this.onUploadProgress, sessionName).then(async (data: any) => {
       if (data.data) {
         this.toast.show("User information", `Curtain link saved with unique id ${data.data.link_id}`).then()
         this.data.session = data.data

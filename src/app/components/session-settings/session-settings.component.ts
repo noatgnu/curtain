@@ -107,19 +107,35 @@ export class SessionSettingsComponent implements OnInit {
         const blob = new Blob([jsonString], { type: 'application/json' })
         const file = new File([blob], 'session_update.json', { type: 'application/json' })
 
-        const result = await this.accounts.curtainAPI.uploadCurtainFileInChunks(
-          file,
-          1024 * 1024 * 5,
-          {
-            link_id: this.currentID,
-            enable: this.form.value["enable"],
-            onProgress: (progress: number) => {
-              this.uploadProgress = progress
-            }
-          }
-        )
+        const CHUNK_THRESHOLD = 5 * 1024 * 1024
 
-        this.data.session = result.curtain
+        if (file.size > CHUNK_THRESHOLD) {
+          const result = await this.accounts.curtainAPI.uploadCurtainFileInChunks(
+            file,
+            1024 * 1024,
+            {
+              link_id: this.currentID,
+              enable: this.form.value["enable"],
+              onProgress: (progress: number) => {
+                this.uploadProgress = progress
+              }
+            }
+          )
+          this.data.session = result.curtain
+        } else {
+          const encryption: CurtainEncryption = {
+            encrypted: this.settings.settings.encrypted,
+            e2e: this.settings.settings.encrypted,
+            publicKey: this.data.public_key,
+          }
+          const payload: any = {
+            file: fileData,
+            enable: this.form.value["enable"]
+          }
+          const data = await this.accounts.curtainAPI.updateSession(payload, this.currentID, encryption)
+          this.data.session = data.data
+        }
+
         this.toast.show("Success", "Session updated successfully").then()
         this.isUpdating = false
         this.modal.dismiss()
