@@ -244,10 +244,10 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       this.graphLayout.yaxis.range[1] = this.settings.settings.volcanoAxis.maxY
     }
     if (this.settings.settings.volcanoAxis.x) {
-      this.graphLayout.xaxis.title = `<b>${this.settings.settings.volcanoAxis.x}</b>`
+      this.graphLayout.xaxis.title.text = `<b>${this.settings.settings.volcanoAxis.x}</b>`
     }
     if (this.settings.settings.volcanoAxis.y) {
-      this.graphLayout.yaxis.title = `<b>${this.settings.settings.volcanoAxis.y}</b>`
+      this.graphLayout.yaxis.title.text = `<b>${this.settings.settings.volcanoAxis.y}</b>`
     }
 
     temp["Background"] = {

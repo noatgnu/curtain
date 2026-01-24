@@ -44,6 +44,7 @@ export class SessionSettingsComponent implements OnInit {
     return this._currretID
   }
   form = this.fb.group({
+    name: [this.data.session?.name || '',],
     enable: [this.data.session?.enable,],
     update_content: [false,],
     temporary_link_lifetime: [1,],
@@ -115,6 +116,7 @@ export class SessionSettingsComponent implements OnInit {
             1024 * 1024,
             {
               link_id: this.currentID,
+              name: this.form.value["name"],
               enable: this.form.value["enable"],
               onProgress: (progress: number) => {
                 this.uploadProgress = progress
@@ -130,6 +132,7 @@ export class SessionSettingsComponent implements OnInit {
           }
           const payload: any = {
             file: fileData,
+            name: this.form.value["name"],
             enable: this.form.value["enable"]
           }
           const data = await this.accounts.curtainAPI.updateSession(payload, this.currentID, encryption)
@@ -145,7 +148,7 @@ export class SessionSettingsComponent implements OnInit {
         this.isUpdating = false
       }
     } else {
-      const payload: any = {enable: this.form.value["enable"]}
+      const payload: any = {name: this.form.value["name"], enable: this.form.value["enable"]}
       const encryption: CurtainEncryption = {
         encrypted: this.settings.settings.encrypted,
         e2e: this.settings.settings.encrypted,
