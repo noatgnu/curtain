@@ -214,8 +214,8 @@ export class HomeComponent implements OnInit {
               if (this.currentID !== settings[0]) {
                 this.currentID = settings[0]
 
-                // Check if user is on Android and prompt for native app
-                if (this.isAndroid()) {
+                // Check if user is on mobile (Android or iOS) and prompt for native app
+                if (this.isMobile()) {
                   this.promptForNativeApp(settings[0]);
                 }
 
@@ -233,6 +233,14 @@ export class HomeComponent implements OnInit {
 
   private isAndroid(): boolean {
     return /Android/i.test(navigator.userAgent);
+  }
+
+  private isIOS(): boolean {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+
+  private isMobile(): boolean {
+    return this.isAndroid() || this.isIOS();
   }
 
   private promptForNativeApp(uniqueId: string): void {

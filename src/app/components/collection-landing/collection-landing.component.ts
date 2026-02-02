@@ -32,7 +32,7 @@ export class CollectionLandingComponent implements OnInit, OnDestroy {
       const id = params['id'];
       if (id) {
         this.currentCollectionId = parseInt(id, 10);
-        if (this.isAndroid()) {
+        if (this.isMobile()) {
           this.promptForNativeApp(this.currentCollectionId);
         }
         this.loadCollection(this.currentCollectionId);
@@ -42,6 +42,14 @@ export class CollectionLandingComponent implements OnInit, OnDestroy {
 
   private isAndroid(): boolean {
     return /Android/i.test(navigator.userAgent);
+  }
+
+  private isIOS(): boolean {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+
+  private isMobile(): boolean {
+    return this.isAndroid() || this.isIOS();
   }
 
   private promptForNativeApp(collectionId: number): void {
