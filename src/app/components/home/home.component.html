@@ -185,6 +185,11 @@
                 <button ngbDropdownItem (click)="saveSession()" [disabled]="data.tempLink">
                   <i class="bi bi-save me-1"></i>Save Session
                 </button>
+                @if (showNativeAppButton) {
+                  <button ngbDropdownItem (click)="openInNativeApp()">
+                    <i class="bi bi-arrow-up-right-square me-1"></i>Open in Native App
+                  </button>
+                }
                 @if (accounts.curtainAPI.user.loginStatus && data.session) {
                   <button ngbDropdownItem (click)="openDataciteDOI()">
                     {{data.session.data_cite ? 'View DOI Form' : 'Register DOI (Beta)'}}

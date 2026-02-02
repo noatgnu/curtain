@@ -48,7 +48,18 @@ export class CollectionLandingComponent implements OnInit, OnDestroy {
     return /iPhone|iPad|iPod/i.test(navigator.userAgent);
   }
 
+  private isMacOS(): boolean {
+    // Detect macOS (including iPad in desktop mode)
+    // Show button to all macOS users - even on Intel Macs since:
+    // 1. ARM64 apps can run on Intel Macs via Rosetta 2
+    // 2. Deep link fails gracefully if app not installed/compatible
+    // 3. Better UX than trying to guess architecture (which is unreliable in browser)
+    return /Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent) ||
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
   private isMobile(): boolean {
+    // Only Android and iOS (not macOS) should get automatic prompts
     return this.isAndroid() || this.isIOS();
   }
 
@@ -57,6 +68,20 @@ export class CollectionLandingComponent implements OnInit, OnDestroy {
       const nativeAppUrl = `curtain://collection?collectionId=${encodeURIComponent(collectionId)}&curtainType=TP&apiURL=${encodeURIComponent(environment.apiURL)}&frontendURL=${encodeURIComponent(location.origin)}`;
       window.location.href = nativeAppUrl;
     }
+  }
+
+  openInNativeApp(): void {
+    // Silently attempt to open in native app (for macOS Catalyst)
+    // If app is not installed, nothing happens and user stays on website
+    if (this.currentCollectionId) {
+      const nativeAppUrl = `curtain://collection?collectionId=${encodeURIComponent(this.currentCollectionId)}&curtainType=TP&apiURL=${encodeURIComponent(environment.apiURL)}&frontendURL=${encodeURIComponent(location.origin)}`;
+      window.location.href = nativeAppUrl;
+    }
+  }
+
+  get showNativeAppButton(): boolean {
+    // Show "Open in App" button on macOS when collection is loaded
+    return this.isMacOS() && !!this.currentCollectionId && !this.loading();
   }
 
   ngOnDestroy(): void {

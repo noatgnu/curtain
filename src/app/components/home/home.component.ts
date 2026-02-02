@@ -239,7 +239,13 @@ export class HomeComponent implements OnInit {
     return /iPhone|iPad|iPod/i.test(navigator.userAgent);
   }
 
+  private isMacOS(): boolean {
+    return /Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent) ||
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
   private isMobile(): boolean {
+    // Only Android and iOS (not macOS) should get automatic prompts
     return this.isAndroid() || this.isIOS();
   }
 
@@ -248,6 +254,17 @@ export class HomeComponent implements OnInit {
       const nativeAppUrl = `curtain://open?uniqueId=${encodeURIComponent(uniqueId)}&apiURL=${encodeURIComponent(environment.apiURL)}&frontendURL=${encodeURIComponent(location.origin)}`;
       window.location.href = nativeAppUrl;
     }
+  }
+
+  openInNativeApp(): void {
+    if (this.currentID) {
+      const nativeAppUrl = `curtain://open?uniqueId=${encodeURIComponent(this.currentID)}&apiURL=${encodeURIComponent(environment.apiURL)}&frontendURL=${encodeURIComponent(location.origin)}`;
+      window.location.href = nativeAppUrl;
+    }
+  }
+
+  get showNativeAppButton(): boolean {
+    return this.isMacOS() && !!this.currentID && this.finished();
   }
 
   async loadDataCiteSession(alternateIdentifiers: any[], doiLink: string, sessionId?: string) {
