@@ -123,7 +123,7 @@ export class HomeComponent implements OnInit {
   sessionCollections: any[] = []
   selectedCollectionId: number | null = null
   loadingCollections: boolean = false
-  sessionLinkDismissed = signal(false)
+  sessionLinkMinimized = signal(false)
   constructor(public themeService: ThemeService, private saveState: SaveStateService, private ws: WebsocketService, public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, public settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
@@ -714,7 +714,7 @@ export class HomeComponent implements OnInit {
           console.log(this.data.session)
           this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
           this.permanent.set(response.curtain.permanent)
-          this.sessionLinkDismissed.set(false)
+          this.sessionLinkMinimized.set(false)
           this.accounts.isOwner = true
           this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
           await this.loadSessionCollections(response.curtain.link_id)
@@ -738,7 +738,7 @@ export class HomeComponent implements OnInit {
         await this.loadSessionCollections(data.data.link_id)
         this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
         this.permanent.set(data.data.permanent)
-        this.sessionLinkDismissed.set(false)
+        this.sessionLinkMinimized.set(false)
         this.accounts.isOwner = true
         this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
       }
@@ -1472,8 +1472,12 @@ export class HomeComponent implements OnInit {
     this.themeService.setMode(mode)
   }
 
-  dismissSessionLink(): void {
-    this.sessionLinkDismissed.set(true)
+  minimizeSessionLink(): void {
+    this.sessionLinkMinimized.set(true)
+  }
+
+  expandSessionLink(): void {
+    this.sessionLinkMinimized.set(false)
   }
 
   removeClearSettings() {
