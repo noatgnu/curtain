@@ -1,6 +1,8 @@
-import {Component, effect, EventEmitter, input, Output, signal} from '@angular/core';
-import {NgbProgressbar} from "@ng-bootstrap/ng-bootstrap";
-import {DataService} from "../../../data.service";
+import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { NgbProgressbar } from "@ng-bootstrap/ng-bootstrap";
+import { DataService } from "../../../data.service";
+import { Subscription } from "rxjs";
+import { ToastType } from "../../../toast.service";
 
 @Component({
     selector: 'app-toast-progressbar',
@@ -10,31 +12,61 @@ import {DataService} from "../../../data.service";
     templateUrl: './toast-progressbar.component.html',
     styleUrl: './toast-progressbar.component.scss'
 })
-export class ToastProgressbarComponent {
-  action = input("other")
-  progress = signal(0)
-  total = input(100)
-  @Output() finished: EventEmitter<boolean> = new EventEmitter()
+export class ToastProgressbarComponent implements OnDestroy {
+  private subscription?: Subscription;
+  progress = 0;
 
-  constructor(public data: DataService) {
-    effect(() => {
-      const actionValue = this.action()
-      if (actionValue === "download") {
-        this.data.downloadProgress.subscribe((data) => {
-          this.progress.set(data)
-          if (data === 100) {
-            this.finished.emit(true)
-          }
-        })
-      } else if (actionValue === "upload") {
-        this.data.uploadProgress.subscribe((data) => {
-          this.progress.set(data)
-          if (data === 100) {
-            this.finished.emit(true)
-          }
-        })
-      }
-    })
+  @Input() total = 100;
+  @Input() toastType: ToastType = 'info';
+  @Output() finished: EventEmitter<boolean> = new EventEmitter();
+
+  private _action = 'other';
+
+  @Input() set action(value: string) {
+    this._action = value;
+    this.cleanup();
+
+    if (value === 'download') {
+      this.subscription = this.data.downloadProgress.subscribe((progress) => {
+        this.progress = progress;
+        if (progress === 100) {
+          this.finished.emit(true);
+        }
+      });
+    } else if (value === 'upload') {
+      this.subscription = this.data.uploadProgress.subscribe((progress) => {
+        this.progress = progress;
+        if (progress === 100) {
+          this.finished.emit(true);
+        }
+      });
+    }
   }
 
+  get action(): string {
+    return this._action;
+  }
+
+  get progressBarType(): string {
+    const typeMap: Record<ToastType, string> = {
+      info: 'primary',
+      success: 'success',
+      warning: 'warning',
+      error: 'danger'
+    };
+    return typeMap[this.toastType] || 'primary';
+  }
+
+  constructor(private data: DataService) {}
+
+  ngOnDestroy(): void {
+    this.cleanup();
+  }
+
+  private cleanup(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = undefined;
+    }
+  }
 }
