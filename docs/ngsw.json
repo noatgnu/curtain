@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1771243715571,
+  "timestamp": 1771257992804,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -11,19 +11,19 @@
         "ignoreVary": true
       },
       "urls": [
-        "/chunk-225DBJ5Z.js",
-        "/chunk-JD5AKHIN.js",
+        "/chunk-MMOOW3NT.js",
         "/chunk-N57AJHA5.js",
         "/chunk-OPKXG5HT.js",
+        "/chunk-Q6LBBOJY.js",
         "/favicon.ico",
         "/index.html",
-        "/main-VRKZBJXT.js",
+        "/main-FNO5HQJ7.js",
         "/manifest.webmanifest",
         "/polyfills-S3KRBCMK.js",
         "/scripts-TSGU23AO.js",
         "/styles-TYVX67L7.css",
-        "/worker-GDI5HWZZ.js",
-        "/worker-P27M7M6U.js"
+        "/worker-P27M7M6U.js",
+        "/worker-WRTZ2ELM.js"
       ],
       "patterns": []
     },
@@ -123,19 +123,19 @@
     "/assets/proteinLists/pd.txt": "915c4a708c5dc7227d0b8fdc5eb51b17b2342746",
     "/assets/proteinLists/phosphatases.txt": "c350ec4656fee8be08c7dead8fdd42a0cd20e350",
     "/assets/proteinLists/pink1.txt": "6b73c270d0407981851903bae49a622c0c22e0f8",
-    "/chunk-225DBJ5Z.js": "62bf229a8bcf5eedf0b56d0d2bee7941c08d9e3c",
-    "/chunk-JD5AKHIN.js": "1d53acfc3d8845bdb445bf79585ecdb150601695",
+    "/chunk-MMOOW3NT.js": "bfdce711f7fb8bddcfe583f48691b07b229820bf",
     "/chunk-N57AJHA5.js": "0596171feebf974cc1f5eeeef7f1e75616da8bca",
     "/chunk-OPKXG5HT.js": "d5030108cbfe5a8b71c1160d31ac71d9b73d38c0",
+    "/chunk-Q6LBBOJY.js": "4e65554bb23b4bace3c2eb0d4a35bcca52400bfb",
     "/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/index.html": "dbe62a264381b7704de8a8802098abd50d077189",
-    "/main-VRKZBJXT.js": "20b1298069af0bfebe28862a78da7981d1c9aad8",
+    "/index.html": "39173a0c09d7eb0ff764bbb3b45407536dea3672",
+    "/main-FNO5HQJ7.js": "66807e73b45de9fcc81d0ae5add61ed9b5d197b8",
     "/manifest.webmanifest": "0f6d8f1c753e9f503daf4cd303ebecc6b0b0a04b",
     "/polyfills-S3KRBCMK.js": "666124c1a3df4ed7eb66e54da096791013fab792",
     "/scripts-TSGU23AO.js": "e172440274ca0257fbf1b7e414f5bd41b03b202f",
     "/styles-TYVX67L7.css": "35005f2e997f4d574cdda1cd5229ac8e28327fd2",
-    "/worker-GDI5HWZZ.js": "212ea13c7c9838db4d44b41a2f82d63700fd68e4",
-    "/worker-P27M7M6U.js": "212ea13c7c9838db4d44b41a2f82d63700fd68e4"
+    "/worker-P27M7M6U.js": "212ea13c7c9838db4d44b41a2f82d63700fd68e4",
+    "/worker-WRTZ2ELM.js": "3fc7e6b8820e17c4eb24f6cc9ffba47dab45378a"
   },
   "navigationUrls": [
     {
