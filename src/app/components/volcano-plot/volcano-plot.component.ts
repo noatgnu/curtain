@@ -21,6 +21,136 @@ import {PlotlyThemeService} from "../../plotly-theme.service";
 import {ThemeService} from "../../theme.service";
 import {Subscription} from "rxjs";
 
+export interface PlotlyMarker {
+  color: string;
+  size: number;
+  opacity?: number;
+}
+
+export interface PlotlyTrace {
+  x: number[];
+  y: number[];
+  text: string[];
+  primaryIDs: string[];
+  type: 'scatter' | 'scattergl';
+  mode: string;
+  name: string;
+  marker?: PlotlyMarker;
+  visible?: boolean | 'legendonly';
+  hoverinfo?: string;
+  showlegend?: boolean;
+  line?: {
+    color: string;
+    width: number;
+    dash?: string;
+  };
+}
+
+export interface PlotlyAnnotation {
+  xref: string;
+  yref: string;
+  x: number;
+  y: number;
+  text: string;
+  showarrow: boolean;
+  arrowhead?: number;
+  arrowsize?: number;
+  arrowwidth?: number;
+  ax?: number;
+  ay?: number;
+  font: {
+    size: number;
+    color: string;
+    family?: string;
+  };
+  annotationID?: string;
+  xanchor?: string;
+  yanchor?: string;
+  showannotation?: boolean;
+}
+
+export interface PlotlyShape {
+  type: string;
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+  xref?: string;
+  yref?: string;
+  line: {
+    color: string;
+    width: number;
+    dash?: string;
+  };
+  fillcolor?: string;
+  editable?: boolean;
+  label?: {
+    text: string;
+    texttemplate: string;
+    font: {
+      size: number | null;
+      family: string;
+      color: string;
+    };
+  };
+}
+
+export interface AxisConfig {
+  title: { text: string; font: { size: number; family?: string } };
+  tickmode: string;
+  ticklen: number;
+  showgrid: boolean;
+  visible: boolean;
+  showticklabels?: boolean;
+  zeroline?: boolean;
+  range?: [number, number];
+  autoscale?: boolean;
+  autorange?: boolean;
+  zerolinecolor?: string;
+  dtick?: number;
+}
+
+export interface PlotlyLayout {
+  editable: boolean;
+  height: number;
+  width: number;
+  margin: { r: number | null; l: number | null; b: number | null; t: number | null };
+  xaxis: AxisConfig;
+  yaxis: AxisConfig;
+  annotations: PlotlyAnnotation[];
+  showlegend: boolean;
+  legend: {
+    orientation: string;
+    x?: number;
+    y?: number;
+  };
+  title: {
+    text: string;
+    font: { size: number; family?: string };
+  };
+  shapes?: PlotlyShape[];
+}
+
+export interface LayoutBounds {
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+}
+
+export interface PlotlyConfig {
+  editable: boolean;
+  toImageButtonOptions: {
+    format: string;
+    filename: string;
+    height: number;
+    width: number;
+    scale: number;
+    margin?: { r: number | null; l: number | null; b: number | null; t: number | null };
+  };
+  modeBarButtonsToAdd?: string[];
+}
+
 @Component({
     selector: 'app-volcano-plot',
     templateUrl: './volcano-plot.component.html',
@@ -35,9 +165,8 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
   @Output() selected: EventEmitter<selectionData> = new EventEmitter<selectionData>()
   isVolcanoParameterCollapsed: boolean = false
   isConditionLabelsCollapsed: boolean = true
-  _data: any;
-  //nameToID: any = {}
-  graphData: any[] = []
+  _data!: IDataFrame;
+  graphData: PlotlyTrace[] = []
   scattergl: boolean = false
   yAxisPosition: string[] = [
     "middle",
@@ -88,8 +217,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       },
     }
   }
-  config: any = {
-    //modeBarButtonsToRemove: ["toImage"]
+  config: PlotlyConfig = {
     editable: this.editMode,
     toImageButtonOptions: {
       format: 'svg',
@@ -99,11 +227,11 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       scale: 1
     }
   }
-  layoutMaxMin: any = {
+  layoutMaxMin: LayoutBounds = {
     xMin: 0, xMax: 0, yMin: 0, yMax: 0
   }
 
-  annotated: any = {}
+  annotated: Record<string, PlotlyAnnotation> = {}
 
 
   @Input() set data(value: IDataFrame) {
@@ -122,111 +250,165 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
   currentLegend: string[] = []
 
   markerSize: number = 10
-  specialColorMap: any = {}
+  specialColorMap: Record<string, string> = {}
   repeat = false
 
-  drawVolcano() {
-    console.log(this.dataService.selected)
+  drawVolcano(): void {
+    this.initializeSettings()
+    const currentColors = this.getUsedColors()
+    this.initializeColorPosition(currentColors)
+
+    const fdrCurve = this.getFdrCurve()
+    const traces = this.initializeTraces(currentColors)
+
+    this.configureAxisRanges()
+    this.configureAxisTitles()
+
+    this.populateTraces(traces)
+    const graphData = this.buildGraphData(traces)
+
+    if (fdrCurve.count() > 0) {
+      this.addFdrCurves(fdrCurve, graphData)
+    } else {
+      this.graphLayout.shapes = this.buildCutoffShapes()
+    }
+
+    this.finalizeGraphData(graphData)
+    this.configureLayoutDimensions()
+    this.buildConditionLabels()
+    this.applyTextAnnotations()
+    this.updateConfig()
+    this.applyAdditionalShapes()
+    this.applyLegendSettings()
+    this.applyAxisTickSettings()
+
+    this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout)
+    this.revision++
+    this.messageService.show("Volcano Plot", "Finished drawing volcano plot")
+  }
+
+  private initializeSettings(): void {
     this.currentPosition = 0
     this.settings.settings.scatterPlotMarkerSize = this.markerSize
     if (!this.settings.settings.visible) {
       this.settings.settings.visible = {}
     }
     this.graphLayout.title.text = this.settings.settings.volcanoPlotTitle
-    let currentColors: string[] = []
+    if (!this.settings.settings.colorMap) {
+      this.settings.settings.colorMap = {}
+    }
+  }
+
+  private getUsedColors(): string[] {
+    const currentColors: string[] = []
     if (this.settings.settings.colorMap) {
       for (const s in this.settings.settings.colorMap) {
         if (!this.dataService.conditions.includes(s)) {
           if (this.settings.settings.colorMap[s]) {
             if (this.settings.settings.defaultColorList.includes(this.settings.settings.colorMap[s])) {
               currentColors.push(this.settings.settings.colorMap[s])
-              console.log(this.settings.settings.colorMap[s], s)
             }
           }
         }
       }
-    } else {
-      this.settings.settings.colorMap = {}
     }
-    console.log(currentColors)
-    let fdrCurve: IDataFrame = new DataFrame()
-    if (this.settings.settings.fdrCurveTextEnable) {
-      if (this.settings.settings.fdrCurveText !== "") {
-        fdrCurve = fromCSV(this.settings.settings.fdrCurveText)
-      }
-    }
-    const temp: any = {}
+    return currentColors
+  }
 
-
+  private initializeColorPosition(currentColors: string[]): void {
     if (currentColors.length !== this.settings.settings.defaultColorList.length) {
-      if (currentColors.length >= this.settings.settings.defaultColorList.length) {
+      this.currentPosition = currentColors.length >= this.settings.settings.defaultColorList.length
+        ? 0 : currentColors.length
+    }
+  }
+
+  private getFdrCurve(): IDataFrame {
+    if (this.settings.settings.fdrCurveTextEnable && this.settings.settings.fdrCurveText !== "") {
+      return fromCSV(this.settings.settings.fdrCurveText)
+    }
+    return new DataFrame()
+  }
+
+  private assignNextColor(selectionName: string, currentColors: string[]): void {
+    if (this.settings.settings.colorMap[selectionName]) return
+
+    while (true) {
+      if (this.breakColor) {
+        this.settings.settings.colorMap[selectionName] = this.settings.settings.defaultColorList[this.currentPosition]
+        break
+      }
+      if (currentColors.indexOf(this.settings.settings.defaultColorList[this.currentPosition]) !== -1) {
+        this.currentPosition++
+        if (this.repeat) {
+          this.settings.settings.colorMap[selectionName] = this.settings.settings.defaultColorList[this.currentPosition]
+          break
+        }
+      } else if (this.currentPosition >= this.settings.settings.defaultColorList.length) {
         this.currentPosition = 0
+        this.settings.settings.colorMap[selectionName] = this.settings.settings.defaultColorList[this.currentPosition]
+        this.repeat = true
+        break
+      } else if (this.currentPosition !== this.settings.settings.defaultColorList.length) {
+        this.settings.settings.colorMap[selectionName] = this.settings.settings.defaultColorList[this.currentPosition]
+        break
       } else {
-        this.currentPosition = currentColors.length
+        this.breakColor = true
+        this.currentPosition = 0
       }
-
-
     }
-    console.log(currentColors)
-    console.log(this.currentPosition)
+
+    this.currentPosition++
+    if (this.currentPosition === this.settings.settings.defaultColorList.length) {
+      this.currentPosition = 0
+    }
+  }
+
+  private initializeTraces(currentColors: string[]): Record<string, any> {
+    const traces: Record<string, any> = {}
+
     for (const s of this.dataService.selectOperationNames) {
-      if (!this.settings.settings.colorMap[s]) {
+      this.assignNextColor(s, currentColors)
+      traces[s] = this.createTrace(s, this.settings.settings.colorMap[s])
+    }
 
-        while (true) {
-          if (this.breakColor) {
-            this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
-            break
-          }
-          if (currentColors.indexOf(this.settings.settings.defaultColorList[this.currentPosition]) !== -1) {
-            this.currentPosition ++
-            if (this.repeat) {
-              this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
-              break
-            }
-          } else if (this.currentPosition >= this.settings.settings.defaultColorList.length) {
-            this.currentPosition = 0
-            this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
-            this.repeat = true
-            break
-          } else if (this.currentPosition !== this.settings.settings.defaultColorList.length) {
-            this.settings.settings.colorMap[s] = this.settings.settings.defaultColorList[this.currentPosition]
-            break
+    traces["Background"] = {
+      x: [], y: [], text: [], primaryIDs: [],
+      type: this.scattergl ? "scattergl" : "scatter",
+      mode: "markers",
+      name: "Background"
+    }
 
-          } else {
-            this.breakColor = true
-            this.currentPosition = 0
-          }
-
-        }
-
-        this.currentPosition ++
-        if (this.currentPosition === this.settings.settings.defaultColorList.length) {
-          this.currentPosition = 0
-        }
-      }
-      console.log(this.settings.settings.colorMap[s], s)
-      temp[s] = {
-        x: [],
-        y: [],
-        text: [],
-        primaryIDs: [],
-        //type: "scattergl",
-        type: "scatter",
-        mode: "markers",
-        name: s,
-        marker: {
-          color: this.settings.settings.colorMap[s],
-          size: this.settings.settings.markerSizeMap[s] || this.settings.settings.scatterPlotMarkerSize
-        }
+    if (this.settings.settings.backGroundColorGrey) {
+      traces["Background"]["marker"] = {
+        color: "#a4a2a2",
+        opacity: 0.3,
+        size: this.settings.settings.scatterPlotMarkerSize
       }
     }
+
+    return traces
+  }
+
+  private createTrace(name: string, color: string): any {
+    return {
+      x: [], y: [], text: [], primaryIDs: [],
+      type: this.scattergl ? "scattergl" : "scatter",
+      mode: "markers",
+      name: name,
+      marker: {
+        color: color,
+        size: this.settings.settings.markerSizeMap[name] || this.settings.settings.scatterPlotMarkerSize
+      }
+    }
+  }
+
+  private configureAxisRanges(): void {
     this.layoutMaxMin = {
-      xMin: 0, xMax: 0, yMin: 0, yMax: 0
+      xMin: this.dataService.minMax.fcMin,
+      xMax: this.dataService.minMax.fcMax,
+      yMin: this.dataService.minMax.pMin,
+      yMax: this.dataService.minMax.pMax
     }
-    this.layoutMaxMin.xMin = this.dataService.minMax.fcMin
-    this.layoutMaxMin.xMax = this.dataService.minMax.fcMax
-    this.layoutMaxMin.yMin = this.dataService.minMax.pMin
-    this.layoutMaxMin.yMax = this.dataService.minMax.pMax
 
     this.graphLayout.xaxis.range = [this.layoutMaxMin.xMin - 0.5, this.layoutMaxMin.xMax + 0.5]
     if (this.settings.settings.volcanoAxis.minX) {
@@ -243,272 +425,235 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
     if (this.settings.settings.volcanoAxis.maxY) {
       this.graphLayout.yaxis.range[1] = this.settings.settings.volcanoAxis.maxY
     }
+  }
+
+  private configureAxisTitles(): void {
     if (this.settings.settings.volcanoAxis.x) {
       this.graphLayout.xaxis.title.text = `<b>${this.settings.settings.volcanoAxis.x}</b>`
     }
     if (this.settings.settings.volcanoAxis.y) {
       this.graphLayout.yaxis.title.text = `<b>${this.settings.settings.volcanoAxis.y}</b>`
     }
+  }
 
-    temp["Background"] = {
-      x:[],
-      y:[],
-      text: [],
-      primaryIDs: [],
-      //type: "scattergl",
-      type: "scatter",
-      mode: "markers",
-      name: "Background"
-    }
-    if (this.scattergl) {
-      temp["Background"].type = "scattergl"
-    }
-    if (this.settings.settings.backGroundColorGrey) {
-      temp["Background"]["marker"] = {
-        color: "#a4a2a2",
-        opacity: 0.3,
-        size: this.settings.settings.scatterPlotMarkerSize
+  private buildPointLabel(row: any): string {
+    const primaryID = row[this.dataService.differentialForm.primaryIDs]
+    const comparison = row[this.dataService.differentialForm.comparison]
+    let geneNames = ""
+
+    if (this.dataService.fetchUniprot) {
+      const uniprotData: any = this.uniprot.getUniprotFromPrimary(primaryID)
+      if (uniprotData) {
+        geneNames = uniprotData["Gene Names"]
       }
+    } else if (this.dataService.differentialForm.geneNames !== "") {
+      geneNames = row[this.dataService.differentialForm.geneNames]
     }
 
+    if (this.settings.settings.customVolcanoTextCol !== "") {
+      return row[this.settings.settings.customVolcanoTextCol]
+    }
 
-    for (const r of this._data) {
-      let geneNames = ""
-      const x = r[this.dataService.differentialForm.foldChange]
-      const y = r[this.dataService.differentialForm.significant]
-      let primaryID = r[this.dataService.differentialForm.primaryIDs]
-      //if (primaryID === "P52850") {
-        //console.log(this.uniprot.getUniprotFromPrimary(primaryID))
-      //}
-      let uniquePrimaryID = ""
-      if (this.dataService.differentialForm.comparisonSelect.length > 1) {
-        uniquePrimaryID = r["UniquePrimaryIDs"]
-      }
-      let text = primaryID
-      if (this.dataService.fetchUniprot) {
-        const rd: any = this.uniprot.getUniprotFromPrimary(primaryID)
-        if (rd) {
-          geneNames = rd["Gene Names"]
-        }
-      } else {
-        if (this.dataService.differentialForm.geneNames !== "") {
-          geneNames = r[this.dataService.differentialForm.geneNames]
-        }
-      }
-      if (geneNames !== "") {
-        text = geneNames + "[" + primaryID + "]" + " (" + r[this.dataService.differentialForm.comparison] + ")"
-      }
-      if (this.settings.settings.customVolcanoTextCol !== "") {
-        text = r[this.settings.settings.customVolcanoTextCol]
-      }
-      //this.nameToID[text] = primaryID
+    if (geneNames !== "") {
+      return `${geneNames}[${primaryID}] (${comparison})`
+    }
+
+    return primaryID
+  }
+
+  private populateTraces(traces: Record<string, any>): void {
+    for (const row of this._data) {
+      const x = row[this.dataService.differentialForm.foldChange]
+      const y = row[this.dataService.differentialForm.significant]
+      const primaryID = row[this.dataService.differentialForm.primaryIDs]
+      const comparison = row[this.dataService.differentialForm.comparison]
+      const text = this.buildPointLabel(row)
 
       if (this.dataService.selectedMap[primaryID]) {
-        for (const o in this.dataService.selectedMap[primaryID]) {
-          const match = /\(([^)]*)\)[^(]*$/.exec(o)
-          if (match) {
-            if (match[1] === r[this.dataService.differentialForm.comparison]) {
-              temp[o].x.push(x)
-              temp[o].y.push(y)
-              temp[o].text.push(text)
-              temp[o].primaryIDs.push(primaryID)
-            }
-          } else {
-            temp[o].x.push(x)
-            temp[o].y.push(y)
-            temp[o].text.push(text)
-            temp[o].primaryIDs.push(primaryID)
-          }
-        }
+        this.addPointToSelectedTraces(traces, row, x, y, text, primaryID, comparison)
       } else if (this.settings.settings.backGroundColorGrey) {
-        temp["Background"].x.push(x)
-        temp["Background"].y.push(y)
-        temp["Background"].text.push(text)
-        temp["Background"].primaryIDs.push(primaryID)
+        this.addPointToTrace(traces["Background"], x, y, text, primaryID)
       } else {
-        const gr = this.dataService.significantGroup(x, y)
-        let group = this.dataService.significantGroup(x, y)[0] + " (" + r[this.dataService.differentialForm.comparison] + ")"
-
-        if (!temp[group]) {
-          if (!this.settings.settings.colorMap[group]) {
-            if (!this.specialColorMap[gr[1]]) {
-              if (this.settings.settings.defaultColorList[this.currentPosition]) {
-                this.specialColorMap[gr[1]] = this.settings.settings.defaultColorList[this.currentPosition].slice()
-                this.settings.settings.colorMap[group] = this.settings.settings.defaultColorList[this.currentPosition].slice()
-              } else {
-                this.currentPosition = 0
-                this.specialColorMap[gr[1]] = this.settings.settings.defaultColorList[this.currentPosition].slice()
-                this.settings.settings.colorMap[group] = this.settings.settings.defaultColorList[this.currentPosition].slice()
-              }
-            } else {
-              this.settings.settings.colorMap[group] = this.specialColorMap[gr[1]].slice()
-            }
-
-
-            this.currentPosition ++
-            if (this.currentPosition === this.settings.settings.defaultColorList.length) {
-              this.currentPosition = 0
-            }
-          } else {
-            this.specialColorMap[gr[1]] = this.settings.settings.colorMap[group].slice()
-          }
-
-          temp[group] = {
-            x: [],
-            y: [],
-            text: [],
-            primaryIDs: [],
-            //type: "scattergl",
-            type: "scatter",
-            mode: "markers",
-            marker: {
-              color: this.settings.settings.colorMap[group],
-              size: this.settings.settings.markerSizeMap[group] || this.settings.settings.scatterPlotMarkerSize
-            },
-            name: group
-          }
-          if (this.scattergl) {
-            temp[group].type = "scattergl"
-          }
-        }
-        temp[group].x.push(x)
-        temp[group].y.push(y)
-        temp[group].text.push(text)
-        temp[group].primaryIDs.push(primaryID)
+        this.addPointToSignificanceGroup(traces, row, x, y, text, primaryID, comparison)
       }
     }
+  }
+
+  private addPointToSelectedTraces(
+    traces: Record<string, any>, row: any, x: number, y: number, text: string, primaryID: string, comparison: string
+  ): void {
+    for (const selectionName in this.dataService.selectedMap[primaryID]) {
+      const match = /\(([^)]*)\)[^(]*$/.exec(selectionName)
+      if (match) {
+        if (match[1] === comparison) {
+          this.addPointToTrace(traces[selectionName], x, y, text, primaryID)
+        }
+      } else {
+        this.addPointToTrace(traces[selectionName], x, y, text, primaryID)
+      }
+    }
+  }
+
+  private addPointToTrace(trace: any, x: number, y: number, text: string, primaryID: string): void {
+    trace.x.push(x)
+    trace.y.push(y)
+    trace.text.push(text)
+    trace.primaryIDs.push(primaryID)
+  }
+
+  private addPointToSignificanceGroup(
+    traces: Record<string, any>, row: any, x: number, y: number, text: string, primaryID: string, comparison: string
+  ): void {
+    const [baseGroup, significanceKey] = this.dataService.significantGroup(x, y)
+    const group = `${baseGroup} (${comparison})`
+
+    if (!traces[group]) {
+      this.ensureGroupColor(group, significanceKey)
+      traces[group] = this.createTrace(group, this.settings.settings.colorMap[group])
+    }
+
+    this.addPointToTrace(traces[group], x, y, text, primaryID)
+  }
+
+  private ensureGroupColor(group: string, significanceKey: string): void {
+    if (!this.settings.settings.colorMap[group]) {
+      if (!this.specialColorMap[significanceKey]) {
+        if (this.settings.settings.defaultColorList[this.currentPosition]) {
+          this.specialColorMap[significanceKey] = this.settings.settings.defaultColorList[this.currentPosition].slice()
+          this.settings.settings.colorMap[group] = this.settings.settings.defaultColorList[this.currentPosition].slice()
+        } else {
+          this.currentPosition = 0
+          this.specialColorMap[significanceKey] = this.settings.settings.defaultColorList[this.currentPosition].slice()
+          this.settings.settings.colorMap[group] = this.settings.settings.defaultColorList[this.currentPosition].slice()
+        }
+      } else {
+        this.settings.settings.colorMap[group] = this.specialColorMap[significanceKey].slice()
+      }
+      this.currentPosition++
+      if (this.currentPosition === this.settings.settings.defaultColorList.length) {
+        this.currentPosition = 0
+      }
+    } else {
+      this.specialColorMap[significanceKey] = this.settings.settings.colorMap[group].slice()
+    }
+  }
+
+  private buildGraphData(traces: Record<string, any>): any[] {
     const graphData: any[] = []
     this.currentLegend = []
-    for (const t in temp) {
-      if (temp[t].x.length > 0) {
-        if (this.settings.settings.visible[t]) {
-          temp[t].visible = this.settings.settings.visible[t]
-        } else {
-          temp[t].visible = true
-        }
-        graphData.push(temp[t])
-        this.currentLegend.push(t)
+
+    for (const traceName in traces) {
+      if (traces[traceName].x.length > 0) {
+        traces[traceName].visible = this.settings.settings.visible[traceName] || true
+        graphData.push(traces[traceName])
+        this.currentLegend.push(traceName)
       }
     }
+    return graphData
+  }
 
-    if (fdrCurve.count() > 0) {
-      if (this.graphLayout.xaxis.range === undefined) {
-        this.graphLayout.xaxis.range = [this.layoutMaxMin.xMin - 0.5, this.layoutMaxMin.xMax + 0.5]
-        this.graphLayout.xaxis.autoscale = true
-        this.graphLayout.yaxis.range = [0, -Math.log10(this.layoutMaxMin.yMin - this.layoutMaxMin.yMin/2)]
-        this.graphLayout.yaxis.autoscale = true
-      }
-      const left: IDataFrame = fdrCurve.where(row => row.x < 0).bake()
-      const right: IDataFrame = fdrCurve.where(row => row.x >= 0).bake()
-      const fdrLeft: any = {
-        x: [],
-        y: [],
-        hoverinfo: 'skip',
-        showlegend: false,
-        mode: 'lines',
-        line:{
-          color: 'rgb(103,102,102)',
-          width: 0.5,
-          dash:'dot'
-        },
-        name: "Left Curve"
-      }
-      const fdrRight: any = {
-        x: [],
-        y: [],
-        hoverinfo: 'skip',
-        showlegend: false,
-        mode: 'lines',
-        line:{
-          color: 'rgb(103,102,102)',
-          width: 0.5,
-          dash:'dot'
-        },
-        name: "Right Curve"
-      }
-      for (const l of left) {
-        if (l.x < this.graphLayout.xaxis.range[0]) {
-          this.graphLayout.xaxis.range[0] = l.x
-        }
-        if (l.y > this.graphLayout.yaxis.range[1]) {
-          this.graphLayout.yaxis.range[1] = l.y
-        }
-        fdrLeft.x.push(l.x)
-        fdrLeft.y.push(l.y)
-      }
-      for (const l of right) {
-        if (l.x < this.graphLayout.xaxis.range[0]) {
-          this.graphLayout.xaxis.range[0] = l.x
-        }
-        if (l.y > this.graphLayout.yaxis.range[1]) {
-          this.graphLayout.yaxis.range[1] = l.y
-        }
-        fdrRight.x.push(l.x)
-        fdrRight.y.push(l.y)
-      }
-      graphData.push(fdrLeft)
-      graphData.push(fdrRight)
-      this.graphLayout.xaxis.autorange = true
-      this.graphLayout.yaxis.autorange = true
-    } else {
-      const cutOff: any[] = []
-      cutOff.push({
-        type: "line",
-        x0: -this.settings.settings.log2FCCutoff,
-        x1: -this.settings.settings.log2FCCutoff,
-        y0: 0,
-        y1: this.graphLayout.yaxis.range[1],
-        line: {
-          color: 'rgb(21,4,4)',
-          width: 1,
-          dash: 'dot'
-        }
-      })
-      cutOff.push({
-        type: "line",
-        x0: this.settings.settings.log2FCCutoff,
-        x1: this.settings.settings.log2FCCutoff,
-        y0: 0,
-        y1: this.graphLayout.yaxis.range[1],
-        line: {
-          color: 'rgb(21,4,4)',
-          width: 1,
-          dash: 'dot'
-        }
-      })
-      let x0 = this.layoutMaxMin.xMin - 1
-      if (this.settings.settings.volcanoAxis.minX) {
-        x0 = this.settings.settings.volcanoAxis.minX - 1
-      }
-      let x1 = this.layoutMaxMin.xMax + 1
-      if (this.settings.settings.volcanoAxis.maxX) {
-        x1 = this.settings.settings.volcanoAxis.maxX + 1
-      }
-      cutOff.push({
-        type: "line",
-        x0: x0,
-        x1: x1,
-        y0: -Math.log10(this.settings.settings.pCutoff),
-        y1: -Math.log10(this.settings.settings.pCutoff),
-        line: {
-          color: 'rgb(21,4,4)',
-          width: 1,
-          dash: 'dot'
-        }
-      })
-
-      this.graphLayout.shapes = cutOff
+  private addFdrCurves(fdrCurve: IDataFrame, graphData: any[]): void {
+    if (this.graphLayout.xaxis.range === undefined) {
+      this.graphLayout.xaxis.range = [this.layoutMaxMin.xMin - 0.5, this.layoutMaxMin.xMax + 0.5]
+      this.graphLayout.xaxis.autoscale = true
+      this.graphLayout.yaxis.range = [0, -Math.log10(this.layoutMaxMin.yMin - this.layoutMaxMin.yMin / 2)]
+      this.graphLayout.yaxis.autoscale = true
     }
 
+    const left: IDataFrame = fdrCurve.where(row => row.x < 0).bake()
+    const right: IDataFrame = fdrCurve.where(row => row.x >= 0).bake()
+
+    const fdrLeft = this.createFdrCurveTrace("Left Curve")
+    const fdrRight = this.createFdrCurveTrace("Right Curve")
+
+    this.populateFdrCurve(left, fdrLeft)
+    this.populateFdrCurve(right, fdrRight)
+
+    graphData.push(fdrLeft, fdrRight)
+    this.graphLayout.xaxis.autorange = true
+    this.graphLayout.yaxis.autorange = true
+  }
+
+  private createFdrCurveTrace(name: string): any {
+    return {
+      x: [], y: [],
+      hoverinfo: 'skip',
+      showlegend: false,
+      mode: 'lines',
+      line: { color: 'rgb(103,102,102)', width: 0.5, dash: 'dot' },
+      name: name
+    }
+  }
+
+  private populateFdrCurve(curveData: IDataFrame, trace: any): void {
+    for (const point of curveData) {
+      if (point.x < this.graphLayout.xaxis.range![0]) {
+        this.graphLayout.xaxis.range![0] = point.x
+      }
+      if (point.y > this.graphLayout.yaxis.range![1]) {
+        this.graphLayout.yaxis.range![1] = point.y
+      }
+      trace.x.push(point.x)
+      trace.y.push(point.y)
+    }
+  }
+
+  private buildCutoffShapes(): PlotlyShape[] {
+    const yMax = this.graphLayout.yaxis.range![1]
+    let x0 = this.settings.settings.volcanoAxis.minX
+      ? this.settings.settings.volcanoAxis.minX - 1
+      : this.layoutMaxMin.xMin - 1
+    let x1 = this.settings.settings.volcanoAxis.maxX
+      ? this.settings.settings.volcanoAxis.maxX + 1
+      : this.layoutMaxMin.xMax + 1
+
+    return [
+      this.createCutoffLine(-this.settings.settings.log2FCCutoff, 0, yMax),
+      this.createCutoffLine(this.settings.settings.log2FCCutoff, 0, yMax),
+      this.createHorizontalCutoffLine(x0, x1, -Math.log10(this.settings.settings.pCutoff))
+    ]
+  }
+
+  private createCutoffLine(xValue: number, y0: number, y1: number): PlotlyShape {
+    return {
+      type: "line",
+      x0: xValue, x1: xValue, y0: y0, y1: y1,
+      line: { color: 'rgb(21,4,4)', width: 1, dash: 'dot' }
+    }
+  }
+
+  private createHorizontalCutoffLine(x0: number, x1: number, yValue: number): PlotlyShape {
+    return {
+      type: "line",
+      x0: x0, x1: x1, y0: yValue, y1: yValue,
+      line: { color: 'rgb(21,4,4)', width: 1, dash: 'dot' }
+    }
+  }
+
+  private finalizeGraphData(graphData: any[]): void {
     const sortedGraphData = this.sortGraphDataByOrder(graphData)
 
-    if (!this.scattergl && (!this.settings.settings.volcanoTraceOrder || this.settings.settings.volcanoTraceOrder.length === 0)) {
-      this.graphData = sortedGraphData.reverse()
-    } else {
-      this.graphData = sortedGraphData
-    }
+    this.graphData = (!this.scattergl && (!this.settings.settings.volcanoTraceOrder || this.settings.settings.volcanoTraceOrder.length === 0))
+      ? sortedGraphData.reverse()
+      : sortedGraphData
+
     this.graphLayout.yaxis.showgrid = this.settings.settings.volcanoPlotGrid.y
     this.graphLayout.xaxis.showgrid = this.settings.settings.volcanoPlotGrid.x
+    this.graphLayout.annotations = []
+
+    if (this.settings.settings.volcanoPlotYaxisPosition.includes("left")) {
+      this.graphLayout.shapes.push({
+        type: "line",
+        x0: this.graphLayout.xaxis.range![0],
+        x1: this.graphLayout.xaxis.range![0],
+        y0: this.graphLayout.yaxis.range![0],
+        y1: this.graphLayout.yaxis.range![1],
+        line: { color: 'rgb(21,4,4)', width: 1 }
+      })
+    }
+  }
+
+  private configureLayoutDimensions(): void {
     if (this.settings.settings.volcanoPlotDimension.height) {
       this.graphLayout.height = this.settings.settings.volcanoPlotDimension.height
     }
@@ -516,140 +661,88 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       this.graphLayout.width = this.settings.settings.volcanoPlotDimension.width
     }
     if (this.settings.settings.volcanoPlotDimension.margin) {
-      for (const i in this.settings.settings.volcanoPlotDimension.margin) {
-        if (this.settings.settings.volcanoPlotDimension.margin[i]) {
-          this.graphLayout.margin[i] = this.settings.settings.volcanoPlotDimension.margin[i]
+      for (const key in this.settings.settings.volcanoPlotDimension.margin) {
+        if (this.settings.settings.volcanoPlotDimension.margin[key]) {
+          (this.graphLayout.margin as any)[key] = this.settings.settings.volcanoPlotDimension.margin[key]
         }
       }
     }
 
-    if (this.settings.settings.volcanoPlotYaxisPosition.includes("left")) {
+    this.graphLayout.xaxis.zerolinecolor = this.settings.settings.volcanoPlotYaxisPosition.includes("middle")
+      ? "#000000" : "#ffffff"
+  }
 
-      // draw y axis line at min x
-      this.graphLayout.shapes.push({
-        type: "line",
-        x0: this.graphLayout.xaxis.range[0],
-        x1: this.graphLayout.xaxis.range[0],
-        y0: this.graphLayout.yaxis.range[0],
-        y1: this.graphLayout.yaxis.range[1],
-        line: {
-          color: 'rgb(21,4,4)',
-          width: 1,
-        }
-      })
-    } else {
+  private buildConditionLabels(): void {
+    if (!this.settings.settings.volcanoConditionLabels.enabled) return
 
-    }
-    if (this.settings.settings.volcanoPlotYaxisPosition.includes("middle")) {
-      this.graphLayout.xaxis.zerolinecolor = "#000000"
-    } else {
-      this.graphLayout.xaxis.zerolinecolor = "#ffffff"
+    const labelY = this.settings.settings.volcanoConditionLabels.yPosition
+    const fontConfig = {
+      size: this.settings.settings.volcanoConditionLabels.fontSize,
+      family: this.settings.settings.plotFontFamily,
+      color: this.settings.settings.volcanoConditionLabels.fontColor
     }
 
-
-    this.graphLayout.annotations = []
-
-    if (this.settings.settings.volcanoConditionLabels.enabled) {
-      const labelY = this.settings.settings.volcanoConditionLabels.yPosition
-
-      if (this.settings.settings.volcanoConditionLabels.leftCondition) {
-        this.graphLayout.annotations.push({
-          text: this.settings.settings.volcanoConditionLabels.leftCondition,
-          xref: 'paper',
-          yref: 'paper',
-          x: this.settings.settings.volcanoConditionLabels.leftX,
-          y: labelY,
-          xanchor: 'center',
-          yanchor: 'top',
-          showarrow: false,
-          font: {
-            size: this.settings.settings.volcanoConditionLabels.fontSize,
-            family: this.settings.settings.plotFontFamily,
-            color: this.settings.settings.volcanoConditionLabels.fontColor
-          }
-        })
-      }
-
-      if (this.settings.settings.volcanoConditionLabels.rightCondition) {
-        this.graphLayout.annotations.push({
-          text: this.settings.settings.volcanoConditionLabels.rightCondition,
-          xref: 'paper',
-          yref: 'paper',
-          x: this.settings.settings.volcanoConditionLabels.rightX,
-          y: labelY,
-          xanchor: 'center',
-          yanchor: 'top',
-          showarrow: false,
-          font: {
-            size: this.settings.settings.volcanoConditionLabels.fontSize,
-            family: this.settings.settings.plotFontFamily,
-            color: this.settings.settings.volcanoConditionLabels.fontColor
-          }
-        })
-      }
-
-      if (this.settings.settings.volcanoConditionLabels.showBracket &&
-          this.settings.settings.volcanoConditionLabels.leftCondition &&
-          this.settings.settings.volcanoConditionLabels.rightCondition) {
-        const bracketY = labelY + this.settings.settings.volcanoConditionLabels.bracketHeight
-        const leftX = this.settings.settings.volcanoConditionLabels.leftX
-        const rightX = this.settings.settings.volcanoConditionLabels.rightX
-
-        if (!this.graphLayout.shapes) {
-          this.graphLayout.shapes = []
-        }
-
-        this.graphLayout.shapes.push(
-          {
-            type: 'line',
-            xref: 'paper',
-            yref: 'paper',
-            x0: leftX,
-            y0: labelY,
-            x1: leftX,
-            y1: bracketY,
-            line: {
-              color: this.settings.settings.volcanoConditionLabels.bracketColor,
-              width: this.settings.settings.volcanoConditionLabels.bracketWidth
-            }
-          },
-          {
-            type: 'line',
-            xref: 'paper',
-            yref: 'paper',
-            x0: leftX,
-            y0: bracketY,
-            x1: rightX,
-            y1: bracketY,
-            line: {
-              color: this.settings.settings.volcanoConditionLabels.bracketColor,
-              width: this.settings.settings.volcanoConditionLabels.bracketWidth
-            }
-          },
-          {
-            type: 'line',
-            xref: 'paper',
-            yref: 'paper',
-            x0: rightX,
-            y0: bracketY,
-            x1: rightX,
-            y1: labelY,
-            line: {
-              color: this.settings.settings.volcanoConditionLabels.bracketColor,
-              width: this.settings.settings.volcanoConditionLabels.bracketWidth
-            }
-          }
-        )
-      }
+    if (this.settings.settings.volcanoConditionLabels.leftCondition) {
+      this.graphLayout.annotations.push(this.createConditionLabel(
+        this.settings.settings.volcanoConditionLabels.leftCondition,
+        this.settings.settings.volcanoConditionLabels.leftX,
+        labelY, fontConfig
+      ))
     }
 
-    for (const i in this.settings.settings.textAnnotation) {
-      if (this.settings.settings.textAnnotation[i].data.showannotation === true) {
-        this.annotated[this.settings.settings.textAnnotation[i].title] = this.settings.settings.textAnnotation[i].data
-        this.graphLayout.annotations.push(this.settings.settings.textAnnotation[i].data)
-      }
-
+    if (this.settings.settings.volcanoConditionLabels.rightCondition) {
+      this.graphLayout.annotations.push(this.createConditionLabel(
+        this.settings.settings.volcanoConditionLabels.rightCondition,
+        this.settings.settings.volcanoConditionLabels.rightX,
+        labelY, fontConfig
+      ))
     }
+
+    if (this.settings.settings.volcanoConditionLabels.showBracket &&
+        this.settings.settings.volcanoConditionLabels.leftCondition &&
+        this.settings.settings.volcanoConditionLabels.rightCondition) {
+      this.addConditionBrackets(labelY)
+    }
+  }
+
+  private createConditionLabel(text: string, x: number, y: number, font: any): any {
+    return {
+      text: text, xref: 'paper', yref: 'paper',
+      x: x, y: y, xanchor: 'center', yanchor: 'top',
+      showarrow: false, font: font
+    }
+  }
+
+  private addConditionBrackets(labelY: number): void {
+    const bracketY = labelY + this.settings.settings.volcanoConditionLabels.bracketHeight
+    const leftX = this.settings.settings.volcanoConditionLabels.leftX
+    const rightX = this.settings.settings.volcanoConditionLabels.rightX
+    const bracketLine = {
+      color: this.settings.settings.volcanoConditionLabels.bracketColor,
+      width: this.settings.settings.volcanoConditionLabels.bracketWidth
+    }
+
+    if (!this.graphLayout.shapes) {
+      this.graphLayout.shapes = []
+    }
+
+    this.graphLayout.shapes.push(
+      { type: 'line', xref: 'paper', yref: 'paper', x0: leftX, y0: labelY, x1: leftX, y1: bracketY, line: bracketLine },
+      { type: 'line', xref: 'paper', yref: 'paper', x0: leftX, y0: bracketY, x1: rightX, y1: bracketY, line: bracketLine },
+      { type: 'line', xref: 'paper', yref: 'paper', x0: rightX, y0: bracketY, x1: rightX, y1: labelY, line: bracketLine }
+    )
+  }
+
+  private applyTextAnnotations(): void {
+    for (const key in this.settings.settings.textAnnotation) {
+      if (this.settings.settings.textAnnotation[key].data.showannotation === true) {
+        this.annotated[this.settings.settings.textAnnotation[key].title] = this.settings.settings.textAnnotation[key].data
+        this.graphLayout.annotations.push(this.settings.settings.textAnnotation[key].data)
+      }
+    }
+  }
+
+  private updateConfig(): void {
     this.config = {
       editable: this.editMode,
       toImageButtonOptions: {
@@ -662,53 +755,39 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       },
       modeBarButtonsToAdd: ["drawline", "drawcircle", "drawrect", "eraseshape", "editinchartstudio"]
     }
-    if (this.settings.settings.volcanoAdditionalShapes) {
-      for (const s of this.settings.settings.volcanoAdditionalShapes) {
-        if (s.editable) {
-          if (!s.label.font) {
-            s.label.font = {
-              size: null,
-              family: "Arial, sans-serif",
-              color: "#000000"
-            }
+  }
+
+  private applyAdditionalShapes(): void {
+    if (!this.settings.settings.volcanoAdditionalShapes) return
+
+    for (const shape of this.settings.settings.volcanoAdditionalShapes) {
+      if (shape.editable) {
+        if (!shape.label.font) {
+          shape.label.font = {
+            size: null,
+            family: "Arial, sans-serif",
+            color: "#000000"
           }
-          this.graphLayout.shapes.push(s)
         }
+        this.graphLayout.shapes.push(shape)
       }
     }
+  }
+
+  private applyLegendSettings(): void {
     if (this.settings.settings.volcanoPlotLegendX) {
       this.graphLayout.legend.x = this.settings.settings.volcanoPlotLegendX
     }
     if (this.settings.settings.volcanoPlotLegendY) {
       this.graphLayout.legend.y = this.settings.settings.volcanoPlotLegendY
     }
-    if (this.settings.settings.volcanoAxis.dtickX) {
-      this.graphLayout.xaxis.dtick = this.settings.settings.volcanoAxis.dtickX
-    } else {
-      this.graphLayout.xaxis.dtick = undefined
-    }
-    if (this.settings.settings.volcanoAxis.dtickY) {
-      this.graphLayout.yaxis.dtick = this.settings.settings.volcanoAxis.dtickY
-    } else {
-      this.graphLayout.yaxis.dtick = undefined
-    }
-    if (this.settings.settings.volcanoAxis.ticklenX) {
-      this.graphLayout.xaxis.ticklen = this.settings.settings.volcanoAxis.ticklenX
-    } else {
-      this.graphLayout.xaxis.ticklen = 5
-    }
-    if (this.settings.settings.volcanoAxis.ticklenY) {
-      this.graphLayout.yaxis.ticklen = this.settings.settings.volcanoAxis.ticklenY
-    } else {
-      this.graphLayout.yaxis.ticklen = 5
-    }
+  }
 
-    this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
-
-    this.revision ++
-    this.messageService.show("Volcano Plot", "Finished drawing volcano plot")
-    //this.removeAnnotatedDataPoints([])
-    console.log(this.graphData)
+  private applyAxisTickSettings(): void {
+    this.graphLayout.xaxis.dtick = this.settings.settings.volcanoAxis.dtickX || undefined
+    this.graphLayout.yaxis.dtick = this.settings.settings.volcanoAxis.dtickY || undefined
+    this.graphLayout.xaxis.ticklen = this.settings.settings.volcanoAxis.ticklenX || 5
+    this.graphLayout.yaxis.ticklen = this.settings.settings.volcanoAxis.ticklenY || 5
   }
 
   constructor(private fb: FormBuilder, private web: WebService, public dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
@@ -736,7 +815,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
     })
     this.dataService.annotationService.asObservable().subscribe(data => {
       if (data) {
-        console.log(data)
         if (data.remove) {
           if (typeof data.id === "string") {
             this.removeAnnotatedDataPoints([data.id]).then(() => {
@@ -792,7 +870,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       for (const p of e["points"]) {
         selected.push(p.data.primaryIDs[p.pointNumber])
       }
-      console.log(selected)
       if (selected.length === 1) {
         this.selected.emit(
           {
@@ -820,7 +897,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
   openCustomColor() {
     const ref = this.modal.open(VolcanoColorsComponent)
     const colorGroups: any[] = []
-    console.log(this.settings.settings.colorMap)
     for (const g in this.settings.settings.colorMap) {
       if (this.currentLegend.includes(g)) {
         const size = this.settings.settings.markerSizeMap[g] || this.settings.settings.scatterPlotMarkerSize
@@ -929,7 +1005,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
     if (annotations.length > 0) {
       this.graphLayout.annotations = this.graphLayout.annotations.concat(annotations)
     }
-    console.log(this.graphLayout.annotations)
     this.dataService.annotationVisualUpdated.next(true)
   }
 
@@ -960,7 +1035,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
     this.graphLayout.annotations = []
     this.annotated = {}
     for (const f of data) {
-      console.log(f)
       this.settings.settings.textAnnotation[f.value.annotationID].data.showarrow = f.value.showarrow
       this.settings.settings.textAnnotation[f.value.annotationID].data.arrowhead = f.value.arrowhead
       this.settings.settings.textAnnotation[f.value.annotationID].data.arrowsize = f.value.arrowsize
@@ -1006,7 +1080,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
         try {
           settingsToClear = JSON.parse(savedSettings)
         } catch (e) {
-          console.error('Failed to parse saved clear settings:', e)
         }
       }
 
@@ -1113,7 +1186,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
 
   handleLayoutChange(data: any) {
     const keys = Object.keys(data)
-    console.log(data)
     if (data.shapes) {
       this.settings.settings.volcanoAdditionalShapes = data.shapes
 
@@ -1130,7 +1202,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
           }
         }
       }
-      console.log(this.settings.settings.volcanoAdditionalShapes)
       this.dataService.volcanoAdditionalShapesSubject.next(true)
     }
     if (data["legend.x"]) {
@@ -1198,7 +1269,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       this.settings.settings.volcanoAdditionalShapes[i.index].line.width = i.line.width
     }
     this.drawVolcano()
-    console.log(this.graphLayout.shapes)
   }
 
   openNearbyPointsModal(clickEvent: any) {
@@ -1322,7 +1392,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
     ref.componentInstance.comparisonCol = this.dataService.differentialForm.comparison
     ref.closed.subscribe((data: {column: string, categoryMap: {[key: string]: {count: number, color: string, primaryIDs: string[], comparison: string}}}) => {
       if (data) {
-        console.log(data)
         for (const c in data.categoryMap) {
           if (!this.dataService.selectOperationNames.includes(c)) {
             this.dataService.selectOperationNames.push(c)
@@ -1333,11 +1402,8 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
               this.dataService.selectedMap[p] = {}
             }
             this.dataService.selectedMap[p][c] = true
-
           }
-          console.log(this.dataService.selectedMap)
         }
-
         this.drawVolcano()
       }
     })
@@ -1376,4 +1442,22 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
     })
   }
 
+  getPlotAriaLabel(): string {
+    const totalPoints = this.graphData.reduce((sum, trace) => sum + (trace.x?.length || 0), 0)
+    const significantGroups = this.graphData.filter(trace =>
+      trace.name !== 'Background' && !trace.name.includes('Curve')
+    ).length
+
+    let label = `Interactive volcano plot with ${totalPoints} data points across ${significantGroups} groups.`
+
+    if (this.editMode) {
+      label += ' Edit mode is active, allowing drag and drop of annotations and legends.'
+    }
+
+    if (this.explorerMode) {
+      label += ' Explorer mode is active, click on points to view nearby data.'
+    }
+
+    return label
+  }
 }
