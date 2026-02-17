@@ -79,6 +79,9 @@ import {
 import { NearbyPointsModalComponent } from './components/nearby-points-modal/nearby-points-modal.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {ReorderTracesModalComponent} from './components/volcano-plot/reorder-traces-modal/reorder-traces-modal.component';
+import { StateSaveDialogComponent } from './components/state-save-dialog/state-save-dialog.component';
+import { StatePreviewComponent } from './components/state-preview/state-preview.component';
+import { SelectiveImportDialogComponent } from './components/selective-import-dialog/selective-import-dialog.component';
 
 //PlotlyViaCDNModule.setPlotlyVersion('latest');
 //PlotlyViaCDNModule.setPlotlyBundle('basic');
@@ -141,6 +144,9 @@ import {ReorderTracesModalComponent} from './components/volcano-plot/reorder-tra
         SubFilterComponent,
         NearbyPointsModalComponent,
         ReorderTracesModalComponent,
+        StateSaveDialogComponent,
+        StatePreviewComponent,
+        SelectiveImportDialogComponent,
     ],
     bootstrap: [AppComponent],
   imports: [BrowserModule,
