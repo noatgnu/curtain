@@ -1,15 +1,17 @@
 <div class="modal-header">
-  <h5 class="modal-title">Enrichr</h5>
+  <h5 class="modal-title" id="enrichr-modal-title">Enrichr</h5>
+  <button type="button" class="btn-close" aria-label="Close Enrichr dialog" (click)="close()"></button>
 </div>
-<div class="modal-body">
-  <form [formGroup]="form" class="mb-2">
+<div class="modal-body" aria-labelledby="enrichr-modal-title">
+  <form [formGroup]="form" class="mb-2" aria-label="Enrichr analysis settings">
     <div class="form-group">
       <label for="selectedSet">Study gene list</label>
-      <select id="selectedSet" formControlName="selectedSet" class="form-control">
+      <select id="selectedSet" formControlName="selectedSet" class="form-control" aria-describedby="selectedSet-hint">
         @for (s of data.selectOperationNames; track s) {
         <option [value]="s">{{s}}</option>
         }
       </select>
+      <span id="selectedSet-hint" class="visually-hidden">Select the gene list to analyze</span>
     </div>
 <!--    <div class="form-check">
       <input type="checkbox" class="form-check-input" id="userBackground" formControlName="userBackgroundSet">
@@ -53,6 +55,6 @@
   </div>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-primary" (click)="submit()">Submit</button>
-  <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
+  <button type="button" class="btn btn-primary" (click)="submit()" aria-label="Submit Enrichr analysis">Submit</button>
+  <button type="button" class="btn btn-secondary" (click)="close()" aria-label="Cancel and close dialog">Cancel</button>
 </div>

@@ -2,11 +2,17 @@
   <div class="accordion">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" [class.collapsed]="iscollapse" type="button" (click)="iscollapse=!iscollapse">
+        <button
+          class="accordion-button"
+          [class.collapsed]="iscollapse"
+          type="button"
+          (click)="iscollapse=!iscollapse"
+          [attr.aria-expanded]="!iscollapse"
+          aria-controls="dataParametersContent">
           <span class="mb-0">Data Parameters Input</span>
         </button>
       </h2>
-      <div class="accordion-collapse" [ngbCollapse]="iscollapse">
+      <div class="accordion-collapse" [ngbCollapse]="iscollapse" id="dataParametersContent">
         <div class="accordion-body">
           <!-- File Upload Section -->
           <div class="row mb-4">
@@ -45,13 +51,18 @@
                 <!-- Primary IDs -->
                 <div class="col-md-3">
                   <label for="primaryIDs" class="form-label fw-bold">Primary IDs</label>
-                  <select class="form-select" id="primaryIDs" [(ngModel)]="data.differentialForm.primaryIDs">
+                  <select
+                    class="form-select"
+                    id="primaryIDs"
+                    [(ngModel)]="data.differentialForm.primaryIDs"
+                    aria-required="true"
+                    aria-describedby="primaryIDs-hint">
                     @for (column of data.differential.df.getColumnNames(); track column) {
                       <option [value]="column">{{column}}</option>
                     }
                   </select>
-                  <small class="text-muted d-block mt-1">
-                    <i class="bi bi-info-circle me-1"></i>
+                  <small id="primaryIDs-hint" class="text-muted d-block mt-1">
+                    <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
                     Should contain UniProt Accession IDs for metadata retrieval
                   </small>
                 </div>
@@ -72,7 +83,11 @@
                 <!-- Fold Change -->
                 <div class="col-md-3">
                   <label for="foldChange" class="form-label fw-bold">Fold Change</label>
-                  <select class="form-select" id="foldChange" [(ngModel)]="data.differentialForm.foldChange">
+                  <select
+                    class="form-select"
+                    id="foldChange"
+                    [(ngModel)]="data.differentialForm.foldChange"
+                    aria-required="true">
                     @for (column of data.differential.df.getColumnNames(); track column) {
                       <option [value]="column">{{column}}</option>
                     }
@@ -94,7 +109,11 @@
                 <!-- Significance -->
                 <div class="col-md-3">
                   <label for="significant" class="form-label fw-bold">Significance</label>
-                  <select class="form-select" id="significant" [(ngModel)]="data.differentialForm.significant">
+                  <select
+                    class="form-select"
+                    id="significant"
+                    [(ngModel)]="data.differentialForm.significant"
+                    aria-required="true">
                     @for (column of data.differential.df.getColumnNames(); track column) {
                       <option [value]="column">{{column}}</option>
                     }
@@ -158,13 +177,18 @@
                 <!-- Primary IDs for Raw -->
                 <div class="col-md-4">
                   <label for="primaryIDsraw" class="form-label fw-bold">Primary IDs</label>
-                  <select class="form-select" id="primaryIDsraw" [(ngModel)]="data.rawForm.primaryIDs">
+                  <select
+                    class="form-select"
+                    id="primaryIDsraw"
+                    [(ngModel)]="data.rawForm.primaryIDs"
+                    aria-required="true"
+                    aria-describedby="primaryIDsraw-hint">
                     @for (column of data.raw.df.getColumnNames(); track column) {
                       <option [value]="column">{{column}}</option>
                     }
                   </select>
-                  <small class="text-muted d-block mt-1">
-                    <i class="bi bi-info-circle me-1"></i>
+                  <small id="primaryIDsraw-hint" class="text-muted d-block mt-1">
+                    <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
                     Should match the differential analysis primary ID column
                   </small>
                 </div>
@@ -174,8 +198,14 @@
                   <div class="d-flex gap-2">
                     <div class="form-group">
                       <label for="samples" class="form-label fw-bold">Manual Sample(s) Selection</label>
-                      <select multiple class="form-select" id="samples" [(ngModel)]="data.rawForm.samples"
-                              size="5">
+                      <select
+                        multiple
+                        class="form-select"
+                        id="samples"
+                        [(ngModel)]="data.rawForm.samples"
+                        size="5"
+                        aria-required="true"
+                        aria-describedby="samplesHelp">
                         @for (column of data.raw.df.getColumnNames(); track column) {
                           <option [value]="column">{{column}}</option>
                         }
@@ -247,12 +277,15 @@
 
           <!-- Progress Bar -->
           @if (progressBar.value > 0) {
-            <div class="mt-4">
+            <div class="mt-4" role="status" aria-live="polite">
               <ngb-progressbar
                 [type]="progressBar.value < 100 ? 'info' : 'success'"
                 [value]="progressBar.value"
                 [striped]="progressBar.value < 100"
-                [animated]="progressBar.value < 100">
+                [animated]="progressBar.value < 100"
+                [attr.aria-valuenow]="progressBar.value"
+                aria-valuemin="0"
+                aria-valuemax="100">
                 {{progressBar.text}}
               </ngb-progressbar>
             </div>

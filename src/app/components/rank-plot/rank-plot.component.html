@@ -1,7 +1,20 @@
-<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-  <button class="btn btn-primary" (click)="hideAllSelected()">Hide All Selected Data</button>
-  <button class="btn btn-primary" (click)="hideAllNonSelected()">Hide All Non-Selected Data</button>
-  <button class="btn btn-primary" (click)="openTextEditor()">Annotation Text Editor</button>
-  <button class="btn btn-primary" (click)="openColorEditor()">Color Editor</button>
+<div class="d-grid gap-2 d-md-flex justify-content-md-end" role="toolbar" aria-label="Rank plot controls">
+  <button class="btn btn-primary" (click)="hideAllSelected()" aria-label="Hide all selected data series from the plot">Hide All Selected Data</button>
+  <button class="btn btn-primary" (click)="hideAllNonSelected()" aria-label="Hide all non-selected data series from the plot">Hide All Non-Selected Data</button>
+  <button class="btn btn-primary" (click)="openTextEditor()" aria-label="Open annotation text editor dialog">Annotation Text Editor</button>
+  <button class="btn btn-primary" (click)="openColorEditor()" aria-label="Open color editor dialog">Color Editor</button>
 </div>
-<plotly-plot [config]="config" [divId]="'rankplot'" [data]="graphData" [layout]="graphLayout" [updateOnDataChange]="true" [updateOnLayoutChange]="true" (legendClick)="handleClick($event)"></plotly-plot>
+<div role="img" aria-label="Rank abundance plot showing protein expression levels ranked by abundance" tabindex="0">
+  <span class="visually-hidden" id="rankplot-description">
+    Interactive scatter plot displaying log2 abundance values ranked from highest to lowest. Use the legend to toggle visibility of data series.
+  </span>
+  <plotly-plot
+    [config]="config"
+    [divId]="'rankplot'"
+    [data]="graphData"
+    [layout]="graphLayout"
+    [updateOnDataChange]="true"
+    [updateOnLayoutChange]="true"
+    (legendClick)="handleClick($event)">
+  </plotly-plot>
+</div>

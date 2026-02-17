@@ -5,9 +5,14 @@
       <div class="row g-2 align-items-center">
         <div class="col-md-4">
           <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="search" class="form-control" formControlName="filterTerm"
-                   placeholder="Filter selected results" aria-label="Filter term">
+            <span class="input-group-text" id="filter-addon"><i class="bi bi-search" aria-hidden="true"></i></span>
+            <input
+              type="search"
+              class="form-control"
+              formControlName="filterTerm"
+              placeholder="Filter selected results"
+              aria-label="Filter selected results"
+              aria-describedby="filter-addon">
           </div>
         </div>
         <div class="col-md-4">
@@ -67,7 +72,7 @@
             <label class="form-label small invisible" style="height: 19px;">Action</label>
             <div class="d-flex align-items-center flex-grow-1">
               <button class="btn btn-sm btn-primary" (click)="sort()" aria-label="Apply sorting">
-                <i class="bi bi-sort-down me-1"></i> Apply Sort
+                <i class="bi bi-sort-down me-1" aria-hidden="true"></i> Apply Sort
               </button>
             </div>
           </div>
@@ -118,7 +123,7 @@
       </div>
       } @else {
         <div class="alert alert-info d-flex align-items-center" role="alert">
-          <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+          <i class="bi bi-info-circle-fill me-2 fs-4" aria-hidden="true"></i>
           <div>
             <h5>No data found</h5>
             <p class="mb-0">Please try a different search term or filter criteria.</p>
