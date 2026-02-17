@@ -5,6 +5,13 @@
     <ng-content select="[navbarCenter]"></ng-content>
 
     <div class="d-flex align-items-center">
+      @if (autoSave.isEnabled()) {
+        <div class="me-3 d-flex align-items-center text-muted small" [ngbTooltip]="'Auto-save is enabled. Last save: ' + getLastAutoSaveText()">
+          <i class="bi bi-cloud-check text-success me-1"></i>
+          <span class="d-none d-md-inline">Auto-save</span>
+          <span class="ms-1 badge bg-secondary">{{ getLastAutoSaveText() }}</span>
+        </div>
+      }
       <ng-content select="[navbarItems]"></ng-content>
 
       @if (accounts.curtainAPI.user.loginStatus) {
