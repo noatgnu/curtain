@@ -1,0 +1,129 @@
+.proteomics-db-container {
+  position: relative;
+}
+
+.card {
+  border-radius: 0.375rem;
+
+  .card-header {
+    background: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+  }
+
+  .card-body {
+    background: var(--bs-body-bg);
+  }
+}
+
+.color-input {
+  width: 60px;
+  cursor: pointer;
+  border: 1px solid var(--bs-border-color);
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+  }
+}
+
+.plot-area {
+  position: relative;
+  min-height: 200px;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 0.375rem;
+
+  [data-bs-theme="dark"] & {
+    background: rgba(33, 37, 41, 0.9);
+  }
+}
+
+.plot-container {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.375rem;
+  overflow: hidden;
+
+  plotly-plot {
+    width: 100%;
+  }
+}
+
+.stats-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+
+  strong {
+    color: var(--bs-body-color);
+  }
+}
+
+.empty-state {
+  background: var(--bs-body-bg);
+  border: 1px dashed var(--bs-border-color);
+  border-radius: 0.375rem;
+
+  i {
+    display: block;
+  }
+}
+
+:host ::ng-deep {
+  .js-plotly-plot {
+    width: 100% !important;
+  }
+
+  .plotly {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .stats-summary {
+    flex-direction: column;
+    align-items: flex-start;
+
+    span {
+      margin-right: 0 !important;
+    }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .card-body {
+    .row {
+      > div {
+        flex: 0 0 auto;
+        width: auto;
+        margin-bottom: 0.5rem;
+
+        &.col {
+          width: 100%;
+          flex: 1 1 100%;
+        }
+      }
+    }
+  }
+
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: stretch !important;
+
+    .btn-group {
+      justify-content: flex-end;
+      margin-top: 0.5rem;
+    }
+  }
+}

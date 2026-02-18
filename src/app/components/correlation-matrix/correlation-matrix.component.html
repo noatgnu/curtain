@@ -1,14 +1,245 @@
 <div class="modal-header">
-  <h5 class="modal-title">Correlation Matrix</h5>
+  <h5 class="modal-title" id="correlationMatrixTitle">
+    <i class="bi bi-grid-3x3 me-2"></i>Correlation Matrix
+  </h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
 </div>
-<div class="modal-body">
-  <div class="d-flex justify-content-center">
-    <div class="p-2">
-      <plotly-plot [divId]="'correlationMatrix'" [config]="config" [data]="graphData" [layout]="graphLayout" [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
+
+<div class="modal-body" role="main" aria-labelledby="correlationMatrixTitle">
+  @if (loading) {
+    <div class="loading-overlay" role="status" aria-live="polite">
+      <div class="text-center">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted">{{ loadingMessage }}</p>
+      </div>
+    </div>
+  }
+
+  <div class="row g-3">
+    <div class="col-lg-3">
+      <div class="settings-panel">
+        <div class="accordion" id="settingsAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#methodSettings" aria-expanded="true">
+                <i class="bi bi-sliders me-2"></i>Method & Display
+              </button>
+            </h2>
+            <div id="methodSettings" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
+              <div class="accordion-body">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Correlation Method</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="correlationMethod" (change)="onMethodChange()" aria-label="Select correlation method">
+                    <option value="pearson">Pearson</option>
+                    <option value="spearman">Spearman</option>
+                  </select>
+                  <small class="text-muted">
+                    @if (correlationMethod === 'pearson') {
+                      Measures linear relationship
+                    } @else {
+                      Measures monotonic relationship
+                    }
+                  </small>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Color Scale</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="colorScalePreset" (change)="onColorScaleChange()" aria-label="Select color scale">
+                    <option value="default">Default (Pink-Blue)</option>
+                    <option value="viridis">Viridis</option>
+                    <option value="plasma">Plasma</option>
+                    <option value="bluered">Blue-Red</option>
+                    <option value="rdylbu">Red-Yellow-Blue</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="showAnnotations" [(ngModel)]="showAnnotations" (change)="onAnnotationToggle()">
+                    <label class="form-check-label" for="showAnnotations">Show values on cells</label>
+                  </div>
+                </div>
+
+                @if (showAnnotations) {
+                  <div class="mb-3">
+                    <label class="form-label">Annotation font size: {{ annotationFontSize }}px</label>
+                    <input type="range" class="form-range" min="6" max="14" [(ngModel)]="annotationFontSize" (change)="onAnnotationToggle()" aria-label="Annotation font size">
+                  </div>
+                }
+
+                <div class="mb-3">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="enableThreshold" [(ngModel)]="enableThreshold" (change)="onThresholdChange()">
+                    <label class="form-check-label" for="enableThreshold">Filter by threshold</label>
+                  </div>
+                </div>
+
+                @if (enableThreshold) {
+                  <div class="mb-3">
+                    <label class="form-label">Min correlation: {{ correlationThreshold | number:'1.2-2' }}</label>
+                    <input type="range" class="form-range" min="0" max="1" step="0.05" [(ngModel)]="correlationThreshold" (change)="onThresholdChange()" aria-label="Minimum correlation threshold">
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sampleSettings" aria-expanded="false">
+                <i class="bi bi-list-check me-2"></i>Sample Selection
+                <span class="badge bg-primary ms-2">{{ selectedSamples.length }}/{{ allSamples.length }}</span>
+              </button>
+            </h2>
+            <div id="sampleSettings" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
+              <div class="accordion-body">
+                <div class="d-flex gap-2 mb-3">
+                  <button class="btn btn-outline-primary btn-sm flex-fill" (click)="selectAllSamples()" [disabled]="selectedSamples.length === allSamples.length">
+                    Select All
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm flex-fill" (click)="deselectAllSamples()" [disabled]="selectedSamples.length === 0">
+                    Clear
+                  </button>
+                </div>
+
+                @if (getGroupNames().length > 1) {
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold small">By Group</label>
+                    <div class="d-flex flex-wrap gap-1">
+                      @for (group of getGroupNames(); track group) {
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-secondary" (click)="selectGroup(group)" title="Select {{ group }}">
+                            <i class="bi bi-plus-circle"></i> {{ group }}
+                          </button>
+                          <button class="btn btn-outline-secondary" (click)="deselectGroup(group)" title="Deselect {{ group }}">
+                            <i class="bi bi-dash-circle"></i>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <div class="sample-list" role="listbox" aria-label="Sample selection">
+                  @for (sample of allSamples; track sample) {
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [id]="'sample-' + sample"
+                        [checked]="isSampleSelected(sample)"
+                        (change)="toggleSample(sample)"
+                        role="option"
+                        [attr.aria-selected]="isSampleSelected(sample)">
+                      <label class="form-check-label small" [for]="'sample-' + sample">
+                        {{ sample }}
+                      </label>
+                    </div>
+                  }
+                </div>
+
+                <button class="btn btn-primary btn-sm w-100 mt-3" (click)="onSampleSelectionChange()" [disabled]="selectedSamples.length < 2">
+                  <i class="bi bi-arrow-repeat me-1"></i>Update Matrix
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#statsPanel" aria-expanded="false">
+                <i class="bi bi-bar-chart me-2"></i>Statistics
+              </button>
+            </h2>
+            <div id="statsPanel" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
+              <div class="accordion-body">
+                @if (correlationMatrix.length > 0) {
+                  <table class="table table-sm table-borderless mb-0">
+                    <tbody>
+                      <tr>
+                        <td class="text-muted">Minimum</td>
+                        <td class="text-end fw-semibold">{{ getStatistics().min | number:'1.4-4' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted">Maximum</td>
+                        <td class="text-end fw-semibold">{{ getStatistics().max | number:'1.4-4' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted">Mean</td>
+                        <td class="text-end fw-semibold">{{ getStatistics().mean | number:'1.4-4' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted">Median</td>
+                        <td class="text-end fw-semibold">{{ getStatistics().median | number:'1.4-4' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted">Samples</td>
+                        <td class="text-end fw-semibold">{{ selectedSamples.length }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                } @else {
+                  <p class="text-muted small mb-0">No data available</p>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <div class="plot-container">
+        @if (!loading && graphData.length > 0) {
+          <plotly-plot
+            [divId]="'correlationMatrix'"
+            [config]="config"
+            [data]="graphData"
+            [layout]="graphLayout"
+            [revision]="revision"
+            [updateOnDataChange]="true"
+            [updateOnLayoutChange]="true">
+          </plotly-plot>
+        } @else if (!loading) {
+          <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+            <div class="text-center">
+              <i class="bi bi-grid-3x3 display-1 mb-3"></i>
+              <p>Select at least 2 samples to generate the correlation matrix</p>
+            </div>
+          </div>
+        }
+      </div>
     </div>
   </div>
 </div>
+
 <div class="modal-footer">
-  <button class="btn btn-secondary" (click)="modal.dismiss()">Close</button>
-  <button class="btn btn-success" (click)="downloadPlot()">Download Plot</button>
+  <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
+    <div class="btn-group">
+      <button class="btn btn-outline-secondary" (click)="copyToClipboard()" [disabled]="correlationMatrix.length === 0" title="Copy to clipboard">
+        <i class="bi bi-clipboard me-1"></i>Copy
+      </button>
+      <button class="btn btn-outline-secondary" (click)="exportCSV()" [disabled]="correlationMatrix.length === 0" title="Export as CSV">
+        <i class="bi bi-filetype-csv me-1"></i>CSV
+      </button>
+      <div class="btn-group" ngbDropdown>
+        <button class="btn btn-outline-success" ngbDropdownToggle [disabled]="correlationMatrix.length === 0">
+          <i class="bi bi-download me-1"></i>Download
+        </button>
+        <div ngbDropdownMenu>
+          <button ngbDropdownItem (click)="downloadPlot('svg')">
+            <i class="bi bi-filetype-svg me-2"></i>SVG (Vector)
+          </button>
+          <button ngbDropdownItem (click)="downloadPlot('png')">
+            <i class="bi bi-filetype-png me-2"></i>PNG (Image)
+          </button>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-secondary" (click)="modal.dismiss()">
+      <i class="bi bi-x-lg me-1"></i>Close
+    </button>
+  </div>
 </div>

@@ -1,13 +1,262 @@
 <div class="modal-header">
-  <h5 class="modal-title">Selected Data Fold Change Distribution</h5>
+  <h5 class="modal-title" id="distributionPlotTitle">
+    <i class="bi bi-bar-chart-line me-2"></i>Fold Change Distribution
+  </h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
 </div>
-<div class="modal-body">
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" [(ngModel)]="enableDotPlot" (click)="drawPlot()">
-    <label class="form-check-label">Show Scatter Plot</label>
+
+<div class="modal-body" role="main" aria-labelledby="distributionPlotTitle">
+  @if (loading) {
+    <div class="loading-overlay" role="status" aria-live="polite">
+      <div class="text-center">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted">{{ loadingMessage }}</p>
+      </div>
+    </div>
+  }
+
+  <div class="row g-3">
+    <div class="col-lg-3">
+      <div class="settings-panel">
+        <div class="accordion" id="distributionSettings">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#plotSettings" aria-expanded="true">
+                <i class="bi bi-sliders me-2"></i>Plot Settings
+              </button>
+            </h2>
+            <div id="plotSettings" class="accordion-collapse collapse show" data-bs-parent="#distributionSettings">
+              <div class="accordion-body">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Plot Type</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="plotType" (change)="onPlotTypeChange()" aria-label="Select plot type">
+                    <option value="violin">Violin Plot</option>
+                    <option value="box">Box Plot</option>
+                    <option value="histogram">Histogram</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Orientation</label>
+                  <div class="btn-group btn-group-sm w-100" role="group" aria-label="Plot orientation">
+                    <input type="radio" class="btn-check" name="orientation" id="vertical" value="vertical" [(ngModel)]="orientation" (change)="onOrientationChange()">
+                    <label class="btn btn-outline-primary" for="vertical">
+                      <i class="bi bi-arrow-down-up"></i> Vertical
+                    </label>
+                    <input type="radio" class="btn-check" name="orientation" id="horizontal" value="horizontal" [(ngModel)]="orientation" (change)="onOrientationChange()">
+                    <label class="btn btn-outline-primary" for="horizontal">
+                      <i class="bi bi-arrow-left-right"></i> Horizontal
+                    </label>
+                  </div>
+                </div>
+
+                @if (plotType !== 'histogram') {
+                  <div class="mb-3">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="showPoints" [(ngModel)]="showPoints" (change)="onDisplayOptionChange()">
+                      <label class="form-check-label" for="showPoints">Show data points</label>
+                    </div>
+                  </div>
+
+                  @if (showPoints && plotType === 'violin') {
+                    <div class="mb-3">
+                      <label class="form-label">Point size: {{ pointSize }}px</label>
+                      <input type="range" class="form-range" min="2" max="10" [(ngModel)]="pointSize" (change)="onDisplayOptionChange()" aria-label="Point size">
+                    </div>
+                  }
+
+                  <div class="mb-3">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="showMeanLine" [(ngModel)]="showMeanLine" (change)="onDisplayOptionChange()">
+                      <label class="form-check-label" for="showMeanLine">Show mean line</label>
+                    </div>
+                  </div>
+
+                  @if (plotType === 'violin') {
+                    <div class="mb-3">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="showBox" [(ngModel)]="showBox" (change)="onDisplayOptionChange()">
+                        <label class="form-check-label" for="showBox">Show box inside violin</label>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label">Bandwidth (0 = auto): {{ bandwidth }}</label>
+                      <input type="range" class="form-range" min="0" max="2" step="0.1" [(ngModel)]="bandwidth" (change)="onDisplayOptionChange()" aria-label="Violin bandwidth">
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#groupSettings" aria-expanded="false">
+                <i class="bi bi-list-check me-2"></i>Groups
+                <span class="badge bg-primary ms-2">{{ selectedGroups.length }}/{{ allGroups.length }}</span>
+              </button>
+            </h2>
+            <div id="groupSettings" class="accordion-collapse collapse" data-bs-parent="#distributionSettings">
+              <div class="accordion-body">
+                <div class="d-flex gap-2 mb-3">
+                  <button class="btn btn-outline-primary btn-sm flex-fill" (click)="selectAllGroups()" [disabled]="selectedGroups.length === allGroups.length">
+                    Select All
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm flex-fill" (click)="deselectAllGroups()" [disabled]="selectedGroups.length === 0">
+                    Clear
+                  </button>
+                </div>
+
+                <div class="group-list" role="listbox" aria-label="Group selection">
+                  @for (group of allGroups; track group) {
+                    <div class="form-check d-flex align-items-center">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [id]="'group-' + group"
+                        [checked]="isGroupSelected(group)"
+                        (change)="toggleGroup(group)"
+                        role="option"
+                        [attr.aria-selected]="isGroupSelected(group)">
+                      <label class="form-check-label small flex-grow-1 ms-2" [for]="'group-' + group">
+                        {{ group }}
+                      </label>
+                      <span class="color-indicator" [style.background-color]="settings.settings.colorMap[group]"></span>
+                    </div>
+                  }
+                </div>
+
+                <button class="btn btn-primary btn-sm w-100 mt-3" (click)="drawPlot()" [disabled]="selectedGroups.length === 0">
+                  <i class="bi bi-arrow-repeat me-1"></i>Update Plot
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#statsPanel" aria-expanded="false">
+                <i class="bi bi-calculator me-2"></i>Statistics
+              </button>
+            </h2>
+            <div id="statsPanel" class="accordion-collapse collapse" data-bs-parent="#distributionSettings">
+              <div class="accordion-body p-0">
+                @if (statistics.length > 0) {
+                  <div class="table-responsive">
+                    <table class="table table-sm table-striped mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Group</th>
+                          <th class="text-end">n</th>
+                          <th class="text-end">Mean</th>
+                          <th class="text-end">Median</th>
+                          <th class="text-end">SD</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (stat of statistics; track stat.name) {
+                          <tr>
+                            <td>
+                              <span class="color-dot" [style.background-color]="stat.color"></span>
+                              <span class="small">{{ stat.name }}</span>
+                            </td>
+                            <td class="text-end">{{ stat.count }}</td>
+                            <td class="text-end">{{ stat.mean | number:'1.2-2' }}</td>
+                            <td class="text-end">{{ stat.median | number:'1.2-2' }}</td>
+                            <td class="text-end">{{ stat.stdDev | number:'1.2-2' }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                      <tfoot class="table-light">
+                        <tr class="fw-semibold">
+                          <td>Total</td>
+                          <td class="text-end">{{ getTotalCount() }}</td>
+                          <td class="text-end">{{ getOverallMean() | number:'1.2-2' }}</td>
+                          <td colspan="2"></td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+
+                  <div class="p-2 border-top">
+                    <div class="btn-group btn-group-sm w-100">
+                      <button class="btn btn-outline-secondary" (click)="copyStatistics()" title="Copy to clipboard">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                      <button class="btn btn-outline-secondary" (click)="exportStatistics()" title="Export statistics CSV">
+                        <i class="bi bi-download"></i> Stats CSV
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="p-3 text-muted small text-center">
+                    No statistics available
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <div class="plot-container" id="foldChangeDistribution">
+        @if (!loading && graphData.length > 0) {
+          <plotly-plot
+            [divId]="'distributionPlot'"
+            [data]="graphData"
+            [layout]="graphLayout"
+            [config]="config"
+            [revision]="revision"
+            [updateOnLayoutChange]="true"
+            [updateOnDataChange]="true">
+          </plotly-plot>
+        } @else if (!loading && selectedGroups.length === 0) {
+          <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+            <div class="text-center">
+              <i class="bi bi-bar-chart-line display-1 mb-3"></i>
+              <p>Select at least one group to generate the distribution plot</p>
+            </div>
+          </div>
+        } @else if (!loading && graphData.length === 0) {
+          <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+            <div class="text-center">
+              <i class="bi bi-exclamation-circle display-1 mb-3"></i>
+              <p>No data available for selected groups</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
   </div>
-  <plotly-plot [data]="graphData" [layout]="graphLayoutViolin" [config]="config" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
 </div>
+
 <div class="modal-footer">
-  <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+  <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
+    <div class="btn-group">
+      <button class="btn btn-outline-secondary" (click)="exportCSV()" [disabled]="graphData.length === 0" title="Export data as CSV">
+        <i class="bi bi-filetype-csv me-1"></i>Data CSV
+      </button>
+      <div class="btn-group" ngbDropdown>
+        <button class="btn btn-outline-success" ngbDropdownToggle [disabled]="graphData.length === 0">
+          <i class="bi bi-download me-1"></i>Download Plot
+        </button>
+        <div ngbDropdownMenu>
+          <button ngbDropdownItem (click)="downloadPlot('svg')">
+            <i class="bi bi-filetype-svg me-2"></i>SVG (Vector)
+          </button>
+          <button ngbDropdownItem (click)="downloadPlot('png')">
+            <i class="bi bi-filetype-png me-2"></i>PNG (Image)
+          </button>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-secondary" (click)="modal.dismiss()">
+      <i class="bi bi-x-lg me-1"></i>Close
+    </button>
+  </div>
 </div>

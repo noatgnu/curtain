@@ -1,27 +1,227 @@
-<form [formGroup]="form">
-  <div class="d-flex">
-    <div class="form-group p-2">
-      <label for="tissueType">Select Tissue or Cell Line</label>
-      <select style="max-width: 200px" id="tissueType" class="form-control" formControlName="selected">
-        <option value="tissue">
-          Tissue
-        </option>
-        <option value="cell line">
-          Cell line
-        </option>
-      </select>
+<div class="proteomics-db-container">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-database me-2"></i>
+        <span class="fw-semibold">ProteomicsDB Expression</span>
+        <span class="badge bg-secondary ms-2">{{ _uniprotID }}</span>
+      </div>
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        (click)="showSettings = !showSettings"
+        [attr.aria-expanded]="showSettings"
+        aria-controls="settingsPanel"
+        title="Toggle settings">
+        <i class="bi" [class.bi-chevron-up]="showSettings" [class.bi-chevron-down]="!showSettings"></i>
+      </button>
     </div>
-    <div class="form-group p-2">
-      <label for="tissueType">Bar chart color</label>
-      <input formControlName="color" (colorPickerChange)="updateColor($event)" class="form-control" [(colorPicker)]="color" [style.background]="color">
-    </div>
+
+    @if (showSettings) {
+      <div class="card-body py-2" id="settingsPanel">
+        <form [formGroup]="form">
+          <div class="row g-2 align-items-end">
+            <div class="col-auto">
+              <label for="tissueType" class="form-label small mb-1">Data Type</label>
+              <select
+                id="tissueType"
+                class="form-select form-select-sm"
+                formControlName="selected"
+                aria-label="Select tissue or cell line">
+                <option value="tissue">Tissue</option>
+                <option value="cell line">Cell Line</option>
+              </select>
+            </div>
+
+            <div class="col-auto">
+              <label for="barColor" class="form-label small mb-1">Color</label>
+              <input
+                id="barColor"
+                formControlName="color"
+                (colorPickerChange)="updateColor($event)"
+                class="form-control form-control-sm color-input"
+                [(colorPicker)]="color"
+                [style.background]="color"
+                [style.color]="'transparent'"
+                aria-label="Bar chart color">
+            </div>
+
+            <div class="col-auto">
+              <label for="sortOrder" class="form-label small mb-1">Sort By</label>
+              <select
+                id="sortOrder"
+                class="form-select form-select-sm"
+                [(ngModel)]="sortOrder"
+                [ngModelOptions]="{standalone: true}"
+                (change)="onSortChange()"
+                aria-label="Sort order">
+                <option value="value-desc">Intensity (High to Low)</option>
+                <option value="value-asc">Intensity (Low to High)</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+              </select>
+            </div>
+
+            <div class="col-auto">
+              <label for="topN" class="form-label small mb-1">Show Top</label>
+              <select
+                id="topN"
+                class="form-select form-select-sm"
+                [(ngModel)]="showTopN"
+                [ngModelOptions]="{standalone: true}"
+                (change)="onTopNChange()"
+                aria-label="Show top N items">
+                <option [value]="0">All</option>
+                <option [value]="5">Top 5</option>
+                <option [value]="10">Top 10</option>
+                <option [value]="20">Top 20</option>
+                <option [value]="50">Top 50</option>
+              </select>
+            </div>
+
+            <div class="col">
+              <label for="searchInput" class="form-label small mb-1">Search</label>
+              <div class="input-group input-group-sm">
+                <input
+                  id="searchInput"
+                  type="text"
+                  class="form-control"
+                  placeholder="Filter by name..."
+                  [(ngModel)]="searchTerm"
+                  [ngModelOptions]="{standalone: true}"
+                  (input)="onSearchChange()"
+                  aria-label="Search tissues or cell lines">
+                @if (searchTerm) {
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    (click)="clearSearch()"
+                    title="Clear search">
+                    <i class="bi bi-x"></i>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="col-auto">
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                (click)="resetFilters()"
+                title="Reset all filters"
+                [disabled]="!searchTerm && sortOrder === 'value-desc' && showTopN === 0">
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    }
   </div>
 
-</form>
+  <div class="plot-area mt-2">
+    @if (loading) {
+      <div class="loading-overlay" role="status" aria-live="polite">
+        <div class="text-center">
+          <div class="spinner-border text-primary mb-2">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted small mb-0">Fetching expression data...</p>
+        </div>
+      </div>
+    }
 
-<plotly-plot [config]="config" [divId]="_uniprotID+'bar'" [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
-<div class="row align-content-end">
-  <div class="col">
-<!--    <button class="btn btn-sm btn-link" (click)="credit.openCredit('ProteomicsDB')">Resource Citations</button>-->
+    @if (error) {
+      <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <div>{{ error }}</div>
+      </div>
+    }
+
+    @if (!loading && !error && graphData.length > 0) {
+      <div class="plot-container" [id]="_uniprotID + 'bar'">
+        <plotly-plot
+          [config]="config"
+          [divId]="_uniprotID + 'bar'"
+          [data]="graphData"
+          [layout]="graphLayout"
+          [revision]="revision"
+          [updateOnLayoutChange]="true"
+          [updateOnDataChange]="true">
+        </plotly-plot>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-start mt-2 flex-wrap gap-2">
+        @if (statistics) {
+          <div class="stats-summary small">
+            <span class="text-muted me-3">
+              <i class="bi bi-bar-chart me-1"></i>
+              Showing {{ filteredData.length }} of {{ rawData.length }} {{ getDataCategory() | lowercase }}s
+            </span>
+            <span class="text-muted me-3" title="Mean intensity">
+              Mean: <strong>{{ statistics.mean | number:'1.2-2' }}</strong>
+            </span>
+            <span class="text-muted me-3" title="Median intensity">
+              Median: <strong>{{ statistics.median | number:'1.2-2' }}</strong>
+            </span>
+            <span class="text-muted" title="Intensity range">
+              Range: <strong>{{ statistics.min | number:'1.2-2' }} - {{ statistics.max | number:'1.2-2' }}</strong>
+            </span>
+          </div>
+        }
+
+        <div class="btn-group btn-group-sm">
+          <button
+            class="btn btn-outline-secondary"
+            (click)="copyToClipboard()"
+            title="Copy data to clipboard">
+            <i class="bi bi-clipboard"></i>
+          </button>
+          <button
+            class="btn btn-outline-secondary"
+            (click)="exportCSV()"
+            title="Export as CSV">
+            <i class="bi bi-filetype-csv"></i>
+          </button>
+          <div class="btn-group btn-group-sm" ngbDropdown>
+            <button
+              class="btn btn-outline-secondary"
+              ngbDropdownToggle
+              title="Download plot">
+              <i class="bi bi-download"></i>
+            </button>
+            <div ngbDropdownMenu>
+              <button ngbDropdownItem (click)="downloadPlot('svg')">
+                <i class="bi bi-filetype-svg me-2"></i>SVG
+              </button>
+              <button ngbDropdownItem (click)="downloadPlot('png')">
+                <i class="bi bi-filetype-png me-2"></i>PNG
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (!loading && !error && graphData.length === 0 && _uniprotID) {
+      <div class="empty-state text-center py-4">
+        <i class="bi bi-database-x display-4 text-muted mb-2"></i>
+        <p class="text-muted mb-0">
+          @if (searchTerm) {
+            No {{ getDataCategory() | lowercase }}s match "{{ searchTerm }}"
+          } @else {
+            No expression data available for {{ _uniprotID }}
+          }
+        </p>
+        @if (searchTerm) {
+          <button class="btn btn-sm btn-link" (click)="clearSearch()">Clear search</button>
+        }
+      </div>
+    }
+
+    @if (!_uniprotID) {
+      <div class="empty-state text-center py-4">
+        <i class="bi bi-info-circle display-4 text-muted mb-2"></i>
+        <p class="text-muted mb-0">Select a protein to view expression data</p>
+      </div>
+    }
   </div>
 </div>
