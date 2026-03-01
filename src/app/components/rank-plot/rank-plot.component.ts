@@ -4,15 +4,13 @@ import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {UniprotService} from "../../uniprot.service";
 import {WebService} from "../../web.service";
-import {
-  VolcanoPlotTextAnnotationComponent
-} from "../volcano-plot-text-annotation/volcano-plot-text-annotation.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {RankPlotTextAnnotationComponent} from "../rank-plot-text-annotation/rank-plot-text-annotation.component";
 import {VolcanoColorsComponent} from "../volcano-colors/volcano-colors.component";
 import {PlotlyThemeService} from "../../plotly-theme.service";
 import {ThemeService} from "../../theme.service";
 import {Subscription} from "rxjs";
+import {ToastService} from "../../toast.service";
 
 @Component({
     selector: 'app-rank-plot',
@@ -25,6 +23,13 @@ export class RankPlotComponent implements OnInit, OnDestroy {
   revision = 0;
   _data: IDataFrame = new DataFrame()
   sortedDataMap: any = {}
+
+  searchTerm = '';
+  highlightedProteins: Set<string> = new Set();
+  showPercentiles = false;
+  topN = 0;
+  markerSize = 5;
+  selectedMarkerSize = 10;
 
   graphData: any[] = []
   graphLayout: any = {
@@ -107,7 +112,7 @@ export class RankPlotComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private web: WebService, public dataService: DataService, public settings: SettingsService, public uniprot: UniprotService, private modal: NgbModal, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
+  constructor(private web: WebService, public dataService: DataService, public settings: SettingsService, public uniprot: UniprotService, private modal: NgbModal, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService, private toast: ToastService) {
     this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
       if (data) {
         this.draw().then()
@@ -232,6 +237,8 @@ export class RankPlotComponent implements OnInit, OnDestroy {
   async draw() {
     const temp: any = {}
     let currentPosition = 0
+    const shapes: any[] = []
+
     for (const i in this.sortedDataMap) {
       if (!this.settings.settings.rankPlotColorMap[i]) {
         this.settings.settings.rankPlotColorMap["Selected " + i] = this.settings.settings.defaultColorList[currentPosition]
@@ -247,10 +254,15 @@ export class RankPlotComponent implements OnInit, OnDestroy {
       if (currentPosition >= this.settings.settings.defaultColorList.length) {
         currentPosition = 0
       }
-      // @ts-ignore
-      const selected = this.sortedDataMap[i].where(r => this.dataService.selected.includes(r[this.dataService.rawForm.primaryIDs]))
-      // @ts-ignore
-      const notSelected = this.sortedDataMap[i].where(r => !this.dataService.selected.includes(r[this.dataService.rawForm.primaryIDs]))
+
+      let dataFrame = this.sortedDataMap[i]
+      if (this.topN > 0) {
+        dataFrame = dataFrame.head(this.topN)
+      }
+
+      const selected = dataFrame.where((r: any) => this.dataService.selected.includes(r[this.dataService.rawForm.primaryIDs]))
+      const notSelected = dataFrame.where((r: any) => !this.dataService.selected.includes(r[this.dataService.rawForm.primaryIDs]))
+
       if (!(i in this.settings.settings.legendStatus)) {
         this.settings.settings.legendStatus[i] = true
       }
@@ -271,11 +283,11 @@ export class RankPlotComponent implements OnInit, OnDestroy {
           x: selected.getIndex().toArray(),
           y: selected.getSeries(i).toArray(),
           text: text,
-          type: "scattergl",
+          type: "scatter",
           mode: "markers",
           name: "Selected "+ i,
           marker: {
-            size: 10,
+            size: this.selectedMarkerSize,
             color: this.settings.settings.rankPlotColorMap["Selected "+ i]
           }
         }
@@ -295,19 +307,39 @@ export class RankPlotComponent implements OnInit, OnDestroy {
         x: notSelected.getIndex().toArray(),
         y: notSelected.getSeries(i).toArray(),
         text: text,
-        type: "scattergl",
+        type: "scatter",
         mode: "markers",
         name: i,
         opacity: 0.3,
         marker: {
-          size: 5,
+          size: this.markerSize,
           color: this.settings.settings.rankPlotColorMap[i]
         }
       }
       if (!this.settings.settings.legendStatus[i]) {
         temp[i]["visible"] = "legendonly"
       }
+
+      if (this.showPercentiles) {
+        const values = dataFrame.getSeries(i).toArray().filter((v: number) => v !== 0)
+        if (values.length > 0) {
+          const sorted = [...values].sort((a: number, b: number) => a - b)
+          const n = sorted.length
+          const q1 = sorted[Math.floor(n * 0.25)]
+          const median = sorted[Math.floor(n * 0.5)]
+          const q3 = sorted[Math.floor(n * 0.75)]
+          const maxRank = this.topN > 0 ? this.topN : dataFrame.count()
+          const color = this.settings.settings.rankPlotColorMap[i]
+
+          shapes.push(
+            { type: 'line', x0: 0, x1: maxRank, y0: q1, y1: q1, line: { color: color, width: 1, dash: 'dot' } },
+            { type: 'line', x0: 0, x1: maxRank, y0: median, y1: median, line: { color: color, width: 2, dash: 'dash' } },
+            { type: 'line', x0: 0, x1: maxRank, y0: q3, y1: q3, line: { color: color, width: 1, dash: 'dot' } }
+          )
+        }
+      }
     }
+
     const graphData: any[] = []
     for (const i in temp) {
       if (!i.startsWith("Selected")) {
@@ -319,6 +351,14 @@ export class RankPlotComponent implements OnInit, OnDestroy {
         graphData.push(temp[i])
       }
     }
+
+    if (this.highlightedProteins.size > 0) {
+      const highlightTrace = this.createHighlightTrace()
+      if (highlightTrace) {
+        graphData.push(highlightTrace)
+      }
+    }
+
     const annotations: any[] = []
     for (const i in this.settings.settings.rankPlotAnnotation) {
       for (const c in this.sortedDataMap) {
@@ -332,8 +372,53 @@ export class RankPlotComponent implements OnInit, OnDestroy {
     if (annotations.length > 0) {
       this.graphLayout.annotations = annotations
     }
+    this.graphLayout.shapes = shapes
     this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
     this.graphData = graphData
+  }
+
+  private createHighlightTrace(): any {
+    const xVals: number[] = []
+    const yVals: number[] = []
+    const textVals: string[] = []
+
+    for (const condition in this.sortedDataMap) {
+      let dataFrame = this.sortedDataMap[condition]
+      if (this.topN > 0) {
+        dataFrame = dataFrame.head(this.topN)
+      }
+      const pairs = dataFrame.toPairs()
+      for (const [index, row] of pairs) {
+        const primaryId = row[this.dataService.rawForm.primaryIDs]
+        const uni = this.uniprot.getUniprotFromPrimary(primaryId)
+        const geneName = uni?.["Gene Names"] || primaryId
+
+        if (this.highlightedProteins.has(primaryId.toLowerCase()) ||
+            this.highlightedProteins.has(geneName.toLowerCase())) {
+          xVals.push(index)
+          yVals.push(row[condition])
+          textVals.push(`<b>${geneName}</b><br>${condition}<br>Rank: ${index + 1}`)
+        }
+      }
+    }
+
+    if (xVals.length === 0) return null
+
+    return {
+      x: xVals,
+      y: yVals,
+      text: textVals,
+      type: 'scattergl',
+      mode: 'markers',
+      name: 'Highlighted',
+      hovertemplate: '%{text}<extra></extra>',
+      marker: {
+        size: this.selectedMarkerSize + 4,
+        color: '#ff7f0e',
+        symbol: 'diamond',
+        line: { color: '#000', width: 1 }
+      }
+    }
   }
 
   handleClick(e: any) {
@@ -409,5 +494,89 @@ export class RankPlotComponent implements OnInit, OnDestroy {
 
   downloadSVG() {
     this.web.downloadPlotlyImage("svg", "rankplot", "rankplot").then()
+  }
+
+  downloadPNG() {
+    this.web.downloadPlotlyImage("png", "rankplot", "rankplot").then()
+  }
+
+  onSearchChange() {
+    this.highlightedProteins.clear()
+    if (this.searchTerm.trim()) {
+      const terms = this.searchTerm.toLowerCase().split(',').map(t => t.trim())
+      for (const condition in this.sortedDataMap) {
+        for (const row of this.sortedDataMap[condition]) {
+          const primaryId = row[this.dataService.rawForm.primaryIDs]
+          const uni = this.uniprot.getUniprotFromPrimary(primaryId)
+          const geneName = uni?.["Gene Names"] || ''
+          for (const term of terms) {
+            if (primaryId.toLowerCase().includes(term) || geneName.toLowerCase().includes(term)) {
+              this.highlightedProteins.add(primaryId.toLowerCase())
+            }
+          }
+        }
+      }
+    }
+    this.draw().then()
+  }
+
+  clearSearch() {
+    this.searchTerm = ''
+    this.highlightedProteins.clear()
+    this.draw().then()
+  }
+
+  showAllConditions() {
+    for (const l in this.settings.settings.legendStatus) {
+      this.settings.settings.legendStatus[l] = true
+    }
+    this.draw().then()
+  }
+
+  onTopNChange() {
+    this.draw().then()
+  }
+
+  onMarkerSizeChange() {
+    this.draw().then()
+  }
+
+  togglePercentiles() {
+    this.showPercentiles = !this.showPercentiles
+    this.draw().then()
+  }
+
+  exportRankedData() {
+    const headers = ['Primary ID', 'Gene Name', 'Condition', 'Rank', 'Log2 Abundance']
+    const rows: string[][] = []
+
+    for (const condition in this.sortedDataMap) {
+      let dataFrame = this.sortedDataMap[condition]
+      if (this.topN > 0) {
+        dataFrame = dataFrame.head(this.topN)
+      }
+      const pairs = dataFrame.toPairs()
+      for (const [index, row] of pairs) {
+        const primaryId = row[this.dataService.rawForm.primaryIDs]
+        const uni = this.uniprot.getUniprotFromPrimary(primaryId)
+        const geneName = uni?.["Gene Names"] || primaryId
+        rows.push([
+          primaryId,
+          geneName,
+          condition,
+          (index + 1).toString(),
+          row[condition].toFixed(4)
+        ])
+      }
+    }
+
+    const tsvContent = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n')
+    const blob = new Blob([tsvContent], { type: 'text/tab-separated-values;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = 'rank-abundance-data.tsv'
+    link.click()
+    URL.revokeObjectURL(link.href)
+    this.toast.show('Export', 'Ranked data exported to TSV').then()
   }
 }

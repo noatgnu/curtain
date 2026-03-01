@@ -1,9 +1,105 @@
-<div class="d-grid gap-2 d-md-flex justify-content-md-end" role="toolbar" aria-label="Rank plot controls">
-  <button class="btn btn-primary" (click)="hideAllSelected()" aria-label="Hide all selected data series from the plot">Hide All Selected Data</button>
-  <button class="btn btn-primary" (click)="hideAllNonSelected()" aria-label="Hide all non-selected data series from the plot">Hide All Non-Selected Data</button>
-  <button class="btn btn-primary" (click)="openTextEditor()" aria-label="Open annotation text editor dialog">Annotation Text Editor</button>
-  <button class="btn btn-primary" (click)="openColorEditor()" aria-label="Open color editor dialog">Color Editor</button>
+<div class="rank-plot-controls mb-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-auto">
+      <label class="form-label small mb-1">Search Proteins</label>
+      <div class="input-group input-group-sm">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Gene name or ID..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          style="min-width: 150px;">
+        @if (searchTerm) {
+          <button class="btn btn-outline-secondary" (click)="clearSearch()" title="Clear search">
+            <i class="bi bi-x"></i>
+          </button>
+        }
+      </div>
+      @if (highlightedProteins.size > 0) {
+        <small class="text-muted">{{ highlightedProteins.size }} found</small>
+      }
+    </div>
+
+    <div class="col-auto">
+      <label class="form-label small mb-1">Top N</label>
+      <input
+        type="number"
+        class="form-control form-control-sm"
+        [(ngModel)]="topN"
+        (change)="onTopNChange()"
+        min="0"
+        placeholder="0 = all"
+        style="width: 80px;">
+    </div>
+
+    <div class="col-auto">
+      <label class="form-label small mb-1">Marker Size</label>
+      <input
+        type="range"
+        class="form-range"
+        [(ngModel)]="markerSize"
+        (input)="onMarkerSizeChange()"
+        min="2"
+        max="15"
+        style="width: 80px;">
+    </div>
+
+    <div class="col-auto">
+      <div class="form-check form-switch mt-4">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="showPercentiles"
+          [checked]="showPercentiles"
+          (change)="togglePercentiles()">
+        <label class="form-check-label small" for="showPercentiles">Percentiles</label>
+      </div>
+    </div>
+
+    <div class="col-auto ms-auto">
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-primary" (click)="showAllConditions()" title="Show all conditions">
+          <i class="bi bi-eye"></i> Show All
+        </button>
+        <button class="btn btn-outline-primary" (click)="hideAllSelected()" title="Hide selected data">
+          Hide Selected
+        </button>
+        <button class="btn btn-outline-primary" (click)="hideAllNonSelected()" title="Hide non-selected data">
+          Hide Others
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-2 mt-2">
+    <div class="col-auto">
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-secondary" (click)="openTextEditor()" title="Edit annotations">
+          <i class="bi bi-fonts"></i> Annotations
+        </button>
+        <button class="btn btn-outline-secondary" (click)="openColorEditor()" title="Edit colors">
+          <i class="bi bi-palette"></i> Colors
+        </button>
+      </div>
+    </div>
+
+    <div class="col-auto ms-auto">
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-success" (click)="exportRankedData()" title="Export data to TSV">
+          <i class="bi bi-file-earmark-spreadsheet"></i> Export TSV
+        </button>
+        <button class="btn btn-outline-success" (click)="downloadSVG()" title="Download as SVG">
+          <i class="bi bi-filetype-svg"></i> SVG
+        </button>
+        <button class="btn btn-outline-success" (click)="downloadPNG()" title="Download as PNG">
+          <i class="bi bi-filetype-png"></i> PNG
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
+
 <div role="img" aria-label="Rank abundance plot showing protein expression levels ranked by abundance" tabindex="0">
   <span class="visually-hidden" id="rankplot-description">
     Interactive scatter plot displaying log2 abundance values ranked from highest to lowest. Use the legend to toggle visibility of data series.
@@ -13,6 +109,7 @@
     [divId]="'rankplot'"
     [data]="graphData"
     [layout]="graphLayout"
+    [revision]="revision"
     [updateOnDataChange]="true"
     [updateOnLayoutChange]="true"
     (legendClick)="handleClick($event)">

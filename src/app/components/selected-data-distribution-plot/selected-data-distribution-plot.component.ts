@@ -53,6 +53,10 @@ export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy 
   statistics: SelectionStats[] = [];
   showStatistics = false;
 
+  isPlotSettingsCollapsed = false;
+  isGroupSettingsCollapsed = true;
+  isStatsCollapsed = true;
+
   config: any = {
     toImageButtonOptions: {
       format: 'svg',
@@ -114,7 +118,7 @@ export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy 
         tickfont: { size: 12 },
         title: isHorizontal ? '<b>Selection Groups</b>' : '<b>Log2 Fold Change</b>',
       },
-      margin: { r: 50, l: 80, b: 100, t: 80 },
+      margin: { r: 50, l: 80, b: 150, t: 80 },
       height: isHorizontal ? Math.max(400, this.selectedGroups.length * 80) : 500,
       width: size,
       showlegend: this.selectedGroups.length > 1,
@@ -366,7 +370,7 @@ export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy 
     this.web.downloadPlotlyImage(format, 'fold-change-distribution', 'foldChangeDistribution');
   }
 
-  exportCSV(): void {
+  exportTSV(): void {
     const headers = ['Group', 'Primary ID', 'Fold Change'];
     const rows: string[][] = [];
 
@@ -382,19 +386,19 @@ export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy 
       }
     }
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
+    const tsvContent = [
+      headers.join('\t'),
+      ...rows.map(row => row.join('\t'))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([tsvContent], { type: 'text/tab-separated-values;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'fold-change-distribution.csv';
+    link.download = 'fold-change-distribution.tsv';
     link.click();
     URL.revokeObjectURL(link.href);
 
-    this.toast.show("Export", "Data exported to CSV").then();
+    this.toast.show("Export", "Data exported to TSV").then();
   }
 
   exportStatistics(): void {
@@ -411,19 +415,19 @@ export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy 
       s.q3.toFixed(4)
     ]);
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
+    const tsvContent = [
+      headers.join('\t'),
+      ...rows.map(row => row.join('\t'))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([tsvContent], { type: 'text/tab-separated-values;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'fold-change-statistics.csv';
+    link.download = 'fold-change-statistics.tsv';
     link.click();
     URL.revokeObjectURL(link.href);
 
-    this.toast.show("Export", "Statistics exported to CSV").then();
+    this.toast.show("Export", "Statistics exported to TSV").then();
   }
 
   copyStatistics(): void {

@@ -23,11 +23,15 @@
         <div class="accordion" id="settingsAccordion">
           <div class="accordion-item">
             <h2 class="accordion-header">
-              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#methodSettings" aria-expanded="true">
+              <button
+                [ngClass]="{'accordion-button': true, 'collapsed': isMethodSettingsCollapsed}"
+                type="button"
+                (click)="isMethodSettingsCollapsed = !isMethodSettingsCollapsed"
+                [attr.aria-expanded]="!isMethodSettingsCollapsed">
                 <i class="bi bi-sliders me-2"></i>Method & Display
               </button>
             </h2>
-            <div id="methodSettings" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
+            <div id="methodSettings" [(ngbCollapse)]="isMethodSettingsCollapsed">
               <div class="accordion-body">
                 <div class="mb-3">
                   <label class="form-label fw-semibold">Correlation Method</label>
@@ -88,12 +92,16 @@
 
           <div class="accordion-item">
             <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sampleSettings" aria-expanded="false">
+              <button
+                [ngClass]="{'accordion-button': true, 'collapsed': isSampleSettingsCollapsed}"
+                type="button"
+                (click)="isSampleSettingsCollapsed = !isSampleSettingsCollapsed"
+                [attr.aria-expanded]="!isSampleSettingsCollapsed">
                 <i class="bi bi-list-check me-2"></i>Sample Selection
                 <span class="badge bg-primary ms-2">{{ selectedSamples.length }}/{{ allSamples.length }}</span>
               </button>
             </h2>
-            <div id="sampleSettings" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
+            <div id="sampleSettings" [(ngbCollapse)]="isSampleSettingsCollapsed">
               <div class="accordion-body">
                 <div class="d-flex gap-2 mb-3">
                   <button class="btn btn-outline-primary btn-sm flex-fill" (click)="selectAllSamples()" [disabled]="selectedSamples.length === allSamples.length">
@@ -149,11 +157,15 @@
 
           <div class="accordion-item">
             <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#statsPanel" aria-expanded="false">
+              <button
+                [ngClass]="{'accordion-button': true, 'collapsed': isStatsCollapsed}"
+                type="button"
+                (click)="isStatsCollapsed = !isStatsCollapsed"
+                [attr.aria-expanded]="!isStatsCollapsed">
                 <i class="bi bi-bar-chart me-2"></i>Statistics
               </button>
             </h2>
-            <div id="statsPanel" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
+            <div id="statsPanel" [(ngbCollapse)]="isStatsCollapsed">
               <div class="accordion-body">
                 @if (correlationMatrix.length > 0) {
                   <table class="table table-sm table-borderless mb-0">
@@ -221,8 +233,8 @@
       <button class="btn btn-outline-secondary" (click)="copyToClipboard()" [disabled]="correlationMatrix.length === 0" title="Copy to clipboard">
         <i class="bi bi-clipboard me-1"></i>Copy
       </button>
-      <button class="btn btn-outline-secondary" (click)="exportCSV()" [disabled]="correlationMatrix.length === 0" title="Export as CSV">
-        <i class="bi bi-filetype-csv me-1"></i>CSV
+      <button class="btn btn-outline-secondary" (click)="exportTSV()" [disabled]="correlationMatrix.length === 0" title="Export as TSV">
+        <i class="bi bi-file-earmark-spreadsheet me-1"></i>TSV
       </button>
       <div class="btn-group" ngbDropdown>
         <button class="btn btn-outline-success" ngbDropdownToggle [disabled]="correlationMatrix.length === 0">

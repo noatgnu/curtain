@@ -300,7 +300,7 @@ export class ProteomicsDbComponent implements OnInit, OnDestroy {
     this.web.downloadPlotlyImage(format, "proteomicsDB", this._uniprotID + "bar").then();
   }
 
-  exportCSV(): void {
+  exportTSV(): void {
     const dataToExport = this.filteredData.length > 0 ? this.filteredData : this.rawData;
     if (dataToExport.length === 0) {
       this.toast.show("Export", "No data to export").then();
@@ -310,19 +310,19 @@ export class ProteomicsDbComponent implements OnInit, OnDestroy {
     const headers = ['Category', 'Normalized Intensity'];
     const rows = dataToExport.map(d => [d.name, d.value.toString()]);
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    const tsvContent = [
+      headers.join('\t'),
+      ...rows.map(row => row.join('\t'))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([tsvContent], { type: 'text/tab-separated-values;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `proteomicsdb-${this._uniprotID}-${this.form.value["selected"]}.csv`;
+    link.download = `proteomicsdb-${this._uniprotID}-${this.form.value["selected"]}.tsv`;
     link.click();
     URL.revokeObjectURL(link.href);
 
-    this.toast.show("Export", "Data exported to CSV").then();
+    this.toast.show("Export", "Data exported to TSV").then();
   }
 
   copyToClipboard(): void {

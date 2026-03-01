@@ -49,6 +49,10 @@ export class CorrelationMatrixComponent implements OnInit, OnDestroy {
   loading = false;
   loadingMessage = '';
 
+  isMethodSettingsCollapsed = false;
+  isSampleSettingsCollapsed = true;
+  isStatsCollapsed = true;
+
   zmin = 0;
   zmax = 1;
 
@@ -452,25 +456,25 @@ export class CorrelationMatrixComponent implements OnInit, OnDestroy {
     this.web.downloadPlotlyImage(format, 'correlation-matrix', 'correlationMatrix');
   }
 
-  exportCSV(): void {
+  exportTSV(): void {
     const headers = ['Sample', ...this.selectedSamples];
     const rows = this.selectedSamples.map((sample, i) => {
       return [sample, ...this.correlationMatrix[i].map(v => v.toFixed(4))];
     });
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
+    const tsvContent = [
+      headers.join('\t'),
+      ...rows.map(row => row.join('\t'))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([tsvContent], { type: 'text/tab-separated-values;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `correlation-matrix-${this.correlationMethod}.csv`;
+    link.download = `correlation-matrix-${this.correlationMethod}.tsv`;
     link.click();
     URL.revokeObjectURL(link.href);
 
-    this.toast.show("Export", "Correlation matrix exported to CSV").then();
+    this.toast.show("Export", "Correlation matrix exported to TSV").then();
   }
 
   copyToClipboard(): void {
