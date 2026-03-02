@@ -6,12 +6,8 @@ import {CollectionLandingComponent} from "./components/collection-landing/collec
 import {AppLayoutComponent} from "./components/app-layout/app-layout.component";
 
 const routes: Routes = [
-  {
-    path: 'datacite', component: DataciteComponent
-  },
-  {
-    path: 'datacite/:linkID', component: DataciteComponent
-  },
+  { path: 'datacite', component: DataciteComponent },
+  { path: 'datacite/:linkID', component: DataciteComponent },
   {
     path: 'collection/:id',
     component: AppLayoutComponent,
@@ -19,20 +15,11 @@ const routes: Routes = [
       { path: '', component: CollectionLandingComponent }
     ]
   },
-  {
-    path: '', component: HomeComponent,
-    children: [
-      {
-        path: 'home', component: HomeComponent
-      },
-      {
-        path: "home/:settings", component: HomeComponent
-      },
-    ],
-
-  },
-  {path: ':settings', component: HomeComponent},
-  {path: "**", redirectTo:"home"}
+  { path: 'home', component: HomeComponent },
+  { path: 'home/:settings', component: HomeComponent },
+  { path: '', component: HomeComponent, pathMatch: 'full' },
+  { path: ':settings', component: HomeComponent },
+  { path: '**', redirectTo: 'home' }
 ];
 
 @NgModule({
