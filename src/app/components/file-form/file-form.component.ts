@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
 import { InputFile } from "../../classes/input-file";
 import { DataService } from "../../data.service";
 import { DataFrame, fromJSON, IDataFrame, Series } from "data-forge";
@@ -37,13 +37,15 @@ export class FileFormComponent implements OnInit, OnDestroy {
     private toast: ToastService,
     private cdr: ChangeDetectorRef
   ) {
-    this.uniprot.progressBar$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+    effect(() => {
+      const data = this.uniprot.progressBar();
       this.progressBar.value = data.value;
       this.progressBar.text = data.text;
       this.cdr.markForCheck();
     });
 
-    this.data.restoreTrigger$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+    effect(() => {
+      const data = this.data.restoreTrigger();
       if (data) {
         this.updateProgressBar(100, "Restoring session...");
         if (!this.clicked) {

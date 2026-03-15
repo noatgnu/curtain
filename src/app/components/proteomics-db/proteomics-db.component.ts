@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit } from '@angular/core';
 import { WebService } from "../../web.service";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { getProteomicsData } from "curtain-web-api";
@@ -94,7 +94,8 @@ export class ProteomicsDbComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    effect(() => {
+      this.themeService.mode();
       this.updateLayout();
       this.revision++;
       this.cdr.markForCheck();

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {UniprotService} from "../../uniprot.service";
 import {WebService} from "../../web.service";
 import {DataService} from "../../data.service";
@@ -78,7 +78,8 @@ export class StringDbComponent implements OnInit, OnDestroy {
     "Not in dataset": "#676666"
   }
   constructor(private fb: FormBuilder, private uniprot: UniprotService, private data: DataService, private settings: SettingsService, private cdr: ChangeDetectorRef) {
-    this.data.stringDBColorMapChanged$.pipe(takeUntil(this.destroy$)).subscribe((counter) => {
+    effect(() => {
+      const counter = this.data.stringDBColorMapChanged();
       if (counter > 0) {
         for (const i in this.settings.settings.stringDBColorMap) {
           this.colorMap[i] = this.settings.settings.stringDBColorMap[i].slice()
@@ -88,7 +89,6 @@ export class StringDbComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       }
     })
-
   }
 
   ngOnInit(): void {

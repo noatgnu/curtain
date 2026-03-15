@@ -1,21 +1,20 @@
 import { Injectable, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BatchUploadServiceService {
-  readonly taskStartIndex = signal(-1);
-  readonly taskStart$ = toObservable(this.taskStartIndex);
+  private readonly _taskStartIndex = signal(-1);
+  readonly taskStartIndex = this._taskStartIndex.asReadonly();
 
-  readonly resetCounter = signal(0);
-  readonly reset$ = toObservable(this.resetCounter);
+  private readonly _resetCounter = signal(0);
+  readonly resetCounter = this._resetCounter.asReadonly();
 
   triggerTaskStart(index: number): void {
-    this.taskStartIndex.set(index);
+    this._taskStartIndex.set(index);
   }
 
   triggerReset(): void {
-    this.resetCounter.update(v => v + 1);
+    this._resetCounter.update(v => v + 1);
   }
 }

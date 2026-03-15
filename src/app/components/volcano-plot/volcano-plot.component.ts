@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {DataFrame, fromCSV, IDataFrame} from "data-forge";
 import {DataService} from "../../data.service";
 import {UniprotService} from "../../uniprot.service";
@@ -19,7 +19,6 @@ import {NearbyPointsModalComponent} from "../nearby-points-modal/nearby-points-m
 import {ReorderTracesModalComponent} from "./reorder-traces-modal/reorder-traces-modal.component";
 import {PlotlyThemeService} from "../../plotly-theme.service";
 import {ThemeService} from "../../theme.service";
-import {Subject, takeUntil} from "rxjs";
 
 export interface PlotlyMarker {
   color: string;
@@ -158,8 +157,7 @@ export interface PlotlyConfig {
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class VolcanoPlotComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class VolcanoPlotComponent implements OnInit {
   editMode: boolean = false
   explorerMode: boolean = false
   settingsNav: string = "parameters"
@@ -799,16 +797,17 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       }
       this.annotated[i] = this.settings.settings.textAnnotation[i]
     }
-    this.dataService.resetVolcanoColor$.pipe(takeUntil(this.destroy$)).subscribe(counter => {
+    effect(() => {
+      const counter = this.dataService.resetVolcanoColor();
       if (counter > 0) {
         this.specialColorMap = {}
         this.cdr.markForCheck();
       }
     })
     this.markerSize = this.settings.settings.scatterPlotMarkerSize
-    this.dataService.selectionUpdateTrigger$.pipe(takeUntil(this.destroy$)).subscribe(counter => {
+    effect(() => {
+      const counter = this.dataService.selectionUpdateTrigger();
       if (counter > 0) {
-
         if (Object.keys(this.dataService.annotatedData).length === 0) {
           this.annotated = {}
         }
@@ -816,7 +815,8 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       }
     })
-    this.dataService.annotationEvent$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+    effect(() => {
+      const data = this.dataService.annotationEvent();
       if (data) {
         if (data.remove) {
           if (typeof data.id === "string") {
@@ -830,7 +830,6 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
               this.cdr.markForCheck();
             })
           }
-
         } else {
           if (typeof data.id === "string") {
             this.annotateDataPoints([data.id]).then(() => {
@@ -843,25 +842,20 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
               this.cdr.markForCheck();
             })
           }
-
         }
       }
     })
   }
 
   ngOnInit(): void {
-    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    effect(() => {
+      this.themeService.mode();
       if (this._data && this._data.count()) {
         this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
         this.revision++;
         this.cdr.markForCheck();
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   selectData(e: any) {

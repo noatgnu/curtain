@@ -1,11 +1,8 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output, OnDestroy} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, Output} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {ColorPickerDirective} from "ngx-color-picker";
-import {Settings} from "../../../classes/settings";
 import {SettingsService} from "../../../settings.service";
 import {DataService} from "../../../data.service";
-import {Subject, takeUntil} from "rxjs";
 
 @Component({
     selector: 'app-annotation',
@@ -17,8 +14,7 @@ import {Subject, takeUntil} from "rxjs";
     styleUrl: './annotation.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AnnotationComponent implements OnDestroy {
-  private destroy$ = new Subject<void>();
+export class AnnotationComponent {
   colorMap: any = {}
 
   forms: FormGroup[] = []
@@ -26,18 +22,12 @@ export class AnnotationComponent implements OnDestroy {
   constructor(private fb: FormBuilder, private settings: SettingsService, private dataService: DataService, private cdr: ChangeDetectorRef) {
     this.forms = []
     this.composeForms()
-    this.dataService.annotationVisualUpdated$.pipe(takeUntil(this.destroy$)).subscribe(
-      (value) => {
-        this.forms = []
-        this.composeForms()
-        this.cdr.markForCheck();
-      }
-    )
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    effect(() => {
+      this.dataService.annotationVisualUpdated();
+      this.forms = []
+      this.composeForms()
+      this.cdr.markForCheck();
+    })
   }
 
   ngOnInit(): void {

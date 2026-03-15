@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, signal, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, signal, ViewChild} from '@angular/core';
 import {WebsocketService} from "../../websocket.service";
 import {FormBuilder, NgForm} from "@angular/forms";
-import {map, distinctUntilChanged, Observable, OperatorFunction, Subject, Subscription, takeUntil} from "rxjs";
+import {map, distinctUntilChanged, Observable, OperatorFunction, Subscription} from "rxjs";
 import {DataService} from "../../data.service";
 import {SaveStateService} from "../../save-state.service";
 import {SettingsService} from "../../settings.service";
@@ -66,7 +66,8 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
       this.webSub.unsubscribe()
     }
     this.setSubscription();
-    this.ws.resubscribe$.subscribe((counter) => {
+    effect(() => {
+      const counter = this.ws.resubscribe();
       if (counter > 0) {
         this.webSub?.unsubscribe()
         this.setSubscription();

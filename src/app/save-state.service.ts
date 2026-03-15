@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, effect } from '@angular/core';
 import { SettingsService } from "./settings.service";
 import { DataService } from "./data.service";
 import { AutoSaveService } from "./auto-save.service";
@@ -29,12 +29,11 @@ export class SaveStateService {
     this.migration.migrateOldStates();
     this.states = this.getAvailableStates();
     this.loadAutoSaveKeys();
-    this.setupAutoSave();
-  }
-
-  private setupAutoSave(): void {
-    this.autoSave.autoSaveTrigger$.subscribe(() => {
-      this.autoSaveState();
+    effect(() => {
+      const trigger = this.autoSave.autoSaveTrigger();
+      if (trigger > 0) {
+        this.autoSaveState();
+      }
     });
   }
 

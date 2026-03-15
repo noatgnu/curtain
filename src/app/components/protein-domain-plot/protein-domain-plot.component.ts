@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnInit } from '@angular/core';
 import { WebService } from "../../web.service";
 import { SettingsService } from "../../settings.service";
 import { PlotlyThemeService } from "../../plotly-theme.service";
 import { ThemeService } from "../../theme.service";
-import { Subject, takeUntil } from "rxjs";
 import { ToastService } from "../../toast.service";
 
 interface Domain {
@@ -25,8 +24,7 @@ type ColorScheme = 'default' | 'categorical' | 'sequential' | 'custom';
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProteinDomainPlotComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class ProteinDomainPlotComponent implements OnInit {
   revision = 0;
 
   _data: any[] = [];
@@ -90,16 +88,12 @@ export class ProteinDomainPlotComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    effect(() => {
+      this.themeService.mode();
       this.updateLayout();
       this.revision++;
       this.cdr.markForCheck();
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private processDomains(): void {

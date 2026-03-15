@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect } from '@angular/core';
 import {Settings} from "../../classes/settings";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DataFrame, fromCSV} from "data-forge";
@@ -78,7 +78,8 @@ export class BatchUploadModalComponent {
   }[] = [];
   allTasksFinished = false
   constructor(private toasts: ToastService, private fb: FormBuilder, private dialogRef: NgbActiveModal, private batchService: BatchUploadServiceService) {
-    this.batchService.taskStart$.subscribe((index) => {
+    effect(() => {
+      const index = this.batchService.taskStartIndex();
       if (index >= 0) {
         this.toasts.show("Task started", `Start processing task ${index}`).then()
       }

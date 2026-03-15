@@ -3,7 +3,6 @@ import { HttpClient } from "@angular/common/http";
 import {WebService} from "./web.service";
 import {fromCSV} from "data-forge";
 import {Parser} from "uniprotparserjs"
-import { toObservable } from '@angular/core/rxjs-interop';
 
 export interface UniprotProgress {
   value: number;
@@ -23,10 +22,8 @@ export class UniprotService {
   organism = ""
 
   readonly parseStatus = signal(false);
-  readonly parseStatus$ = toObservable(this.parseStatus);
 
   readonly progressBar = signal<UniprotProgress>({value: 0, text: ''});
-  readonly progressBar$ = toObservable(this.progressBar);
 
   accMap: Map<string, string[]> = new Map<string, string[]>()
   geneNameToAcc: any = {}

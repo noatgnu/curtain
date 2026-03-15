@@ -1,5 +1,4 @@
 import { Injectable, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 
 export type ThemeMode = 'light' | 'dark';
 export type ThemeName = 'default' | 'ocean' | 'forest' | 'sunset' | 'lavender';
@@ -41,11 +40,7 @@ export class ThemeService {
   readonly mode = signal<ThemeMode>('light');
   readonly name = signal<ThemeName>('default');
   private readonly _beforeChangeCounter = signal(0);
-  readonly beforeChangeCounter = this._beforeChangeCounter.asReadonly();
-
-  readonly theme$ = toObservable(this.mode);
-  readonly themeName$ = toObservable(this.name);
-  readonly beforeThemeChange$ = toObservable(this._beforeChangeCounter);
+  readonly beforeThemeChange = this._beforeChangeCounter.asReadonly();
 
   private themes: Theme[] = [
     {

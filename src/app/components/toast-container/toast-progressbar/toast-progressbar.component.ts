@@ -1,7 +1,6 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, Input, Output} from '@angular/core';
 import { NgbProgressbar } from "@ng-bootstrap/ng-bootstrap";
 import { DataService } from "../../../data.service";
-import { Subscription } from "rxjs";
 import { ToastType } from "../../../toast.service";
 
 @Component({
@@ -13,42 +12,13 @@ import { ToastType } from "../../../toast.service";
     styleUrl: './toast-progressbar.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ToastProgressbarComponent implements OnDestroy {
-  private subscription?: Subscription;
+export class ToastProgressbarComponent {
   progress = 0;
 
   @Input() total = 100;
   @Input() toastType: ToastType = 'info';
+  @Input() action = 'other';
   @Output() finished: EventEmitter<boolean> = new EventEmitter();
-
-  private _action = 'other';
-
-  @Input() set action(value: string) {
-    this._action = value;
-    this.cleanup();
-
-    if (value === 'download') {
-      this.subscription = this.data.downloadProgress$.subscribe((progress) => {
-        this.progress = progress;
-        this.cdr.markForCheck();
-        if (progress === 100) {
-          this.finished.emit(true);
-        }
-      });
-    } else if (value === 'upload') {
-      this.subscription = this.data.uploadProgress$.subscribe((progress) => {
-        this.progress = progress;
-        this.cdr.markForCheck();
-        if (progress === 100) {
-          this.finished.emit(true);
-        }
-      });
-    }
-  }
-
-  get action(): string {
-    return this._action;
-  }
 
   get progressBarType(): string {
     const typeMap: Record<ToastType, string> = {
@@ -60,16 +30,27 @@ export class ToastProgressbarComponent implements OnDestroy {
     return typeMap[this.toastType] || 'primary';
   }
 
-  constructor(private data: DataService, private cdr: ChangeDetectorRef) {}
+  constructor(private data: DataService, private cdr: ChangeDetectorRef) {
+    effect(() => {
+      const downloadProgress = this.data.downloadProgress();
+      if (this.action === 'download') {
+        this.progress = downloadProgress;
+        this.cdr.markForCheck();
+        if (downloadProgress === 100) {
+          this.finished.emit(true);
+        }
+      }
+    });
 
-  ngOnDestroy(): void {
-    this.cleanup();
-  }
-
-  private cleanup(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-      this.subscription = undefined;
-    }
+    effect(() => {
+      const uploadProgress = this.data.uploadProgress();
+      if (this.action === 'upload') {
+        this.progress = uploadProgress;
+        this.cdr.markForCheck();
+        if (uploadProgress === 100) {
+          this.finished.emit(true);
+        }
+      }
+    });
   }
 }

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnInit, ViewChild} from '@angular/core';
 import {InteractomeAtlasService} from "../../interactome-atlas.service";
 import {UniprotService} from "../../uniprot.service";
 import {DataService} from "../../data.service";
@@ -10,7 +10,6 @@ import {getInteractomeAtlas} from "curtain-web-api";
 import {AccountsService} from "../../accounts/accounts.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {ThemeService} from "../../theme.service";
-import {Subject, takeUntil} from "rxjs";
 
 @Component({
     selector: 'app-interactome-atlas',
@@ -19,8 +18,7 @@ import {Subject, takeUntil} from "rxjs";
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InteractomeAtlasComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class InteractomeAtlasComponent implements OnInit {
   @ViewChild("cytoplot") cytoplot: CytoplotComponent | undefined
   get data(): any {
     return this._data;
@@ -82,7 +80,8 @@ export class InteractomeAtlasComponent implements OnInit, OnDestroy {
     "HI-Union and Literature": "rgba(222,178,151,0.96)",
   })
   constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService, private themeService: ThemeService, private cdr: ChangeDetectorRef) {
-    this.dataService.interactomeDBColorMapChanged$.pipe(takeUntil(this.destroy$)).subscribe(counter => {
+    effect(() => {
+      const counter = this.dataService.interactomeDBColorMapChanged();
       if (counter > 0) {
         for (const i in this.settings.settings.interactomeAtlasColorMap) {
           this.colorMap[i] = this.settings.settings.interactomeAtlasColorMap[i].slice()
@@ -95,16 +94,12 @@ export class InteractomeAtlasComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    effect(() => {
+      this.themeService.mode();
       if (this._data) {
         this.getInteractions().then(() => this.cdr.markForCheck());
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async getInteractions() {

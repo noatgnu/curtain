@@ -1,5 +1,4 @@
 import { Injectable, OnDestroy, NgZone, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +13,9 @@ export class AutoSaveService implements OnDestroy {
 
   private readonly _autoSaveTrigger = signal(0);
   readonly autoSaveTrigger = this._autoSaveTrigger.asReadonly();
-  readonly autoSaveTrigger$ = toObservable(this._autoSaveTrigger);
 
   private readonly _settingsChanged = signal(0);
   readonly settingsChanged = this._settingsChanged.asReadonly();
-  readonly settingsChanged$ = toObservable(this._settingsChanged);
 
   constructor(private ngZone: NgZone) {
     this.tabId = this.generateTabId();

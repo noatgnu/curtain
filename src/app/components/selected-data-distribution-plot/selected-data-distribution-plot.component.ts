@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, OnInit } from '@angular/core';
 import { DataService } from "../../data.service";
 import { SettingsService } from "../../settings.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -6,7 +6,6 @@ import { PlotlyThemeService } from "../../plotly-theme.service";
 import { ThemeService } from "../../theme.service";
 import { WebService } from "../../web.service";
 import { ToastService } from "../../toast.service";
-import { Subject, takeUntil } from "rxjs";
 
 type PlotType = 'violin' | 'box' | 'histogram';
 type Orientation = 'vertical' | 'horizontal';
@@ -31,8 +30,7 @@ interface SelectionStats {
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class SelectedDataDistributionPlotComponent implements OnInit {
   revision = 0;
   graphData: any[] = [];
   graphLayout: any = {};
@@ -81,18 +79,14 @@ export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy 
   }
 
   ngOnInit(): void {
-    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    effect(() => {
+      this.themeService.mode();
       this.updateLayout();
       this.revision++;
       this.cdr.markForCheck();
     });
 
     this.drawPlot();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private initializeGroups(): void {

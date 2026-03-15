@@ -3,7 +3,6 @@ import {AccountsService} from "./accounts/accounts.service";
 import {Observable} from "rxjs";
 import {WebSocketSubject} from "rxjs/internal/observable/dom/WebSocketSubject";
 import * as readableIDs from "uuid-readable";
-import { toObservable } from '@angular/core/rxjs-interop';
 
 
 @Injectable({
@@ -18,8 +17,7 @@ export class WebsocketService {
 
   displayName: string = "Anonymous"
   private readonly _resubscribeCounter = signal(0);
-  readonly resubscribeCounter = this._resubscribeCounter.asReadonly();
-  readonly resubscribe$ = toObservable(this._resubscribeCounter);
+  readonly resubscribe = this._resubscribeCounter.asReadonly();
   connectingEvent: boolean = false
   connectingJob: boolean = false
   constructor(private accounts: AccountsService) {

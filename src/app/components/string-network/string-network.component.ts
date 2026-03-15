@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, OnDestroy, ViewChild, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnInit, OnDestroy, ViewChild, signal } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UniprotService } from '../../uniprot.service';
 import { DataService } from '../../data.service';
@@ -110,7 +110,8 @@ export class StringNetworkComponent implements OnInit, OnDestroy {
     private stringService: StringNetworkService,
     private cdr: ChangeDetectorRef
   ) {
-    this.data.stringDBColorMapChanged$.pipe(takeUntil(this.destroy$)).subscribe((counter) => {
+    effect(() => {
+      const counter = this.data.stringDBColorMapChanged();
       if (counter > 0) {
         const currentMap = this.colorMap();
         for (const i in this.settings.settings.stringDBColorMap) {

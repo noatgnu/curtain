@@ -141,10 +141,27 @@ export class HomeComponent implements OnInit, OnDestroy {
       localStorage.setItem("CurtainGDPR", this.gdprAccepted().toString())
     })
 
-    this.data.clearWatcher$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+    effect(() => {
+      const data = this.data.clearWatcher();
       if (data > 0) {
         this.hasSavedClearSettings = signal(localStorage.getItem('curtainClearSettingsSelection') !== null);
         this.rawFiltered = new DataFrame()
+        this.data.triggerSelectionUpdate()
+        this.cdr.markForCheck();
+      }
+    })
+
+    effect(() => {
+      const data = this.uniprot.progressBar();
+      this.progressEvent = data
+      this.cdr.markForCheck();
+    })
+
+    effect(() => {
+      const counter = this.data.loadDataTrigger();
+      if (counter > 0) {
+        this.handleFinish(true)
+        this.data.triggerRedraw()
         this.data.triggerSelectionUpdate()
         this.cdr.markForCheck();
       }
@@ -487,25 +504,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         console.warn('Failed to load draft DataCite count:', e)
       }
     }
-    this.uniprot.progressBar$.pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
-      this.progressEvent = data
-      this.cdr.markForCheck();
-    })
     this.loadAnnouncements()
   }
 
 
   ngOnInit(): void {
-    const currentDate = new Date();
-    const hideDate = new Date(currentDate.getFullYear(), 1, 20);
-    this.data.loadDataTrigger$.pipe(takeUntil(this.destroy$)).subscribe((counter: number) => {
-      if (counter > 0) {
-        this.handleFinish(true)
-        this.data.triggerRedraw()
-        this.data.triggerSelectionUpdate()
-        this.cdr.markForCheck();
-      }
-    })
   }
 
   ngOnDestroy(): void {

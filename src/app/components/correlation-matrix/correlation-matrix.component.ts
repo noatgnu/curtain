@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, OnInit } from '@angular/core';
 import { DataService } from "../../data.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ToastService } from "../../toast.service";
@@ -6,7 +6,6 @@ import { WebService } from "../../web.service";
 import { SettingsService } from "../../settings.service";
 import { PlotlyThemeService } from "../../plotly-theme.service";
 import { ThemeService } from "../../theme.service";
-import { Subject, takeUntil } from "rxjs";
 
 interface CorrelationResult {
   column_x: string;
@@ -30,8 +29,7 @@ type ColorScalePreset = 'default' | 'viridis' | 'plasma' | 'bluered' | 'rdylbu';
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CorrelationMatrixComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class CorrelationMatrixComponent implements OnInit {
   revision = 0;
   graphData: any[] = [];
   graphLayout: any = {};
@@ -115,21 +113,16 @@ export class CorrelationMatrixComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {
     this.initializeSamples();
-  }
-
-  ngOnInit(): void {
-    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    effect(() => {
+      this.themeService.mode();
       this.updateLayout();
       this.revision++;
       this.cdr.markForCheck();
     });
-
-    this.calculateAndRender();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  ngOnInit(): void {
+    this.calculateAndRender();
   }
 
   private initializeSamples(): void {

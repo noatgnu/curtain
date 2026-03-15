@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
@@ -9,7 +9,6 @@ import {RankPlotTextAnnotationComponent} from "../rank-plot-text-annotation/rank
 import {VolcanoColorsComponent} from "../volcano-colors/volcano-colors.component";
 import {PlotlyThemeService} from "../../plotly-theme.service";
 import {ThemeService} from "../../theme.service";
-import {Subject, takeUntil} from "rxjs";
 import {ToastService} from "../../toast.service";
 
 @Component({
@@ -19,8 +18,7 @@ import {ToastService} from "../../toast.service";
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RankPlotComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class RankPlotComponent implements OnInit {
   revision = 0;
   _data: IDataFrame = new DataFrame()
   sortedDataMap: any = {}
@@ -114,13 +112,15 @@ export class RankPlotComponent implements OnInit, OnDestroy {
   }
 
   constructor(private web: WebService, public dataService: DataService, public settings: SettingsService, public uniprot: UniprotService, private modal: NgbModal, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService, private toast: ToastService, private cdr: ChangeDetectorRef) {
-    this.dataService.selectionUpdateTrigger$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+    effect(() => {
+      const data = this.dataService.selectionUpdateTrigger();
       if (data) {
         this.draw().then(() => this.cdr.markForCheck())
       }
     })
 
-    this.dataService.annotationEvent$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+    effect(() => {
+      const data = this.dataService.annotationEvent();
       if (data) {
         if (data.remove) {
           if (typeof data.id === "string") {
@@ -132,7 +132,6 @@ export class RankPlotComponent implements OnInit, OnDestroy {
               this.dataService.annotatedData = this.annotated
             })
           }
-
         } else {
           if (typeof data.id === "string") {
             this.annotateDataPoints([data.id]).then(() => {
@@ -143,7 +142,6 @@ export class RankPlotComponent implements OnInit, OnDestroy {
               this.dataService.annotatedData = this.annotated
             })
           }
-
         }
       }
     })
@@ -223,16 +221,12 @@ export class RankPlotComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    effect(() => {
+      this.themeService.mode();
       this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
       this.revision++;
       this.cdr.markForCheck();
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async draw() {

@@ -1,10 +1,9 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Output, OnDestroy} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, Output} from '@angular/core';
 import {SettingsService} from "../../../settings.service";
 import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
 
 import {DataService} from "../../../data.service";
 import {ColorPickerDirective} from "ngx-color-picker";
-import {Subject, takeUntil} from "rxjs";
 
 @Component({
     selector: 'app-shapes',
@@ -16,8 +15,7 @@ import {Subject, takeUntil} from "rxjs";
     styleUrl: './shapes.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ShapesComponent implements OnDestroy {
-  private destroy$ = new Subject<void>();
+export class ShapesComponent {
   colorMapFill: any = {}
   colorMapLine: any = {}
   colorMapFont: any = {}
@@ -25,15 +23,11 @@ export class ShapesComponent implements OnDestroy {
   @Output() updateShapes: EventEmitter<any> = new EventEmitter<any>()
   constructor(public settings: SettingsService, private fb: FormBuilder, private dataService: DataService, private cdr: ChangeDetectorRef) {
     this.updateForms();
-    this.dataService.volcanoShapesChanged$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    effect(() => {
+      this.dataService.volcanoShapesChanged();
       this.updateForms()
       this.cdr.markForCheck();
     })
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private updateForms() {

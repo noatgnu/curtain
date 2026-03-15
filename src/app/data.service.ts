@@ -8,7 +8,6 @@ import {DataFrame, IDataFrame} from "data-forge";
 import {debounceTime, distinctUntilChanged, map, Observable, OperatorFunction} from "rxjs";
 import {loadFromLocalStorage} from "curtain-web-api";
 import {CurtainSession} from "./curtain-session";
-import { toObservable } from '@angular/core/rxjs-interop';
 
 export interface AnnotationEvent {
   id: string[];
@@ -23,11 +22,9 @@ export class DataService {
 
   private readonly _loadDataTrigger = signal(0);
   readonly loadDataTrigger = this._loadDataTrigger.asReadonly();
-  readonly loadDataTrigger$ = toObservable(this._loadDataTrigger);
 
   private readonly _barChartDownloadTrigger = signal(0);
   readonly barChartDownloadTrigger = this._barChartDownloadTrigger.asReadonly();
-  readonly barChartDownloadTrigger$ = toObservable(this._barChartDownloadTrigger);
 
   session?: CurtainSession
   tempLink: boolean = false
@@ -35,23 +32,18 @@ export class DataService {
 
   private readonly _stringDBColorMapChanged = signal(0);
   readonly stringDBColorMapChanged = this._stringDBColorMapChanged.asReadonly();
-  readonly stringDBColorMapChanged$ = toObservable(this._stringDBColorMapChanged);
 
   private readonly _interactomeDBColorMapChanged = signal(0);
   readonly interactomeDBColorMapChanged = this._interactomeDBColorMapChanged.asReadonly();
-  readonly interactomeDBColorMapChanged$ = toObservable(this._interactomeDBColorMapChanged);
 
   private readonly _volcanoShapesChanged = signal(0);
   readonly volcanoShapesChanged = this._volcanoShapesChanged.asReadonly();
-  readonly volcanoShapesChanged$ = toObservable(this._volcanoShapesChanged);
 
   draftDataCiteCount: number = 0
 
   readonly downloadProgress = signal(0);
-  readonly downloadProgress$ = toObservable(this.downloadProgress);
 
   readonly uploadProgress = signal(0);
-  readonly uploadProgress$ = toObservable(this.uploadProgress);
 
 
   get colorMap(): any {
@@ -62,11 +54,9 @@ export class DataService {
     this._colorMap = value;
   }
   readonly finishedProcessing = signal(false);
-  readonly finishedProcessing$ = toObservable(this.finishedProcessing);
 
   private readonly _selectionUpdateTrigger = signal(0);
   readonly selectionUpdateTrigger = this._selectionUpdateTrigger.asReadonly();
-  readonly selectionUpdateTrigger$ = toObservable(this._selectionUpdateTrigger);
 
   dataMap: Map<string, string> = new Map<string, string>()
   sampleMap: any = {}
@@ -75,7 +65,6 @@ export class DataService {
   primaryIDsMap: any = {}
 
   readonly batchAnnotate = signal<AnnotationEvent | null>(null);
-  readonly batchAnnotate$ = toObservable(this.batchAnnotate);
 
   selectedComparison: string[] = []
   conditions: string[] = []
@@ -86,11 +75,9 @@ export class DataService {
 
   private readonly _clearWatcher = signal(0);
   readonly clearWatcher = this._clearWatcher.asReadonly();
-  readonly clearWatcher$ = toObservable(this._clearWatcher);
 
   private readonly _redrawTrigger = signal(0);
   readonly redrawTrigger = this._redrawTrigger.asReadonly();
-  readonly redrawTrigger$ = toObservable(this._redrawTrigger);
   annotatedData: any = {}
 
   private_key: CryptoKey | undefined
@@ -247,21 +234,16 @@ export class DataService {
 
   private readonly _restoreTrigger = signal(0);
   readonly restoreTrigger = this._restoreTrigger.asReadonly();
-  readonly restoreTrigger$ = toObservable(this._restoreTrigger);
 
   readonly annotationEvent = signal<AnnotationEvent | null>(null);
-  readonly annotationEvent$ = toObservable(this.annotationEvent);
 
   private readonly _annotationVisualUpdated = signal(0);
   readonly annotationVisualUpdated = this._annotationVisualUpdated.asReadonly();
-  readonly annotationVisualUpdated$ = toObservable(this._annotationVisualUpdated);
 
   readonly searchCommand = signal<any>(null);
-  readonly searchCommand$ = toObservable(this.searchCommand);
 
   private readonly _resetVolcanoColor = signal(0);
   readonly resetVolcanoColor = this._resetVolcanoColor.asReadonly();
-  readonly resetVolcanoColor$ = toObservable(this._resetVolcanoColor);
   constructor(private uniprot: UniprotService, private settings: SettingsService) { }
   minMax: any = {
     fcMin: 0,

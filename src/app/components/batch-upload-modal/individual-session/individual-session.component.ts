@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges} from '@angular/core';
 import { InputFile } from 'src/app/classes/input-file';
 import { Raw } from 'src/app/classes/raw';
 import {Differential} from "../../../classes/differential";
@@ -16,7 +16,6 @@ import {ToastService} from "../../../toast.service";
 import {QuillEditorComponent} from "ngx-quill";
 import {NgClass} from "@angular/common";
 import {ColorPickerDirective} from "ngx-color-picker";
-import {Subject, takeUntil} from "rxjs";
 
 @Component({
   selector: 'app-individual-session',
@@ -40,7 +39,6 @@ import {Subject, takeUntil} from "rxjs";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnDestroy {
-  private destroy$ = new Subject<void>();
   @Input() sessionId: number = -1;
   private _session: {data: {
     raw: InputFile,
@@ -139,12 +137,14 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
   loadingCollections: boolean = false
   isCreatingCollection: boolean = false
   constructor(private fb: FormBuilder, private toast: ToastService, public accounts: AccountsService, private batchService: BatchUploadServiceService, private data: DataService, private uniprot: UniprotService, private cd: ChangeDetectorRef, public settings: SettingsService) {
-    this.batchService.taskStart$.pipe(takeUntil(this.destroy$)).subscribe((taskId: number) => {
+    effect(() => {
+      const taskId = this.batchService.taskStartIndex();
       if (taskId === this.sessionId) {
         this.startWork().then(() => this.cd.markForCheck())
       }
     })
-    this.batchService.reset$.pipe(takeUntil(this.destroy$)).subscribe((counter) => {
+    effect(() => {
+      const counter = this.batchService.resetCounter();
       if (counter > 0) {
         this.data.reset()
         this.uniprot.reset()
@@ -155,8 +155,6 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   ngAfterViewInit() {

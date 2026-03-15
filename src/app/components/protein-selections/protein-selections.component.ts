@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {DataService} from "../../data.service";
 import {debounceTime, distinctUntilChanged, map, Observable, OperatorFunction, Subject, takeUntil} from "rxjs";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -168,10 +168,11 @@ export class ProteinSelectionsComponent implements OnInit, OnDestroy {
 
 
   constructor(public data: DataService, private modal: NgbModal, private uniprot: UniprotService, private settings: SettingsService, private cdr: ChangeDetectorRef) {
-    this.data.searchCommand$.pipe(takeUntil(this.destroy$)).subscribe(data => {
-      if (data) {
-        const result = this.getPrimaryIDsDataFromBatch(data)
-        this.searchResult.emit({data: result, title: data.title})
+    effect(() => {
+      const searchData = this.data.searchCommand();
+      if (searchData) {
+        const result = this.getPrimaryIDsDataFromBatch(searchData)
+        this.searchResult.emit({data: result, title: searchData.title})
         this.cdr.markForCheck();
       }
     })

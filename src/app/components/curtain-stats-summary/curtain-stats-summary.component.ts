@@ -1,9 +1,8 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, OnInit} from '@angular/core';
 import {AccountsService} from "../../accounts/accounts.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {PlotlyThemeService} from "../../plotly-theme.service";
 import {ThemeService} from "../../theme.service";
-import {Subject, takeUntil} from "rxjs";
 
 @Component({
     selector: 'app-curtain-stats-summary',
@@ -12,8 +11,7 @@ import {Subject, takeUntil} from "rxjs";
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CurtainStatsSummaryComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class CurtainStatsSummaryComponent implements OnInit {
   revisionDownload = 0;
   revisionCreated = 0;
   graphDataDownload: any[] = []
@@ -86,17 +84,13 @@ export class CurtainStatsSummaryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    effect(() => {
+      this.themeService.mode();
       this.graphLayoutDownload = this.plotlyTheme.applyThemeToLayout(this.graphLayoutDownload);
       this.graphLayoutCreated = this.plotlyTheme.applyThemeToLayout(this.graphLayoutCreated);
       this.revisionDownload++;
       this.revisionCreated++;
       this.cdr.markForCheck();
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

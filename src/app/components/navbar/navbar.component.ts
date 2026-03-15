@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbDropdownModule, NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { ThemeService, ThemeName } from '../../theme.service';
@@ -7,7 +7,6 @@ import { LoginModalComponent } from '../../accounts/login-modal/login-modal.comp
 import { AccountsComponent } from '../../accounts/accounts/accounts.component';
 import { ApiKeyModalComponent } from '../api-key-modal/api-key-modal.component';
 import { AutoSaveService } from '../../auto-save.service';
-import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -17,9 +16,8 @@ import { Subject, takeUntil } from 'rxjs';
   styleUrl: './navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class NavbarComponent implements OnInit, OnDestroy {
+export class NavbarComponent implements OnInit {
   lastAutoSave: Date | null = null;
-  private destroy$ = new Subject<void>();
 
   get availableThemes() {
     return this.themeService.getAvailableThemes();
@@ -35,20 +33,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
     public autoSave: AutoSaveService,
     private modal: NgbModal,
     private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
-    this.loadLastAutoSaveTime();
-    this.autoSave.autoSaveTrigger$.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.lastAutoSave = new Date();
-      this.saveLastAutoSaveTime();
-      this.cdr.markForCheck();
+  ) {
+    effect(() => {
+      const trigger = this.autoSave.autoSaveTrigger();
+      if (trigger > 0) {
+        this.lastAutoSave = new Date();
+        this.saveLastAutoSaveTime();
+        this.cdr.markForCheck();
+      }
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  ngOnInit(): void {
+    this.loadLastAutoSaveTime();
   }
 
   private loadLastAutoSaveTime(): void {
