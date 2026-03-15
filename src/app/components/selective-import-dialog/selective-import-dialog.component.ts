@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { SaveStateService } from '../../save-state.service';
 import { StateMigrationService } from '../../state-migration.service';
@@ -9,6 +9,7 @@ import { SavedState, STATE_CATEGORIES, StateCategory, CURRENT_STATE_VERSION } fr
   standalone: false,
   templateUrl: './selective-import-dialog.component.html',
   styleUrls: ['./selective-import-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SelectiveImportDialogComponent implements OnInit {
   @Input() fileContent: string = '';

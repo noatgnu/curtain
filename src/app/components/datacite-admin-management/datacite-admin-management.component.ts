@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import {
   NgbActiveModal,
   NgbNav,
@@ -10,6 +10,7 @@ import {
 import {AccountsService} from "../../accounts/accounts.service";
 import {DataCiteCurtain} from "../../data-cite-metadata";
 import {FormBuilder, ReactiveFormsModule} from "@angular/forms";
+import {Subject, takeUntil} from "rxjs";
 
 @Component({
   selector: 'app-datacite-admin-management',
@@ -24,9 +25,11 @@ import {FormBuilder, ReactiveFormsModule} from "@angular/forms";
     ReactiveFormsModule
   ],
   templateUrl: './datacite-admin-management.component.html',
-  styleUrl: './datacite-admin-management.component.scss'
+  styleUrl: './datacite-admin-management.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataciteAdminManagementComponent {
+export class DataciteAdminManagementComponent implements OnDestroy {
+  private destroy$ = new Subject<void>();
   activeID = "user"
   page = 1
   pageSize = 10
@@ -41,15 +44,21 @@ export class DataciteAdminManagementComponent {
     searchTerm: [""]
   })
 
-  constructor(public activeModal: NgbActiveModal, public accountService: AccountsService, private fb: FormBuilder) {
+  constructor(public activeModal: NgbActiveModal, public accountService: AccountsService, private fb: FormBuilder, private cdr: ChangeDetectorRef) {
     this.accountService.curtainAPI.getDataCites(undefined, undefined, undefined, this.pageSize, this.page-1, false, "TP").then(
       (data) => {
         this.dataCiteDraftQuery = data.data
+        this.cdr.markForCheck();
       }
     )
-    this.searchForm.controls.searchTerm.valueChanges.subscribe((value) => {
+    this.searchForm.controls.searchTerm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       this.changed(this.activeID, value)
     })
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   close() {
@@ -67,6 +76,7 @@ export class DataciteAdminManagementComponent {
           return dc
         })
       }
+      this.cdr.markForCheck();
     })
   }
 
@@ -80,6 +90,7 @@ export class DataciteAdminManagementComponent {
           return dc
         })
       }
+      this.cdr.markForCheck();
     })
   }
 
@@ -93,6 +104,7 @@ export class DataciteAdminManagementComponent {
           return dc
         })
       }
+      this.cdr.markForCheck();
     })
   }
 
@@ -106,6 +118,7 @@ export class DataciteAdminManagementComponent {
           return dc
         })
       }
+      this.cdr.markForCheck();
     })
   }
 
@@ -119,12 +132,14 @@ export class DataciteAdminManagementComponent {
         this.accountService.curtainAPI.getDataCites(undefined, term, "draft", this.pageSize, this.page-1, true, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
+            this.cdr.markForCheck();
           }
         )
       } else {
         this.accountService.curtainAPI.getDataCites(undefined, undefined, "draft", this.pageSize, this.page-1, true, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
+            this.cdr.markForCheck();
           }
         )
       }
@@ -133,12 +148,14 @@ export class DataciteAdminManagementComponent {
         this.accountService.curtainAPI.getDataCites(undefined, term, undefined, this.pageSize, this.page-1, false, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
+            this.cdr.markForCheck();
           }
         )
       } else {
         this.accountService.curtainAPI.getDataCites(undefined, undefined, undefined, this.pageSize, this.page-1, false, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
+            this.cdr.markForCheck();
           }
         )
       }

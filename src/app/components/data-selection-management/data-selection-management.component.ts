@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from '@angular/core';
 import {SettingsService} from "../../settings.service";
 import {DataService} from "../../data.service";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {UniprotService} from "../../uniprot.service";
+import {Subject, takeUntil} from "rxjs";
 
 @Component({
     selector: 'app-data-selection-management',
     templateUrl: './data-selection-management.component.html',
     styleUrls: ['./data-selection-management.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataSelectionManagementComponent implements OnInit {
+export class DataSelectionManagementComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   selectionForms: {[key: string]: FormGroup} = {}
   selectionMap: {[key: string]: string[]} = {}
   selectOperationNames: string[] = []
@@ -33,7 +36,7 @@ export class DataSelectionManagementComponent implements OnInit {
       this.selectAllForms[s] = this.fb.group({
         selectAll: [false]
       })
-      this.selectAllForms[s].controls["selectAll"].valueChanges.subscribe((value:boolean) => {
+      this.selectAllForms[s].controls["selectAll"].valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value:boolean) => {
         for (const p in this.primaryIDForms[s]) {
           this.primaryIDForms[s][p].controls["annotate"].setValue(value)
           this.primaryIDForms[s][p].controls["annotate"].markAsDirty()
@@ -154,13 +157,13 @@ export class DataSelectionManagementComponent implements OnInit {
     this.data.selectOperationNames = renamedList
     this.data.selected = Object.keys(this.data.selectedMap)
     if (annotateList.length > 0) {
-      this.data.annotationService.next({id: annotateList, remove: false})
-      this.data.batchAnnotateAnnoucement.next({id: annotateList, remove: false})
+      this.data.annotationEvent.set({id: annotateList, remove: false})
+      this.data.batchAnnotate.set({id: annotateList, remove: false})
       console.log(annotateList)
     }
     if (removeAnnotateList.length > 0) {
-      this.data.annotationService.next({id: removeAnnotateList, remove: true})
-      this.data.batchAnnotateAnnoucement.next({id: removeAnnotateList, remove: true})
+      this.data.annotationEvent.set({id: removeAnnotateList, remove: true})
+      this.data.batchAnnotate.set({id: removeAnnotateList, remove: true})
     }
     this.modal.close(true)
   }
@@ -177,4 +180,8 @@ export class DataSelectionManagementComponent implements OnInit {
 
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

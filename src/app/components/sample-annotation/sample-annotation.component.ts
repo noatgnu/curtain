@@ -1,20 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
 import {DataService} from "../../data.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {SettingsService} from "../../settings.service";
 import {WebService} from "../../web.service";
 import {Project} from "../../classes/project";
 import {getPrideData} from "curtain-web-api";
-import {debounceTime, distinctUntilChanged, Observable, map} from "rxjs";
+import {debounceTime, distinctUntilChanged, Observable, map, Subject, takeUntil} from "rxjs";
 import {FormBuilder} from "@angular/forms";
 
 @Component({
     selector: 'app-sample-annotation',
     templateUrl: './sample-annotation.component.html',
     styleUrls: ['./sample-annotation.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SampleAnnotationComponent implements OnInit {
+export class SampleAnnotationComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   samples: any[] = []
 
   project: Project = new Project()
@@ -48,7 +50,7 @@ export class SampleAnnotationComponent implements OnInit {
     modification: [[],],
   })
 
-  constructor(private fb: FormBuilder, private data: DataService, public modal: NgbActiveModal, private settings: SettingsService, private web: WebService) {
+  constructor(private fb: FormBuilder, private data: DataService, public modal: NgbActiveModal, private settings: SettingsService, private web: WebService, private cdr: ChangeDetectorRef) {
     for (const s in this.settings.settings.sampleMap) {
       if (!this.samples.includes(this.settings.settings.sampleMap[s].condition)) {
         this.samples.push(this.settings.settings.sampleMap[s].condition)
@@ -59,48 +61,57 @@ export class SampleAnnotationComponent implements OnInit {
         }
       }
     }
-    this.web.getPRIDEConstants("celltype").subscribe((data: any) => {
+    this.web.getPRIDEConstants("celltype").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.cellTypes = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
+      this.cdr.markForCheck();
     })
-    this.web.getPRIDEConstants("disease").subscribe((data: any) => {
+    this.web.getPRIDEConstants("disease").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.diseases = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
+      this.cdr.markForCheck();
     })
-    this.web.getPRIDEConstants("instrument").subscribe((data: any) => {
+    this.web.getPRIDEConstants("instrument").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.instruments = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
+      this.cdr.markForCheck();
     })
-    this.web.getPRIDEConstants("modification").subscribe((data: any) => {
+    this.web.getPRIDEConstants("modification").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.modification = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
+      this.cdr.markForCheck();
     })
-    this.web.getPRIDEConstants("msmethod").subscribe((data: any) => {
+    this.web.getPRIDEConstants("msmethod").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.msMethods = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
+      this.cdr.markForCheck();
     })
-    this.web.getPRIDEConstants("projecttag").subscribe((data: any) => {
+    this.web.getPRIDEConstants("projecttag").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.projecttag = data.split("\n")
+      this.cdr.markForCheck();
     })
-    this.web.getPRIDEConstants("quantification").subscribe((data: any) => {
+    this.web.getPRIDEConstants("quantification").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.quantification = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
+      this.cdr.markForCheck();
     })
-    this.web.getPRIDEConstants("species").subscribe((data: any) => {
+    this.web.getPRIDEConstants("species").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.species = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
+      this.cdr.markForCheck();
     })
-    this.web.getPRIDEConstants("tissue").subscribe((data: any) => {
+    this.web.getPRIDEConstants("tissue").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.tissues = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
+      this.cdr.markForCheck();
     })
 
   }
@@ -195,6 +206,7 @@ export class SampleAnnotationComponent implements OnInit {
       // @ts-ignore
       this.form.controls["authors"].setValue(currentAuthors)
       this.project.authors = currentAuthors
+      this.cdr.markForCheck();
     })
   }
 
@@ -324,5 +336,10 @@ export class SampleAnnotationComponent implements OnInit {
       map(term => term.length == 0 ? []
         : this.tissues.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10))
     )
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

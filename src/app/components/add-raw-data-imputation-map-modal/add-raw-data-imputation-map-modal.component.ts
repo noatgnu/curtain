@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
 import {DataFrame, fromCSV, IDataFrame} from "data-forge";
@@ -10,7 +10,8 @@ import {SettingsService} from "../../settings.service";
     ReactiveFormsModule
   ],
   templateUrl: './add-raw-data-imputation-map-modal.component.html',
-  styleUrl: './add-raw-data-imputation-map-modal.component.scss'
+  styleUrl: './add-raw-data-imputation-map-modal.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AddRawDataImputationMapModalComponent {
   form = this.fb.group({
@@ -21,7 +22,7 @@ export class AddRawDataImputationMapModalComponent {
   columns: string[] = []
   data: IDataFrame<number,any> = new DataFrame()
 
-  constructor(private dialogRef: NgbActiveModal, private fb: FormBuilder, private settingsService: SettingsService) {
+  constructor(private dialogRef: NgbActiveModal, private fb: FormBuilder, private settingsService: SettingsService, private cdr: ChangeDetectorRef) {
   }
 
   close() {
@@ -55,8 +56,7 @@ export class AddRawDataImputationMapModalComponent {
           }
 
           this.columns = this.data.getColumnNames();
-          // this.data = fromCSV(<string>e.target.result);
-          // this.columns = this.data.getColumnNames();
+          this.cdr.markForCheck();
         };
         reader.readAsText(file);
       }

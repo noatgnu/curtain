@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {UniprotService} from "../../uniprot.service";
 import {WebService} from "../../web.service";
 import {DataService} from "../../data.service";
@@ -6,14 +6,17 @@ import {Settings} from "../../classes/settings";
 import {SettingsService} from "../../settings.service";
 import {IDataFrame} from "data-forge";
 import {FormBuilder, FormGroup} from "@angular/forms";
+import {Subject, takeUntil} from "rxjs";
 declare const getSTRING: any;
 @Component({
     selector: 'app-string-db',
     templateUrl: './string-db.component.html',
     styleUrls: ['./string-db.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StringDbComponent implements OnInit {
+export class StringDbComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   get uniProtData(): any {
     return this._uniProtData;
   }
@@ -74,14 +77,15 @@ export class StringDbComponent implements OnInit {
     "In dataset": "#ce8080",
     "Not in dataset": "#676666"
   }
-  constructor(private fb: FormBuilder, private uniprot: UniprotService, private data: DataService, private settings: SettingsService) {
-    this.data.stringDBColorMapSubject.asObservable().subscribe((data) => {
-      if (data) {
+  constructor(private fb: FormBuilder, private uniprot: UniprotService, private data: DataService, private settings: SettingsService, private cdr: ChangeDetectorRef) {
+    this.data.stringDBColorMapChanged$.pipe(takeUntil(this.destroy$)).subscribe((counter) => {
+      if (counter > 0) {
         for (const i in this.settings.settings.stringDBColorMap) {
           this.colorMap[i] = this.settings.settings.stringDBColorMap[i].slice()
           this.form.controls[i].setValue(this.colorMap[i])
         }
         this.form.markAsPristine()
+        this.cdr.markForCheck();
       }
     })
 
@@ -96,12 +100,17 @@ export class StringDbComponent implements OnInit {
     })
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   async getString() {
     if (this.form.dirty) {
       for (const i in this.form.value) {
         this.settings.settings.stringDBColorMap[i] = this.form.value[i]
       }
-      this.data.stringDBColorMapSubject.next(true)
+      this.data.triggerStringDBColorMapChange()
     }
     if (this.requiredScore > 1000) {
       this.requiredScore = 1000

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 
@@ -16,7 +16,8 @@ interface ClearSetting {
     FormsModule
 ],
     templateUrl: './are-you-sure-clear-modal.component.html',
-    styleUrl: './are-you-sure-clear-modal.component.scss'
+    styleUrl: './are-you-sure-clear-modal.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AreYouSureClearModalComponent {
   remember = signal(false)

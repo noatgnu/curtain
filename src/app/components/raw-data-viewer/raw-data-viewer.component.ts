@@ -1,9 +1,9 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame, Series} from "data-forge";
 import {DataService} from "../../data.service";
 import {UniprotService} from "../../uniprot.service";
 import {FormBuilder} from "@angular/forms";
-import {debounceTime, distinctUntilChanged, map} from "rxjs";
+import {debounceTime, distinctUntilChanged, map, Subject, takeUntil} from "rxjs";
 import {Settings} from "../../classes/settings";
 import {SettingsService} from "../../settings.service";
 import {ToastService} from "../../toast.service";
@@ -12,9 +12,11 @@ import {ToastService} from "../../toast.service";
     selector: 'app-raw-data-viewer',
     templateUrl: './raw-data-viewer.component.html',
     styleUrls: ['./raw-data-viewer.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RawDataViewerComponent implements OnInit {
+export class RawDataViewerComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   _data: IDataFrame = new DataFrame()
   baseData: IDataFrame = new DataFrame()
   @Input() set data(value: IDataFrame) {
@@ -38,8 +40,8 @@ export class RawDataViewerComponent implements OnInit {
   })
   ready = false
   displayDF: IDataFrame = new DataFrame()
-  constructor(public dataService: DataService, private fb: FormBuilder, private uniprot: UniprotService, public settings: SettingsService, private toast: ToastService) {
-    this.form.controls["filterTerm"].valueChanges.pipe(debounceTime(200), distinctUntilChanged()).subscribe((value) => {
+  constructor(public dataService: DataService, private fb: FormBuilder, private uniprot: UniprotService, public settings: SettingsService, private toast: ToastService, private cdr: ChangeDetectorRef) {
+    this.form.controls["filterTerm"].valueChanges.pipe(takeUntil(this.destroy$), debounceTime(200), distinctUntilChanged()).subscribe((value) => {
       this.ready = false
       let primaryIds: string[] = []
       if (value){
@@ -77,9 +79,10 @@ export class RawDataViewerComponent implements OnInit {
       }
       this.displayDF = this.displayDF.distinct((row: any) => row[this.dataService.rawForm.primaryIDs]).bake()
       this.ready = true
+      this.cdr.markForCheck();
     })
 
-    this.form.controls.filterSearchOperation.valueChanges.subscribe((value) => {
+    this.form.controls.filterSearchOperation.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       this.ready = false
       this.toast.show("Filtering", "Filtering data for " + value, 5000).then()
       if (value !== null) {
@@ -100,10 +103,16 @@ export class RawDataViewerComponent implements OnInit {
       }
       this.toast.show("Filtering", "Completed filtering data for " + value, 5000).then()
       this.ready = true
+      this.cdr.markForCheck();
     })
   }
 
   ngOnInit(): void {
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
   sortDisplayDF(column: string, increase: boolean, enrichrRun: string) {
     if (column !== "Enrichr") {

@@ -1,11 +1,12 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {DataService} from "../../data.service";
 
 @Component({
     selector: 'app-comparison-selections',
     templateUrl: './comparison-selections.component.html',
     styleUrls: ['./comparison-selections.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ComparisonSelectionsComponent implements OnInit {
   selected: string = ""

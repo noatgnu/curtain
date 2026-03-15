@@ -19,19 +19,21 @@
           Significance cutoff: p-value {{settings.settings.pCutoff}}, fold change ±{{settings.settings.log2FCCutoff}}.
           Click or use keyboard to select data points for detailed analysis.
         </span>
-        <plotly-plot
-          [divId]="'volcanoPlot'"
-          [data]="graphData"
-          [layout]="graphLayout"
-          [config]="config"
-          [updateOnLayoutChange]="true"
-          [revision]="revision"
-          (plotlyClick)="selectData($event)"
-          (selected)="selectData($event)"
-          (legendClick)="legendClickHandler($event)"
-          (relayout)="handleLayoutChange($event)"
-          aria-describedby="volcanoPlotDescription"
-        ></plotly-plot>
+        @if (graphData.length > 0) {
+          <plotly-plot
+            [divId]="'volcanoPlot'"
+            [data]="graphData"
+            [layout]="graphLayout"
+            [config]="config"
+            [updateOnLayoutChange]="true"
+            [revision]="revision"
+            (plotlyClick)="selectData($event)"
+            (selected)="selectData($event)"
+            (legendClick)="legendClickHandler($event)"
+            (relayout)="handleLayoutChange($event)"
+            aria-describedby="volcanoPlotDescription"
+          ></plotly-plot>
+        }
       </div>
     </div>
   </div>

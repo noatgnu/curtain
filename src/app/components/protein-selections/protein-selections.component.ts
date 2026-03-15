@@ -1,6 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {DataService} from "../../data.service";
-import {debounceTime, distinctUntilChanged, map, Observable, OperatorFunction} from "rxjs";
+import {debounceTime, distinctUntilChanged, map, Observable, OperatorFunction, Subject, takeUntil} from "rxjs";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {BatchSearchComponent} from "../batch-search/batch-search.component";
 import {UniprotService} from "../../uniprot.service";
@@ -17,9 +17,11 @@ export interface selectionData {
     selector: 'app-protein-selections',
     templateUrl: './protein-selections.component.html',
     styleUrls: ['./protein-selections.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProteinSelectionsComponent implements OnInit {
+export class ProteinSelectionsComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   iscollapse: boolean = false
   tableFilterModel: string = ""
   @Output() searchResult: EventEmitter<selectionData> = new EventEmitter<selectionData>()
@@ -165,16 +167,22 @@ export class ProteinSelectionsComponent implements OnInit {
 
 
 
-  constructor(public data: DataService, private modal: NgbModal, private uniprot: UniprotService, private settings: SettingsService) {
-    this.data.searchCommandService.asObservable().subscribe(data => {
+  constructor(public data: DataService, private modal: NgbModal, private uniprot: UniprotService, private settings: SettingsService, private cdr: ChangeDetectorRef) {
+    this.data.searchCommand$.pipe(takeUntil(this.destroy$)).subscribe(data => {
       if (data) {
         const result = this.getPrimaryIDsDataFromBatch(data)
         this.searchResult.emit({data: result, title: data.title})
+        this.cdr.markForCheck();
       }
     })
   }
 
   ngOnInit(): void {
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   singleSearchHandle() {

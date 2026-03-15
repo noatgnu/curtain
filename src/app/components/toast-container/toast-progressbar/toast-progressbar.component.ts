@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
 import { NgbProgressbar } from "@ng-bootstrap/ng-bootstrap";
 import { DataService } from "../../../data.service";
 import { Subscription } from "rxjs";
@@ -10,7 +10,8 @@ import { ToastType } from "../../../toast.service";
         NgbProgressbar
     ],
     templateUrl: './toast-progressbar.component.html',
-    styleUrl: './toast-progressbar.component.scss'
+    styleUrl: './toast-progressbar.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToastProgressbarComponent implements OnDestroy {
   private subscription?: Subscription;
@@ -27,15 +28,17 @@ export class ToastProgressbarComponent implements OnDestroy {
     this.cleanup();
 
     if (value === 'download') {
-      this.subscription = this.data.downloadProgress.subscribe((progress) => {
+      this.subscription = this.data.downloadProgress$.subscribe((progress) => {
         this.progress = progress;
+        this.cdr.markForCheck();
         if (progress === 100) {
           this.finished.emit(true);
         }
       });
     } else if (value === 'upload') {
-      this.subscription = this.data.uploadProgress.subscribe((progress) => {
+      this.subscription = this.data.uploadProgress$.subscribe((progress) => {
         this.progress = progress;
+        this.cdr.markForCheck();
         if (progress === 100) {
           this.finished.emit(true);
         }
@@ -57,7 +60,7 @@ export class ToastProgressbarComponent implements OnDestroy {
     return typeMap[this.toastType] || 'primary';
   }
 
-  constructor(private data: DataService) {}
+  constructor(private data: DataService, private cdr: ChangeDetectorRef) {}
 
   ngOnDestroy(): void {
     this.cleanup();

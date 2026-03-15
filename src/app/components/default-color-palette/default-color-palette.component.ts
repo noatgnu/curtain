@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {FormBuilder} from "@angular/forms";
 import {ToastService} from "../../toast.service";
+import {Subject, takeUntil} from "rxjs";
 
 @Component({
     selector: 'app-default-color-palette',
     templateUrl: './default-color-palette.component.html',
     styleUrls: ['./default-color-palette.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DefaultColorPaletteComponent implements OnInit {
+export class DefaultColorPaletteComponent implements OnInit, OnDestroy {
   currentColor: string[] = []
   colorPaletteList: string[] = []
   form = this.fb.group(
@@ -24,11 +26,12 @@ export class DefaultColorPaletteComponent implements OnInit {
   selectedColor: string[] = []
   customPalette: {origin: string, new: string}[] = []
   colorMap: any = {}
+  private destroy$ = new Subject<void>();
 
   constructor(private modal: NgbActiveModal, public data: DataService, private settings: SettingsService, private fb: FormBuilder, private toast: ToastService) {
     this.currentColor = this.settings.settings.defaultColorList.slice()
     this.colorPaletteList = Object.keys(this.data.palette)
-    this.form.controls["colorPalette"].valueChanges.subscribe(value => {
+    this.form.controls["colorPalette"].valueChanges.pipe(takeUntil(this.destroy$)).subscribe(value => {
       if (value && value !=="") {
         if (this.data.palette[value]) {
           this.selectedColor = this.data.palette[value].slice()
@@ -38,6 +41,11 @@ export class DefaultColorPaletteComponent implements OnInit {
       }
 
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnInit(): void {
@@ -56,13 +64,13 @@ export class DefaultColorPaletteComponent implements OnInit {
     }
 
     if (this.form.value["resetVolcanoColor"]) {
-      this.data.resetVolcanoColor.next(true)
+      this.data.triggerResetVolcanoColor()
       const colorMap: any = {}
       for (const c of this.settings.settings.conditionOrder) {
         colorMap[c] = this.settings.settings.colorMap[c].slice()
       }
       this.settings.settings.colorMap = colorMap
-      this.data.selectionUpdateTrigger.next(true)
+      this.data.triggerSelectionUpdate()
     }
     if (this.form.value["resetBarChartColor"]) {
       let currentPosition = 0
@@ -79,7 +87,7 @@ export class DefaultColorPaletteComponent implements OnInit {
     }
     console.log(this.settings.settings.colorMap)
     console.log(this.settings.settings.barchartColorMap)
-    this.data.redrawTrigger.next(true)
+    this.data.triggerRedraw()
     this.modal.close()
   }
 

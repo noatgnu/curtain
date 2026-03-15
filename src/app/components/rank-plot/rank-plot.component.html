@@ -104,14 +104,16 @@
   <span class="visually-hidden" id="rankplot-description">
     Interactive scatter plot displaying log2 abundance values ranked from highest to lowest. Use the legend to toggle visibility of data series.
   </span>
-  <plotly-plot
-    [config]="config"
-    [divId]="'rankplot'"
-    [data]="graphData"
-    [layout]="graphLayout"
-    [revision]="revision"
-    [updateOnDataChange]="true"
-    [updateOnLayoutChange]="true"
-    (legendClick)="handleClick($event)">
-  </plotly-plot>
+  @if (graphData.length > 0) {
+    <plotly-plot
+      [config]="config"
+      [divId]="'rankplot'"
+      [data]="graphData"
+      [layout]="graphLayout"
+      [revision]="revision"
+      [updateOnDataChange]="true"
+      [updateOnLayoutChange]="true"
+      (legendClick)="handleClick($event)">
+    </plotly-plot>
+  }
 </div>

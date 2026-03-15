@@ -33,7 +33,7 @@ export class SaveStateService {
   }
 
   private setupAutoSave(): void {
-    this.autoSave.autoSaveTrigger.subscribe(() => {
+    this.autoSave.autoSaveTrigger$.subscribe(() => {
       this.autoSaveState();
     });
   }
@@ -161,7 +161,7 @@ export class SaveStateService {
       }
     }
 
-    this.data.loadDataTrigger.next(true);
+    this.data.triggerLoadData();
   }
 
   loadState(stateNumber: number): void {
@@ -184,7 +184,7 @@ export class SaveStateService {
       }
     }
 
-    this.data.loadDataTrigger.next(true);
+    this.data.triggerLoadData();
   }
 
   getStatePreview(stateNumber: number): StatePreview | null {
@@ -311,7 +311,7 @@ export class SaveStateService {
       }
     }
 
-    this.data.loadDataTrigger.next(true);
+    this.data.triggerLoadData();
   }
 
   deleteAutoSave(autoSaveKey: string): void {
@@ -489,7 +489,7 @@ export class SaveStateService {
       }
     }
 
-    this.data.loadDataTrigger.next(true);
+    this.data.triggerLoadData();
   }
 
   downloadState(stateNumber: number): void {

@@ -1,10 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import {WebService} from "./web.service";
 import {fromCSV} from "data-forge";
-import {BehaviorSubject, Subject} from "rxjs";
 import {Parser} from "uniprotparserjs"
+import { toObservable } from '@angular/core/rxjs-interop';
 
+export interface UniprotProgress {
+  value: number;
+  text: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +21,13 @@ export class UniprotService {
   dataMap: Map<string, any> = new Map<string, any>()
   db: Map<string, any> = new Map<string, any>()
   organism = ""
-  uniprotParseStatus = new BehaviorSubject<boolean>(false)
-  uniprotProgressBar = new Subject<any>()
+
+  readonly parseStatus = signal(false);
+  readonly parseStatus$ = toObservable(this.parseStatus);
+
+  readonly progressBar = signal<UniprotProgress>({value: 0, text: ''});
+  readonly progressBar$ = toObservable(this.progressBar);
+
   accMap: Map<string, string[]> = new Map<string, string[]>()
   geneNameToAcc: any = {}
   constructor(private http: HttpClient, private web: WebService) {
@@ -40,10 +49,10 @@ export class UniprotService {
         currentSegment = r.segment
       }
 
-      this.uniprotProgressBar.next({value: currentRun * 100/totalRun, text: `Processed UniProt Job ${currentRun}/${totalRun} (Segment ${r.segment/5000+1})`})
+      this.progressBar.set({value: currentRun * 100/totalRun, text: `Processed UniProt Job ${currentRun}/${totalRun} (Segment ${r.segment/5000+1})`})
       await this.PrimeProcessReceivedData(r.data)
       if (currentRun === totalRun) {
-        this.uniprotParseStatus.next(true)
+        this.parseStatus.set(true)
       } else {
         currentRun ++
       }
@@ -220,8 +229,8 @@ export class UniprotService {
     this.dataMap = new Map<string, any>();
     this.db = new Map<string, any>();
     this.organism = "";
-    this.uniprotParseStatus = new BehaviorSubject<boolean>(false);
-    this.uniprotProgressBar = new Subject<any>();
+    this.parseStatus.set(false);
+    this.progressBar.set({value: 0, text: ''});
     this.accMap = new Map<string, string[]>();
     this.geneNameToAcc = {};
   }

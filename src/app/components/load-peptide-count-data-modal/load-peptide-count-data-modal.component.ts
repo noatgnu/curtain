@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import {SettingsService} from "../../settings.service";
 import {FormsModule} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
@@ -10,7 +10,8 @@ import {DataFrame, fromCSV, IDataFrame} from "data-forge";
         FormsModule
     ],
     templateUrl: './load-peptide-count-data-modal.component.html',
-    styleUrl: './load-peptide-count-data-modal.component.scss'
+    styleUrl: './load-peptide-count-data-modal.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoadPeptideCountDataModalComponent {
   fileContent: string = '';
@@ -19,7 +20,7 @@ export class LoadPeptideCountDataModalComponent {
   columns: string[] = [];
   peptideCountData: any = {};
   data: IDataFrame<number, any> = new DataFrame()
-  constructor(private settingsService: SettingsService, private activeModal: NgbActiveModal) {}
+  constructor(private settingsService: SettingsService, private activeModal: NgbActiveModal, private cdr: ChangeDetectorRef) {}
 
   onFileChange(event: any) {
     const file = event.target.files[0];
@@ -27,6 +28,7 @@ export class LoadPeptideCountDataModalComponent {
     reader.onload = (e: any) => {
       this.data = fromCSV(<string>e.target.result);
       this.columns = this.data.getColumnNames();
+      this.cdr.markForCheck();
     };
     reader.readAsText(file);
   }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import {Settings} from "../../classes/settings";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DataFrame, fromCSV} from "data-forge";
@@ -33,7 +33,8 @@ import {ToastService} from "../../toast.service";
     NgbNavOutlet
   ],
   templateUrl: './batch-upload-modal.component.html',
-  styleUrl: './batch-upload-modal.component.scss'
+  styleUrl: './batch-upload-modal.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BatchUploadModalComponent {
   differentialFiles: File[] = [];
@@ -77,8 +78,10 @@ export class BatchUploadModalComponent {
   }[] = [];
   allTasksFinished = false
   constructor(private toasts: ToastService, private fb: FormBuilder, private dialogRef: NgbActiveModal, private batchService: BatchUploadServiceService) {
-    this.batchService.taskStartAnnouncer.subscribe((index) => {
-      this.toasts.show("Task started", `Start processing task ${index}`).then()
+    this.batchService.taskStart$.subscribe((index) => {
+      if (index >= 0) {
+        this.toasts.show("Task started", `Start processing task ${index}`).then()
+      }
     })
   }
 
@@ -255,7 +258,7 @@ export class BatchUploadModalComponent {
 
   submit() {
     this.allTasksFinished = false
-    this.batchService.taskStartAnnouncer.next(0)
+    this.batchService.triggerTaskStart(0)
   }
 
   cloneSession(index: number) {
@@ -467,7 +470,7 @@ export class BatchUploadModalComponent {
       this.sessions[index].linkId = location.origin + "/#/" + event
     }
     if (this.sessions[index+1]) {
-      this.batchService.taskStartAnnouncer.next(index+1)
+      this.batchService.triggerTaskStart(index+1)
     } else {
       this.toasts.show("Task finished", "All tasks have been processed").then()
       this.allTasksFinished = true

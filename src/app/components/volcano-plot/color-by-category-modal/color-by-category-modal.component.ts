@@ -1,8 +1,9 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, OnDestroy} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {ColorPickerDirective} from "ngx-color-picker";
+import {Subject, takeUntil} from "rxjs";
 
 interface CategoryInfo {
   value: string
@@ -19,9 +20,11 @@ interface CategoryInfo {
     ColorPickerDirective
   ],
   templateUrl: './color-by-category-modal.component.html',
-  styleUrl: './color-by-category-modal.component.scss'
+  styleUrl: './color-by-category-modal.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ColorByCategoryModalComponent implements OnInit {
+export class ColorByCategoryModalComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   @Input() data: IDataFrame = new DataFrame()
   @Input() primaryIDColumn: string = ""
   @Input() comparisonCol: string = ""
@@ -41,15 +44,21 @@ export class ColorByCategoryModalComponent implements OnInit {
     '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d', '#9edae5'
   ]
 
-  constructor(private fb: FormBuilder, private activeModal: NgbActiveModal) {}
+  constructor(private fb: FormBuilder, private activeModal: NgbActiveModal, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.form.controls.selectedColumn.valueChanges.subscribe((value) => {
+    this.form.controls.selectedColumn.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       if (value && this.data) {
         this.selectedColumn = value
         this.buildCategoryMap(value)
+        this.cdr.markForCheck();
       }
     })
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   buildCategoryMap(column: string) {

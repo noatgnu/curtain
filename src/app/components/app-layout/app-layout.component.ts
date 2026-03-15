@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
@@ -8,6 +8,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
   standalone: true,
   imports: [CommonModule, RouterOutlet, NavbarComponent],
   templateUrl: './app-layout.component.html',
-  styleUrl: './app-layout.component.scss'
+  styleUrl: './app-layout.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppLayoutComponent {}

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {UntypedFormBuilder} from "@angular/forms";
 import {WebService} from "../../web.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
@@ -13,7 +13,8 @@ import {UniprotService} from "../../uniprot.service";
     selector: 'app-session-settings',
     templateUrl: './session-settings.component.html',
     styleUrls: ['./session-settings.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SessionSettingsComponent implements OnInit {
   private _currretID: string = ""
@@ -32,12 +33,14 @@ export class SessionSettingsComponent implements OnInit {
       this.data.session = data.data
       this.accounts.curtainAPI.getOwners(this.currentID).then((data:any) => {
         this.owners = data.data["owners"]
+        this.cdr.markForCheck();
       })
       for (const i in data.data) {
         if (i in this.form.controls) {
           this.form.controls[i].setValue(data.data[i])
         }
       }
+      this.cdr.markForCheck();
     })
   }
   get currentID(): string {
@@ -51,7 +54,7 @@ export class SessionSettingsComponent implements OnInit {
     additionalOwner: ["",]
   })
   temporaryLink: string = ""
-  constructor(private fb: UntypedFormBuilder, private web:WebService, public modal: NgbActiveModal, private data: DataService, private settings: SettingsService, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService) {
+  constructor(private fb: UntypedFormBuilder, private web:WebService, public modal: NgbActiveModal, private data: DataService, private settings: SettingsService, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService, private cdr: ChangeDetectorRef) {
 
   }
 
@@ -62,6 +65,7 @@ export class SessionSettingsComponent implements OnInit {
     if (this.form.value["temporary_link_lifetime"] > 0) {
       this.accounts.curtainAPI.generateTemporarySession(this.currentID, this.form.value["temporary_link_lifetime"]).then((data:any) => {
         this.temporaryLink = location.origin + `/#/${data.data["link_id"]}&${data.data["token"]}`
+        this.cdr.markForCheck();
       })
     }
   }

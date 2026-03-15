@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {DataFrame} from "data-forge";
 import {DataService} from "../../data.service";
@@ -11,7 +11,8 @@ import {WebService} from "../../web.service";
     selector: 'app-session-comparison-result-viewer-modal',
     templateUrl: './session-comparison-result-viewer-modal.component.html',
     styleUrls: ['./session-comparison-result-viewer-modal.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SessionComparisonResultViewerModalComponent {
   private _data: any = {}

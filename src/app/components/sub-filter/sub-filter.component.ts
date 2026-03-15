@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {FormBuilder} from "@angular/forms";
 import {DataService} from "../../data.service";
@@ -8,7 +8,8 @@ import {UniprotService} from "../../uniprot.service";
     selector: 'app-sub-filter',
     templateUrl: './sub-filter.component.html',
     styleUrls: ['./sub-filter.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SubFilterComponent {
   private _data: IDataFrame<number, any> = new DataFrame()

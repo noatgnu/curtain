@@ -1,7 +1,6 @@
-import { Component, signal } from '@angular/core';
+import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgbActiveModal, NgbAlert} from "@ng-bootstrap/ng-bootstrap";
-import {WebService} from "../../web.service";
 import {AccountsService} from "../../accounts/accounts.service";
 
 @Component({
@@ -12,7 +11,8 @@ import {AccountsService} from "../../accounts/accounts.service";
         NgbAlert
     ],
     templateUrl: './api-key-modal.component.html',
-    styleUrl: './api-key-modal.component.scss'
+    styleUrl: './api-key-modal.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApiKeyModalComponent {
   form = this.fb.group({

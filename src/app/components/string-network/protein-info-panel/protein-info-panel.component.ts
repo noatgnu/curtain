@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { StringNetworkService } from '../string-network.service';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -6,7 +6,8 @@ import { DomSanitizer } from '@angular/platform-browser';
   selector: 'app-protein-info-panel',
   templateUrl: './protein-info-panel.component.html',
   styleUrls: ['./protein-info-panel.component.scss'],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProteinInfoPanelComponent implements OnChanges, AfterViewInit {
   @ViewChild('contentFrame', { static: false }) contentFrame?: ElementRef<HTMLIFrameElement>;
@@ -23,7 +24,8 @@ export class ProteinInfoPanelComponent implements OnChanges, AfterViewInit {
 
   constructor(
     private stringService: StringNetworkService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngAfterViewInit(): void {
@@ -51,11 +53,13 @@ export class ProteinInfoPanelComponent implements OnChanges, AfterViewInit {
           this.contentHtml = html;
           this.loading = false;
           this.renderInIframe();
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Error loading protein info:', err);
           this.error = 'Failed to load protein information';
           this.loading = false;
+          this.cdr.markForCheck();
         }
       });
     } else if (this.edgeInfo) {
@@ -66,11 +70,13 @@ export class ProteinInfoPanelComponent implements OnChanges, AfterViewInit {
           this.contentHtml = html;
           this.loading = false;
           this.renderInIframe();
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Error loading edge info:', err);
           this.error = 'Failed to load interaction information';
           this.loading = false;
+          this.cdr.markForCheck();
         }
       });
     }

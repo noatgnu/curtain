@@ -1,30 +1,57 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import {InputFile} from "./classes/input-file";
 import {Differential} from "./classes/differential";
 import {Raw} from "./classes/raw";
 import {UniprotService} from "./uniprot.service";
 import {SettingsService} from "./settings.service";
 import {DataFrame, IDataFrame} from "data-forge";
-import {BehaviorSubject, debounceTime, distinctUntilChanged, map, Observable, OperatorFunction, Subject} from "rxjs";
+import {debounceTime, distinctUntilChanged, map, Observable, OperatorFunction} from "rxjs";
 import {loadFromLocalStorage} from "curtain-web-api";
 import {CurtainSession} from "./curtain-session";
+import { toObservable } from '@angular/core/rxjs-interop';
+
+export interface AnnotationEvent {
+  id: string[];
+  remove: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
   instructorMode: boolean = false
-  loadDataTrigger: Subject<boolean> = new Subject<boolean>()
-  externalBarChartDownloadTrigger: Subject<boolean> = new Subject<boolean>()
+
+  private readonly _loadDataTrigger = signal(0);
+  readonly loadDataTrigger = this._loadDataTrigger.asReadonly();
+  readonly loadDataTrigger$ = toObservable(this._loadDataTrigger);
+
+  private readonly _barChartDownloadTrigger = signal(0);
+  readonly barChartDownloadTrigger = this._barChartDownloadTrigger.asReadonly();
+  readonly barChartDownloadTrigger$ = toObservable(this._barChartDownloadTrigger);
+
   session?: CurtainSession
   tempLink: boolean = false
   bypassUniProt: boolean = false
-  stringDBColorMapSubject: Subject<boolean> = new Subject<boolean>()
-  interactomeDBColorMapSubject: Subject<boolean> = new Subject<boolean>()
-  volcanoAdditionalShapesSubject: Subject<boolean> = new Subject<boolean>()
+
+  private readonly _stringDBColorMapChanged = signal(0);
+  readonly stringDBColorMapChanged = this._stringDBColorMapChanged.asReadonly();
+  readonly stringDBColorMapChanged$ = toObservable(this._stringDBColorMapChanged);
+
+  private readonly _interactomeDBColorMapChanged = signal(0);
+  readonly interactomeDBColorMapChanged = this._interactomeDBColorMapChanged.asReadonly();
+  readonly interactomeDBColorMapChanged$ = toObservable(this._interactomeDBColorMapChanged);
+
+  private readonly _volcanoShapesChanged = signal(0);
+  readonly volcanoShapesChanged = this._volcanoShapesChanged.asReadonly();
+  readonly volcanoShapesChanged$ = toObservable(this._volcanoShapesChanged);
+
   draftDataCiteCount: number = 0
-  downloadProgress: Subject<number> = new Subject<number>()
-  uploadProgress: Subject<number> = new Subject<number>()
+
+  readonly downloadProgress = signal(0);
+  readonly downloadProgress$ = toObservable(this.downloadProgress);
+
+  readonly uploadProgress = signal(0);
+  readonly uploadProgress$ = toObservable(this.uploadProgress);
 
 
   get colorMap(): any {
@@ -34,22 +61,36 @@ export class DataService {
   set colorMap(value: any) {
     this._colorMap = value;
   }
-  finishedProcessingData: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
-  selectionUpdateTrigger: Subject<boolean> = new Subject<boolean>()
+  readonly finishedProcessing = signal(false);
+  readonly finishedProcessing$ = toObservable(this.finishedProcessing);
+
+  private readonly _selectionUpdateTrigger = signal(0);
+  readonly selectionUpdateTrigger = this._selectionUpdateTrigger.asReadonly();
+  readonly selectionUpdateTrigger$ = toObservable(this._selectionUpdateTrigger);
+
   dataMap: Map<string, string> = new Map<string, string>()
   sampleMap: any = {}
   currentDF: IDataFrame = new DataFrame()
   genesMap: any = {}
   primaryIDsMap: any = {}
-  batchAnnotateAnnoucement: Subject<any> = new Subject<any>()
+
+  readonly batchAnnotate = signal<AnnotationEvent | null>(null);
+  readonly batchAnnotate$ = toObservable(this.batchAnnotate);
+
   selectedComparison: string[] = []
   conditions: string[] = []
   dataTestTypes: string[] = [
     "ANOVA",
     "TTest"
   ]
-  clearWatcher: Subject<boolean> = new Subject<boolean>()
-  redrawTrigger: Subject<boolean> = new Subject()
+
+  private readonly _clearWatcher = signal(0);
+  readonly clearWatcher = this._clearWatcher.asReadonly();
+  readonly clearWatcher$ = toObservable(this._clearWatcher);
+
+  private readonly _redrawTrigger = signal(0);
+  readonly redrawTrigger = this._redrawTrigger.asReadonly();
+  readonly redrawTrigger$ = toObservable(this._redrawTrigger);
   annotatedData: any = {}
 
   private_key: CryptoKey | undefined
@@ -203,11 +244,24 @@ export class DataService {
   selected: string[] = []
   selectOperationNames: string[] = []
   primaryIDsList: string[] = []
-  restoreTrigger: Subject<boolean> = new Subject<boolean>()
-  annotationService: Subject<any> = new Subject<any>()
-  annotationVisualUpdated: Subject<boolean> = new Subject<boolean>()
-  searchCommandService: Subject<any> = new Subject<any>()
-  resetVolcanoColor: Subject<boolean> = new Subject<boolean>()
+
+  private readonly _restoreTrigger = signal(0);
+  readonly restoreTrigger = this._restoreTrigger.asReadonly();
+  readonly restoreTrigger$ = toObservable(this._restoreTrigger);
+
+  readonly annotationEvent = signal<AnnotationEvent | null>(null);
+  readonly annotationEvent$ = toObservable(this.annotationEvent);
+
+  private readonly _annotationVisualUpdated = signal(0);
+  readonly annotationVisualUpdated = this._annotationVisualUpdated.asReadonly();
+  readonly annotationVisualUpdated$ = toObservable(this._annotationVisualUpdated);
+
+  readonly searchCommand = signal<any>(null);
+  readonly searchCommand$ = toObservable(this.searchCommand);
+
+  private readonly _resetVolcanoColor = signal(0);
+  readonly resetVolcanoColor = this._resetVolcanoColor.asReadonly();
+  readonly resetVolcanoColor$ = toObservable(this._resetVolcanoColor);
   constructor(private uniprot: UniprotService, private settings: SettingsService) { }
   minMax: any = {
     fcMin: 0,
@@ -224,17 +278,13 @@ export class DataService {
     this.selectedGenes = []
     this.selectedMap = {}
     this.selectOperationNames = []
-    //this.settings.settings.colorMap = {}
     this.settings.settings.textAnnotation = {}
-    //this.settings.settings.barchartColorMap = {}
     this.settings.settings.rankPlotAnnotation = {}
     this.settings.settings.rankPlotColorMap = {}
     this.settings.settings.volcanoAdditionalShapes = []
     this.annotatedData = {}
-    let colorPosition = 0
 
-
-    this.clearWatcher.next(true)
+    this._clearWatcher.update(v => v + 1);
   }
 
   significantGroup(x: number, y: number) {
@@ -387,29 +437,29 @@ export class DataService {
 
   reset() {
     this.instructorMode = false;
-    this.loadDataTrigger = new Subject<boolean>();
-    this.externalBarChartDownloadTrigger = new Subject<boolean>();
+    this._loadDataTrigger.set(0);
+    this._barChartDownloadTrigger.set(0);
     this.session = undefined;
     this.tempLink = false;
     this.bypassUniProt = false;
-    this.stringDBColorMapSubject = new Subject<boolean>();
-    this.interactomeDBColorMapSubject = new Subject<boolean>();
-    this.volcanoAdditionalShapesSubject = new Subject<boolean>();
+    this._stringDBColorMapChanged.set(0);
+    this._interactomeDBColorMapChanged.set(0);
+    this._volcanoShapesChanged.set(0);
     this.draftDataCiteCount = 0;
-    this.downloadProgress = new Subject<number>();
-    this.uploadProgress = new Subject<number>();
-    this.finishedProcessingData = new BehaviorSubject<boolean>(false);
-    this.selectionUpdateTrigger = new Subject<boolean>();
+    this.downloadProgress.set(0);
+    this.uploadProgress.set(0);
+    this.finishedProcessing.set(false);
+    this._selectionUpdateTrigger.set(0);
     this.dataMap = new Map<string, string>();
     this.sampleMap = {};
     this.currentDF = new DataFrame();
     this.genesMap = {};
     this.primaryIDsMap = {};
-    this.batchAnnotateAnnoucement = new Subject<any>();
+    this.batchAnnotate.set(null);
     this.selectedComparison = [];
     this.conditions = [];
-    this.clearWatcher = new Subject<boolean>();
-    this.redrawTrigger = new Subject();
+    this._clearWatcher.set(0);
+    this._redrawTrigger.set(0);
     this.annotatedData = {};
     this.private_key = undefined;
     this.public_key = undefined;
@@ -424,11 +474,11 @@ export class DataService {
     this.selected = [];
     this.selectOperationNames = [];
     this.primaryIDsList = [];
-    this.restoreTrigger = new Subject<boolean>();
-    this.annotationService = new Subject<any>();
-    this.annotationVisualUpdated = new Subject<boolean>();
-    this.searchCommandService = new Subject<any>();
-    this.resetVolcanoColor = new Subject<boolean>();
+    this._restoreTrigger.set(0);
+    this.annotationEvent.set(null);
+    this._annotationVisualUpdated.set(0);
+    this.searchCommand.set(null);
+    this._resetVolcanoColor.set(0);
     this.minMax = {
       fcMin: 0,
       fcMax: 0,
@@ -437,5 +487,49 @@ export class DataService {
     };
     this.page = 1;
     this.pageSize = 5;
+  }
+
+  triggerLoadData(): void {
+    this._loadDataTrigger.update(v => v + 1);
+  }
+
+  triggerBarChartDownload(): void {
+    this._barChartDownloadTrigger.update(v => v + 1);
+  }
+
+  triggerStringDBColorMapChange(): void {
+    this._stringDBColorMapChanged.update(v => v + 1);
+  }
+
+  triggerInteractomeDBColorMapChange(): void {
+    this._interactomeDBColorMapChanged.update(v => v + 1);
+  }
+
+  triggerVolcanoShapesChange(): void {
+    this._volcanoShapesChanged.update(v => v + 1);
+  }
+
+  triggerSelectionUpdate(): void {
+    this._selectionUpdateTrigger.update(v => v + 1);
+  }
+
+  triggerRedraw(): void {
+    this._redrawTrigger.update(v => v + 1);
+  }
+
+  triggerRestore(): void {
+    this._restoreTrigger.update(v => v + 1);
+  }
+
+  triggerAnnotationVisualUpdate(): void {
+    this._annotationVisualUpdated.update(v => v + 1);
+  }
+
+  triggerResetVolcanoColor(): void {
+    this._resetVolcanoColor.update(v => v + 1);
+  }
+
+  triggerClearWatcher(): void {
+    this._clearWatcher.update(v => v + 1);
   }
 }

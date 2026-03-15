@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {DataFrame, fromCSV, IDataFrame} from "data-forge";
 import {DataService} from "../../data.service";
 import {UniprotService} from "../../uniprot.service";
@@ -19,7 +19,7 @@ import {NearbyPointsModalComponent} from "../nearby-points-modal/nearby-points-m
 import {ReorderTracesModalComponent} from "./reorder-traces-modal/reorder-traces-modal.component";
 import {PlotlyThemeService} from "../../plotly-theme.service";
 import {ThemeService} from "../../theme.service";
-import {Subscription} from "rxjs";
+import {Subject, takeUntil} from "rxjs";
 
 export interface PlotlyMarker {
   color: string;
@@ -155,10 +155,11 @@ export interface PlotlyConfig {
     selector: 'app-volcano-plot',
     templateUrl: './volcano-plot.component.html',
     styleUrls: ['./volcano-plot.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VolcanoPlotComponent implements OnInit, OnDestroy {
-  private themeSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
   editMode: boolean = false
   explorerMode: boolean = false
   settingsNav: string = "parameters"
@@ -790,7 +791,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
     this.graphLayout.yaxis.ticklen = this.settings.settings.volcanoAxis.ticklenY || 5
   }
 
-  constructor(private fb: FormBuilder, private web: WebService, public dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
+  constructor(private fb: FormBuilder, private web: WebService, public dataService: DataService, private uniprot: UniprotService, public settings: SettingsService, private modal: NgbModal, private messageService: ToastService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService, private cdr: ChangeDetectorRef) {
     this.annotated = {}
     for (const i in this.settings.settings.textAnnotation) {
       if (this.settings.settings.textAnnotation[i].data.showannotation === undefined || this.settings.settings.textAnnotation[i].data.showannotation === null) {
@@ -798,31 +799,35 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       }
       this.annotated[i] = this.settings.settings.textAnnotation[i]
     }
-    this.dataService.resetVolcanoColor.asObservable().subscribe(data => {
-      if (data) {
+    this.dataService.resetVolcanoColor$.pipe(takeUntil(this.destroy$)).subscribe(counter => {
+      if (counter > 0) {
         this.specialColorMap = {}
+        this.cdr.markForCheck();
       }
     })
     this.markerSize = this.settings.settings.scatterPlotMarkerSize
-    this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
-      if (data) {
+    this.dataService.selectionUpdateTrigger$.pipe(takeUntil(this.destroy$)).subscribe(counter => {
+      if (counter > 0) {
 
         if (Object.keys(this.dataService.annotatedData).length === 0) {
           this.annotated = {}
         }
         this.drawVolcano()
+        this.cdr.markForCheck();
       }
     })
-    this.dataService.annotationService.asObservable().subscribe(data => {
+    this.dataService.annotationEvent$.pipe(takeUntil(this.destroy$)).subscribe(data => {
       if (data) {
         if (data.remove) {
           if (typeof data.id === "string") {
             this.removeAnnotatedDataPoints([data.id]).then(() => {
               this.dataService.annotatedData = this.annotated
+              this.cdr.markForCheck();
             })
           } else {
             this.removeAnnotatedDataPoints(data.id).then(() => {
               this.dataService.annotatedData = this.annotated
+              this.cdr.markForCheck();
             })
           }
 
@@ -830,10 +835,12 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
           if (typeof data.id === "string") {
             this.annotateDataPoints([data.id]).then(() => {
               this.dataService.annotatedData = this.annotated
+              this.cdr.markForCheck();
             })
           } else {
             this.annotateDataPoints(data.id).then(() => {
               this.dataService.annotatedData = this.annotated
+              this.cdr.markForCheck();
             })
           }
 
@@ -843,18 +850,18 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       if (this._data && this._data.count()) {
         this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
         this.revision++;
+        this.cdr.markForCheck();
       }
     });
   }
 
   ngOnDestroy(): void {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   selectData(e: any) {
@@ -1005,7 +1012,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
     if (annotations.length > 0) {
       this.graphLayout.annotations = this.graphLayout.annotations.concat(annotations)
     }
-    this.dataService.annotationVisualUpdated.next(true)
+    this.dataService.triggerAnnotationVisualUpdate()
   }
 
   async removeAnnotatedDataPoints(data: string[]) {
@@ -1024,7 +1031,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       }
     }
     this.graphLayout.annotations = Object.values(this.annotated)
-    this.dataService.annotationVisualUpdated.next(true)
+    this.dataService.triggerAnnotationVisualUpdate()
   }
 
   download() {
@@ -1101,7 +1108,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
       if (settingsToClear['annotatedData']) {
         this.dataService.annotatedData = {}
       }
-      this.dataService.clearWatcher.next(true)
+      this.dataService.triggerClearWatcher()
     } else {
       const ref = this.modal.open(AreYouSureClearModalComponent)
       ref.closed.subscribe(data => {
@@ -1124,7 +1131,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
           if (data.annotatedData) {
             this.dataService.annotatedData = {}
           }
-          this.dataService.clearWatcher.next(true)
+          this.dataService.triggerClearWatcher()
         }
       })
     }
@@ -1202,7 +1209,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
           }
         }
       }
-      this.dataService.volcanoAdditionalShapesSubject.next(true)
+      this.dataService.triggerVolcanoShapesChange()
     }
     if (data["legend.x"]) {
       this.settings.settings.volcanoPlotLegendX = data["legend.x"]
@@ -1257,7 +1264,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
           shape.y1 = data[k]
         }
       }
-      this.dataService.volcanoAdditionalShapesSubject.next(true)
+      this.dataService.triggerVolcanoShapesChange()
     }
   }
 
@@ -1332,7 +1339,7 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
           this.messageService.show("Point Selected",
             `Selected: ${result.title}`);
         } else if (result.action === 'annotate') {
-          this.dataService.annotationService.next({
+          this.dataService.annotationEvent.set({
             id: result.data,
             remove: false
           });
@@ -1358,14 +1365,14 @@ export class VolcanoPlotComponent implements OnInit, OnDestroy {
           }
 
           // Trigger selection update
-          this.dataService.selectionUpdateTrigger.next(true);
+          this.dataService.triggerSelectionUpdate();
 
           // Show success message
           this.messageService.show("Selection Updated",
             `Added ${result.data.length} points to "${existingSelection}"`);
         } else if (result.action === 'annotateMultiple') {
           // Annotate multiple selected points
-          this.dataService.annotationService.next({
+          this.dataService.annotationEvent.set({
             id: result.data,
             remove: false
           });

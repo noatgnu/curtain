@@ -1,20 +1,22 @@
-import {Component, OnDestroy} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
 import {FormBuilder, Validators} from "@angular/forms";
 import {AccountsService} from "../../accounts/accounts.service";
 import {SettingsService} from "../../settings.service";
 import {DataService} from "../../data.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {WebsocketService} from "../../websocket.service";
-import {Subscription} from "rxjs";
+import {Subject, takeUntil} from "rxjs";
 import {ToastService} from "../../toast.service";
 
 @Component({
     selector: 'app-comparison-against-other-prompt',
     templateUrl: './comparison-against-other-prompt.component.html',
     styleUrls: ['./comparison-against-other-prompt.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ComparisonAgainstOtherPromptComponent implements OnDestroy{
+export class ComparisonAgainstOtherPromptComponent implements OnDestroy {
+  private destroy$ = new Subject<void>();
 
   form = this.fb.group({
     urls: [[""], Validators.required],
@@ -25,8 +27,8 @@ export class ComparisonAgainstOtherPromptComponent implements OnDestroy{
   matchTypes: string[] = ["primaryID","primaryID-uniprot", "geneNames"]
 
   urls: any[] = [{url: ""}]
-  sub: Subscription|undefined
-  constructor(private modal: NgbActiveModal, private ws: WebsocketService, private fb: FormBuilder, private accounts: AccountsService, public settings: SettingsService, public data: DataService, private toast: ToastService) {
+
+  constructor(private modal: NgbActiveModal, private ws: WebsocketService, private fb: FormBuilder, private accounts: AccountsService, public settings: SettingsService, public data: DataService, private toast: ToastService, private cdr: ChangeDetectorRef) {
   }
 
   onSubmit() {
@@ -62,8 +64,7 @@ export class ComparisonAgainstOtherPromptComponent implements OnDestroy{
             if (!this.ws.jobConnection) {
               this.ws.connectJob()
             }
-            this.sub?.unsubscribe()
-            this.sub = this.ws.getJobMessages()?.subscribe((message: any) => {
+            this.ws.getJobMessages()?.pipe(takeUntil(this.destroy$)).subscribe((message: any) => {
               console.log(message)
               this.toast.show(message.requestType, message.message).then()
               if (message.message === "Operation Completed" && message.requestType === "Compare Session") {
@@ -76,6 +77,7 @@ export class ComparisonAgainstOtherPromptComponent implements OnDestroy{
                 }
                 this.modal.close({data: data, queryList: selections})
               }
+              this.cdr.markForCheck();
             })
           }
 
@@ -88,7 +90,8 @@ export class ComparisonAgainstOtherPromptComponent implements OnDestroy{
     this.modal.dismiss()
   }
 
-  ngOnDestroy() {
-    this.sub?.unsubscribe()
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

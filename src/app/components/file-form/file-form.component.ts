@@ -1,10 +1,11 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
 import { InputFile } from "../../classes/input-file";
 import { DataService } from "../../data.service";
 import { DataFrame, fromJSON, IDataFrame, Series } from "data-forge";
 import { UniprotService } from "../../uniprot.service";
 import { SettingsService } from "../../settings.service";
 import { ToastService } from "../../toast.service";
+import {Subject, takeUntil} from "rxjs";
 
 interface ProgressBarState {
   value: number;
@@ -15,9 +16,11 @@ interface ProgressBarState {
   selector: 'app-file-form',
   templateUrl: './file-form.component.html',
   styleUrls: ['./file-form.component.scss'],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FileFormComponent implements OnInit {
+export class FileFormComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   iscollapse = false;
   progressBar: ProgressBarState = { value: 0, text: "" };
   transformedFC = false;
@@ -31,14 +34,16 @@ export class FileFormComponent implements OnInit {
     public data: DataService,
     private uniprot: UniprotService,
     public settings: SettingsService,
-    private toast: ToastService
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef
   ) {
-    this.uniprot.uniprotProgressBar.subscribe(data => {
+    this.uniprot.progressBar$.pipe(takeUntil(this.destroy$)).subscribe(data => {
       this.progressBar.value = data.value;
       this.progressBar.text = data.text;
+      this.cdr.markForCheck();
     });
 
-    this.data.restoreTrigger.asObservable().subscribe(data => {
+    this.data.restoreTrigger$.pipe(takeUntil(this.destroy$)).subscribe(data => {
       if (data) {
         this.updateProgressBar(100, "Restoring session...");
         if (!this.clicked) {
@@ -46,12 +51,17 @@ export class FileFormComponent implements OnInit {
           this.finished.emit(false);
         }
         this.startWork();
+        this.cdr.markForCheck();
       }
     });
   }
 
   ngOnInit(): void {
-    // Component initialization logic
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   /**
@@ -68,25 +78,29 @@ export class FileFormComponent implements OnInit {
         const data = event.data;
         if (!data) {
           worker.terminate();
+          this.cdr.markForCheck();
           return;
         }
 
         switch (data.type) {
           case "progress":
             this.updateProgressBar(data.value, data.text);
+            this.cdr.markForCheck();
             break;
 
           case "resultDifferential":
             this.processDifferentialResult(data, worker);
+            this.cdr.markForCheck();
             break;
 
           case "resultRaw":
             this.processRawResult(data);
             worker.terminate();
+            this.cdr.markForCheck();
             break;
 
           case "resultDifferentialCompleted":
-            // Handle completion if needed
+            this.cdr.markForCheck();
             break;
         }
       };
@@ -564,7 +578,7 @@ export class FileFormComponent implements OnInit {
    */
   private resetUniProtData(): void {
     this.uniprot.geneNameToAcc = {};
-    this.uniprot.uniprotParseStatus.next(false);
+    this.uniprot.parseStatus.set(false);
     this.data.dataMap = new Map<string, string>();
     this.data.genesMap = {};
     this.uniprot.accMap = new Map<string, string[]>();
@@ -712,7 +726,7 @@ export class FileFormComponent implements OnInit {
   private completeProcessing(): void {
     this.finished.emit(true);
     this.clicked = false;
-    this.uniprot.uniprotParseStatus.next(false);
+    this.uniprot.parseStatus.set(false);
     this.updateProgressBar(100, "Finished");
   }
 

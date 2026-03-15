@@ -1,4 +1,4 @@
-import {AfterViewInit, Component} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy} from '@angular/core';
 import {AccountsService} from "./accounts/accounts.service";
 import {Enrichr} from "enrichrjs";
 import {SwUpdate} from "@angular/service-worker";
@@ -11,6 +11,7 @@ import {DataService} from "./data.service";
 import {environment} from "../environments/environment";
 import {CitationComponent} from "./components/citation/citation.component";
 import {AnalyticsService} from "./analytics.service";
+import {Subject, takeUntil} from "rxjs";
 
 @Component({
     selector: 'app-root',
@@ -18,9 +19,12 @@ import {AnalyticsService} from "./analytics.service";
     styleUrls: ['./app.component.scss'],
     standalone: false
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit, OnDestroy {
   title = 'Curtain';
   baseURL = environment.apiURL
+  private destroy$ = new Subject<void>();
+  private updateCheckIntervalId: number | null = null;
+
   constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private data: DataService,  private settings: SettingsService, private ws: WebsocketService, private modal: NgbModal, private analytics: AnalyticsService) {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
@@ -32,7 +36,7 @@ export class AppComponent implements AfterViewInit {
       })
     }
     this.ws.connectJob()
-    this.ws.getJobMessages()?.subscribe((data: any) => {
+    this.ws.getJobMessages()?.pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       console.log(data)
     })
     this.analytics.initialize()
@@ -40,7 +44,7 @@ export class AppComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     if (this.swUpdate.isEnabled) {
-      setInterval(() => {
+      this.updateCheckIntervalId = window.setInterval(() => {
         this.swUpdate.checkForUpdate().then((available) => {
           if (available) {
             this.settings.newVersionAvailable = true;
@@ -52,6 +56,14 @@ export class AppComponent implements AfterViewInit {
       }, 1000*10)
     } else {
       console.log("Service worker not enabled")
+    }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    if (this.updateCheckIntervalId !== null) {
+      window.clearInterval(this.updateCheckIntervalId);
     }
   }
 

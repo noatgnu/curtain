@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {SettingsService} from "../../settings.service";
 import {WebService} from "../../web.service";
 import {DataService} from "../../data.service";
@@ -8,7 +8,8 @@ import {DataService} from "../../data.service";
     selector: 'app-pride',
     templateUrl: './pride.component.html',
     styleUrls: ['./pride.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PrideComponent implements OnInit {
   @ViewChild("projectDescription") projectDescription: ElementRef | undefined

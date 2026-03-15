@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
@@ -9,17 +9,18 @@ import {RankPlotTextAnnotationComponent} from "../rank-plot-text-annotation/rank
 import {VolcanoColorsComponent} from "../volcano-colors/volcano-colors.component";
 import {PlotlyThemeService} from "../../plotly-theme.service";
 import {ThemeService} from "../../theme.service";
-import {Subscription} from "rxjs";
+import {Subject, takeUntil} from "rxjs";
 import {ToastService} from "../../toast.service";
 
 @Component({
     selector: 'app-rank-plot',
     templateUrl: './rank-plot.component.html',
     styleUrls: ['./rank-plot.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RankPlotComponent implements OnInit, OnDestroy {
-  private themeSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
   revision = 0;
   _data: IDataFrame = new DataFrame()
   sortedDataMap: any = {}
@@ -112,14 +113,14 @@ export class RankPlotComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private web: WebService, public dataService: DataService, public settings: SettingsService, public uniprot: UniprotService, private modal: NgbModal, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService, private toast: ToastService) {
-    this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
+  constructor(private web: WebService, public dataService: DataService, public settings: SettingsService, public uniprot: UniprotService, private modal: NgbModal, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService, private toast: ToastService, private cdr: ChangeDetectorRef) {
+    this.dataService.selectionUpdateTrigger$.pipe(takeUntil(this.destroy$)).subscribe(data => {
       if (data) {
-        this.draw().then()
+        this.draw().then(() => this.cdr.markForCheck())
       }
     })
 
-    this.dataService.annotationService.asObservable().subscribe(data => {
+    this.dataService.annotationEvent$.pipe(takeUntil(this.destroy$)).subscribe(data => {
       if (data) {
         if (data.remove) {
           if (typeof data.id === "string") {
@@ -222,16 +223,16 @@ export class RankPlotComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
       this.revision++;
+      this.cdr.markForCheck();
     });
   }
 
   ngOnDestroy(): void {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async draw() {

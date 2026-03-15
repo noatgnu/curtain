@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {AccountsService} from "../../accounts/accounts.service";
 import {WebService} from "../../web.service";
@@ -27,7 +27,8 @@ import {NgClass} from "@angular/common";
     NgClass
   ],
     templateUrl: './datacite.component.html',
-    styleUrl: './datacite.component.scss'
+    styleUrl: './datacite.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataciteComponent {
   isCollapsedFunding = true;

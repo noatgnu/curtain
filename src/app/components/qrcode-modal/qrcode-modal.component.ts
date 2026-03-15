@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import QRCodeStyling from "qr-code-styling";
 import {Options} from "qr-code-styling";
@@ -6,7 +6,8 @@ import {Options} from "qr-code-styling";
     selector: 'app-qrcode-modal',
     templateUrl: './qrcode-modal.component.html',
     styleUrls: ['./qrcode-modal.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QrcodeModalComponent implements OnInit, AfterViewInit {
   url: string = ""

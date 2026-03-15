@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
 import {ToastService} from "../../toast.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {DataService} from "../../data.service";
@@ -18,7 +18,8 @@ import {WebService} from "../../web.service";
     selector: 'app-encryption-settings',
     templateUrl: './encryption-settings.component.html',
     styleUrls: ['./encryption-settings.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EncryptionSettingsComponent {
   public_key: CryptoKey|undefined = undefined
@@ -34,7 +35,7 @@ export class EncryptionSettingsComponent {
   hasPrivateKeyInStorage: boolean = false
 
   @Input() enabled: boolean = false
-  constructor(private toastService: ToastService, private modal: NgbActiveModal, private dataService: DataService, private accounts: AccountsService, private web: WebService) {
+  constructor(private toastService: ToastService, private modal: NgbActiveModal, private dataService: DataService, private accounts: AccountsService, private web: WebService, private cdr: ChangeDetectorRef) {
     this.checkStoredKeys()
   }
 
@@ -53,6 +54,7 @@ export class EncryptionSettingsComponent {
           this.private_key = privateKey
           this.private_key_string = fileString
         }
+        this.cdr.markForCheck();
       }
     }
   }
@@ -89,7 +91,6 @@ export class EncryptionSettingsComponent {
 
   async generateKeys() {
     const pair = await generateKeyPair()
-    //export and download key pairs in pem format
     const publicKey = await exportPublicKey(pair.publicKey)
     const privateKey = await exportPrivateKey(pair.privateKey)
     this.public_key = pair.publicKey
@@ -100,7 +101,7 @@ export class EncryptionSettingsComponent {
     const private_pem = ['-----BEGIN PRIVATE KEY-----', this.private_key_string, '-----END PRIVATE KEY-----'].join('\n')
     this.web.downloadFile("public_key.pem", public_pem, "text/plain")
     this.web.downloadFile("private_key.pem", private_pem, "text/plain")
-
+    this.cdr.markForCheck();
   }
 
 

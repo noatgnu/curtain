@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, signal} from '@angular/core';
 import {NgbActiveModal, NgbAlert} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {AccountsService} from "../../accounts/accounts.service";
@@ -6,6 +6,7 @@ import {ToastService} from "../../toast.service";
 import {CreatePermanentLinkRequest, PermanentLinkRequest} from "curtain-web-api";
 import {DataService} from "../../data.service";
 import {DatePipe} from "@angular/common";
+import {Subject, takeUntil} from "rxjs";
 
 @Component({
   selector: 'app-permanent-link-request-modal',
@@ -16,11 +17,13 @@ import {DatePipe} from "@angular/common";
   ],
   templateUrl: './permanent-link-request-modal.component.html',
   styleUrl: './permanent-link-request-modal.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PermanentLinkRequestModalComponent implements OnInit {
+export class PermanentLinkRequestModalComponent implements OnInit, OnDestroy {
   curtainId: number = 0
   existingRequests = signal<PermanentLinkRequest[]>([])
   loading = signal(true)
+  private destroy$ = new Subject<void>();
 
   form = this.fb.group({
     request_type: new FormControl<'permanent' | 'extend'>('permanent', Validators.required),
@@ -35,14 +38,20 @@ export class PermanentLinkRequestModalComponent implements OnInit {
     private fb: FormBuilder,
     private accounts: AccountsService,
     private toast: ToastService,
-    public data: DataService
+    public data: DataService,
+    private cdr: ChangeDetectorRef
   ) {}
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit() {
     this.loadExpiryOptions()
     this.loadExistingRequests()
 
-    this.form.get('request_type')?.valueChanges.subscribe(value => {
+    this.form.get('request_type')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(value => {
       const expiryControl = this.form.get('requested_expiry_months')
       if (value === 'extend') {
         expiryControl?.setValidators([Validators.required])
@@ -58,6 +67,7 @@ export class PermanentLinkRequestModalComponent implements OnInit {
     this.accounts.curtainAPI.getSiteProperties().then(response => {
       if (response.data) {
         this.expiryOptions = response.data.expiry_duration_options || []
+        this.cdr.markForCheck();
       }
     })
   }

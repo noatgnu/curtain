@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {SettingsService} from "../../settings.service";
 import {DataService} from "../../data.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
@@ -8,7 +8,8 @@ import {FormBuilder, FormGroup} from "@angular/forms";
     selector: 'app-volcano-plot-text-annotation',
     templateUrl: './volcano-plot-text-annotation.component.html',
     styleUrls: ['./volcano-plot-text-annotation.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VolcanoPlotTextAnnotationComponent implements OnInit {
   private _data:any = {}

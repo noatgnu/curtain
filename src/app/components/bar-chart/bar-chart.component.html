@@ -52,9 +52,11 @@
         </div>
       }
       <div class="plot-container">
-        <plotly-plot [config]="config" [divId]="_data()[dataService.rawForm.primaryIDs]+'bar'"
-                     [data]="graphData" [layout]="graphLayout"
-                     [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
+        @if (graphData.length > 0) {
+          <plotly-plot [config]="config" [divId]="_data()[dataService.rawForm.primaryIDs]+'bar'"
+                       [data]="graphData" [layout]="graphLayout"
+                       [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
+        }
       </div>
     </div>
   </div>
@@ -80,9 +82,11 @@
         </div>
         <div class="card-body">
           <div class="plot-container mb-3">
-            <plotly-plot [config]="configAverage" [divId]="_data()[dataService.rawForm.primaryIDs]+'average'"
-                         [data]="graphDataAverage" [layout]="graphLayoutAverage"
-                         [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
+            @if (graphDataAverage.length > 0) {
+              <plotly-plot [config]="configAverage" [divId]="_data()[dataService.rawForm.primaryIDs]+'average'"
+                           [data]="graphDataAverage" [layout]="graphLayoutAverage"
+                           [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
+            }
           </div>
           <div class="row g-2 align-items-center">
             <div class="col-md-6">
@@ -124,9 +128,11 @@
         </div>
         <div class="card-body">
           <div class="plot-container">
-            <plotly-plot [config]="configViolin" [divId]="_data()[dataService.rawForm.primaryIDs]+'violin'"
-                         [data]="graphDataViolin" [layout]="graphLayoutViolin"
-                         [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
+            @if (graphDataViolin.length > 0) {
+              <plotly-plot [config]="configViolin" [divId]="_data()[dataService.rawForm.primaryIDs]+'violin'"
+                           [data]="graphDataViolin" [layout]="graphLayoutViolin"
+                           [updateOnDataChange]="true" [updateOnLayoutChange]="true"></plotly-plot>
+            }
           </div>
         </div>
       </div>

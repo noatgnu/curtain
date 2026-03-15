@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {WebsocketService} from "../../websocket.service";
 import {FormBuilder, FormControl} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
@@ -10,7 +10,8 @@ import QRCodeStyling, {Options} from "qr-code-styling";
     selector: 'app-collaborate-modal',
     templateUrl: './collaborate-modal.component.html',
     styleUrls: ['./collaborate-modal.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CollaborateModalComponent implements OnInit, AfterViewInit {
   form = this.fb.group({

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, Output, EventEmitter, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 
 export interface InteractiveSVGNode {
@@ -46,7 +46,8 @@ export interface EdgeClickEvent {
   selector: 'app-interactive-network',
   templateUrl: './interactive-network.component.html',
   styleUrl: './interactive-network.component.scss',
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InteractiveNetworkComponent implements AfterViewInit, OnDestroy {
   @ViewChild('networkContainer', { static: false }) networkContainer!: ElementRef<HTMLElement>;

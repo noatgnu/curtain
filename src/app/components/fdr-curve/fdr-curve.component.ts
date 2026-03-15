@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {SettingsService} from "../../settings.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
@@ -6,7 +6,8 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
     selector: 'app-fdr-curve',
     templateUrl: './fdr-curve.component.html',
     styleUrls: ['./fdr-curve.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FdrCurveComponent implements OnInit {
   fdrCurveText: string = ""

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import {SettingsService} from "../../settings.service";
 import {FormsModule} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
@@ -9,7 +9,8 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
     FormsModule
   ],
   templateUrl: './log-file-modal.component.html',
-  styleUrl: './log-file-modal.component.scss'
+  styleUrl: './log-file-modal.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LogFileModalComponent {
   selectedLogFile = signal(-1);

@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {InteractomeAtlasService} from "../../interactome-atlas.service";
 import {UniprotService} from "../../uniprot.service";
 import {DataService} from "../../data.service";
@@ -10,16 +10,17 @@ import {getInteractomeAtlas} from "curtain-web-api";
 import {AccountsService} from "../../accounts/accounts.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {ThemeService} from "../../theme.service";
-import {Subscription} from "rxjs";
+import {Subject, takeUntil} from "rxjs";
 
 @Component({
     selector: 'app-interactome-atlas',
     templateUrl: './interactome-atlas.component.html',
     styleUrls: ['./interactome-atlas.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InteractomeAtlasComponent implements OnInit, OnDestroy {
-  private themeSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
   @ViewChild("cytoplot") cytoplot: CytoplotComponent | undefined
   get data(): any {
     return this._data;
@@ -80,30 +81,30 @@ export class InteractomeAtlasComponent implements OnInit, OnDestroy {
     "Literature": "rgba(181,151,222,0.96)",
     "HI-Union and Literature": "rgba(222,178,151,0.96)",
   })
-  constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService, private themeService: ThemeService) {
-    this.dataService.interactomeDBColorMapSubject.asObservable().subscribe(data => {
-      if (data) {
+  constructor(private fb: FormBuilder, private toast: ToastService, private accounts: AccountsService, private uniprot: UniprotService, private dataService: DataService, private settings: SettingsService, private themeService: ThemeService, private cdr: ChangeDetectorRef) {
+    this.dataService.interactomeDBColorMapChanged$.pipe(takeUntil(this.destroy$)).subscribe(counter => {
+      if (counter > 0) {
         for (const i in this.settings.settings.interactomeAtlasColorMap) {
           this.colorMap[i] = this.settings.settings.interactomeAtlasColorMap[i].slice()
           this.form.controls[i].setValue(this.colorMap[i])
         }
         this.form.markAsPristine()
+        this.cdr.markForCheck();
       }
     })
   }
 
   ngOnInit(): void {
-    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       if (this._data) {
-        this.getInteractions().then();
+        this.getInteractions().then(() => this.cdr.markForCheck());
       }
     });
   }
 
   ngOnDestroy(): void {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async getInteractions() {
@@ -112,7 +113,7 @@ export class InteractomeAtlasComponent implements OnInit, OnDestroy {
         for (const i in this.form.value) {
           this.settings.settings.interactomeAtlasColorMap[i] = this.form.value[i]
         }
-        this.dataService.interactomeDBColorMapSubject.next(true)
+        this.dataService.triggerInteractomeDBColorMapChange()
       }
       this.hasError = false
       try {

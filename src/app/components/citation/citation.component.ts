@@ -1,11 +1,12 @@
-import {Component, input, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input, OnInit, signal} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: 'app-citation',
     templateUrl: './citation.component.html',
     styleUrls: ['./citation.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CitationComponent implements OnInit {
   resourceName = input("UniProt")

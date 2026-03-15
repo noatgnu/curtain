@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbDropdownModule, NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { ThemeService, ThemeName } from '../../theme.service';
@@ -14,7 +14,8 @@ import { Subject, takeUntil } from 'rxjs';
   standalone: true,
   imports: [CommonModule, NgbDropdownModule, NgbTooltipModule],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss'
+  styleUrl: './navbar.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   lastAutoSave: Date | null = null;
@@ -32,14 +33,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
     public themeService: ThemeService,
     public accounts: AccountsService,
     public autoSave: AutoSaveService,
-    private modal: NgbModal
+    private modal: NgbModal,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadLastAutoSaveTime();
-    this.autoSave.autoSaveTrigger.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    this.autoSave.autoSaveTrigger$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.lastAutoSave = new Date();
       this.saveLastAutoSaveTime();
+      this.cdr.markForCheck();
     });
   }
 

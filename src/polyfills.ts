@@ -46,9 +46,9 @@ import '@angular/localize/init';
  *
  */
 /***************************************************************************************************
- * Zone JS is required by default for Angular itself.
+ * Zone JS is no longer required - using zoneless Angular.
  */
-import 'zone.js';  // Included with Angular CLI.
+// import 'zone.js';  // Removed for zoneless mode
 
 
 /***************************************************************************************************

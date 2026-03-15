@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, OnDestroy, ViewChild, signal } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UniprotService } from '../../uniprot.service';
 import { DataService } from '../../data.service';
@@ -6,14 +6,17 @@ import { SettingsService } from '../../settings.service';
 import { IDataFrame } from 'data-forge';
 import { StringNetworkService, InteractiveSVGParams } from './string-network.service';
 import { InteractiveNetworkComponent, NetworkColorMap, NodeClickEvent, EdgeClickEvent } from './interactive-network/interactive-network.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-string-network',
   templateUrl: './string-network.component.html',
   styleUrl: './string-network.component.scss',
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StringNetworkComponent implements OnInit {
+export class StringNetworkComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   @ViewChild(InteractiveNetworkComponent) interactiveNetwork!: InteractiveNetworkComponent;
 
   @Input() set uniProtData(value: string) {
@@ -104,10 +107,11 @@ export class StringNetworkComponent implements OnInit {
     private uniprot: UniprotService,
     private data: DataService,
     private settings: SettingsService,
-    private stringService: StringNetworkService
+    private stringService: StringNetworkService,
+    private cdr: ChangeDetectorRef
   ) {
-    this.data.stringDBColorMapSubject.asObservable().subscribe((data) => {
-      if (data) {
+    this.data.stringDBColorMapChanged$.pipe(takeUntil(this.destroy$)).subscribe((counter) => {
+      if (counter > 0) {
         const currentMap = this.colorMap();
         for (const i in this.settings.settings.stringDBColorMap) {
           currentMap[i] = this.settings.settings.stringDBColorMap[i].slice();
@@ -115,6 +119,7 @@ export class StringNetworkComponent implements OnInit {
         }
         this.colorMap.set({ ...currentMap });
         this.form.markAsPristine();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -122,12 +127,17 @@ export class StringNetworkComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   async loadNetwork() {
     if (this.form.dirty) {
       for (const i in this.form.value) {
         this.settings.settings.stringDBColorMap[i] = this.form.value[i];
       }
-      this.data.stringDBColorMapSubject.next(true);
+      this.data.triggerStringDBColorMapChange();
     }
 
     if (this.requiredScore > 1000) {

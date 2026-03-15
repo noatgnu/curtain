@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges} from '@angular/core';
 import { InputFile } from 'src/app/classes/input-file';
 import { Raw } from 'src/app/classes/raw';
 import {Differential} from "../../../classes/differential";
@@ -16,6 +16,7 @@ import {ToastService} from "../../../toast.service";
 import {QuillEditorComponent} from "ngx-quill";
 import {NgClass} from "@angular/common";
 import {ColorPickerDirective} from "ngx-color-picker";
+import {Subject, takeUntil} from "rxjs";
 
 @Component({
   selector: 'app-individual-session',
@@ -35,9 +36,11 @@ import {ColorPickerDirective} from "ngx-color-picker";
     UniprotService,
     DataService,
     SettingsService
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class IndividualSessionComponent implements OnChanges, AfterViewInit {
+export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   @Input() sessionId: number = -1;
   private _session: {data: {
     raw: InputFile,
@@ -136,18 +139,24 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
   loadingCollections: boolean = false
   isCreatingCollection: boolean = false
   constructor(private fb: FormBuilder, private toast: ToastService, public accounts: AccountsService, private batchService: BatchUploadServiceService, private data: DataService, private uniprot: UniprotService, private cd: ChangeDetectorRef, public settings: SettingsService) {
-    this.batchService.taskStartAnnouncer.subscribe((taskId: number) => {
+    this.batchService.taskStart$.pipe(takeUntil(this.destroy$)).subscribe((taskId: number) => {
       if (taskId === this.sessionId) {
-        this.startWork().then()
+        this.startWork().then(() => this.cd.markForCheck())
       }
     })
-    this.batchService.resetAnnouncer.subscribe((taskId: number) => {
-      if (taskId === this.sessionId) {
+    this.batchService.reset$.pipe(takeUntil(this.destroy$)).subscribe((counter) => {
+      if (counter > 0) {
         this.data.reset()
         this.uniprot.reset()
+        this.cd.markForCheck();
       }
     })
     this.colorPalletes = Object.keys(this.data.palette)
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngAfterViewInit() {
@@ -305,6 +314,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
         if (data.data) {
           if (data.data.type === "progress") {
             this.updateProgressBar(data.data.value, data.data.text)
+            this.cd.markForCheck();
           } else {
             if (data.data.type === "resultDifferential") {
               this.data.differential.df = fromJSON(data.data.differential)
@@ -355,6 +365,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
                 settings: Object.assign({}, this.settings.settings)
               })
               this.data.raw.df = new DataFrame()
+              this.cd.markForCheck();
             } else if (data.data.type === "resultRaw") {
 
               this.data.raw.df = fromJSON(data.data.raw)
@@ -377,6 +388,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
                       this.addDefaultColors();
                       this.processUniProt()
                       worker.terminate()
+                      this.cd.markForCheck();
                     })
                   })
                 }
@@ -387,6 +399,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
           }
         } else {
           worker.terminate()
+          this.cd.markForCheck();
         }
 
       };
@@ -422,7 +435,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
 
       if (!this.data.bypassUniProt) {
         this.uniprot.geneNameToAcc = {}
-        this.uniprot.uniprotParseStatus.next(false)
+        this.uniprot.parseStatus.set(false)
         const accList: string[] = []
         this.data.dataMap = new Map<string, string>()
         this.data.genesMap = {}
@@ -469,7 +482,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit {
           this.uniprot.db = new Map<string, any>()
           this.createUniprotDatabase(accList).then((allGenes: any) => {
             this.data.allGenes = allGenes
-            this.uniprot.uniprotParseStatus.next(false)
+            this.uniprot.parseStatus.set(false)
             this.updateProgressBar(100, "Finished")
             // @ts-ignore
             this.payload = this.createPayload(this.session.data.permanent)

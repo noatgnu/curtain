@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import {DataService} from "../../data.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {WebService} from "../../web.service";
@@ -8,7 +8,8 @@ import {UniprotService} from "../../uniprot.service";
     selector: 'app-primary-id-export-modal',
     imports: [],
     templateUrl: './primary-id-export-modal.component.html',
-    styleUrl: './primary-id-export-modal.component.scss'
+    styleUrl: './primary-id-export-modal.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PrimaryIdExportModalComponent {
   selections: string[] = []

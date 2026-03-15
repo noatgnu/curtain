@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountsService } from '../../accounts/accounts.service';
 import { CommonModule } from '@angular/common';
@@ -31,6 +31,7 @@ interface Collection {
   imports: [CommonModule, FormsModule],
   templateUrl: './collection-management-modal.component.html',
   styleUrl: './collection-management-modal.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CollectionManagementModalComponent implements OnInit {
   @Input() linkId: string = '';
@@ -43,7 +44,8 @@ export class CollectionManagementModalComponent implements OnInit {
   constructor(
     public activeModal: NgbActiveModal,
     private accounts: AccountsService,
-    private toast: ToastService
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -60,6 +62,7 @@ export class CollectionManagementModalComponent implements OnInit {
       console.error('Failed to load collections:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -98,6 +101,7 @@ export class CollectionManagementModalComponent implements OnInit {
       console.error('Failed to toggle collection:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -113,6 +117,7 @@ export class CollectionManagementModalComponent implements OnInit {
         console.error('Failed to create collection:', error);
       } finally {
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     }
   }
@@ -132,6 +137,7 @@ export class CollectionManagementModalComponent implements OnInit {
       console.error('Failed to toggle collection sharing:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck();
     }
   }
 

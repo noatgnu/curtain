@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {SettingsService} from "../../settings.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
@@ -8,7 +8,8 @@ import {DataService} from "../../data.service";
     selector: 'app-sample-condition-assignment-modal',
     templateUrl: './sample-condition-assignment-modal.component.html',
     styleUrls: ['./sample-condition-assignment-modal.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SampleConditionAssignmentModalComponent implements OnInit {
   samples: string[] = []
@@ -89,7 +90,7 @@ export class SampleConditionAssignmentModalComponent implements OnInit {
     this.settings.settings.sampleMap = this.sampleMap
     console.log(this.sampleMap)
     this.dataService.conditions = conditions.slice()
-    this.dataService.redrawTrigger.next(true)
+    this.dataService.triggerRedraw()
     this.modal.close()
   }
 

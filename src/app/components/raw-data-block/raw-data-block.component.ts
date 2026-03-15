@@ -1,11 +1,11 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DataService} from "../../data.service";
 import {UniprotService} from "../../uniprot.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {PdbViewerComponent} from "../pdb-viewer/pdb-viewer.component";
 import {ScrollService} from "../../scroll.service";
 import {SettingsService} from "../../settings.service";
-import {Subject, Subscription} from "rxjs";
+import {Subject, Subscription, takeUntil} from "rxjs";
 import {FormBuilder} from "@angular/forms";
 import {ISeries} from "data-forge";
 import {LipidmapsService} from "../../lipidmaps.service";
@@ -14,9 +14,11 @@ import {LipidmapsService} from "../../lipidmaps.service";
     selector: 'app-raw-data-block',
     templateUrl: './raw-data-block.component.html',
     styleUrls: ['./raw-data-block.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RawDataBlockComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   _data: any = {}
   title = ""
   uni: any = null
@@ -135,8 +137,8 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
   })
   annotateSubscription = new Subscription()
   profilePlotSubscription = new Subscription()
-  constructor(private lipidMaps: LipidmapsService, private scroll: ScrollService, public dataService: DataService, private uniprot: UniprotService, private modal: NgbModal, public settings: SettingsService, private fb: FormBuilder) {
-    this.dataService.finishedProcessingData.asObservable().subscribe((value) => {
+  constructor(private lipidMaps: LipidmapsService, private scroll: ScrollService, public dataService: DataService, private uniprot: UniprotService, private modal: NgbModal, public settings: SettingsService, private fb: FormBuilder, private cdr: ChangeDetectorRef) {
+    this.dataService.finishedProcessing$.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       if (value) {
         if (this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]]) {
           this.foundIn = Object.keys(this.dataService.selectedMap[this._data[this.dataService.rawForm.primaryIDs]])
@@ -157,13 +159,16 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
         }
       }
       this.form.controls["profilePlot"].setValue(this.settings.settings.selectedComparison.includes(this.primaryID))
+      this.cdr.markForCheck();
     })
 
-    this.dataService.batchAnnotateAnnoucement.asObservable().subscribe((value: any) => {
+    this.dataService.batchAnnotate$.pipe(takeUntil(this.destroy$)).subscribe((value: any) => {
+      if (!value) return;
       this.form.controls["profilePlot"].setValue(this.settings.settings.selectedComparison.includes(this.primaryID))
       if (value.id === this.primaryID || value.id.includes(this.primaryID)) {
         this.form.controls["annotate"].setValue(!value.remove)
       }
+      this.cdr.markForCheck();
     })
   }
 
@@ -198,8 +203,8 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
   }
 
   annotate() {
-    this.dataService.annotationService.next({
-      id: this.primaryID,
+    this.dataService.annotationEvent.set({
+      id: [this.primaryID],
       remove: !this.form.value.annotate
     })
   }
@@ -209,6 +214,8 @@ export class RawDataBlockComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.annotateSubscription.unsubscribe()
     this.profilePlotSubscription.unsubscribe()
   }

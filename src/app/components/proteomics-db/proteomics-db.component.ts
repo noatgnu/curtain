@@ -1,11 +1,11 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { WebService } from "../../web.service";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { getProteomicsData } from "curtain-web-api";
 import { SettingsService } from "../../settings.service";
 import { PlotlyThemeService } from "../../plotly-theme.service";
 import { ThemeService } from "../../theme.service";
-import { Subscription } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { ToastService } from "../../toast.service";
 
 type DataCategory = 'tissue' | 'cell line';
@@ -28,10 +28,11 @@ interface Statistics {
   selector: 'app-proteomics-db',
   templateUrl: './proteomics-db.component.html',
   styleUrls: ['./proteomics-db.component.scss'],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProteomicsDbComponent implements OnInit, OnDestroy {
-  private themeSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
   revision = 0;
 
   _uniprotID = "";
@@ -84,24 +85,25 @@ export class ProteomicsDbComponent implements OnInit, OnDestroy {
     public settings: SettingsService,
     private plotlyTheme: PlotlyThemeService,
     private themeService: ThemeService,
-    private toast: ToastService
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef
   ) {
-    this.form.valueChanges.subscribe(() => {
+    this.form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.fetchData();
     });
   }
 
   ngOnInit(): void {
-    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.updateLayout();
       this.revision++;
+      this.cdr.markForCheck();
     });
   }
 
   ngOnDestroy(): void {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private async fetchData(): Promise<void> {
@@ -133,6 +135,7 @@ export class ProteomicsDbComponent implements OnInit, OnDestroy {
       this.statistics = null;
     } finally {
       this.loading = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -342,6 +345,7 @@ export class ProteomicsDbComponent implements OnInit, OnDestroy {
 
     navigator.clipboard.writeText(text).then(() => {
       this.toast.show("Clipboard", "Data copied to clipboard").then();
+      this.cdr.markForCheck();
     });
   }
 

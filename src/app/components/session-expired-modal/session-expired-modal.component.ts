@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: 'app-session-expired-modal',
     templateUrl: './session-expired-modal.component.html',
     styleUrls: ['./session-expired-modal.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SessionExpiredModalComponent implements OnInit {
 

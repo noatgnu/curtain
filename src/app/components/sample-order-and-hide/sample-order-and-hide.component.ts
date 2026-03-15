@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import {DataService} from "../../data.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {SettingsService} from "../../settings.service";
@@ -7,7 +7,8 @@ import {SettingsService} from "../../settings.service";
     selector: 'app-sample-order-and-hide',
     templateUrl: './sample-order-and-hide.component.html',
     styleUrls: ['./sample-order-and-hide.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SampleOrderAndHideComponent implements OnInit {
   samples: any = {}
@@ -158,7 +159,7 @@ export class SampleOrderAndHideComponent implements OnInit {
       }
     }
     this.settings.settings.sampleMap = sampleMap
-    this.dataService.redrawTrigger.next(true)
+    this.dataService.triggerRedraw()
     this.modal.close()
   }
 
@@ -205,7 +206,7 @@ export class SampleOrderAndHideComponent implements OnInit {
       this.settings.settings.viewPeptideCount = false;
       this.enablePeptideCount = false;
       // Trigger a redraw to update the UI
-      this.dataService.redrawTrigger.next(true);
+      this.dataService.triggerRedraw();
     }
   }
 

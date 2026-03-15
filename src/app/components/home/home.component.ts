@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, effect } from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, signal, effect} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {DataService} from "../../data.service";
 import {selectionData} from "../protein-selections/protein-selections.component";
@@ -54,7 +54,7 @@ import {
 } from "../selected-data-distribution-plot/selected-data-distribution-plot.component";
 import {SaveStateService} from "../../save-state.service";
 import {LocalSessionStateModalComponent} from "../local-session-state-modal/local-session-state-modal.component";
-import {Subscription} from "rxjs";
+import {Subject, takeUntil} from "rxjs";
 import {EnrichrModalComponent} from "../enrichr-modal/enrichr-modal.component";
 import {
   SampleConditionAssignmentModalComponent
@@ -94,9 +94,11 @@ import {environment} from "../../../environments/environment";
     selector: 'app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   showAlert = signal(true);
   animate = signal(false);
   isDOI = signal(false);
@@ -117,14 +119,13 @@ export class HomeComponent implements OnInit {
   uniqueLink: string = ""
   filterModel: string = ""
   currentID: string = ""
-  subscription: Subscription = new Subscription()
   progressEvent: any = {}
 
   sessionCollections: any[] = []
   selectedCollectionId: number | null = null
   loadingCollections: boolean = false
   sessionLinkMinimized = signal(false)
-  constructor(public themeService: ThemeService, private saveState: SaveStateService, private ws: WebsocketService, public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, public settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService) {
+  constructor(public themeService: ThemeService, private saveState: SaveStateService, private ws: WebsocketService, public accounts: AccountsService, private toast: ToastService, private modal: NgbModal, private route: ActivatedRoute, public data: DataService, public settings: SettingsService, public web: WebService, private uniprot: UniprotService, private scroll: ScrollService, private cdr: ChangeDetectorRef) {
     // if (location.protocol === "https:" && location.hostname === "curtainptm.proteo.info") {
     //   this.toast.show("Initialization", "Error: The webpage requires the url protocol to be http instead of https")
     // }
@@ -140,17 +141,18 @@ export class HomeComponent implements OnInit {
       localStorage.setItem("CurtainGDPR", this.gdprAccepted().toString())
     })
 
-    this.data.clearWatcher.asObservable().subscribe(data => {
-      if (data) {
+    this.data.clearWatcher$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+      if (data > 0) {
         this.hasSavedClearSettings = signal(localStorage.getItem('curtainClearSettingsSelection') !== null);
         this.rawFiltered = new DataFrame()
-        this.data.selectionUpdateTrigger.next(true)
+        this.data.triggerSelectionUpdate()
+        this.cdr.markForCheck();
       }
     })
 
     this.initialize().then(
       () => {
-        this.route.params.subscribe(params => {
+        this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
           this.isDOI.set(false)
           this.loadingDataCite.set(false)
           this.accounts.isOwner = false
@@ -311,7 +313,7 @@ export class HomeComponent implements OnInit {
   async tryAlternateIdentifiers(alternateIdentifiers: any[], doiLink: string, index: number) {
     if (index < 0) {
       this.toast.show("Initialization", "Error: No valid alternate identifier found in DOI").then()
-      this.data.downloadProgress.next(100)
+      this.data.downloadProgress.set(100)
       return
     }
 
@@ -346,7 +348,7 @@ export class HomeComponent implements OnInit {
         if (this.data.session) {
           this.data.session.permanent = true
         }
-        this.data.restoreTrigger.next(true)
+        this.data.triggerRestore()
       })
     } else {
       throw new Error("No data returned from alternate identifier")
@@ -399,7 +401,7 @@ export class HomeComponent implements OnInit {
                 this.data.session = d.data
                 this.settings.settings.currentID = d.data.link_id
                 this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
-                this.data.restoreTrigger.next(true)
+                this.data.triggerRestore()
               })
             })
             this.toast.show("Encryption", "Data decrypted").then()
@@ -429,7 +431,7 @@ export class HomeComponent implements OnInit {
                     this.data.session = d.data
                     this.settings.settings.currentID = d.data.link_id
                     this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
-                    this.data.restoreTrigger.next(true)
+                    this.data.triggerRestore()
                   })
                 })
               }
@@ -443,14 +445,14 @@ export class HomeComponent implements OnInit {
               this.data.session = d.data
               this.settings.settings.currentID = d.data.link_id
               this.uniqueLink = location.origin + "/#/" + this.settings.settings.currentID
-              this.data.restoreTrigger.next(true)
+              this.data.triggerRestore()
             })
           })
         }
       }
     } catch (error: any) {
       console.error("Error loading session:", error)
-      this.data.downloadProgress.next(100)
+      this.data.downloadProgress.set(100)
 
       // Check if this is a JSON parsing error
       if (error.message && error.message.includes("Failed to parse")) {
@@ -485,11 +487,9 @@ export class HomeComponent implements OnInit {
         console.warn('Failed to load draft DataCite count:', e)
       }
     }
-    if (this.subscription) {
-      this.subscription.unsubscribe()
-    }
-    this.subscription = this.uniprot.uniprotProgressBar.asObservable().subscribe((data: any) => {
+    this.uniprot.progressBar$.pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.progressEvent = data
+      this.cdr.markForCheck();
     })
     this.loadAnnouncements()
   }
@@ -497,21 +497,27 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     const currentDate = new Date();
-    const hideDate = new Date(currentDate.getFullYear(), 1, 20); // February is month 1 (0-indexed)
-    this.data.loadDataTrigger.asObservable().subscribe((data: boolean) => {
-      if (data) {
-        this.handleFinish(data)
-        this.data.redrawTrigger.next(true)
-        this.data.selectionUpdateTrigger.next(true)
+    const hideDate = new Date(currentDate.getFullYear(), 1, 20);
+    this.data.loadDataTrigger$.pipe(takeUntil(this.destroy$)).subscribe((counter: number) => {
+      if (counter > 0) {
+        this.handleFinish(true)
+        this.data.triggerRedraw()
+        this.data.triggerSelectionUpdate()
+        this.cdr.markForCheck();
       }
     })
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   handleFinish(e: boolean) {
     this.finished.set(e)
     if (this.finished()) {
       if (this.data.selected.length > 0) {
-        this.data.finishedProcessingData.next(e)
+        this.data.finishedProcessing.set(e)
 
         this.rawFiltered = this.data.raw.df.where(r => this.data.selected.includes(r[this.data.rawForm.primaryIDs])).bake()
         for (const s of this.rawFiltered) {
@@ -519,7 +525,7 @@ export class HomeComponent implements OnInit {
         }
       } else {
         this.rawFiltered = new DataFrame()
-        this.data.finishedProcessingData.next(e)
+        this.data.finishedProcessing.set(e)
       }
       console.log(this.rawFiltered)
       this.finished.set(true)
@@ -573,7 +579,7 @@ export class HomeComponent implements OnInit {
       this.rawFiltered = rawFiltered
     }
     console.log(this.rawFiltered)
-    this.data.selectionUpdateTrigger.next(true)
+    this.data.triggerSelectionUpdate()
   }
 
   scrollTo() {
@@ -698,11 +704,11 @@ export class HomeComponent implements OnInit {
             expiry_duration: expiryDuration,
             enable: !this.accounts.curtainAPI.user.loginStatus,
             onProgress: (progress: number) => {
-              this.uniprot.uniprotProgressBar.next({
+              this.uniprot.progressBar.set({
                 value: progress,
                 text: `Uploading session data at ${Math.round(progress)}%`
               })
-              this.data.uploadProgress.next(progress)
+              this.data.uploadProgress.set(progress)
             }
           }
         )
@@ -716,7 +722,7 @@ export class HomeComponent implements OnInit {
           this.permanent.set(response.curtain.permanent)
           this.sessionLinkMinimized.set(false)
           this.accounts.isOwner = true
-          this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
+          this.uniprot.progressBar.set({value: 100, text: "Session data saved"})
           await this.loadSessionCollections(response.curtain.link_id)
         }
       } catch (err) {
@@ -740,18 +746,18 @@ export class HomeComponent implements OnInit {
         this.permanent.set(data.data.permanent)
         this.sessionLinkMinimized.set(false)
         this.accounts.isOwner = true
-        this.uniprot.uniprotProgressBar.next({value: 100, text: "Session data saved"})
+        this.uniprot.progressBar.set({value: 100, text: "Session data saved"})
       }
     }).catch(err => {
       console.log(err)
-      this.data.uploadProgress.next(100)
+      this.data.uploadProgress.set(100)
       this.toast.show("User information", "Curtain link cannot be saved").then()
     })
   }
 
   onUploadProgress = (progressEvent: any) => {
-    this.uniprot.uniprotProgressBar.next({value: progressEvent.progress * 100, text: "Uploading session data at " + Math.round(progressEvent.progress *100) + "%"})
-    this.data.uploadProgress.next(progressEvent.progress * 100)
+    this.uniprot.progressBar.set({value: progressEvent.progress * 100, text: "Uploading session data at " + Math.round(progressEvent.progress *100) + "%"})
+    this.data.uploadProgress.set(progressEvent.progress * 100)
   }
 
   async restoreSettings(object: any) {
@@ -989,7 +995,7 @@ export class HomeComponent implements OnInit {
       if (settingsToClear['annotatedData']) {
         this.data.annotatedData = {}
       }
-      this.data.clearWatcher.next(true)
+      this.data.triggerClearWatcher()
     } else {
       const ref = this.modal.open(AreYouSureClearModalComponent)
       ref.closed.subscribe(data => {
@@ -1012,7 +1018,7 @@ export class HomeComponent implements OnInit {
           if (data.annotatedData) {
             this.data.annotatedData = {}
           }
-          this.data.clearWatcher.next(true)
+          this.data.triggerClearWatcher()
         }
       })
     }
@@ -1089,7 +1095,7 @@ export class HomeComponent implements OnInit {
     const pageNumber = Math.ceil(this.rawFiltered.count()/this.data.pageSize)
     for (let i = 1; i <= pageNumber; i++) {
       this.data.page = i
-      this.data.externalBarChartDownloadTrigger.next(true)
+      this.data.triggerBarChartDownload()
     }
 
   }
@@ -1129,12 +1135,12 @@ export class HomeComponent implements OnInit {
 
   onDownloadProgress = (progressEvent: any) => {
     if (progressEvent.progress) {
-      this.uniprot.uniprotProgressBar.next({value: progressEvent.progress *100, text: "Downloading session data at " + Math.round(progressEvent.progress * 100) + "%"})
-      this.data.downloadProgress.next(progressEvent.progress*100)
+      this.uniprot.progressBar.set({value: progressEvent.progress *100, text: "Downloading session data at " + Math.round(progressEvent.progress * 100) + "%"})
+      this.data.downloadProgress.set(progressEvent.progress*100)
     } else {
       const sizeDownloaded = (progressEvent.loaded / (1024*1024)).toFixed(2)
-      this.uniprot.uniprotProgressBar.next({value: 100, text: "Downloading session data at " + sizeDownloaded + " MB"})
-      this.data.downloadProgress.next(100)
+      this.uniprot.progressBar.set({value: 100, text: "Downloading session data at " + sizeDownloaded + " MB"})
+      this.data.downloadProgress.set(100)
     }
 
   }
@@ -1164,7 +1170,7 @@ export class HomeComponent implements OnInit {
           this.settings.settings.enrichrGeneRankMap[i] = data.geneRankMap[i]
         }
         this.settings.settings.enrichrRunList.push(data.library)
-        this.data.finishedProcessingData.next(true)
+        this.data.finishedProcessing.set(true)
       }
     })
   }
@@ -1312,7 +1318,7 @@ export class HomeComponent implements OnInit {
   openPeptideCountModal() {
     const ref = this.modal.open(LoadPeptideCountDataModalComponent, {scrollable: true})
     ref.closed.subscribe(data => {
-      this.data.redrawTrigger.next(true)
+      this.data.triggerRedraw()
     })
   }
 
@@ -1389,7 +1395,7 @@ export class HomeComponent implements OnInit {
           })
           console.log(this.settings.settings.imputationMap)
           this.toast.show("Imputation", "Imputation map has been created").then()
-          this.data.redrawTrigger.next(true)
+          this.data.triggerRedraw()
         }
       }
     })

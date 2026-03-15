@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AccountsService } from '../../accounts/accounts.service';
 import { CurtainCollection, AccessibleCurtain } from 'curtain-web-api';
@@ -13,6 +13,7 @@ import { environment } from '../../../environments/environment';
   imports: [CommonModule, NgbProgressbarModule],
   templateUrl: './collection-landing.component.html',
   styleUrl: './collection-landing.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CollectionLandingComponent implements OnInit, OnDestroy {
   collection = signal<CurtainCollection | null>(null);

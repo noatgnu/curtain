@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NgbActiveModal, NgbTypeahead, NgbTypeaheadSelectItemEvent} from "@ng-bootstrap/ng-bootstrap";
 import {WebService} from "../../web.service";
 import {DataService} from "../../data.service";
@@ -13,16 +13,18 @@ import {
   of,
   OperatorFunction, Subject,
   switchMap,
-  tap, filter, merge
+  tap, filter, merge, takeUntil
 } from "rxjs";
 
 @Component({
     selector: 'app-batch-search',
     templateUrl: './batch-search.component.html',
     styleUrls: ['./batch-search.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BatchSearchComponent implements OnInit {
+export class BatchSearchComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   @ViewChild('instance', { static: true }) instance: NgbTypeahead | undefined;
   data: string = ""
   searchType: "Gene Names"| "Primary IDs" = "Gene Names"
@@ -120,7 +122,7 @@ export class BatchSearchComponent implements OnInit {
     subcategory: [""]
   })
 
-  constructor(private modal: NgbActiveModal, public web: WebService, private accounts: AccountsService, private dataService: DataService, private fb: FormBuilder) {
+  constructor(private modal: NgbActiveModal, public web: WebService, private accounts: AccountsService, private dataService: DataService, private fb: FormBuilder, private cdr: ChangeDetectorRef) {
     this.builtInList = Object.keys(this.web.filters)
     this.params.maxFCRight = Math.abs(this.dataService.minMax.fcMax)
     this.params.maxFCLeft = Math.abs(this.dataService.minMax.fcMin)
@@ -132,21 +134,22 @@ export class BatchSearchComponent implements OnInit {
         if (this.categories.length > 0) {
           this.formCategories.controls["category"].setValue(this.categories[0])
         }
-
+        this.cdr.markForCheck();
       }
     })
 
-    this.formCategories.controls["category"].valueChanges.subscribe((value: string|null) => {
+    this.formCategories.controls["category"].valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value: string|null) => {
       if (value && value !== "") {
         this.accounts.curtainAPI.getDataFilterListByCategory(value).then((data: any) => {
           if (data) {
             this.subcategories = data.data.results
+            this.cdr.markForCheck();
           }
         })
       }
     })
 
-    this.formCategories.controls["subcategory"].valueChanges.subscribe((value: any) => {
+    this.formCategories.controls["subcategory"].valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value: any) => {
       if (value && value !== "") {
         this.updateTextArea(value)
       }
@@ -192,6 +195,7 @@ export class BatchSearchComponent implements OnInit {
       this.title = data.data.name
       this.canDelete = !data.data.default
       this.currentID = data.data.id
+      this.cdr.markForCheck();
     })
   }
 
@@ -271,11 +275,11 @@ export class BatchSearchComponent implements OnInit {
 
   saveDataFilterList() {
     this.accounts.curtainAPI.saveDataFilterList(this.title, this.data).then((data:any) => {
-      //this.getAllList()
       this.data = data.data.data
       this.title = data.data.name
       this.canDelete = !data.data.default
       this.currentID = data.data.id
+      this.cdr.markForCheck();
     })
   }
 
@@ -284,10 +288,15 @@ export class BatchSearchComponent implements OnInit {
       this.title = ""
       this.data = ""
       this.currentID = -1
-      //this.getAllList()
+      this.cdr.markForCheck();
     })
   }
   selectDataList(event: NgbTypeaheadSelectItemEvent) {
     this.updateTextArea(event.item.id)
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

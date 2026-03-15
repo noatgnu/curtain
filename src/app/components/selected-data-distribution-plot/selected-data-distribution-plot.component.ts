@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { DataService } from "../../data.service";
 import { SettingsService } from "../../settings.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -6,7 +6,7 @@ import { PlotlyThemeService } from "../../plotly-theme.service";
 import { ThemeService } from "../../theme.service";
 import { WebService } from "../../web.service";
 import { ToastService } from "../../toast.service";
-import { Subscription } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 type PlotType = 'violin' | 'box' | 'histogram';
 type Orientation = 'vertical' | 'horizontal';
@@ -28,10 +28,11 @@ interface SelectionStats {
   selector: 'app-selected-data-distribution-plot',
   templateUrl: './selected-data-distribution-plot.component.html',
   styleUrls: ['./selected-data-distribution-plot.component.scss'],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy {
-  private themeSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
   revision = 0;
   graphData: any[] = [];
   graphLayout: any = {};
@@ -73,24 +74,25 @@ export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy 
     private plotlyTheme: PlotlyThemeService,
     private themeService: ThemeService,
     private web: WebService,
-    private toast: ToastService
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef
   ) {
     this.initializeGroups();
   }
 
   ngOnInit(): void {
-    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.updateLayout();
       this.revision++;
+      this.cdr.markForCheck();
     });
 
     this.drawPlot();
   }
 
   ngOnDestroy(): void {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private initializeGroups(): void {
@@ -171,6 +173,7 @@ export class SelectedDataDistributionPlotComponent implements OnInit, OnDestroy 
     } finally {
       this.loading = false;
       this.loadingMessage = '';
+      this.cdr.markForCheck();
     }
   }
 

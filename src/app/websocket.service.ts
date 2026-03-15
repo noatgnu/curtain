@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import {AccountsService} from "./accounts/accounts.service";
-import {Observable, Observer, Subject} from "rxjs";
+import {Observable} from "rxjs";
 import {WebSocketSubject} from "rxjs/internal/observable/dom/WebSocketSubject";
 import * as readableIDs from "uuid-readable";
+import { toObservable } from '@angular/core/rxjs-interop';
 
 
 @Injectable({
@@ -16,7 +17,9 @@ export class WebsocketService {
   personalID: string = readableIDs.short(crypto.randomUUID()).replace(/\s/g, "")
 
   displayName: string = "Anonymous"
-  reSubscribeSubject: Subject<boolean> = new Subject<boolean>()
+  private readonly _resubscribeCounter = signal(0);
+  readonly resubscribeCounter = this._resubscribeCounter.asReadonly();
+  readonly resubscribe$ = toObservable(this._resubscribeCounter);
   connectingEvent: boolean = false
   connectingJob: boolean = false
   constructor(private accounts: AccountsService) {
@@ -87,7 +90,7 @@ export class WebsocketService {
     this.closeEvent()
     this.eventConnection = this.connectEvent()
     if (this.eventConnection) {
-      this.reSubscribeSubject.next(true)
+      this._resubscribeCounter.update(v => v + 1);
     }
     console.log("reconnected to " + this.sessionID)
   }

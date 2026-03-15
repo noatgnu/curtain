@@ -3,10 +3,14 @@
 </div>
 <div class="modal-body">
   <div>
-    <plotly-plot [data]="graphDataCreated" [layout]="graphLayoutCreated"></plotly-plot>
+    @if (graphDataCreated.length > 0) {
+      <plotly-plot [data]="graphDataCreated" [layout]="graphLayoutCreated"></plotly-plot>
+    }
   </div>
   <div>
-    <plotly-plot [data]="graphDataDownload" [layout]="graphLayoutDownload"></plotly-plot>
+    @if (graphDataDownload.length > 0) {
+      <plotly-plot [data]="graphDataDownload" [layout]="graphLayoutDownload"></plotly-plot>
+    }
   </div>
 </div>
 <div class="modal-footer">

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { SaveStateService } from "../../save-state.service";
 import { AutoSaveService } from "../../auto-save.service";
 import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
@@ -10,7 +10,8 @@ import { SelectiveImportDialogComponent } from '../selective-import-dialog/selec
   selector: 'app-local-session-state-modal',
   templateUrl: './local-session-state-modal.component.html',
   styleUrls: ['./local-session-state-modal.component.scss'],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LocalSessionStateModalComponent implements OnInit {
   states: SavedState[] = [];
@@ -29,7 +30,8 @@ export class LocalSessionStateModalComponent implements OnInit {
     private saveState: SaveStateService,
     private autoSaveService: AutoSaveService,
     private modal: NgbActiveModal,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private cdr: ChangeDetectorRef
   ) {
     this.getStates();
   }
@@ -103,6 +105,7 @@ export class LocalSessionStateModalComponent implements OnInit {
             this.modal.dismiss();
           }).catch(() => {});
         }
+        this.cdr.markForCheck();
       };
       reader.readAsText(file);
     }

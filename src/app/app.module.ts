@@ -1,4 +1,4 @@
-import { NgModule, isDevMode } from '@angular/core';
+import { NgModule, isDevMode, provideZonelessChangeDetection } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import * as PlotlyJS from 'plotly.js-dist-min';
 import {PlotlyModule} from 'angular-plotly.js';
@@ -168,5 +168,5 @@ import { SelectiveImportDialogComponent } from './components/selective-import-di
     AnnotationComponent,
     ShapesComponent,
     DataciteMetadataDisplayComponent,
-    DragDropModule], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()), StringNetworkService] })
+    DragDropModule], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()), StringNetworkService, provideZonelessChangeDetection()] })
 export class AppModule { }

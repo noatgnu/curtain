@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import {Enrichr} from "enrichrjs";
 import {DataService} from "../../data.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
@@ -9,7 +9,8 @@ import {UniprotService} from "../../uniprot.service";
     selector: 'app-enrichr-modal',
     templateUrl: './enrichr-modal.component.html',
     styleUrls: ['./enrichr-modal.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EnrichrModalComponent implements OnInit {
   enrichr: Enrichr = new Enrichr()
@@ -21,11 +22,12 @@ export class EnrichrModalComponent implements OnInit {
     library:[''],
   })
 
-  constructor(public data: DataService, private fb: FormBuilder, private modal: NgbActiveModal, private uniprot: UniprotService) {
+  constructor(public data: DataService, private fb: FormBuilder, private modal: NgbActiveModal, private uniprot: UniprotService, private cdr: ChangeDetectorRef) {
     this.enrichr.getLibraries().then((data: any) => {
       for (const i in data) {
         this.libraries.push(i)
       }
+      this.cdr.markForCheck();
     })
     this.form.controls['library'].setValue(this.libraries[0])
     this.form.controls['selectedSet'].setValue(this.data.selectOperationNames[0])

@@ -1,9 +1,9 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { WebService } from "../../web.service";
 import { SettingsService } from "../../settings.service";
 import { PlotlyThemeService } from "../../plotly-theme.service";
 import { ThemeService } from "../../theme.service";
-import { Subscription } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { ToastService } from "../../toast.service";
 
 interface Domain {
@@ -22,10 +22,11 @@ type ColorScheme = 'default' | 'categorical' | 'sequential' | 'custom';
   selector: 'app-protein-domain-plot',
   templateUrl: './protein-domain-plot.component.html',
   styleUrls: ['./protein-domain-plot.component.scss'],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProteinDomainPlotComponent implements OnInit, OnDestroy {
-  private themeSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
   revision = 0;
 
   _data: any[] = [];
@@ -84,20 +85,21 @@ export class ProteinDomainPlotComponent implements OnInit, OnDestroy {
     public settings: SettingsService,
     private plotlyTheme: PlotlyThemeService,
     private themeService: ThemeService,
-    private toast: ToastService
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.updateLayout();
       this.revision++;
+      this.cdr.markForCheck();
     });
   }
 
   ngOnDestroy(): void {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private processDomains(): void {
@@ -426,6 +428,7 @@ export class ProteinDomainPlotComponent implements OnInit, OnDestroy {
 
     navigator.clipboard.writeText(text).then(() => {
       this.toast.show("Clipboard", "Domain data copied to clipboard").then();
+      this.cdr.markForCheck();
     });
   }
 

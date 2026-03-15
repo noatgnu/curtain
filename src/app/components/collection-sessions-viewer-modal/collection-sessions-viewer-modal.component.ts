@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountsService } from '../../accounts/accounts.service';
 import { CommonModule } from '@angular/common';
@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   templateUrl: './collection-sessions-viewer-modal.component.html',
   styleUrl: './collection-sessions-viewer-modal.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CollectionSessionsViewerModalComponent implements OnInit {
   @Input() collectionId!: number;
@@ -19,7 +20,8 @@ export class CollectionSessionsViewerModalComponent implements OnInit {
 
   constructor(
     public activeModal: NgbActiveModal,
-    private accounts: AccountsService
+    private accounts: AccountsService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -42,6 +44,7 @@ export class CollectionSessionsViewerModalComponent implements OnInit {
       console.error('Failed to load collection details:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck();
     }
   }
 }

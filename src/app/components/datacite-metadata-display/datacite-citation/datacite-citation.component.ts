@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 // @ts-ignore
 import * as citation from "@citation-js/core";
 // @ts-ignore
@@ -16,7 +16,8 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
         FormsModule
     ],
     templateUrl: './datacite-citation.component.html',
-    styleUrl: './datacite-citation.component.scss'
+    styleUrl: './datacite-citation.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataciteCitationComponent implements OnInit {
   private _doi: string = ""
@@ -48,7 +49,7 @@ export class DataciteCitationComponent implements OnInit {
     return this._doi
   }
 
-  constructor(private modal: NgbActiveModal) {
+  constructor(private modal: NgbActiveModal, private cdr: ChangeDetectorRef) {
 
   }
 
@@ -69,8 +70,10 @@ export class DataciteCitationComponent implements OnInit {
       })
       this.data = output
       console.log(output)
+      this.cdr.markForCheck();
     } catch (error) {
       console.error("Error formatting citation:", error)
+      this.cdr.markForCheck();
     }
   }
 

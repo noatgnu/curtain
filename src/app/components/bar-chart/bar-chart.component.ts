@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, input, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, OnInit, signal} from '@angular/core';
 import {DataService} from "../../data.service";
 import {Series} from "data-forge";
 import {UniprotService} from "../../uniprot.service";
@@ -13,7 +13,8 @@ import {ThemeService} from "../../theme.service";
     selector: 'app-bar-chart',
     templateUrl: './bar-chart.component.html',
     styleUrls: ['./bar-chart.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BarChartComponent implements OnInit {
   private destroyRef = inject(DestroyRef)
@@ -210,7 +211,7 @@ export class BarChartComponent implements OnInit {
       this.graphLayoutViolin = this.plotlyTheme.applyThemeToLayout(this.graphLayoutViolin);
     });
 
-    this.dataService.externalBarChartDownloadTrigger.asObservable().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(trigger => {
+    this.dataService.barChartDownloadTrigger$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(trigger => {
       if (trigger) {
         const rawData = this._data()
         for (const i of ["bar", "average", "violin"]) {
@@ -242,7 +243,7 @@ export class BarChartComponent implements OnInit {
       }
     })
 
-    this.dataService.redrawTrigger.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(data => {
+    this.dataService.redrawTrigger$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(data => {
       if (data) {
         this.enableImputation = this.settings.settings.enableImputation
         this.volcanoConditionLeft = this.settings.settings.volcanoConditionLabels.leftCondition

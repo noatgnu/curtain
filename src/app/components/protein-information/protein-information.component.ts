@@ -1,10 +1,11 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 
 @Component({
     selector: 'app-protein-information',
     templateUrl: './protein-information.component.html',
     styleUrls: ['./protein-information.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProteinInformationComponent implements OnInit {
   _data: any = {}

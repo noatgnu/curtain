@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame, Series} from "data-forge";
 import {DataService} from "../../data.service";
 import {UniprotService} from "../../uniprot.service";
@@ -7,16 +7,17 @@ import {SettingsService} from "../../settings.service";
 import {WebService} from "../../web.service";
 import {PlotlyThemeService} from "../../plotly-theme.service";
 import {ThemeService} from "../../theme.service";
-import {Subscription} from "rxjs";
+import {Subject, takeUntil} from "rxjs";
 
 @Component({
     selector: 'app-profile-plot',
     templateUrl: './profile-plot.component.html',
     styleUrls: ['./profile-plot.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfilePlotComponent implements OnInit, OnDestroy {
-  private themeSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
   revision = 0;
   @Input() divId = "profile"
   boxplot: boolean = true
@@ -59,16 +60,16 @@ export class ProfilePlotComponent implements OnInit, OnDestroy {
     }
   }
   graphSelected: any[] = []
-  constructor(private toast: ToastService, private dataService: DataService, private uniprot: UniprotService, private settings: SettingsService, private web: WebService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService) {
-    this.dataService.selectionUpdateTrigger.asObservable().subscribe(data => {
-      this.drawSelected().then()
+  constructor(private toast: ToastService, private dataService: DataService, private uniprot: UniprotService, private settings: SettingsService, private web: WebService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService, private cdr: ChangeDetectorRef) {
+    this.dataService.selectionUpdateTrigger$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+      this.drawSelected().then(() => this.cdr.markForCheck())
     })
-    this.dataService.redrawTrigger.subscribe(data => {
+    this.dataService.redrawTrigger$.pipe(takeUntil(this.destroy$)).subscribe(data => {
       if (data) {
         if (this._data.count() > 0) {
           this.drawBoxPlot().then(r => {
             this.graphData = this.graphBox
-            this.drawSelected().then()
+            this.drawSelected().then(() => this.cdr.markForCheck())
           })
         }
       }
@@ -76,16 +77,16 @@ export class ProfilePlotComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
       this.revision++;
+      this.cdr.markForCheck();
     });
   }
 
   ngOnDestroy(): void {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async drawBoxPlot() {

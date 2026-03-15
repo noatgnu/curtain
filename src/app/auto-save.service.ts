@@ -1,5 +1,5 @@
-import { Injectable, OnDestroy, NgZone } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Injectable, OnDestroy, NgZone, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +12,13 @@ export class AutoSaveService implements OnDestroy {
   private tabId: string;
   private storageListener: ((event: StorageEvent) => void) | null = null;
 
-  autoSaveTrigger: Subject<void> = new Subject<void>();
-  settingsChanged: Subject<void> = new Subject<void>();
+  private readonly _autoSaveTrigger = signal(0);
+  readonly autoSaveTrigger = this._autoSaveTrigger.asReadonly();
+  readonly autoSaveTrigger$ = toObservable(this._autoSaveTrigger);
+
+  private readonly _settingsChanged = signal(0);
+  readonly settingsChanged = this._settingsChanged.asReadonly();
+  readonly settingsChanged$ = toObservable(this._settingsChanged);
 
   constructor(private ngZone: NgZone) {
     this.tabId = this.generateTabId();
@@ -39,7 +44,7 @@ export class AutoSaveService implements OnDestroy {
     this.intervalId = setInterval(() => {
       if (this.canPerformAutoSave()) {
         this.claimAutoSaveLock();
-        this.autoSaveTrigger.next();
+        this._autoSaveTrigger.update(v => v + 1);
       }
     }, this.autoSaveInterval);
   }
@@ -138,7 +143,7 @@ export class AutoSaveService implements OnDestroy {
           const settings = JSON.parse(event.newValue!);
           this.autoSaveInterval = settings.autoSaveInterval || 5 * 60 * 1000;
           this.maxAutoSaves = settings.maxAutoSaves || 5;
-          this.settingsChanged.next();
+          this._settingsChanged.update(v => v + 1);
         });
       }
     };

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { DataService } from "../../data.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ToastService } from "../../toast.service";
@@ -6,7 +6,7 @@ import { WebService } from "../../web.service";
 import { SettingsService } from "../../settings.service";
 import { PlotlyThemeService } from "../../plotly-theme.service";
 import { ThemeService } from "../../theme.service";
-import { Subscription } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 interface CorrelationResult {
   column_x: string;
@@ -27,10 +27,11 @@ type ColorScalePreset = 'default' | 'viridis' | 'plasma' | 'bluered' | 'rdylbu';
   selector: 'app-correlation-matrix',
   templateUrl: './correlation-matrix.component.html',
   styleUrls: ['./correlation-matrix.component.scss'],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CorrelationMatrixComponent implements OnInit, OnDestroy {
-  private themeSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
   revision = 0;
   graphData: any[] = [];
   graphLayout: any = {};
@@ -110,24 +111,25 @@ export class CorrelationMatrixComponent implements OnInit, OnDestroy {
     public modal: NgbActiveModal,
     private data: DataService,
     private plotlyTheme: PlotlyThemeService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private cdr: ChangeDetectorRef
   ) {
     this.initializeSamples();
   }
 
   ngOnInit(): void {
-    this.themeSubscription = this.themeService.theme$.subscribe(() => {
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.updateLayout();
       this.revision++;
+      this.cdr.markForCheck();
     });
 
     this.calculateAndRender();
   }
 
   ngOnDestroy(): void {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private initializeSamples(): void {
@@ -213,6 +215,7 @@ export class CorrelationMatrixComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
       this.loadingMessage = '';
+      this.cdr.markForCheck();
     }
   }
 
@@ -490,6 +493,7 @@ export class CorrelationMatrixComponent implements OnInit, OnDestroy {
 
     navigator.clipboard.writeText(text).then(() => {
       this.toast.show("Clipboard", "Correlation matrix copied to clipboard").then();
+      this.cdr.markForCheck();
     });
   }
 

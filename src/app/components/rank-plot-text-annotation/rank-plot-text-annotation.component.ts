@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
@@ -6,7 +6,8 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
     selector: 'app-rank-plot-text-annotation',
     templateUrl: './rank-plot-text-annotation.component.html',
     styleUrls: ['./rank-plot-text-annotation.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RankPlotTextAnnotationComponent implements OnInit {
 

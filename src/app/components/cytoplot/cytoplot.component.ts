@@ -1,10 +1,10 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import cytoscape from "cytoscape";
 import fcose from "cytoscape-fcose";
 import {saveAs} from "file-saver";
 import {SettingsService} from "../../settings.service";
 import {ThemeService} from "../../theme.service";
-import {Subscription} from "rxjs";
+import {Subject, takeUntil} from "rxjs";
 
 cytoscape.use(fcose);
 
@@ -12,10 +12,11 @@ cytoscape.use(fcose);
     selector: 'app-cytoplot',
     templateUrl: './cytoplot.component.html',
     styleUrls: ['./cytoplot.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CytoplotComponent implements OnInit, AfterViewInit, OnDestroy {
-  private themeSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
   private _dimensions = {width: 700, height: 700}
   @Output() clickedID = new EventEmitter<string>()
   @Output() ready = new EventEmitter<boolean>()
@@ -43,22 +44,22 @@ export class CytoplotComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  constructor(private settings: SettingsService, private themeService: ThemeService) { }
+  constructor(private settings: SettingsService, private themeService: ThemeService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
-    this.themeSubscription = this.themeService.beforeThemeChange$.subscribe(() => {
+    this.themeService.beforeThemeChange$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.hidden = true;
       if (this.cy) {
         this.cy.destroy();
         this.cy = null;
       }
+      this.cdr.markForCheck();
     });
   }
 
   ngOnDestroy(): void {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
     if (this.cy) {
       this.cy.destroy();
       this.cy = null;

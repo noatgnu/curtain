@@ -30,4 +30,6 @@
   </div>
 </div>
 
-<plotly-plot [divId]="divId" [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
+@if (graphData.length > 0) {
+  <plotly-plot [divId]="divId" [data]="graphData" [layout]="graphLayout" [updateOnLayoutChange]="true" [updateOnDataChange]="true"></plotly-plot>
+}

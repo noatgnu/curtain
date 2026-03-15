@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
@@ -6,7 +6,8 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
     selector: 'app-profile-compare',
     templateUrl: './profile-compare.component.html',
     styleUrls: ['./profile-compare.component.scss'],
-    standalone: false
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfileCompareComponent implements OnInit {
   @Input() data: IDataFrame = new DataFrame()

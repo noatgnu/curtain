@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { DataService } from "../../data.service";
 import { DbStringService } from "../../db-string.service";
 import { InteractomeAtlasService } from "../../interactome-atlas.service";
@@ -46,7 +46,8 @@ const SCORE_DEFINITIONS: ScoreDefinition[] = [
   selector: 'app-network-interactions',
   templateUrl: './network-interactions.component.html',
   styleUrls: ['./network-interactions.component.scss'],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NetworkInteractionsComponent implements OnInit, OnDestroy {
   @ViewChild(CytoplotComponent) cytoplot: CytoplotComponent | undefined;
@@ -224,7 +225,8 @@ export class NetworkInteractionsComponent implements OnInit, OnDestroy {
     private dbString: DbStringService,
     private interac: InteractomeAtlasService,
     private uniprot: UniprotService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -460,6 +462,7 @@ export class NetworkInteractionsComponent implements OnInit, OnDestroy {
     } else {
       this.toast.show("Network", `Network updated: ${this.networkStats.totalNodes} nodes, ${this.networkStats.totalEdges} edges`).then();
     }
+    this.cdr.markForCheck();
   }
 
   handleSelect(e: string) {
