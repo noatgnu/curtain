@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, ViewChild} from '@angular/core';
 import {InteractomeAtlasService} from "../../interactome-atlas.service";
 import {UniprotService} from "../../uniprot.service";
 import {DataService} from "../../data.service";
@@ -18,7 +18,7 @@ import {ThemeService} from "../../theme.service";
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InteractomeAtlasComponent implements OnInit {
+export class InteractomeAtlasComponent {
   @ViewChild("cytoplot") cytoplot: CytoplotComponent | undefined
   get data(): any {
     return this._data;
@@ -91,9 +91,6 @@ export class InteractomeAtlasComponent implements OnInit {
         this.cdr.markForCheck();
       }
     })
-  }
-
-  ngOnInit(): void {
     effect(() => {
       this.themeService.mode();
       if (this._data) {

@@ -76,16 +76,15 @@ export class SelectedDataDistributionPlotComponent implements OnInit {
     private cdr: ChangeDetectorRef
   ) {
     this.initializeGroups();
-  }
-
-  ngOnInit(): void {
     effect(() => {
       this.themeService.mode();
       this.updateLayout();
       this.revision++;
       this.cdr.markForCheck();
     });
+  }
 
+  ngOnInit(): void {
     this.drawPlot();
   }
 

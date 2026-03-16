@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input} from '@angular/core';
 import {DataFrame, IDataFrame, Series} from "data-forge";
 import {DataService} from "../../data.service";
 import {UniprotService} from "../../uniprot.service";
@@ -15,7 +15,7 @@ import {ThemeService} from "../../theme.service";
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProfilePlotComponent implements OnInit {
+export class ProfilePlotComponent {
   revision = 0;
   @Input() divId = "profile"
   boxplot: boolean = true
@@ -74,9 +74,6 @@ export class ProfilePlotComponent implements OnInit {
         }
       }
     })
-  }
-
-  ngOnInit(): void {
     effect(() => {
       this.themeService.mode();
       this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);

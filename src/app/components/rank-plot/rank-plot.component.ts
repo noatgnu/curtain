@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input} from '@angular/core';
 import {DataFrame, IDataFrame} from "data-forge";
 import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
@@ -18,7 +18,7 @@ import {ToastService} from "../../toast.service";
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RankPlotComponent implements OnInit {
+export class RankPlotComponent {
   revision = 0;
   _data: IDataFrame = new DataFrame()
   sortedDataMap: any = {}
@@ -145,6 +145,12 @@ export class RankPlotComponent implements OnInit {
         }
       }
     })
+    effect(() => {
+      this.themeService.mode();
+      this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
+      this.revision++;
+      this.cdr.markForCheck();
+    });
   }
 
   async annotateDataPoints(data: string[]) {
@@ -218,15 +224,6 @@ export class RankPlotComponent implements OnInit {
       }
     }
     this.graphLayout.annotations = Object.values(this.annotated)
-  }
-
-  ngOnInit(): void {
-    effect(() => {
-      this.themeService.mode();
-      this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
-      this.revision++;
-      this.cdr.markForCheck();
-    });
   }
 
   async draw() {

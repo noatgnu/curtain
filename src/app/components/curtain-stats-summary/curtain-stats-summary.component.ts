@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect} from '@angular/core';
 import {AccountsService} from "../../accounts/accounts.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {PlotlyThemeService} from "../../plotly-theme.service";
@@ -11,7 +11,7 @@ import {ThemeService} from "../../theme.service";
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CurtainStatsSummaryComponent implements OnInit {
+export class CurtainStatsSummaryComponent {
   revisionDownload = 0;
   revisionCreated = 0;
   graphDataDownload: any[] = []
@@ -81,9 +81,6 @@ export class CurtainStatsSummaryComponent implements OnInit {
       this.graphLayoutCreated = this.plotlyTheme.applyThemeToLayout(this.graphLayoutCreated);
       this.cdr.markForCheck();
     })
-  }
-
-  ngOnInit(): void {
     effect(() => {
       this.themeService.mode();
       this.graphLayoutDownload = this.plotlyTheme.applyThemeToLayout(this.graphLayoutDownload);

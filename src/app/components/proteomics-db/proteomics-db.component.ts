@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnDestroy } from '@angular/core';
 import { WebService } from "../../web.service";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { getProteomicsData } from "curtain-web-api";
@@ -31,7 +31,7 @@ interface Statistics {
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProteomicsDbComponent implements OnInit, OnDestroy {
+export class ProteomicsDbComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
   revision = 0;
 
@@ -91,9 +91,6 @@ export class ProteomicsDbComponent implements OnInit, OnDestroy {
     this.form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.fetchData();
     });
-  }
-
-  ngOnInit(): void {
     effect(() => {
       this.themeService.mode();
       this.updateLayout();

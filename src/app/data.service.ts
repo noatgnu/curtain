@@ -45,6 +45,8 @@ export class DataService {
 
   readonly uploadProgress = signal(0);
 
+  readonly processingProgress = signal(0);
+
 
   get colorMap(): any {
     return this._colorMap;
@@ -430,6 +432,7 @@ export class DataService {
     this.draftDataCiteCount = 0;
     this.downloadProgress.set(0);
     this.uploadProgress.set(0);
+    this.processingProgress.set(0);
     this.finishedProcessing.set(false);
     this._selectionUpdateTrigger.set(0);
     this.dataMap = new Map<string, string>();

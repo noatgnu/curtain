@@ -27,6 +27,7 @@ export class FileFormComponent implements OnInit, OnDestroy {
   transformedP = false;
   clicked = false;
   autoMatchSampleColumnsPattern= "\\.s"
+  useDifferentialAsRaw = false;
 
   @Output() finished: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -542,10 +543,13 @@ export class FileFormComponent implements OnInit, OnDestroy {
       if (!this.data.bypassUniProt) {
         try {
           this.resetUniProtData();
+          this.data.processingProgress.set(0);
+          await this.toast.show("UniProt", "Preparing accession list from raw data...", 60000, 'info', 'processing');
           const accList = await this.buildAccessionList();
+          this.data.processingProgress.set(100);
 
           if (accList.length > 0) {
-            await this.toast.show("UniProt", "Building local UniProt database. This may take a few minutes.");
+            await this.toast.show("UniProt", `Found ${accList.length} unique accessions. Building local UniProt database...`);
             this.uniprot.db = new Map<string, any>();
 
             const allGenes = await this.createUniprotDatabase(accList);
@@ -592,6 +596,9 @@ export class FileFormComponent implements OnInit, OnDestroy {
    */
   private async buildAccessionList(): Promise<string[]> {
     const accList: string[] = [];
+    const totalRows = this.data.raw.df.count();
+    let processedRows = 0;
+    const progressInterval = Math.max(100, Math.floor(totalRows / 100));
 
     for (const row of this.data.raw.df) {
       const primaryId = row[this.data.rawForm.primaryIDs];
@@ -608,6 +615,12 @@ export class FileFormComponent implements OnInit, OnDestroy {
         if (!this.uniprot.dataMap.has(accession[1])) {
           accList.push(accession[1]);
         }
+      }
+
+      processedRows++;
+      if (processedRows % progressInterval === 0) {
+        const percent = Math.round((processedRows / totalRows) * 100);
+        this.data.processingProgress.set(percent);
       }
     }
 
@@ -752,5 +765,27 @@ export class FileFormComponent implements OnInit, OnDestroy {
     this.data.differentialForm.comparison = '';
     this.data.differentialForm.comparisonSelect = [];
     this.toast.show("Cleared", "Comparison group and selection have been cleared.");
+  }
+
+  toggleUseDifferentialAsRaw(): void {
+    if (this.useDifferentialAsRaw) {
+      if (this.data.differential.df.count() === 0) {
+        this.toast.show("Error", "Please load a differential analysis file first.");
+        this.useDifferentialAsRaw = false;
+        return;
+      }
+      this.data.raw.df = this.data.differential.df.bake();
+      this.data.raw.originalFile = this.data.differential.originalFile;
+      this.data.raw.filename = this.data.differential.filename;
+      this.data.rawForm.primaryIDs = this.data.differentialForm.primaryIDs;
+      this.toast.show("Success", "Using differential analysis file as raw file.");
+    } else {
+      this.data.raw.df = new DataFrame();
+      this.data.raw.originalFile = "";
+      this.data.raw.filename = "";
+      this.data.rawForm.primaryIDs = "";
+      this.data.rawForm.samples = [];
+    }
+    this.cdr.markForCheck();
   }
 }

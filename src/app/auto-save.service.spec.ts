@@ -81,16 +81,13 @@ describe('AutoSaveService', () => {
     expect(settings.maxAutoSaves).toBe(8);
   });
 
-  it('should emit autoSaveTrigger when interval fires', fakeAsync(() => {
-    let triggered = false;
-    service.autoSaveTrigger$.subscribe(() => {
-      triggered = true;
-    });
+  it('should increment autoSaveTrigger when interval fires', fakeAsync(() => {
+    const initialValue = service.autoSaveTrigger();
 
     service.startAutoSave();
     tick(5 * 60 * 1000);
 
-    expect(triggered).toBeTrue();
+    expect(service.autoSaveTrigger()).toBeGreaterThan(initialValue);
     discardPeriodicTasks();
   }));
 });

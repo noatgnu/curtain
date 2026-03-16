@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, Input } from '@angular/core';
 import { WebService } from "../../web.service";
 import { SettingsService } from "../../settings.service";
 import { PlotlyThemeService } from "../../plotly-theme.service";
@@ -24,7 +24,7 @@ type ColorScheme = 'default' | 'categorical' | 'sequential' | 'custom';
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProteinDomainPlotComponent implements OnInit {
+export class ProteinDomainPlotComponent {
   revision = 0;
 
   _data: any[] = [];
@@ -85,9 +85,7 @@ export class ProteinDomainPlotComponent implements OnInit {
     private themeService: ThemeService,
     private toast: ToastService,
     private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     effect(() => {
       this.themeService.mode();
       this.updateLayout();

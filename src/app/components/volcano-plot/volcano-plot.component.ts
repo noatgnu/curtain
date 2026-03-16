@@ -845,9 +845,6 @@ export class VolcanoPlotComponent implements OnInit {
         }
       }
     })
-  }
-
-  ngOnInit(): void {
     effect(() => {
       this.themeService.mode();
       if (this._data && this._data.count()) {
@@ -856,6 +853,9 @@ export class VolcanoPlotComponent implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  ngOnInit(): void {
   }
 
   selectData(e: any) {

@@ -52,5 +52,16 @@ export class ToastProgressbarComponent {
         }
       }
     });
+
+    effect(() => {
+      const processingProgress = this.data.processingProgress();
+      if (this.action === 'processing') {
+        this.progress = processingProgress;
+        this.cdr.markForCheck();
+        if (processingProgress === 100) {
+          this.finished.emit(true);
+        }
+      }
+    });
   }
 }
