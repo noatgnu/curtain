@@ -6,6 +6,8 @@ import { UniprotService } from "../../uniprot.service";
 import { SettingsService } from "../../settings.service";
 import { ToastService } from "../../toast.service";
 import {Subject, takeUntil} from "rxjs";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {UniprotErrorModalComponent} from "../uniprot-error-modal/uniprot-error-modal.component";
 
 interface ProgressBarState {
   value: number;
@@ -36,7 +38,8 @@ export class FileFormComponent implements OnInit, OnDestroy {
     private uniprot: UniprotService,
     public settings: SettingsService,
     private toast: ToastService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private modal: NgbModal
   ) {
     effect(() => {
       const data = this.uniprot.progressBar();
@@ -552,13 +555,26 @@ export class FileFormComponent implements OnInit, OnDestroy {
             await this.toast.show("UniProt", `Found ${accList.length} unique accessions. Building local UniProt database...`);
             this.uniprot.db = new Map<string, any>();
 
-            const allGenes = await this.createUniprotDatabase(accList);
+            const result = await this.createUniprotDatabase(accList);
+            if (!result.success) {
+              const continueWithoutUniprot = await this.showUniprotErrorDialog(result.error || "Unknown error");
+              if (continueWithoutUniprot) {
+                this.data.fetchUniprot = false;
+                this.processGeneNamesWithoutUniProt();
+                await this.toast.show("UniProt", "Continuing without UniProt data. Gene names extracted from file.");
+                this.completeProcessing();
+              } else {
+                await this.toast.show("Error", "Processing cancelled due to UniProt service error.");
+                this.completeProcessing();
+              }
+              return;
+            }
             await this.toast.show(
               "UniProt",
-              `Finished building local UniProt database. ${allGenes.length} genes found.`
+              `Finished building local UniProt database. ${result.allGenes.length} genes found.`
             );
 
-            this.data.allGenes = allGenes;
+            this.data.allGenes = result.allGenes;
             this.completeProcessing();
           } else {
             this.completeProcessing();
@@ -711,8 +727,11 @@ export class FileFormComponent implements OnInit, OnDestroy {
   /**
    * Create UniProt database from accession list
    */
-  private async createUniprotDatabase(accList: string[]): Promise<string[]> {
-    await this.uniprot.UniprotParserJS(accList);
+  private async createUniprotDatabase(accList: string[]): Promise<{allGenes: string[], success: boolean, error?: string}> {
+    const result = await this.uniprot.UniprotParserJS(accList);
+    if (!result.success) {
+      return {allGenes: [], success: false, error: result.error};
+    }
     const allGenes: string[] = [];
 
     for (const primaryId of this.data.primaryIDsList) {
@@ -732,13 +751,27 @@ export class FileFormComponent implements OnInit, OnDestroy {
       }
     }
 
-    return allGenes;
+    return {allGenes, success: true};
   }
 
   /**
    * Complete the processing workflow
    */
   private completeProcessing(): void {
+    if (this.settings.settings.customVolcanoTextCol !== "") {
+      for (const row of this.data.currentDF) {
+        const customLabel = row[this.settings.settings.customVolcanoTextCol];
+        if (customLabel && customLabel !== "") {
+          if (!this.data.allGenes.includes(customLabel)) {
+            this.data.allGenes.push(customLabel);
+          }
+          if (!this.uniprot.geneNameToAcc[customLabel]) {
+            this.uniprot.geneNameToAcc[customLabel] = {};
+          }
+          this.uniprot.geneNameToAcc[customLabel][row[this.data.differentialForm.primaryIDs]] = true;
+        }
+      }
+    }
     this.finished.emit(true);
     this.clicked = false;
     this.uniprot.parseStatus.set(false);
@@ -787,5 +820,19 @@ export class FileFormComponent implements OnInit, OnDestroy {
       this.data.rawForm.samples = [];
     }
     this.cdr.markForCheck();
+  }
+
+  private async showUniprotErrorDialog(errorMessage: string): Promise<boolean> {
+    const modalRef = this.modal.open(UniprotErrorModalComponent, {
+      centered: true,
+      backdrop: 'static'
+    });
+    modalRef.componentInstance.errorMessage = errorMessage;
+    try {
+      const result = await modalRef.result;
+      return result === true;
+    } catch {
+      return false;
+    }
   }
 }
