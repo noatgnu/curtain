@@ -821,7 +821,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.data.primaryIDsMap = object.extraData.data.primaryIDsmap
           this.data.allGenes = object.extraData.data.allGenes
         }
-        hasValidUniprotData = this.uniprot.dataMap.size > 0 || this.uniprot.db.size > 0 || this.data.dataMap.size > 0
+        hasValidUniprotData = this.uniprot.db.size > 0
         if (hasValidUniprotData) {
           this.data.bypassUniProt = true
           console.log("Session has valid UniProt data, skipping re-fetch")
