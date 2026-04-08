@@ -586,6 +586,9 @@ export class FileFormComponent implements OnInit, OnDestroy {
         }
       } else {
         this.data.bypassUniProt = false;
+        if (this.data.allGenes.length === 0) {
+          this.rebuildAllGenesFromUniprotDb();
+        }
         this.completeProcessing();
       }
     } else {
@@ -593,6 +596,32 @@ export class FileFormComponent implements OnInit, OnDestroy {
       this.processGeneNamesWithoutUniProt();
       this.completeProcessing();
     }
+  }
+
+  /**
+   * Rebuild allGenes and gene name mappings from the existing UniProt db (used during session restore)
+   */
+  private rebuildAllGenesFromUniprotDb(): void {
+    const allGenes: string[] = [];
+    this.data.genesMap = {};
+    this.uniprot.geneNameToAcc = {};
+
+    for (const primaryId of this.data.primaryIDsList) {
+      try {
+        const uniprotEntry = this.uniprot.getUniprotFromPrimary(primaryId);
+        if (uniprotEntry && uniprotEntry["Gene Names"] && uniprotEntry["Gene Names"] !== "") {
+          const geneName = uniprotEntry["Gene Names"];
+          if (!allGenes.includes(geneName)) {
+            allGenes.push(geneName);
+            this.updateGeneNameMapping(geneName, primaryId);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    this.data.allGenes = allGenes;
   }
 
   /**
