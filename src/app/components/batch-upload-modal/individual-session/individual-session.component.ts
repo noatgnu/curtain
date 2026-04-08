@@ -478,8 +478,11 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
         console.log(accList)
         if (accList.length > 0) {
           this.uniprot.db = new Map<string, any>()
-          this.createUniprotDatabase(accList).then((allGenes: any) => {
-            this.data.allGenes = allGenes
+          this.createUniprotDatabase(accList).then((result: {allGenes: string[], success: boolean}) => {
+            if (!result.success) {
+              this.toast.show("UniProt", `Session #${this.sessionId+1}: UniProt unavailable, saving without gene data.`).then()
+            }
+            this.data.allGenes = result.allGenes
             this.uniprot.parseStatus.set(false)
             this.updateProgressBar(100, "Finished")
             // @ts-ignore
@@ -487,7 +490,6 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
             this.saveSession()
           });
         } else {
-
           this.updateProgressBar(100, "Finished")
           // @ts-ignore
           this.payload = this.createPayload(this.session.data.permanent)
@@ -535,8 +537,11 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
     }
   }
 
-  private async createUniprotDatabase(accList: string[]) {
-    await this.uniprot.UniprotParserJS(accList)
+  private async createUniprotDatabase(accList: string[]): Promise<{allGenes: string[], success: boolean}> {
+    const result = await this.uniprot.UniprotParserJS(accList)
+    if (!result.success) {
+      return {allGenes: [], success: false}
+    }
     const allGenes: string[] = []
     for (const p of this.data.primaryIDsList) {
       try {
@@ -564,7 +569,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
         console.log(e)
       }
     }
-    return allGenes
+    return {allGenes, success: true}
   }
 
   async processFiles(e: any = null) {
