@@ -80,7 +80,7 @@
       </form>
     </div>
   </div>
-  @if (totalItems > 0) {
+  @if (!isLoading && totalItems > 0) {
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
         @if (selectedCount > 0) {
@@ -291,7 +291,8 @@
         </tbody>
       </table>
     </div>
-  } @else {
+  }
+  @if (!isLoading && totalItems === 0) {
     <div class="text-center py-5">
       <i class="bi bi-inbox display-1 text-muted"></i>
       <p class="text-muted mt-3">No sessions found. Try adjusting your search criteria.</p>
