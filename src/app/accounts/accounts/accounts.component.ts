@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { WebService } from '../../web.service';
 import { AccountsService } from '../accounts.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -82,7 +82,8 @@ export class AccountsComponent implements OnInit, OnDestroy {
     private readonly web: WebService,
     public readonly accounts: AccountsService,
     private readonly fb: FormBuilder,
-    private modal: NgbModal
+    private modal: NgbModal,
+    private cdr: ChangeDetectorRef
   ) {
     this.initializeForm();
     this.initializeUserData();
@@ -119,6 +120,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       await this.handleApiError(error as ApiError);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -172,6 +174,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       await this.handleApiError(error as ApiError);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -242,6 +245,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       await this.handleApiError(error as ApiError);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -327,6 +331,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       await this.handleApiError(error as ApiError);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -374,6 +379,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       await this.handleApiError(error as ApiError);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -413,6 +419,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       await this.handleApiError(error as ApiError);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
   /**
@@ -458,6 +465,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       await this.handleApiError(error as ApiError);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -562,6 +570,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       console.error('Failed to load collections:', error);
     } finally {
       this.collectionsLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -587,6 +596,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       console.error('Failed to create collection:', error);
     } finally {
       this.collectionsLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -607,6 +617,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       console.error('Failed to update collection:', error);
     } finally {
       this.collectionsLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -625,6 +636,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       console.error('Failed to delete collection:', error);
     } finally {
       this.collectionsLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -643,6 +655,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
       console.error('Failed to toggle collection sharing:', error);
     } finally {
       this.collectionsLoading = false;
+      this.cdr.detectChanges();
     }
   }
 

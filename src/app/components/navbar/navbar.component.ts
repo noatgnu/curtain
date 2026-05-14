@@ -39,7 +39,7 @@ export class NavbarComponent implements OnInit {
       if (trigger > 0) {
         this.lastAutoSave = new Date();
         this.saveLastAutoSaveTime();
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     });
   }

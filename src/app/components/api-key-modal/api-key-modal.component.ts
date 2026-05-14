@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, signal} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgbActiveModal, NgbAlert} from "@ng-bootstrap/ng-bootstrap";
 import {AccountsService} from "../../accounts/accounts.service";
@@ -21,7 +21,7 @@ export class ApiKeyModalComponent {
 
   apiKeys = signal<{name: string, id: string}[]>([])
   apiKey = signal("")
-  constructor(private fb: FormBuilder, private activeModal: NgbActiveModal, private account: AccountsService) {
+  constructor(private fb: FormBuilder, private activeModal: NgbActiveModal, private account: AccountsService, private cdr: ChangeDetectorRef) {
     this.refreshList()
   }
 
@@ -34,8 +34,9 @@ export class ApiKeyModalComponent {
     if (this.form.valid && this.form.value.name) {
       this.account.curtainAPI.createCurtainAPIKey(this.form.value.name).then((data: any) => {
         this.apiKey.set(data.data.key)
-        console.log(data)
         this.refreshList()
+      }).then(() => {
+        this.cdr.detectChanges()
       })
     }
   }
@@ -43,6 +44,7 @@ export class ApiKeyModalComponent {
   refreshList() {
     this.account.curtainAPI.getCurtainAPIKeys().then((data: any) => {
       this.apiKeys.set(data.data.results)
+      this.cdr.detectChanges()
     })
   }
 

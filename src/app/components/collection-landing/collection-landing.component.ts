@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AccountsService } from '../../accounts/accounts.service';
 import { CurtainCollection, AccessibleCurtain } from 'curtain-web-api';
@@ -25,7 +25,8 @@ export class CollectionLandingComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private modal: NgbModal,
-    public accounts: AccountsService
+    public accounts: AccountsService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -112,6 +113,7 @@ export class CollectionLandingComponent implements OnInit, OnDestroy {
       }
     } finally {
       this.loading.set(false);
+      this.cdr.detectChanges();
     }
   }
 

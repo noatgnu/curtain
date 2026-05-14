@@ -48,7 +48,7 @@ export class DataciteAdminManagementComponent implements OnDestroy {
     this.accountService.curtainAPI.getDataCites(undefined, undefined, undefined, this.pageSize, this.page-1, false, "TP").then(
       (data) => {
         this.dataCiteDraftQuery = data.data
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     )
     this.searchForm.controls.searchTerm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
@@ -76,7 +76,7 @@ export class DataciteAdminManagementComponent implements OnDestroy {
           return dc
         })
       }
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 
@@ -90,7 +90,7 @@ export class DataciteAdminManagementComponent implements OnDestroy {
           return dc
         })
       }
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 
@@ -104,7 +104,7 @@ export class DataciteAdminManagementComponent implements OnDestroy {
           return dc
         })
       }
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 
@@ -118,7 +118,7 @@ export class DataciteAdminManagementComponent implements OnDestroy {
           return dc
         })
       }
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 
@@ -132,14 +132,14 @@ export class DataciteAdminManagementComponent implements OnDestroy {
         this.accountService.curtainAPI.getDataCites(undefined, term, "draft", this.pageSize, this.page-1, true, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
           }
         )
       } else {
         this.accountService.curtainAPI.getDataCites(undefined, undefined, "draft", this.pageSize, this.page-1, true, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
           }
         )
       }
@@ -148,14 +148,14 @@ export class DataciteAdminManagementComponent implements OnDestroy {
         this.accountService.curtainAPI.getDataCites(undefined, term, undefined, this.pageSize, this.page-1, false, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
           }
         )
       } else {
         this.accountService.curtainAPI.getDataCites(undefined, undefined, undefined, this.pageSize, this.page-1, false, "TP").then(
           (data) => {
             this.dataCiteDraftQuery = data.data
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
           }
         )
       }

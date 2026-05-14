@@ -140,7 +140,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
     effect(() => {
       const taskId = this.batchService.taskStartIndex();
       if (taskId === this.sessionId) {
-        this.startWork().then(() => this.cd.markForCheck())
+        this.startWork().then(() => this.cd.detectChanges())
       }
     })
     effect(() => {
@@ -148,7 +148,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
       if (counter > 0) {
         this.data.reset()
         this.uniprot.reset()
-        this.cd.markForCheck();
+        this.cd.detectChanges();
       }
     })
     this.colorPalletes = Object.keys(this.data.palette)
@@ -181,6 +181,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
       this.availableCollections = []
     } finally {
       this.loadingCollections = false
+      this.cd.detectChanges()
     }
   }
 
@@ -202,6 +203,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
       console.error('Failed to create collection:', error)
     } finally {
       this.isCreatingCollection = false
+      this.cd.detectChanges()
     }
   }
 
@@ -312,7 +314,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
         if (data.data) {
           if (data.data.type === "progress") {
             this.updateProgressBar(data.data.value, data.data.text)
-            this.cd.markForCheck();
+            this.cd.detectChanges();
           } else {
             if (data.data.type === "resultDifferential") {
               this.data.differential.df = fromJSON(data.data.differential)
@@ -363,7 +365,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
                 settings: Object.assign({}, this.settings.settings)
               })
               this.data.raw.df = new DataFrame()
-              this.cd.markForCheck();
+              this.cd.detectChanges();
             } else if (data.data.type === "resultRaw") {
 
               this.data.raw.df = fromJSON(data.data.raw)
@@ -386,7 +388,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
                       this.addDefaultColors();
                       this.processUniProt()
                       worker.terminate()
-                      this.cd.markForCheck();
+                      this.cd.detectChanges();
                     })
                   })
                 }
@@ -397,7 +399,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
           }
         } else {
           worker.terminate()
-          this.cd.markForCheck();
+          this.cd.detectChanges();
         }
 
       };

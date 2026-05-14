@@ -44,7 +44,7 @@ export class CollectionSessionsViewerModalComponent implements OnInit {
       console.error('Failed to load collection details:', error);
     } finally {
       this.isLoading = false;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 }

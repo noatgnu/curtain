@@ -54,7 +54,7 @@ export class EncryptionSettingsComponent {
           this.private_key = privateKey
           this.private_key_string = fileString
         }
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     }
   }
@@ -101,7 +101,7 @@ export class EncryptionSettingsComponent {
     const private_pem = ['-----BEGIN PRIVATE KEY-----', this.private_key_string, '-----END PRIVATE KEY-----'].join('\n')
     this.web.downloadFile("public_key.pem", public_pem, "text/plain")
     this.web.downloadFile("private_key.pem", private_pem, "text/plain")
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
 

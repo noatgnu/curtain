@@ -62,7 +62,7 @@ export class CollectionManagementModalComponent implements OnInit {
       console.error('Failed to load collections:', error);
     } finally {
       this.isLoading = false;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 
@@ -101,7 +101,7 @@ export class CollectionManagementModalComponent implements OnInit {
       console.error('Failed to toggle collection:', error);
     } finally {
       this.isLoading = false;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 
@@ -117,7 +117,7 @@ export class CollectionManagementModalComponent implements OnInit {
         console.error('Failed to create collection:', error);
       } finally {
         this.isLoading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     }
   }
@@ -137,7 +137,7 @@ export class CollectionManagementModalComponent implements OnInit {
       console.error('Failed to toggle collection sharing:', error);
     } finally {
       this.isLoading = false;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 

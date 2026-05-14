@@ -33,14 +33,14 @@ export class SessionSettingsComponent implements OnInit {
       this.data.session = data.data
       this.accounts.curtainAPI.getOwners(this.currentID).then((data:any) => {
         this.owners = data.data["owners"]
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       })
       for (const i in data.data) {
         if (i in this.form.controls) {
           this.form.controls[i].setValue(data.data[i])
         }
       }
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
   get currentID(): string {
@@ -65,7 +65,7 @@ export class SessionSettingsComponent implements OnInit {
     if (this.form.value["temporary_link_lifetime"] > 0) {
       this.accounts.curtainAPI.generateTemporarySession(this.currentID, this.form.value["temporary_link_lifetime"]).then((data:any) => {
         this.temporaryLink = location.origin + `/#/${data.data["link_id"]}&${data.data["token"]}`
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       })
     }
   }
@@ -145,11 +145,13 @@ export class SessionSettingsComponent implements OnInit {
 
         this.toast.show("Success", "Session updated successfully").then()
         this.isUpdating = false
+        this.cdr.detectChanges()
         this.modal.dismiss()
       } catch (error) {
         console.error('Failed to update session:', error)
         this.toast.show("Error", "Failed to update session").then()
         this.isUpdating = false
+        this.cdr.detectChanges()
       }
     } else {
       const payload: any = {name: this.form.value["name"], enable: this.form.value["enable"]}
@@ -164,11 +166,13 @@ export class SessionSettingsComponent implements OnInit {
         this.data.session = data.data
         this.toast.show("Success", "Session settings updated").then()
         this.isUpdating = false
+        this.cdr.detectChanges()
         this.modal.dismiss()
       } catch (error) {
         console.error('Failed to update session:', error)
         this.toast.show("Error", "Failed to update session").then()
         this.isUpdating = false
+        this.cdr.detectChanges()
       }
     }
   }

@@ -67,7 +67,7 @@ export class PermanentLinkRequestModalComponent implements OnInit, OnDestroy {
     this.accounts.curtainAPI.getSiteProperties().then(response => {
       if (response.data) {
         this.expiryOptions = response.data.expiry_duration_options || []
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     })
   }
@@ -80,9 +80,11 @@ export class PermanentLinkRequestModalComponent implements OnInit, OnDestroy {
           this.existingRequests.set(response.data.results)
         }
         this.loading.set(false)
+        this.cdr.detectChanges();
       }).catch(err => {
         console.error('Failed to load requests:', err)
         this.loading.set(false)
+        this.cdr.detectChanges();
       })
     }
   }

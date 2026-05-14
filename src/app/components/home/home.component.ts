@@ -147,14 +147,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.hasSavedClearSettings = signal(localStorage.getItem('curtainClearSettingsSelection') !== null);
         this.rawFiltered = new DataFrame()
         this.data.triggerSelectionUpdate()
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     })
 
     effect(() => {
       const data = this.uniprot.progressBar();
       this.progressEvent = data
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
 
     effect(() => {
@@ -163,7 +163,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.handleFinish(true)
         this.data.triggerRedraw()
         this.data.triggerSelectionUpdate()
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     })
 
@@ -1442,6 +1442,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.selectedCollectionId = null
     } finally {
       this.loadingCollections = false
+      this.cdr.detectChanges()
     }
   }
 
