@@ -76,8 +76,8 @@ export class AccountsComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   // Constants
-  private readonly ITEMS_PER_PAGE = 20;
-  private readonly COLLECTIONS_PER_PAGE = 20;
+  private readonly ITEMS_PER_PAGE = 10;
+  private readonly COLLECTIONS_PER_PAGE = 10;
   constructor(
     private readonly web: WebService,
     public readonly accounts: AccountsService,
