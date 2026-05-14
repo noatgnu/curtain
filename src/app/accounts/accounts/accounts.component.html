@@ -80,7 +80,7 @@
       </form>
     </div>
   </div>
-  @if (!isLoading && totalItems > 0) {
+  @if (totalItems > 0) {
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
         @if (selectedCount > 0) {
@@ -89,12 +89,13 @@
           <small class="text-muted">{{totalItems}} Total Sessions</small>
         }
       </div>
-      <ngb-pagination 
-        [collectionSize]="totalItems" 
-        [(page)]="currentPage" 
-        [maxSize]="5" 
-        [boundaryLinks]="true" 
-        [size]="'sm'" 
+      <ngb-pagination
+        [collectionSize]="totalItems"
+        [(page)]="currentPage"
+        [pageSize]="ITEMS_PER_PAGE"
+        [maxSize]="5"
+        [boundaryLinks]="true"
+        [size]="'sm'"
         [disabled]="isLoading"
         (pageChange)="submit($event)">
       </ngb-pagination>
