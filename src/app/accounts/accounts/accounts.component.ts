@@ -104,13 +104,16 @@ export class AccountsComponent implements OnInit, OnDestroy {
     try {
       this.isLoading = true;
       await this.accounts.getUser();
-      
+
       const username = this.accounts.curtainAPI.user?.username;
       if (!username) {
         throw new Error('User not authenticated');
       }
-      
-      const data = await this.accounts.curtainAPI.getCurtainLinks(username, '');
+
+      const [data] = await Promise.all([
+        this.accounts.curtainAPI.getCurtainLinks(username, ''),
+        this.loadUserCollections()
+      ]);
       this.updateShowingLink(data);
     } catch (error) {
       await this.handleApiError(error as ApiError);
@@ -120,7 +123,6 @@ export class AccountsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadUserCollections();
   }
 
   onTabChange(tabId: number): void {

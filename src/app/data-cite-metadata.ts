@@ -207,6 +207,8 @@ export interface DataCiteCollectionSession {
   curtain_id: number;
   link_id: string;
   data_url: string;
+  name: string;
+  description: string;
 }
 
 export interface DataCiteCollectionMetadata {
