@@ -95,7 +95,7 @@ export class ProteomicsDbComponent implements OnDestroy {
       this.themeService.mode();
       this.updateLayout();
       this.revision++;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
   }
 
@@ -133,7 +133,7 @@ export class ProteomicsDbComponent implements OnDestroy {
       this.statistics = null;
     } finally {
       this.loading = false;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 
@@ -343,7 +343,7 @@ export class ProteomicsDbComponent implements OnDestroy {
 
     navigator.clipboard.writeText(text).then(() => {
       this.toast.show("Clipboard", "Data copied to clipboard").then();
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
   }
 

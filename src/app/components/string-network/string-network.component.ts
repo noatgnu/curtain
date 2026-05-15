@@ -120,7 +120,7 @@ export class StringNetworkComponent implements OnInit, OnDestroy {
         }
         this.colorMap.set({ ...currentMap });
         this.form.markAsPristine();
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     });
   }

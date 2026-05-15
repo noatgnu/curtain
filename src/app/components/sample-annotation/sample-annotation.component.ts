@@ -65,53 +65,53 @@ export class SampleAnnotationComponent implements OnInit, OnDestroy {
       this.cellTypes = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
     this.web.getPRIDEConstants("disease").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.diseases = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
     this.web.getPRIDEConstants("instrument").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.instruments = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
     this.web.getPRIDEConstants("modification").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.modification = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
     this.web.getPRIDEConstants("msmethod").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.msMethods = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
     this.web.getPRIDEConstants("projecttag").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.projecttag = data.split("\n")
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
     this.web.getPRIDEConstants("quantification").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.quantification = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
     this.web.getPRIDEConstants("species").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.species = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
     this.web.getPRIDEConstants("tissue").pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.tissues = data.split("\n").map((d: string) => {
         return d.split("\t")[3]
       })
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
 
   }
@@ -206,7 +206,7 @@ export class SampleAnnotationComponent implements OnInit, OnDestroy {
       // @ts-ignore
       this.form.controls["authors"].setValue(currentAuthors)
       this.project.authors = currentAuthors
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 

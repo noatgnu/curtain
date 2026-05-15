@@ -53,13 +53,13 @@ export class ProteinInfoPanelComponent implements OnChanges, AfterViewInit {
           this.contentHtml = html;
           this.loading = false;
           this.renderInIframe();
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Error loading protein info:', err);
           this.error = 'Failed to load protein information';
           this.loading = false;
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         }
       });
     } else if (this.edgeInfo) {
@@ -70,13 +70,13 @@ export class ProteinInfoPanelComponent implements OnChanges, AfterViewInit {
           this.contentHtml = html;
           this.loading = false;
           this.renderInIframe();
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Error loading edge info:', err);
           this.error = 'Failed to load interaction information';
           this.loading = false;
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         }
       });
     }

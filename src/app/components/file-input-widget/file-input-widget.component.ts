@@ -34,14 +34,14 @@ export class FileInputWidgetComponent implements OnInit {
           if (event.lengthComputable) {
             const progress = (event.loaded / event.total) * 100;
             this.eventProgress.emit(progress)
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
           }
         }
         reader.onload = (event) => {
           this.eventProgress.emit(100)
           const loadedFile = reader.result;
           this.readData.emit(new InputFile(fromCSV(<string>loadedFile), this.filename, <string>loadedFile))
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         }
         reader.readAsText(target.files[0]);
       }

@@ -105,7 +105,7 @@ export class LocalSessionStateModalComponent implements OnInit {
             this.modal.dismiss();
           }).catch(() => {});
         }
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       };
       reader.readAsText(file);
     }

@@ -521,7 +521,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.finished()) {
       if (this.data.selected.length > 0) {
         this.data.finishedProcessing.set(e)
-
         this.rawFiltered = this.data.raw.df.where(r => this.data.selected.includes(r[this.data.rawForm.primaryIDs])).bake()
         for (const s of this.rawFiltered) {
           this.addGeneToSelected(s).then();
@@ -530,9 +529,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.rawFiltered = new DataFrame()
         this.data.finishedProcessing.set(e)
       }
-      console.log(this.rawFiltered)
       this.finished.set(true)
     }
+    this.cdr.detectChanges()
   }
 
   private async addGeneToSelected(s: any) {

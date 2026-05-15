@@ -117,7 +117,7 @@ export class CorrelationMatrixComponent implements OnInit {
       this.themeService.mode();
       this.updateLayout();
       this.revision++;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
   }
 
@@ -208,7 +208,7 @@ export class CorrelationMatrixComponent implements OnInit {
     } finally {
       this.loading = false;
       this.loadingMessage = '';
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 
@@ -486,7 +486,7 @@ export class CorrelationMatrixComponent implements OnInit {
 
     navigator.clipboard.writeText(text).then(() => {
       this.toast.show("Clipboard", "Correlation matrix copied to clipboard").then();
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
   }
 

@@ -70,10 +70,10 @@ export class DataciteCitationComponent implements OnInit {
       })
       this.data = output
       console.log(output)
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     } catch (error) {
       console.error("Error formatting citation:", error)
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 

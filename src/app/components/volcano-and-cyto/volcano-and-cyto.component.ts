@@ -21,7 +21,7 @@ export class VolcanoAndCytoComponent {
       const counter = this.themeService.beforeThemeChange();
       if (counter > 0 && !this.isNetworkCollapse) {
         this.isNetworkCollapse = true;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     });
   }

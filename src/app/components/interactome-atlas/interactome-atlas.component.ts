@@ -88,13 +88,13 @@ export class InteractomeAtlasComponent {
           this.form.controls[i].setValue(this.colorMap[i])
         }
         this.form.markAsPristine()
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     })
     effect(() => {
       this.themeService.mode();
       if (this._data) {
-        this.getInteractions().then(() => this.cdr.markForCheck());
+        this.getInteractions().then(() => this.cdr.detectChanges());
       }
     });
   }

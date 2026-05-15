@@ -26,7 +26,7 @@ export class ShapesComponent {
     effect(() => {
       this.dataService.volcanoShapesChanged();
       this.updateForms()
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 

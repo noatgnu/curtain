@@ -79,7 +79,7 @@ export class CurtainStatsSummaryComponent {
       this.graphDataDownload.push(weekDownloadData)
       this.graphLayoutDownload = this.plotlyTheme.applyThemeToLayout(this.graphLayoutDownload);
       this.graphLayoutCreated = this.plotlyTheme.applyThemeToLayout(this.graphLayoutCreated);
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
     effect(() => {
       this.themeService.mode();
@@ -87,7 +87,7 @@ export class CurtainStatsSummaryComponent {
       this.graphLayoutCreated = this.plotlyTheme.applyThemeToLayout(this.graphLayoutCreated);
       this.revisionDownload++;
       this.revisionCreated++;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
   }
 }

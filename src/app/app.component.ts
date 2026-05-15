@@ -1,17 +1,15 @@
 import {AfterViewInit, Component, OnDestroy} from '@angular/core';
 import {AccountsService} from "./accounts/accounts.service";
-import {Enrichr} from "enrichrjs";
 import {SwUpdate} from "@angular/service-worker";
 import {SettingsService} from "./settings.service";
-import {WebsocketService} from "./websocket.service";
+
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {CurtainStatsSummaryComponent} from "./components/curtain-stats-summary/curtain-stats-summary.component";
-import {loadFromLocalStorage} from "curtain-web-api";
 import {DataService} from "./data.service";
 import {environment} from "../environments/environment";
 import {CitationComponent} from "./components/citation/citation.component";
 import {AnalyticsService} from "./analytics.service";
-import {Subject, takeUntil} from "rxjs";
+import {Subject} from "rxjs";
 
 @Component({
     selector: 'app-root',
@@ -25,20 +23,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private updateCheckIntervalId: number | null = null;
 
-  constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private data: DataService,  private settings: SettingsService, private ws: WebsocketService, private modal: NgbModal, private analytics: AnalyticsService) {
+  constructor(private accounts: AccountsService, private swUpdate: SwUpdate, private data: DataService, private settings: SettingsService, private modal: NgbModal, private analytics: AnalyticsService) {
     const path = document.URL.replace(window.location.origin+"/", "")
     if (path.startsWith("?code=")) {
       const code = path.split("=")
       const rememberMe = localStorage.getItem("orcidRememberMe") === "true"
-      this.accounts.ORCIDLogin(code[1], rememberMe).then((data: any) => {
-        console.log(data)
+      this.accounts.ORCIDLogin(code[1], rememberMe).then(() => {
         localStorage.removeItem("orcidRememberMe")
       })
     }
-    this.ws.connectJob()
-    this.ws.getJobMessages()?.pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
-      console.log(data)
-    })
     this.analytics.initialize()
   }
 
@@ -48,14 +41,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         this.swUpdate.checkForUpdate().then((available) => {
           if (available) {
             this.settings.newVersionAvailable = true;
-            console.log("New version available")
-          } else {
-            console.log("No new version available")
           }
         })
       }, 1000*10)
-    } else {
-      console.log("Service worker not enabled")
     }
   }
 

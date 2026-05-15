@@ -801,7 +801,7 @@ export class VolcanoPlotComponent implements OnInit {
       const counter = this.dataService.resetVolcanoColor();
       if (counter > 0) {
         this.specialColorMap = {}
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     })
     this.markerSize = this.settings.settings.scatterPlotMarkerSize
@@ -812,7 +812,7 @@ export class VolcanoPlotComponent implements OnInit {
           this.annotated = {}
         }
         this.drawVolcano()
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     })
     effect(() => {
@@ -822,24 +822,24 @@ export class VolcanoPlotComponent implements OnInit {
           if (typeof data.id === "string") {
             this.removeAnnotatedDataPoints([data.id]).then(() => {
               this.dataService.annotatedData = this.annotated
-              this.cdr.markForCheck();
+              this.cdr.detectChanges();
             })
           } else {
             this.removeAnnotatedDataPoints(data.id).then(() => {
               this.dataService.annotatedData = this.annotated
-              this.cdr.markForCheck();
+              this.cdr.detectChanges();
             })
           }
         } else {
           if (typeof data.id === "string") {
             this.annotateDataPoints([data.id]).then(() => {
               this.dataService.annotatedData = this.annotated
-              this.cdr.markForCheck();
+              this.cdr.detectChanges();
             })
           } else {
             this.annotateDataPoints(data.id).then(() => {
               this.dataService.annotatedData = this.annotated
-              this.cdr.markForCheck();
+              this.cdr.detectChanges();
             })
           }
         }
@@ -850,7 +850,7 @@ export class VolcanoPlotComponent implements OnInit {
       if (this._data && this._data.count()) {
         this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
         this.revision++;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     });
   }

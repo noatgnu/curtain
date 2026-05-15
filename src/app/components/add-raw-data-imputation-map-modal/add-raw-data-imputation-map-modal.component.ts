@@ -56,7 +56,7 @@ export class AddRawDataImputationMapModalComponent {
           }
 
           this.columns = this.data.getColumnNames();
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         };
         reader.readAsText(file);
       }

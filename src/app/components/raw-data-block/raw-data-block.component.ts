@@ -156,7 +156,7 @@ export class RawDataBlockComponent implements OnInit {
         }
       }
       this.form.controls["profilePlot"].setValue(this.settings.settings.selectedComparison.includes(this.primaryID))
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
 
     effect(() => {
@@ -166,7 +166,7 @@ export class RawDataBlockComponent implements OnInit {
       if (value.id.includes(this.primaryID)) {
         this.form.controls["annotate"].setValue(!value.remove)
       }
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 

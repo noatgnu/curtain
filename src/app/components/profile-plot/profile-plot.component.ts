@@ -61,7 +61,7 @@ export class ProfilePlotComponent {
   constructor(private toast: ToastService, private dataService: DataService, private uniprot: UniprotService, private settings: SettingsService, private web: WebService, private plotlyTheme: PlotlyThemeService, private themeService: ThemeService, private cdr: ChangeDetectorRef) {
     effect(() => {
       this.dataService.selectionUpdateTrigger();
-      this.drawSelected().then(() => this.cdr.markForCheck())
+      this.drawSelected().then(() => this.cdr.detectChanges())
     })
     effect(() => {
       const data = this.dataService.redrawTrigger();
@@ -69,7 +69,7 @@ export class ProfilePlotComponent {
         if (this._data.count() > 0) {
           this.drawBoxPlot().then(r => {
             this.graphData = this.graphBox
-            this.drawSelected().then(() => this.cdr.markForCheck())
+            this.drawSelected().then(() => this.cdr.detectChanges())
           })
         }
       }
@@ -78,7 +78,7 @@ export class ProfilePlotComponent {
       this.themeService.mode();
       this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
       this.revision++;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
   }
 

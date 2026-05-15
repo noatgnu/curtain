@@ -79,7 +79,7 @@ export class RawDataViewerComponent implements OnInit, OnDestroy {
       }
       this.displayDF = this.displayDF.distinct((row: any) => row[this.dataService.rawForm.primaryIDs]).bake()
       this.ready = true
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
 
     this.form.controls.filterSearchOperation.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
@@ -103,7 +103,7 @@ export class RawDataViewerComponent implements OnInit, OnDestroy {
       }
       this.toast.show("Filtering", "Completed filtering data for " + value, 5000).then()
       this.ready = true
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 

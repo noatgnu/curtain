@@ -64,23 +64,26 @@ export class ComparisonAgainstOtherPromptComponent implements OnDestroy {
             if (!this.ws.jobConnection) {
               this.ws.connectJob()
             }
-            this.ws.getJobMessages()?.pipe(takeUntil(this.destroy$)).subscribe((message: any) => {
-              console.log(message)
-              this.toast.show(message.requestType, message.message).then()
-              if (message.message === "Operation Completed" && message.requestType === "Compare Session") {
-                const data: any = {}
-                for (const d in message.data) {
-                  if (d!== "found") {
-                    data[d] = message.data[d]["differential"]
+            this.ws.getJobMessages()?.pipe(takeUntil(this.destroy$)).subscribe({
+              next: (message: any) => {
+                this.toast.show(message.requestType, message.message).then()
+                if (message.message === "Operation Completed" && message.requestType === "Compare Session") {
+                  const data: any = {}
+                  for (const d in message.data) {
+                    if (d !== "found") {
+                      data[d] = message.data[d]["differential"]
+                    }
                   }
-
+                  this.modal.close({data: data, queryList: selections})
                 }
-                this.modal.close({data: data, queryList: selections})
+                this.cdr.detectChanges()
+              },
+              error: () => {
+                this.toast.show("Error", "Connection lost during comparison. Please try again.").then()
+                this.cdr.detectChanges()
               }
-              this.cdr.markForCheck();
             })
           }
-
         })
       }
     }

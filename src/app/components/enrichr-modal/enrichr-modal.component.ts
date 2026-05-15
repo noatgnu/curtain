@@ -27,7 +27,7 @@ export class EnrichrModalComponent implements OnInit {
       for (const i in data) {
         this.libraries.push(i)
       }
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
     this.form.controls['library'].setValue(this.libraries[0])
     this.form.controls['selectedSet'].setValue(this.data.selectOperationNames[0])

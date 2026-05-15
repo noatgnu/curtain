@@ -11,6 +11,7 @@ import { QrcodeModalComponent } from '../../components/qrcode-modal/qrcode-modal
 // Interfaces for type safety
 interface CurtainLink {
   link_id: string;
+  name?: string;
   created: Date;
   description?: string;
   enable?: boolean;

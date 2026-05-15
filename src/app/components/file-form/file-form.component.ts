@@ -45,7 +45,7 @@ export class FileFormComponent implements OnInit, OnDestroy {
       const data = this.uniprot.progressBar();
       this.progressBar.value = data.value;
       this.progressBar.text = data.text;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
 
     effect(() => {
@@ -57,7 +57,7 @@ export class FileFormComponent implements OnInit, OnDestroy {
           this.finished.emit(false);
         }
         this.startWork();
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     });
   }
@@ -84,29 +84,29 @@ export class FileFormComponent implements OnInit, OnDestroy {
         const data = event.data;
         if (!data) {
           worker.terminate();
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
           return;
         }
 
         switch (data.type) {
           case "progress":
             this.updateProgressBar(data.value, data.text);
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
             break;
 
           case "resultDifferential":
             this.processDifferentialResult(data, worker);
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
             break;
 
           case "resultRaw":
             this.processRawResult(data);
             worker.terminate();
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
             break;
 
           case "resultDifferentialCompleted":
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
             break;
         }
       };
@@ -132,7 +132,6 @@ export class FileFormComponent implements OnInit, OnDestroy {
     // Automatically match sample columns based on the pattern
     const regex = new RegExp(this.autoMatchSampleColumnsPattern);
     const matchedColumns = this.data.raw.df.getColumnNames().filter(name => regex.test(name));
-    console.log(matchedColumns);
     if (matchedColumns.length > 0) {
       this.data.rawForm.samples = matchedColumns;
       this.toast.show("Success", `Matched ${matchedColumns.length} sample columns.`);
@@ -200,8 +199,6 @@ export class FileFormComponent implements OnInit, OnDestroy {
    * Process raw result data from worker
    */
   private processRawResult(data: any): void {
-    console.log(data.settings.currentID);
-    console.log(data.raw);
 
     this.data.raw.df = fromJSON(data.raw);
 
@@ -214,7 +211,6 @@ export class FileFormComponent implements OnInit, OnDestroy {
     }
 
     this.data.conditions = data.conditions;
-    console.log(this.settings.settings);
 
     this.processUniProt();
   }
@@ -540,7 +536,6 @@ export class FileFormComponent implements OnInit, OnDestroy {
    * Process UniProt data if needed
    */
   async processUniProt(): Promise<void> {
-    console.log(this.data.fetchUniprot);
 
     if (this.data.fetchUniprot) {
       if (!this.data.bypassUniProt) {
@@ -617,7 +612,6 @@ export class FileFormComponent implements OnInit, OnDestroy {
           }
         }
       } catch (error) {
-        console.log(error);
       }
     }
 
@@ -776,7 +770,6 @@ export class FileFormComponent implements OnInit, OnDestroy {
           }
         }
       } catch (error) {
-        console.log(error);
       }
     }
 
@@ -805,6 +798,7 @@ export class FileFormComponent implements OnInit, OnDestroy {
     this.clicked = false;
     this.uniprot.parseStatus.set(false);
     this.updateProgressBar(100, "Finished");
+    this.cdr.detectChanges();
   }
 
   /**
@@ -848,7 +842,7 @@ export class FileFormComponent implements OnInit, OnDestroy {
       this.data.rawForm.primaryIDs = "";
       this.data.rawForm.samples = [];
     }
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   private async showUniprotErrorDialog(errorMessage: string): Promise<boolean> {

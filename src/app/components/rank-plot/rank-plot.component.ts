@@ -115,7 +115,7 @@ export class RankPlotComponent {
     effect(() => {
       const data = this.dataService.selectionUpdateTrigger();
       if (data) {
-        this.draw().then(() => this.cdr.markForCheck())
+        this.draw().then(() => this.cdr.detectChanges())
       }
     })
 
@@ -149,7 +149,7 @@ export class RankPlotComponent {
       this.themeService.mode();
       this.graphLayout = this.plotlyTheme.applyThemeToLayout(this.graphLayout);
       this.revision++;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
   }
 

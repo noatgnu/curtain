@@ -90,7 +90,7 @@ export class ProteinDomainPlotComponent {
       this.themeService.mode();
       this.updateLayout();
       this.revision++;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
   }
 
@@ -420,7 +420,7 @@ export class ProteinDomainPlotComponent {
 
     navigator.clipboard.writeText(text).then(() => {
       this.toast.show("Clipboard", "Domain data copied to clipboard").then();
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
   }
 

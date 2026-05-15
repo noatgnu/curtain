@@ -28,7 +28,7 @@ export class LoadPeptideCountDataModalComponent {
     reader.onload = (e: any) => {
       this.data = fromCSV(<string>e.target.result);
       this.columns = this.data.getColumnNames();
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     };
     reader.readAsText(file);
   }

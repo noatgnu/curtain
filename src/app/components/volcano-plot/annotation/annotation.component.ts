@@ -26,7 +26,7 @@ export class AnnotationComponent {
       this.dataService.annotationVisualUpdated();
       this.forms = []
       this.composeForms()
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 

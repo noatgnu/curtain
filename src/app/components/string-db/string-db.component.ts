@@ -86,7 +86,7 @@ export class StringDbComponent implements OnInit, OnDestroy {
           this.form.controls[i].setValue(this.colorMap[i])
         }
         this.form.markAsPristine()
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     })
   }

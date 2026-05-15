@@ -134,7 +134,7 @@ export class BatchSearchComponent implements OnInit, OnDestroy {
         if (this.categories.length > 0) {
           this.formCategories.controls["category"].setValue(this.categories[0])
         }
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     })
 
@@ -143,7 +143,7 @@ export class BatchSearchComponent implements OnInit, OnDestroy {
         this.accounts.curtainAPI.getDataFilterListByCategory(value).then((data: any) => {
           if (data) {
             this.subcategories = data.data.results
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
           }
         })
       }
@@ -195,7 +195,7 @@ export class BatchSearchComponent implements OnInit, OnDestroy {
       this.title = data.data.name
       this.canDelete = !data.data.default
       this.currentID = data.data.id
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 
@@ -279,7 +279,7 @@ export class BatchSearchComponent implements OnInit, OnDestroy {
       this.title = data.data.name
       this.canDelete = !data.data.default
       this.currentID = data.data.id
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
 
@@ -288,7 +288,7 @@ export class BatchSearchComponent implements OnInit, OnDestroy {
       this.title = ""
       this.data = ""
       this.currentID = -1
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     })
   }
   selectDataList(event: NgbTypeaheadSelectItemEvent) {

@@ -173,7 +173,7 @@ export class ProteinSelectionsComponent implements OnInit, OnDestroy {
       if (searchData) {
         const result = this.getPrimaryIDsDataFromBatch(searchData)
         this.searchResult.emit({data: result, title: searchData.title})
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     })
   }

@@ -80,7 +80,7 @@ export class SelectedDataDistributionPlotComponent implements OnInit {
       this.themeService.mode();
       this.updateLayout();
       this.revision++;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
   }
 
@@ -166,7 +166,7 @@ export class SelectedDataDistributionPlotComponent implements OnInit {
     } finally {
       this.loading = false;
       this.loadingMessage = '';
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 

@@ -200,24 +200,27 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
     }
   ]
   private setSubscription() {
-    console.log("set subscription")
-    this.webSub = this.ws.getEventMessages()?.subscribe((data: any) => {
-      data.message.timestamp = new Date(data.message.timestamp)
-      this.messagesList = [data].concat(this.messagesList)
-      this.senderMap[data.senderID] = data.senderName
-      if (data.requestType === "push-state-all-force") {
-        this.loadSentState(data.message.data)
+    this.webSub = this.ws.getEventMessages()?.subscribe({
+      next: (data: any) => {
+        data.message.timestamp = new Date(data.message.timestamp)
+        this.messagesList = [data].concat(this.messagesList)
+        this.senderMap[data.senderID] = data.senderName
+        if (data.requestType === "push-state-all-force") {
+          this.loadSentState(data.message.data)
+        }
+        if (!this.toggleChatPanel()) {
+          this.unreadCount.set(this.unreadCount() + 1)
+        }
+        this.chatbox?.nativeElement.scrollTo(0, this.chatbox.nativeElement.scrollHeight)
+      },
+      error: () => {
+        const message = {message: {message: "Connection error. Reconnecting...", timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
+        this.messagesList = [message].concat(this.messagesList)
+      },
+      complete: () => {
+        const message = {message: {message: "Disconnected from server", timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
+        this.messagesList = [message].concat(this.messagesList)
       }
-      if (!this.toggleChatPanel()) {
-        this.unreadCount.set(this.unreadCount() + 1)
-      }
-      this.chatbox?.nativeElement.scrollTo(0, this.chatbox.nativeElement.scrollHeight)
-    }, (error: any) => {
-      console.log(error)
-    }, () => {
-      const message = {message: {message: "Disconnected from server", timestamp: Date.now()}, senderID: "system", senderName: "System", requestType: "chat-system"}
-      this.messagesList = [message].concat(this.messagesList)
-      console.log("complete")
     })
   }
 
@@ -727,7 +730,6 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
   }
 
   saveStateCommand(command: string[]) {
-    console.log(command)
     if (command[0] === "!savestate") {
       if (command.length === 1) {
         const stateNumber = this.saveState.saveState()
@@ -851,7 +853,6 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
   }
 
   loadSentState(state: any) {
-    console.log(state)
     this.saveState.loadStateFromObject(state)
   }
 

@@ -42,6 +42,7 @@
           <thead class="table-light">
             <tr>
               <th scope="col">Link ID</th>
+              <th scope="col">Name</th>
               <th scope="col">Description</th>
               <th scope="col" style="width: 130px;">Status</th>
               <th scope="col" style="width: 180px;">Created</th>
@@ -56,8 +57,15 @@
                   </a>
                 </td>
                 <td>
+                  @if (session.name) {
+                    <span>{{session.name}}</span>
+                  } @else {
+                    <span class="text-muted fst-italic">Untitled</span>
+                  }
+                </td>
+                <td>
                   @if (session.description) {
-                    <div [innerHTML]="session.description" class="text-truncate" style="max-width: 400px;"></div>
+                    <div [innerHTML]="session.description" class="text-truncate" style="max-width: 300px;"></div>
                   } @else {
                     <span class="text-muted fst-italic">No description</span>
                   }

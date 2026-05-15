@@ -462,7 +462,7 @@ export class NetworkInteractionsComponent implements OnInit, OnDestroy {
     } else {
       this.toast.show("Network", `Network updated: ${this.networkStats.totalNodes} nodes, ${this.networkStats.totalEdges} edges`).then();
     }
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   handleSelect(e: string) {

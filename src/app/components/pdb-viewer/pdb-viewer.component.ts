@@ -56,7 +56,7 @@ export class PdbViewerComponent implements OnInit, AfterContentInit {
           this.entryID = data.data[0]["entryId"]
           this.alignmentError = data.data[0]["paeImageUrl"]
           this.cifLink = data.data[0]["cifUrl"]
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
           const molstar = new PDBeMolstarPlugin()
           const options = {
             customData: {

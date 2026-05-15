@@ -51,7 +51,7 @@ export class ColorByCategoryModalComponent implements OnInit, OnDestroy {
       if (value && this.data) {
         this.selectedColumn = value
         this.buildCategoryMap(value)
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     })
   }

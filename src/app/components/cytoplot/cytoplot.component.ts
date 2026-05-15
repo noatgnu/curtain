@@ -36,7 +36,7 @@ export class CytoplotComponent implements AfterViewInit, OnDestroy {
       if (this._drawData.data.length > 2) {
         this.componentID = this._drawData.id
         this.hidden = false
-        this.cdr.markForCheck()
+        this.cdr.detectChanges()
         setTimeout(() => {
           this.draw()
         }, 3000)
@@ -53,7 +53,7 @@ export class CytoplotComponent implements AfterViewInit, OnDestroy {
           this.cy.destroy();
           this.cy = null;
         }
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     });
   }
