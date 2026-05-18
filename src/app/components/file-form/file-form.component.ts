@@ -108,6 +108,12 @@ export class FileFormComponent implements OnInit, OnDestroy {
           case "resultDifferentialCompleted":
             this.cdr.detectChanges();
             break;
+
+          case "error":
+            worker.terminate();
+            this.toast.show("Processing Error", data.message || "An error occurred during data processing");
+            this.completeProcessing();
+            break;
         }
       };
 
