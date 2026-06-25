@@ -1,9 +1,10 @@
 .plotly-container {
-  width: 100%;
-  max-width: 100%;
-  overflow: visible;
+  position: relative;
+  z-index: 1;
 }
 
-::ng-deep .js-plotly-plot {
-  width: 100% !important;
+.settings-column {
+  position: relative;
+  z-index: 10;
+  background-color: var(--bs-body-bg);
 }

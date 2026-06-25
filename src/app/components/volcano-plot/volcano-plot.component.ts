@@ -147,7 +147,6 @@ export interface PlotlyConfig {
     scale: number;
     margin?: { r: number | null; l: number | null; b: number | null; t: number | null };
   };
-  responsive?: boolean;
   modeBarButtonsToAdd?: string[];
 }
 
@@ -175,7 +174,7 @@ export class VolcanoPlotComponent implements OnInit {
   revision = 0
   graphLayout: any = {
     editable: true,
-    height: 700,
+    height: 700, width: 700,
     margin: {r: null, l: null, b: null, t: null},
     xaxis: {
       title: {
@@ -219,12 +218,11 @@ export class VolcanoPlotComponent implements OnInit {
   }
   config: PlotlyConfig = {
     editable: this.editMode,
-    responsive: true,
     toImageButtonOptions: {
       format: 'svg',
       filename: this.graphLayout.title.text,
       height: this.graphLayout.height,
-      width: this.graphLayout.width || 700,
+      width: this.graphLayout.width,
       scale: 1
     }
   }
@@ -657,13 +655,9 @@ export class VolcanoPlotComponent implements OnInit {
   private configureLayoutDimensions(): void {
     if (this.settings.settings.volcanoPlotDimension.height) {
       this.graphLayout.height = this.settings.settings.volcanoPlotDimension.height
-    } else {
-      this.graphLayout.height = 700
     }
     if (this.settings.settings.volcanoPlotDimension.width) {
       this.graphLayout.width = this.settings.settings.volcanoPlotDimension.width
-    } else {
-      delete this.graphLayout.width
     }
     if (this.settings.settings.volcanoPlotDimension.margin) {
       for (const key in this.settings.settings.volcanoPlotDimension.margin) {
@@ -750,12 +744,11 @@ export class VolcanoPlotComponent implements OnInit {
   private updateConfig(): void {
     this.config = {
       editable: this.editMode,
-      responsive: true,
       toImageButtonOptions: {
         format: 'svg',
         filename: this.graphLayout.title.text,
         height: this.graphLayout.height,
-        width: this.graphLayout.width || 700,
+        width: this.graphLayout.width,
         scale: 1,
         margin: this.graphLayout.margin
       },
