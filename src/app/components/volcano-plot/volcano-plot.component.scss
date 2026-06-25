@@ -1,0 +1,9 @@
+.plotly-container {
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}
+
+::ng-deep .js-plotly-plot {
+  width: 100% !important;
+}
