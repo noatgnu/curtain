@@ -17,6 +17,18 @@ import {QuillViewComponent} from "ngx-quill";
 export class DataciteMetadataDisplayComponent {
   private _metadata: DataCiteMetadata|undefined
   contributorsString: string = ""
+  getDisplayName(person: any): string {
+    if (person.name) {
+      return person.name;
+    }
+    const family = person.familyName || "";
+    const given = person.givenName || "";
+    if (family && given) {
+      return `${family}, ${given}`;
+    }
+    return family || given || "";
+  }
+
   @Input() set metadata(value: DataCiteMetadata|undefined) {
     this._metadata = value
     let authors: string[] = []
@@ -24,12 +36,12 @@ export class DataciteMetadataDisplayComponent {
     if (this._metadata) {
       if (this._metadata.data.attributes.contributors.length > 0) {
         contributors = this._metadata.data.attributes.contributors.map((a) => {
-          return a.name
+          return this.getDisplayName(a)
         })
       }
       if (this._metadata.data.attributes.creators.length > 0) {
         authors = this._metadata.data.attributes.creators.map((a) => {
-          return a.name
+          return this.getDisplayName(a)
         })
       }
 

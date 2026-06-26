@@ -20,7 +20,7 @@
             <div class="d-flex flex-wrap gap-1 mt-1">
               @for (a of metadata.data.attributes.creators; track a) {
                 <span class="badge bg-primary" [ngbTooltip]="affiliation" placement="top">
-                <i class="bi bi-person-fill me-1"></i>{{a.name}}
+                <i class="bi bi-person-fill me-1"></i>{{getDisplayName(a)}}
               </span>
                 <ng-template #affiliation>
                   <div class="p-1">
@@ -40,7 +40,7 @@
               <div class="d-flex flex-wrap gap-1 mt-1">
                 @for (c of metadata.data.attributes.contributors; track c) {
                   <span class="badge bg-secondary" [ngbTooltip]="affiliationContributor" placement="top">
-                  <i class="bi bi-person me-1"></i>{{c.name}}
+                  <i class="bi bi-person me-1"></i>{{getDisplayName(c)}}
                 </span>
                   <ng-template #affiliationContributor>
                     <div class="p-1">
