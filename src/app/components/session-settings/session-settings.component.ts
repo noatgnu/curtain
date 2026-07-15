@@ -180,14 +180,9 @@ export class SessionSettingsComponent implements OnInit {
       }
     } else {
       const payload: any = {name: this.form.value["name"], enable: this.form.value["enable"]}
-      const encryption: CurtainEncryption = {
-        encrypted: this.settings.settings.encrypted,
-        e2e: this.settings.settings.encrypted,
-        publicKey: this.data.public_key,
-      }
 
       try {
-        const data = await this.accounts.curtainAPI.updateSession(payload, this.currentID, encryption)
+        const data = await this.accounts.curtainAPI.updateSession(payload, this.currentID)
         this.data.session = data.data
         this.toast.show("Success", "Session settings updated").then()
         this.isUpdating = false
