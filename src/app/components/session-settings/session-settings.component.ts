@@ -150,6 +150,7 @@ export class SessionSettingsComponent implements OnInit {
               name: this.form.value["name"],
               enable: this.form.value["enable"],
               encrypted: encryption.encrypted,
+              e2e: encryption.e2e,
               encryptedKey: encryptedKey,
               encryptedIV: encryptedIV,
               onProgress: (progress: number) => {

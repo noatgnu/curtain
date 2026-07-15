@@ -729,6 +729,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             curtain_type: "TP",
             permanent: permanent,
             encrypted: encryption.encrypted,
+            e2e: encryption.e2e,
             encryptedKey: encryptedKey,
             encryptedIV: encryptedIV,
             expiry_duration: expiryDuration,

@@ -818,6 +818,7 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
             curtain_type: "TP",
             permanent: this.session.data.permanent,
             encrypted: encryption.encrypted,
+            e2e: encryption.e2e,
             encryptedKey: encryptedKey,
             encryptedIV: encryptedIV,
             enable: !this.session.private,
