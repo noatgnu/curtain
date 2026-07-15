@@ -6,7 +6,15 @@ import {DataService} from "../../data.service";
 import {SettingsService} from "../../settings.service";
 import {ToastService} from "../../toast.service";
 import {AccountsService} from "../../accounts/accounts.service";
-import {CurtainEncryption} from "curtain-web-api";
+import {
+  CurtainEncryption,
+  generateAESKey,
+  encryptAESData,
+  encryptAESKey,
+  exportAESKey,
+  arrayBufferToBase64String,
+  base64ToArrayBuffer
+} from "curtain-web-api";
 import {UniprotService} from "../../uniprot.service";
 
 @Component({
@@ -108,13 +116,32 @@ export class SessionSettingsComponent implements OnInit {
           extraData: extraData
         }
 
+        const encryption: CurtainEncryption = {
+          encrypted: this.settings.settings.encrypted,
+          e2e: this.settings.settings.encrypted,
+          publicKey: this.data.public_key,
+        }
+
         const jsonString = JSON.stringify(fileData)
-        const blob = new Blob([jsonString], { type: 'application/json' })
-        const file = new File([blob], 'session_update.json', { type: 'application/json' })
+        const plainBlob = new Blob([jsonString], { type: 'application/json' })
 
         const CHUNK_THRESHOLD = 5 * 1024 * 1024
 
-        if (file.size > CHUNK_THRESHOLD) {
+        if (plainBlob.size > CHUNK_THRESHOLD) {
+          let fileBlob = plainBlob
+          let encryptedKey: string | undefined
+          let encryptedIV: string | undefined
+
+          if (encryption.encrypted && encryption.e2e && encryption.publicKey !== undefined) {
+            const aesKey = await generateAESKey()
+            const encryptedData = await encryptAESData(aesKey, jsonString)
+            encryptedKey = arrayBufferToBase64String(await encryptAESKey(encryption.publicKey, await exportAESKey(aesKey)))
+            encryptedIV = arrayBufferToBase64String(await encryptAESKey(encryption.publicKey, base64ToArrayBuffer(encryptedData.iv)))
+            fileBlob = new Blob([encryptedData.encrypted], { type: 'application/json' })
+          }
+
+          const file = new File([fileBlob], 'session_update.json', { type: 'application/json' })
+
           const result = await this.accounts.curtainAPI.uploadCurtainFileInChunks(
             file,
             1024 * 1024,
@@ -122,6 +149,9 @@ export class SessionSettingsComponent implements OnInit {
               link_id: this.currentID,
               name: this.form.value["name"],
               enable: this.form.value["enable"],
+              encrypted: encryption.encrypted,
+              encryptedKey: encryptedKey,
+              encryptedIV: encryptedIV,
               onProgress: (progress: number) => {
                 this.uploadProgress = progress
               }
@@ -129,11 +159,6 @@ export class SessionSettingsComponent implements OnInit {
           )
           this.data.session = result.curtain
         } else {
-          const encryption: CurtainEncryption = {
-            encrypted: this.settings.settings.encrypted,
-            e2e: this.settings.settings.encrypted,
-            publicKey: this.data.public_key,
-          }
           const payload: any = {
             file: fileData,
             name: this.form.value["name"],

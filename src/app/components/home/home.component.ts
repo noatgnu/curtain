@@ -700,12 +700,25 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.toast.show("User information", "Uploading session data", undefined, undefined, "upload").then()
 
     const jsonString = JSON.stringify(data, replacer)
-    const blob = new Blob([jsonString], { type: 'application/json' })
-    const file = new File([blob], 'curtain-settings.json', { type: 'application/json' })
+    const plainBlob = new Blob([jsonString], { type: 'application/json' })
 
     const CHUNK_THRESHOLD = 5 * 1024 * 1024
 
-    if (file.size > CHUNK_THRESHOLD) {
+    if (plainBlob.size > CHUNK_THRESHOLD) {
+      let fileBlob = plainBlob
+      let encryptedKey: string | undefined
+      let encryptedIV: string | undefined
+
+      if (encryption.encrypted && encryption.e2e && encryption.publicKey !== undefined) {
+        const aesKey = await generateAESKey()
+        const encryptedData = await encryptAESData(aesKey, jsonString)
+        encryptedKey = arrayBufferToBase64String(await encryptAESKey(encryption.publicKey, await exportAESKey(aesKey)))
+        encryptedIV = arrayBufferToBase64String(await encryptAESKey(encryption.publicKey, base64ToArrayBuffer(encryptedData.iv)))
+        fileBlob = new Blob([encryptedData.encrypted], { type: 'application/json' })
+      }
+
+      const file = new File([fileBlob], 'curtain-settings.json', { type: 'application/json' })
+
       try {
         const response = await this.accounts.curtainAPI.uploadCurtainFileInChunks(
           file,
@@ -716,6 +729,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             curtain_type: "TP",
             permanent: permanent,
             encrypted: encryption.encrypted,
+            encryptedKey: encryptedKey,
+            encryptedIV: encryptedIV,
             expiry_duration: expiryDuration,
             enable: !this.accounts.curtainAPI.user.loginStatus,
             onProgress: (progress: number) => {

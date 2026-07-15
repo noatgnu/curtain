@@ -10,7 +10,16 @@ import {DataService} from "../../../data.service";
 import {SettingsService} from "../../../settings.service";
 import {BatchUploadServiceService} from "../batch-upload-service.service";
 import {NgbAlert, NgbCollapse, NgbProgressbar} from "@ng-bootstrap/ng-bootstrap";
-import {CurtainEncryption, replacer} from "curtain-web-api";
+import {
+  CurtainEncryption,
+  replacer,
+  generateAESKey,
+  encryptAESData,
+  encryptAESKey,
+  exportAESKey,
+  arrayBufferToBase64String,
+  base64ToArrayBuffer
+} from "curtain-web-api";
 import {AccountsService} from "../../../accounts/accounts.service";
 import {ToastService} from "../../../toast.service";
 import {QuillEditorComponent} from "ngx-quill";
@@ -781,12 +790,25 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
     this.toast.show("User information", `Curtain link #${this.sessionId+1} is being submitted`).then()
 
     const jsonString = JSON.stringify(this.payload, replacer)
-    const blob = new Blob([jsonString], { type: 'application/json' })
-    const file = new File([blob], 'curtain-settings.json', { type: 'application/json' })
+    const plainBlob = new Blob([jsonString], { type: 'application/json' })
 
     const CHUNK_THRESHOLD = 5 * 1024 * 1024
 
-    if (file.size > CHUNK_THRESHOLD) {
+    if (plainBlob.size > CHUNK_THRESHOLD) {
+      let fileBlob = plainBlob
+      let encryptedKey: string | undefined
+      let encryptedIV: string | undefined
+
+      if (encryption.encrypted && encryption.e2e && encryption.publicKey !== undefined) {
+        const aesKey = await generateAESKey()
+        const encryptedData = await encryptAESData(aesKey, jsonString)
+        encryptedKey = arrayBufferToBase64String(await encryptAESKey(encryption.publicKey, await exportAESKey(aesKey)))
+        encryptedIV = arrayBufferToBase64String(await encryptAESKey(encryption.publicKey, base64ToArrayBuffer(encryptedData.iv)))
+        fileBlob = new Blob([encryptedData.encrypted], { type: 'application/json' })
+      }
+
+      const file = new File([fileBlob], 'curtain-settings.json', { type: 'application/json' })
+
       try {
         const response = await this.accounts.curtainAPI.uploadCurtainFileInChunks(
           file,
@@ -796,6 +818,8 @@ export class IndividualSessionComponent implements OnChanges, AfterViewInit, OnD
             curtain_type: "TP",
             permanent: this.session.data.permanent,
             encrypted: encryption.encrypted,
+            encryptedKey: encryptedKey,
+            encryptedIV: encryptedIV,
             enable: !this.session.private,
             onProgress: (progress: number) => {
               this.updateProgressBar(progress, `Uploading session data at ${Math.round(progress)}%`)
