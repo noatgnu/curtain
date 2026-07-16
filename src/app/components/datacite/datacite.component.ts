@@ -104,6 +104,7 @@ export class DataciteComponent {
   }
 
   nameTypes: string[] = ["Personal", "Organizational"]
+  contributorTypes: string[] = ["ContactPerson", "DataCollector", "DataCurator", "DataManager", "Distributor", "Editor", "HostingInstitution", "Producer", "ProjectLeader", "ProjectManager", "ProjectMember", "RegistrationAgency", "RegistrationAuthority", "RelatedPerson", "Researcher", "ResearchGroup", "RightsHolder", "Sponsor", "Supervisor", "WorkPackageLeader", "Other"]
   identifierTypes: string[] =  ["ARK", "arXiv", "bibcode", "DOI", "EAN13", "EISSN", "Handle", "IGSN", "ISBN", "ISSN", "ISTC", "LISSN", "LSID", "PMID", "PURL", "UPC", "URL", "URN", "w3id"]
   identifierRelationTypes: string[] = ["Cites", "IsCitedBy", "Compiles", "IsCompiledBy", "Continues", "IsContinuedBy", "Describes", "IsDescribedBy", "Documents", "IsDocumentedBy", "IsDerivedFrom", "IsSourceOf", "HasMetadata", "IsMetadataFor", "HasPart", "IsPartOf", "IsSupplementedBy", "IsSupplementTo", "Obsoletes", "IsObsoletedBy", "References", "IsReferencedBy", "Requires", "IsRequiredBy", "Reviews", "IsReviewedBy", "HasVersion", "IsVersionOf", "IsNewVersionOf", "IsPreviousVersionOf", "IsPublishedIn", "IsVariantFormOf", "IsOriginalFormOf", "IsIdenticalTo", "IsCollectedBy", "Collects"]
   resourceTypes: string[] = ["Audiovisual", "Collection", "DataPaper", "Dataset", "Event", "Image", "InteractiveResource", "Model", "PhysicalObject", "Service", "Software", "Sound", "Text", "Workflow", "Other"]
@@ -189,7 +190,7 @@ export class DataciteComponent {
           ]
         ),
         nameType: ["Personal", Validators.required],
-
+        contributorType: ["Researcher", Validators.required],
       })
       ]),
     descriptions: this.fb.array([
@@ -617,6 +618,7 @@ export class DataciteComponent {
         ]
       ),
       nameType: ["Personal", Validators.required],
+      contributorType: ["Researcher", Validators.required],
     })
     form.controls.nameIdentifiers.controls[0].controls.nameIdentifier.valueChanges.subscribe((value) => {
       if (!value) {
