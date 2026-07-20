@@ -436,18 +436,24 @@ export class DataciteComponent {
     }
 
     if (dataCiteMetadata.relatedIdentifiers) {
-      for (let i = 0; i < dataCiteMetadata.relatedIdentifiers.length; i++) {
-        if (dataCiteMetadata.relatedIdentifiers[i].relationType !== "HasMetadata" && dataCiteMetadata.relatedIdentifiers[i].relationType !== "IsMetadataFor") {
-          delete dataCiteMetadata.relatedIdentifiers[i].relatedMetadataScheme
-          delete dataCiteMetadata.relatedIdentifiers[i].schemeUri
-          delete dataCiteMetadata.relatedIdentifiers[i].schemeType
-        } else {
-          if (dataCiteMetadata.relatedIdentifiers[i].relatedMetadataScheme === "" || dataCiteMetadata.relatedIdentifiers[i].schemeUri === "" || dataCiteMetadata.relatedIdentifiers[i].schemeType === "" || dataCiteMetadata.relatedIdentifiers[i].relatedIdentifier === "") {
-            this.toastService.show("DOI Form Error", "Please fill in all fields for metadata related identifiers", 5000, "error").then()
-            return;
+      dataCiteMetadata.relatedIdentifiers = dataCiteMetadata.relatedIdentifiers.filter(
+        (ri: any) => ri.relatedIdentifier !== "" && ri.relatedIdentifierType !== "" && ri.relationType !== ""
+      )
+      if (dataCiteMetadata.relatedIdentifiers.length === 0) {
+        delete dataCiteMetadata.relatedIdentifiers
+      } else {
+        for (let i = 0; i < dataCiteMetadata.relatedIdentifiers.length; i++) {
+          if (dataCiteMetadata.relatedIdentifiers[i].relationType !== "HasMetadata" && dataCiteMetadata.relatedIdentifiers[i].relationType !== "IsMetadataFor") {
+            delete dataCiteMetadata.relatedIdentifiers[i].relatedMetadataScheme
+            delete dataCiteMetadata.relatedIdentifiers[i].schemeUri
+            delete dataCiteMetadata.relatedIdentifiers[i].schemeType
+          } else {
+            if (dataCiteMetadata.relatedIdentifiers[i].relatedMetadataScheme === "" || dataCiteMetadata.relatedIdentifiers[i].schemeUri === "" || dataCiteMetadata.relatedIdentifiers[i].schemeType === "" || dataCiteMetadata.relatedIdentifiers[i].relatedIdentifier === "") {
+              this.toastService.show("DOI Form Error", "Please fill in all fields for metadata related identifiers", 5000, "error").then()
+              return;
+            }
           }
         }
-
       }
     }
     if (this.form_additional_data.invalid) {
