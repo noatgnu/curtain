@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { RankPlotTextAnnotationComponent } from './rank-plot-text-annotation.component';
 
@@ -6,9 +7,17 @@ describe('RankPlotTextAnnotationComponent', () => {
   let component: RankPlotTextAnnotationComponent;
   let fixture: ComponentFixture<RankPlotTextAnnotationComponent>;
 
+  const mockActiveModal = {
+    dismiss: jasmine.createSpy('dismiss'),
+    close: jasmine.createSpy('close')
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RankPlotTextAnnotationComponent ]
+      declarations: [ RankPlotTextAnnotationComponent ],
+      providers: [
+        { provide: NgbActiveModal, useValue: mockActiveModal }
+      ]
     })
     .compileComponents();
 

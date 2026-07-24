@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { WebService } from '../../web.service';
 import { AccountsService } from '../accounts.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -50,6 +50,7 @@ interface ApiError {
   selector: 'app-accounts',
   templateUrl: './accounts.component.html',
   styleUrls: ['./accounts.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class AccountsComponent implements OnInit, OnDestroy {

@@ -42,6 +42,7 @@ export class SelectiveImportDialogComponent implements OnInit {
         this.parsedState = parsed;
       }
     } catch (e) {
+      this.parsedState = null;
       this.parseError = 'Invalid JSON file format';
     }
   }

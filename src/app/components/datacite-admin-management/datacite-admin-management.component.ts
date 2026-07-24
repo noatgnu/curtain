@@ -50,7 +50,9 @@ export class DataciteAdminManagementComponent implements OnDestroy {
         this.dataCiteDraftQuery = data.data
         this.cdr.detectChanges();
       }
-    )
+    ).catch((error) => {
+      console.error('Failed to load DataCite entries:', error);
+    })
     this.searchForm.controls.searchTerm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       this.changed(this.activeID, value)
     })

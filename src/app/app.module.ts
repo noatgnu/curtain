@@ -9,7 +9,7 @@ import { HomeComponent } from './components/home/home.component';
 import { FileInputWidgetComponent } from './components/file-input-widget/file-input-widget.component';
 import { FileFormComponent } from './components/file-form/file-form.component';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import { HttpClient, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import { HttpClient, provideHttpClient, withInterceptorsFromDi, withXhr } from "@angular/common/http";
 import { VolcanoPlotComponent } from './components/volcano-plot/volcano-plot.component';
 import { VolcanoAndCytoComponent } from './components/volcano-and-cyto/volcano-and-cyto.component';
 import { CytoplotComponent } from './components/cytoplot/cytoplot.component';
@@ -168,5 +168,5 @@ import { SelectiveImportDialogComponent } from './components/selective-import-di
     AnnotationComponent,
     ShapesComponent,
     DataciteMetadataDisplayComponent,
-    DragDropModule], providers: [HttpClient, provideHttpClient(withInterceptorsFromDi()), StringNetworkService, provideZonelessChangeDetection()] })
+    DragDropModule], providers: [HttpClient, provideHttpClient(withXhr(), withInterceptorsFromDi()), StringNetworkService, provideZonelessChangeDetection()] })
 export class AppModule { }

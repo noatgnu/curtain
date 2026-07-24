@@ -80,6 +80,8 @@ export class CurtainStatsSummaryComponent {
       this.graphLayoutDownload = this.plotlyTheme.applyThemeToLayout(this.graphLayoutDownload);
       this.graphLayoutCreated = this.plotlyTheme.applyThemeToLayout(this.graphLayoutCreated);
       this.cdr.detectChanges();
+    }).catch((error) => {
+      console.error('Failed to load stats summary:', error);
     })
     effect(() => {
       this.themeService.mode();
