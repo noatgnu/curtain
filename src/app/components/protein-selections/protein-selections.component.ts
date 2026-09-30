@@ -6,7 +6,6 @@ import {BatchSearchComponent} from "../batch-search/batch-search.component";
 import {UniprotService} from "../../uniprot.service";
 import {DataFrame, IDataFrame} from "data-forge";
 import {Settings} from "../../classes/settings";
-import {SettingsService} from "../../settings.service";
 
 export interface selectionData {
   data: string[];
@@ -116,11 +115,9 @@ export class ProteinSelectionsComponent implements OnInit, OnDestroy {
 
       } else {
         if (data.params.significantOnly) {
-          const pCutoff = -(Math.log10(this.settings.settings.pCutoff))
           const df = this.data.currentDF.where(
             r => result.includes(r[this.data.differentialForm.primaryIDs]) &&
-              (r[this.data.differentialForm.significant] >= pCutoff) &&
-              (Math.abs(r[this.data.differentialForm.foldChange]) > this.settings.settings.log2FCCutoff)).bake()
+              this.data.isSignificant(r[this.data.differentialForm.foldChange], r[this.data.differentialForm.significant])).bake()
           result = df.getSeries(this.data.differentialForm.primaryIDs).bake().toArray()
         }
       }
@@ -167,7 +164,7 @@ export class ProteinSelectionsComponent implements OnInit, OnDestroy {
 
 
 
-  constructor(public data: DataService, private modal: NgbModal, private uniprot: UniprotService, private settings: SettingsService, private cdr: ChangeDetectorRef) {
+  constructor(public data: DataService, private modal: NgbModal, private uniprot: UniprotService, private cdr: ChangeDetectorRef) {
     effect(() => {
       const searchData = this.data.searchCommand();
       if (searchData) {

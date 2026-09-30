@@ -418,8 +418,10 @@ export class NetworkInteractionsComponent implements OnInit, OnDestroy {
         classes += " noChange";
       }
 
-      const significant = df.getSeries(this.data.differentialForm.significant).bake().max();
-      if (significant >= -Math.log10(this.settings.settings.pCutoff)) {
+      const significant = this.data.isCurveMode()
+        ? df.any(r => this.data.isSignificant(r[this.data.differentialForm.foldChange], r[this.data.differentialForm.significant]))
+        : df.getSeries(this.data.differentialForm.significant).bake().max() >= -Math.log10(this.settings.settings.pCutoff);
+      if (significant) {
         classes += " significant";
         this.networkStats.significantNodes++;
       } else {
