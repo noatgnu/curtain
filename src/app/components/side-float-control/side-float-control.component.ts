@@ -383,9 +383,9 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
       case '-sig':
         for (const row of this.data.differential.df) {
           const pid = row[this.data.differentialForm.primaryIDs]
-          const fc = Math.abs(row[this.data.differentialForm.foldChange])
+          const fc = row[this.data.differentialForm.foldChange]
           const pval = row[this.data.differentialForm.significant]
-          if (fc >= this.settings.settings.log2FCCutoff && pval <= this.settings.settings.pCutoff) {
+          if (this.data.isSignificant(fc, pval)) {
             if (!this.data.selected.includes(pid)) {
               this.data.selected.push(pid)
               count++
@@ -401,7 +401,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
           const pid = row[this.data.differentialForm.primaryIDs]
           const fc = row[this.data.differentialForm.foldChange]
           const pval = row[this.data.differentialForm.significant]
-          if (fc >= this.settings.settings.log2FCCutoff && pval <= this.settings.settings.pCutoff) {
+          if (fc > 0 && this.data.isSignificant(fc, pval)) {
             if (!this.data.selected.includes(pid)) {
               this.data.selected.push(pid)
               count++
@@ -417,7 +417,7 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
           const pid = row[this.data.differentialForm.primaryIDs]
           const fc = row[this.data.differentialForm.foldChange]
           const pval = row[this.data.differentialForm.significant]
-          if (fc <= -this.settings.settings.log2FCCutoff && pval <= this.settings.settings.pCutoff) {
+          if (fc < 0 && this.data.isSignificant(fc, pval)) {
             if (!this.data.selected.includes(pid)) {
               this.data.selected.push(pid)
               count++
@@ -530,13 +530,13 @@ export class SideFloatControlComponent implements OnInit, OnDestroy {
       case '-sig':
         let sigCount = 0
         for (const row of this.data.differential.df) {
-          const fc = Math.abs(row[this.data.differentialForm.foldChange])
+          const fc = row[this.data.differentialForm.foldChange]
           const pval = row[this.data.differentialForm.significant]
-          if (fc >= this.settings.settings.log2FCCutoff && pval <= this.settings.settings.pCutoff) {
+          if (this.data.isSignificant(fc, pval)) {
             sigCount++
           }
         }
-        this.addSystemMessage(`Significant proteins: ${sigCount} (FC >= ${this.settings.settings.log2FCCutoff}, p <= ${this.settings.settings.pCutoff})`)
+        this.addSystemMessage(`Significant proteins: ${sigCount} (${this.data.cutoffDescription()})`)
         break
 
       case '-selected':

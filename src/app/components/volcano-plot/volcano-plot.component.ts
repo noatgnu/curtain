@@ -257,18 +257,19 @@ export class VolcanoPlotComponent implements OnInit {
     const currentColors = this.getUsedColors()
     this.initializeColorPosition(currentColors)
 
-    const fdrCurve = this.getFdrCurve()
     const traces = this.initializeTraces(currentColors)
 
     this.configureAxisRanges()
     this.configureAxisTitles()
+    const fdrCurve = this.getFdrCurve()
 
     this.populateTraces(traces)
     const graphData = this.buildGraphData(traces)
 
+    this.graphLayout.shapes = []
     if (fdrCurve.count() > 0) {
       this.addFdrCurves(fdrCurve, graphData)
-    } else {
+    } else if (!this.dataService.isCurveMode()) {
       this.graphLayout.shapes = this.buildCutoffShapes()
     }
 
@@ -322,6 +323,11 @@ export class VolcanoPlotComponent implements OnInit {
   }
 
   private getFdrCurve(): IDataFrame {
+    if (this.dataService.isCurveMode()) {
+      const xMax = Math.max(Math.abs(this.graphLayout.xaxis.range![0]), Math.abs(this.graphLayout.xaxis.range![1]))
+      const yMax = this.graphLayout.yaxis.range![1]
+      return new DataFrame(this.dataService.getVolcanoCurve().generate(xMax, yMax))
+    }
     if (this.settings.settings.fdrCurveTextEnable && this.settings.settings.fdrCurveText !== "") {
       return fromCSV(this.settings.settings.fdrCurveText)
     }
