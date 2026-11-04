@@ -33,7 +33,7 @@ export class UniprotService {
   async UniprotParserJS(accList: string[]): Promise<{success: boolean, error?: string}> {
     const parser = new Parser(5, "accession,id,gene_names,protein_name,organism_name,organism_id,length,xref_refseq,cc_subcellular_location,sequence,ft_var_seq,cc_alternative_products,cc_function,ft_domain,xref_string,cc_disease,cc_pharmaceutical,ft_mutagen")
     try {
-      const res = await parser.parse(accList, 5000)
+      const res = await parser.parse(accList, 1000)
       let currentRun = 1
       let totalRun = 0
       let currentSegment = 0
