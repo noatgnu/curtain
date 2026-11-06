@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1793816919404,
+  "timestamp": 1793975491979,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -11,11 +11,11 @@
         "ignoreVary": true
       },
       "urls": [
-        "/chunk-CKHHpZTp.js",
-        "/chunk-qDSY2egT.js",
+        "/chunk-Dx3SEaoz.js",
+        "/chunk-LQDNPlFo.js",
         "/favicon.ico",
         "/index.html",
-        "/main-N34BRIEM.js",
+        "/main-KXSUIZN6.js",
         "/manifest.webmanifest",
         "/polyfills-IH6WGJLB.js",
         "/scripts-TSGU23AO.js",
@@ -121,11 +121,11 @@
     "/assets/proteinLists/pd.txt": "915c4a708c5dc7227d0b8fdc5eb51b17b2342746",
     "/assets/proteinLists/phosphatases.txt": "c350ec4656fee8be08c7dead8fdd42a0cd20e350",
     "/assets/proteinLists/pink1.txt": "6b73c270d0407981851903bae49a622c0c22e0f8",
-    "/chunk-CKHHpZTp.js": "450dea31454746c103c7e686144e499a4eafb0ab",
-    "/chunk-qDSY2egT.js": "1154c93ba95803d2255fc87216f4df81365c71de",
+    "/chunk-Dx3SEaoz.js": "38a1b5ba7c4480174a5c698c846e530019778e0d",
+    "/chunk-LQDNPlFo.js": "d249ef971f223a2782a3bdf0b345dac6a5f4dd21",
     "/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/index.html": "9f573e8f38a2eea2454a3bd972fbe5851bce9e24",
-    "/main-N34BRIEM.js": "372d962a496622d86d258ae6a8be4f2f45ddd522",
+    "/index.html": "f5042ee65761ffb200714b70933b6fa8d8636662",
+    "/main-KXSUIZN6.js": "f4f34ebd0fa411cef3255418f3f5014e8cea38fa",
     "/manifest.webmanifest": "0f6d8f1c753e9f503daf4cd303ebecc6b0b0a04b",
     "/polyfills-IH6WGJLB.js": "960a2fe0962101aae4da2dc4d064684c634167ff",
     "/scripts-TSGU23AO.js": "e172440274ca0257fbf1b7e414f5bd41b03b202f",
