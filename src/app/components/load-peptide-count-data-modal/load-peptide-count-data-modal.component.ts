@@ -50,4 +50,28 @@ export class LoadPeptideCountDataModalComponent {
     this.activeModal.dismiss()
   }
 
+  checkIfThereIsPeptideCountData() {
+    return this.settingsService.settings.peptideCountData && Object.keys(this.settingsService.settings.peptideCountData).length > 0;
+  }
+
+  downloadPeptideCount() {
+    this.fileContent = '';
+    //reconstruct peptide data file from settingsService.settings.peptideCountData
+    this.peptideCountData = this.settingsService.settings.peptideCountData;
+    this.sampleColumns = Object.keys(this.peptideCountData[Object.keys(this.peptideCountData)[0]]);
+    const header = ['PrimaryID', ...this.sampleColumns];
+    this.fileContent += header.join(',') + '\n';
+    for (const primaryId in this.peptideCountData) {
+      const row = [primaryId, ...this.sampleColumns.map(sampleColumn => this.peptideCountData[primaryId][sampleColumn])];
+      this.fileContent += row.join(',') + '\n';
+    }
+    const blob = new Blob([this.fileContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'peptide_count_data.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
 }

@@ -26,4 +26,7 @@
 <div class="modal-footer">
   <button type="button" class="btn btn-primary" (click)="onSubmit()">Load Data</button>
   <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+  @if (peptideCountData) {
+    <button type="button" class="btn btn-secondary" (click)="downloadPeptideCount()">Download Peptide Count Data</button>
+  }
 </div>
